@@ -1,0 +1,862 @@
+"use client";
+
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
+
+type TrainingSession = {
+  id: string;
+  coach_id: string;
+  team_id: string;
+  title: string;
+  session_date: string;
+  start_time: string | null;
+  training_type: "water" | "land";
+  duration_minutes: number | null;
+  total_meters: number | null;
+  focus: string | null;
+};
+
+type Team = {
+  id: string;
+  name: string;
+};
+
+type TeamMember = {
+  athlete_id: string;
+};
+
+type AthleteProfile = {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+};
+
+type TrainingFeedback = {
+  id: string;
+  athlete_id: string;
+  rpe: number;
+  comment: string | null;
+  completed: boolean;
+};
+
+type AthleteFeedbackRow = {
+  athleteId: string;
+  name: string;
+  hasName: boolean;
+  rpe: number | null;
+  comment: string | null;
+  completed: boolean;
+};
+
+function formatDate(dateString: string) {
+  const date = new Date(`${dateString}T12:00:00`);
+
+  return date.toLocaleDateString("de-DE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function getAthleteDisplay(
+  profile: AthleteProfile | undefined
+) {
+  if (!profile) {
+    return {
+      name: "Athlet",
+      hasName: false,
+    };
+  }
+
+  const fullName = [
+    profile.first_name,
+    profile.last_name,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  if (!fullName) {
+    return {
+      name: "Athlet",
+      hasName: false,
+    };
+  }
+
+  return {
+    name: fullName,
+    hasName: true,
+  };
+}
+
+function getRpeText(rpe: number) {
+  if (rpe <= 2) {
+    return "Sehr leicht";
+  }
+
+  if (rpe <= 4) {
+    return "Leicht";
+  }
+
+  if (rpe <= 6) {
+    return "Mittel";
+  }
+
+  if (rpe <= 8) {
+    return "Anstrengend";
+  }
+
+  return "Sehr anstrengend";
+}
+
+export default function CoachTrainingSessionPage() {
+  const params = useParams();
+
+  const trainingId =
+    typeof params.id === "string"
+      ? params.id
+      : "";
+
+  const [
+    training,
+    setTraining,
+  ] = useState<TrainingSession | null>(
+    null
+  );
+
+  const [
+    team,
+    setTeam,
+  ] = useState<Team | null>(
+    null
+  );
+
+  const [
+    athletes,
+    setAthletes,
+  ] = useState<AthleteProfile[]>(
+    []
+  );
+
+  const [
+    members,
+    setMembers,
+  ] = useState<TeamMember[]>(
+    []
+  );
+
+  const [
+    feedback,
+    setFeedback,
+  ] = useState<TrainingFeedback[]>(
+    []
+  );
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    message,
+    setMessage,
+  ] = useState("");
+
+  useEffect(() => {
+    if (!trainingId) {
+      return;
+    }
+
+    loadPage();
+  }, [trainingId]);
+
+  async function loadPage() {
+    setLoading(true);
+    setMessage("");
+
+    const {
+      data: { user },
+      error: userError,
+    } =
+      await supabase.auth.getUser();
+
+    if (
+      userError ||
+      !user
+    ) {
+      setMessage(
+        "Coach konnte nicht geladen werden."
+      );
+
+      setLoading(false);
+      return;
+    }
+
+    const {
+      data: trainingData,
+      error: trainingError,
+    } =
+      await supabase
+        .from(
+          "training_sessions"
+        )
+        .select(`
+          id,
+          coach_id,
+          team_id,
+          title,
+          session_date,
+          start_time,
+          training_type,
+          duration_minutes,
+          total_meters,
+          focus
+        `)
+        .eq(
+          "id",
+          trainingId
+        )
+        .eq(
+          "coach_id",
+          user.id
+        )
+        .maybeSingle();
+
+    if (
+      trainingError ||
+      !trainingData
+    ) {
+      setMessage(
+        "Diese Trainingseinheit konnte nicht geladen werden."
+      );
+
+      setLoading(false);
+      return;
+    }
+
+    const currentTraining =
+      trainingData as TrainingSession;
+
+    setTraining(
+      currentTraining
+    );
+
+    const {
+      data: teamData,
+      error: teamError,
+    } =
+      await supabase
+        .from("teams")
+        .select(`
+          id,
+          name
+        `)
+        .eq(
+          "id",
+          currentTraining.team_id
+        )
+        .eq(
+          "coach_id",
+          user.id
+        )
+        .maybeSingle();
+
+    if (teamError) {
+      setMessage(
+        `Team konnte nicht geladen werden: ${teamError.message}`
+      );
+
+      setLoading(false);
+      return;
+    }
+
+    if (teamData) {
+      setTeam(
+        teamData as Team
+      );
+    }
+
+    const {
+      data: memberData,
+      error: memberError,
+    } =
+      await supabase
+        .from(
+          "team_members"
+        )
+        .select(`
+          athlete_id
+        `)
+        .eq(
+          "team_id",
+          currentTraining.team_id
+        );
+
+    if (memberError) {
+      setMessage(
+        `Teammitglieder konnten nicht geladen werden: ${memberError.message}`
+      );
+
+      setLoading(false);
+      return;
+    }
+
+    const currentMembers =
+      (memberData ??
+        []) as TeamMember[];
+
+    setMembers(
+      currentMembers
+    );
+
+    const athleteIds =
+      currentMembers.map(
+        (member) =>
+          member.athlete_id
+      );
+
+    if (
+      athleteIds.length > 0
+    ) {
+      const {
+        data: athleteData,
+        error: athleteError,
+      } =
+        await supabase
+          .from("profiles")
+          .select(`
+            id,
+            first_name,
+            last_name
+          `)
+          .in(
+            "id",
+            athleteIds
+          );
+
+      if (athleteError) {
+        setMessage(
+          `Athleten konnten nicht geladen werden: ${athleteError.message}`
+        );
+
+        setLoading(false);
+        return;
+      }
+
+      setAthletes(
+        (athleteData ??
+          []) as AthleteProfile[]
+      );
+    } else {
+      setAthletes([]);
+    }
+
+    const {
+      data: feedbackData,
+      error: feedbackError,
+    } =
+      await supabase
+        .from(
+          "training_feedback"
+        )
+        .select(`
+          id,
+          athlete_id,
+          rpe,
+          comment,
+          completed
+        `)
+        .eq(
+          "training_session_id",
+          trainingId
+        );
+
+    if (feedbackError) {
+      setMessage(
+        `Rückmeldungen konnten nicht geladen werden: ${feedbackError.message}`
+      );
+
+      setLoading(false);
+      return;
+    }
+
+    setFeedback(
+      (feedbackData ??
+        []) as TrainingFeedback[]
+    );
+
+    setLoading(false);
+  }
+
+  const athleteRows =
+    useMemo<AthleteFeedbackRow[]>(
+      () => {
+        return members.map(
+          (member) => {
+            const profile =
+              athletes.find(
+                (athlete) =>
+                  athlete.id ===
+                  member.athlete_id
+              );
+
+            const athleteFeedback =
+              feedback.find(
+                (entry) =>
+                  entry.athlete_id ===
+                    member.athlete_id &&
+                  entry.completed
+              );
+
+            const display =
+              getAthleteDisplay(
+                profile
+              );
+
+            return {
+              athleteId:
+                member.athlete_id,
+
+              name:
+                display.name,
+
+              hasName:
+                display.hasName,
+
+              rpe:
+                athleteFeedback?.rpe ??
+                null,
+
+              comment:
+                athleteFeedback?.comment ??
+                null,
+
+              completed:
+                Boolean(
+                  athleteFeedback
+                ),
+            };
+          }
+        );
+      },
+      [
+        members,
+        athletes,
+        feedback,
+      ]
+    );
+
+  const completedFeedback =
+    athleteRows.filter(
+      (athlete) =>
+        athlete.completed &&
+        athlete.rpe !== null
+    );
+
+  const averageRpe =
+    useMemo(() => {
+      if (
+        completedFeedback.length ===
+        0
+      ) {
+        return null;
+      }
+
+      const total =
+        completedFeedback.reduce(
+          (sum, athlete) =>
+            sum +
+            (athlete.rpe ?? 0),
+          0
+        );
+
+      return (
+        total /
+        completedFeedback.length
+      );
+    }, [completedFeedback]);
+
+  const averageRpeText =
+    averageRpe !== null
+      ? getRpeText(
+          averageRpe
+        )
+      : null;
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-sm text-slate-400">
+            Training wird geladen...
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!training) {
+    return (
+      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="rounded-2xl border border-red-900 bg-red-950/30 p-5 text-sm text-red-300">
+            {message ||
+              "Training konnte nicht geladen werden."}
+          </div>
+
+          <Link
+            href="/coach/training"
+            className="mt-5 inline-block text-sm text-slate-400 transition hover:text-white"
+          >
+            ← Zurück zum Training
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-white">
+      <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
+        <Link
+          href="/coach/training"
+          className="text-sm text-slate-400 transition hover:text-white"
+        >
+          ← Zurück zum Training
+        </Link>
+
+        <header className="mt-4 flex flex-col gap-4 border-b border-slate-800 pb-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-400">
+              {team?.name ??
+                "Trainingseinheit"}
+            </p>
+
+            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+              {training.title}
+            </h1>
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+              <span>
+                {formatDate(
+                  training.session_date
+                )}
+              </span>
+
+              {training.start_time && (
+                <>
+                  <span className="hidden text-slate-700 sm:inline">
+                    •
+                  </span>
+
+                  <span>
+                    {training.start_time.slice(
+                      0,
+                      5
+                    )}{" "}
+                    Uhr
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
+          <Link
+            href={`/coach/training/new?session=${training.id}`}
+            className="w-full rounded-xl border border-slate-700 px-4 py-2.5 text-center text-sm font-medium transition hover:bg-slate-900 md:w-auto"
+          >
+            Training bearbeiten
+          </Link>
+        </header>
+
+        {message && (
+          <div className="mt-4 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+            {message}
+          </div>
+        )}
+
+        <section className="mt-5">
+          <div className="mb-2 flex items-center gap-2">
+            <h2 className="text-lg font-semibold">
+              Belastung
+            </h2>
+
+            <span className="text-slate-600">
+              ↔
+            </span>
+
+            <h2 className="text-lg font-semibold">
+              Beanspruchung
+            </h2>
+          </div>
+
+          <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">
+                    Äußere Belastung
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-400">
+                    Geplante Trainingsanforderung
+                  </p>
+                </div>
+
+                <span
+                  className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                    training.training_type ===
+                    "water"
+                      ? "bg-blue-950 text-blue-300"
+                      : "bg-emerald-950 text-emerald-300"
+                  }`}
+                >
+                  {training.training_type ===
+                  "water"
+                    ? "Wasser"
+                    : "Land"}
+                </span>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-slate-500">
+                    Umfang
+                  </p>
+
+                  <p className="mt-1 text-2xl font-bold tracking-tight">
+                    {training.training_type ===
+                      "water" &&
+                    training.total_meters !==
+                      null
+                      ? `${training.total_meters.toLocaleString(
+                          "de-DE"
+                        )} m`
+                      : "—"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-xs text-slate-500">
+                    Dauer
+                  </p>
+
+                  <p className="mt-1 text-2xl font-bold tracking-tight">
+                    {training.duration_minutes !==
+                    null
+                      ? `${training.duration_minutes} min`
+                      : "—"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 border-t border-slate-800 pt-3">
+                <p className="text-xs text-slate-500">
+                  Trainingsfokus
+                </p>
+
+                <p className="mt-1 text-sm font-medium text-slate-200">
+                  {training.focus ||
+                    "—"}
+                </p>
+              </div>
+            </div>
+
+            <div className="hidden items-center justify-center px-1 lg:flex">
+              <span
+                aria-hidden="true"
+                className="text-xl text-slate-600"
+              >
+                ↔
+              </span>
+            </div>
+
+            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-slate-500">
+                  Innere Beanspruchung
+                </p>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  Subjektive Reaktion der Athleten
+                </p>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-xs text-slate-500">
+                    Ø RPE
+                  </p>
+
+                  <div className="mt-1 flex items-baseline gap-1.5">
+                    <span className="text-2xl font-bold tracking-tight text-amber-300">
+                      {averageRpe !==
+                      null
+                        ? averageRpe.toLocaleString(
+                            "de-DE",
+                            {
+                              minimumFractionDigits:
+                                1,
+                              maximumFractionDigits:
+                                1,
+                            }
+                          )
+                        : "—"}
+                    </span>
+
+                    {averageRpe !==
+                      null && (
+                      <span className="text-sm text-slate-500">
+                        / 10
+                      </span>
+                    )}
+                  </div>
+
+                  {averageRpeText && (
+                    <p className="mt-1 text-xs text-slate-400">
+                      {
+                        averageRpeText
+                      }
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <p className="text-xs text-slate-500">
+                    Rückmeldungen
+                  </p>
+
+                  <p className="mt-1 text-2xl font-bold tracking-tight">
+                    {
+                      completedFeedback.length
+                    }{" "}
+                    /{" "}
+                    {
+                      athleteRows.length
+                    }
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-400">
+                    abgegeben
+                  </p>
+                </div>
+              </div>
+
+              <p className="mt-3 border-t border-slate-800 pt-3 text-xs leading-5 text-slate-500">
+                RPE = subjektiv wahrgenommene Anstrengung des Athleten.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-5 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
+          <div className="flex flex-col gap-1 border-b border-slate-800 px-4 py-3 sm:px-5">
+            <h2 className="font-semibold">
+              Athleten-Rückmeldungen
+            </h2>
+
+            <p className="text-xs text-slate-500">
+              Individuelle Beanspruchung nach der Trainingseinheit
+            </p>
+          </div>
+
+          {athleteRows.length ===
+          0 ? (
+            <div className="px-5 py-6 text-center text-sm text-slate-500">
+              Diesem Team sind aktuell keine Athleten zugeordnet.
+            </div>
+          ) : (
+            <>
+              <div className="hidden grid-cols-[minmax(180px,1fr)_150px_2fr] gap-4 border-b border-slate-800 bg-slate-950/50 px-5 py-2 text-xs font-medium uppercase tracking-wide text-slate-600 md:grid">
+                <div>
+                  Athlet
+                </div>
+
+                <div>
+                  RPE
+                </div>
+
+                <div>
+                  Notiz
+                </div>
+              </div>
+
+              <div className="divide-y divide-slate-800">
+                {athleteRows.map(
+                  (athlete) => (
+                    <div
+                      key={
+                        athlete.athleteId
+                      }
+                      className="grid gap-2.5 px-4 py-3 sm:px-5 md:grid-cols-[minmax(180px,1fr)_150px_2fr] md:items-center md:gap-4"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-slate-100">
+                          {
+                            athlete.name
+                          }
+                        </p>
+
+                        {athlete.hasName && (
+                          <p className="mt-0.5 text-xs text-slate-600">
+                            Athlet
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        {athlete.rpe !==
+                        null ? (
+                          <div className="flex items-center gap-2 md:block">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-lg font-bold text-amber-300">
+                                {
+                                  athlete.rpe
+                                }
+                              </span>
+
+                              <span className="text-xs text-slate-500">
+                                / 10
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-slate-500 md:mt-0.5">
+                              {getRpeText(
+                                athlete.rpe
+                              )}
+                            </p>
+                          </div>
+                        ) : (
+                          <span className="inline-flex rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-400">
+                            Keine Rückmeldung
+                          </span>
+                        )}
+                      </div>
+
+                      {athlete.completed ? (
+                        athlete.comment ? (
+                          <p className="text-sm leading-5 text-slate-300">
+                            {
+                              athlete.comment
+                            }
+                          </p>
+                        ) : (
+                          <span className="text-sm text-slate-600">
+                            —
+                          </span>
+                        )
+                      ) : null}
+                    </div>
+                  )
+                )}
+              </div>
+            </>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+}

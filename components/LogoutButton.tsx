@@ -1,0 +1,54 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+
+type LogoutButtonProps = {
+  className?: string;
+};
+
+export default function LogoutButton({
+  className = "",
+}: LogoutButtonProps) {
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogout() {
+    setLoading(true);
+
+    /*
+     * signOut() meldet den Benutzer normalerweise
+     * auch auf dem Supabase-Server ab. Wenn gerade
+     * keine Verbindung besteht - am Beckenrand
+     * durchaus moeglich - schlaegt das fehl und die
+     * Sitzung bliebe im Browser bestehen.
+     *
+     * Deshalb wird in diesem Fall zusaetzlich lokal
+     * abgemeldet. Die Sitzung im Browser ist damit
+     * in jedem Fall geloescht.
+     */
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      await supabase.auth.signOut({
+        scope: "local",
+      });
+    }
+
+    router.replace("/login");
+    router.refresh();
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleLogout}
+      disabled={loading}
+      className={`inline-flex min-h-9 items-center justify-center whitespace-nowrap rounded-lg border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+    >
+      {loading ? "Wird abgemeldet..." : "Abmelden"}
+    </button>
+  );
+}
