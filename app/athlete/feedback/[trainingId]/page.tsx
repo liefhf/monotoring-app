@@ -661,7 +661,7 @@ export default function TrainingFeedbackPage() {
 
   if (loading) {
     return (
-      <main className="bg-app-bg px-4 py-8 text-white">
+      <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
             Training wird geladen...
@@ -673,16 +673,16 @@ export default function TrainingFeedbackPage() {
 
   if (!training) {
     return (
-      <main className="bg-app-bg px-4 py-8 text-white">
+      <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-red-900 bg-red-950/30 p-6 text-red-300">
+          <div className="rounded-3xl border border-app-bad/40 bg-app-bad/30 p-6 text-app-bad">
             {message ||
               "Training konnte nicht geladen werden."}
           </div>
 
           <Link
             href="/athlete"
-            className="mt-6 inline-block text-sm text-app-muted hover:text-white"
+            className="mt-6 inline-block text-sm text-app-muted hover:text-app-heading"
           >
             ← Zurück
           </Link>
@@ -697,10 +697,10 @@ export default function TrainingFeedbackPage() {
   */
   if (success) {
     return (
-      <main className="bg-app-bg px-4 py-8 text-white sm:px-6">
+      <main className="bg-app-bg px-4 py-8 text-app-heading sm:px-6">
         <div className="mx-auto max-w-2xl">
-          <section className="overflow-hidden rounded-3xl border border-emerald-800 bg-app-surface">
-            <div className="bg-emerald-950/40 px-6 py-8 text-center sm:px-8 sm:py-10">
+          <section className="overflow-hidden rounded-3xl border border-app-good/40 bg-app-surface">
+            <div className="bg-app-good/40 px-6 py-8 text-center sm:px-8 sm:py-10">
               <div className="text-6xl">
                 🔥
               </div>
@@ -714,12 +714,12 @@ export default function TrainingFeedbackPage() {
               </p>
 
               {streak !== null && (
-                <div className="mx-auto mt-6 max-w-sm rounded-2xl border border-amber-400/30 bg-app-bg p-5">
+                <div className="mx-auto mt-6 max-w-sm rounded-2xl border border-app-warn/30 bg-app-bg p-5">
                   <p className="text-sm font-medium text-app-muted">
                     Dein aktueller Streak
                   </p>
 
-                  <p className="mt-1 text-3xl font-bold text-amber-300">
+                  <p className="mt-1 text-3xl font-bold text-app-warn">
                     {streak}
                   </p>
 
@@ -732,7 +732,7 @@ export default function TrainingFeedbackPage() {
               )}
 
               {streak === null && (
-                <p className="mt-6 rounded-2xl bg-app-bg p-4 text-sm text-emerald-300">
+                <p className="mt-6 rounded-2xl bg-app-bg p-4 text-sm text-app-good">
                   ✓ Dein Feedback wurde erfolgreich gespeichert.
                 </p>
               )}
@@ -741,7 +741,7 @@ export default function TrainingFeedbackPage() {
             <div className="p-5">
               <Link
                 href="/athlete"
-                className="block w-full rounded-2xl bg-amber-400 px-6 py-4 text-center font-bold text-app-accent-ink transition hover:bg-amber-300"
+                className="block w-full rounded-2xl bg-app-warn px-6 py-4 text-center font-bold text-app-accent-ink transition hover:bg-app-warn"
               >
                 Zurück zur Übersicht →
               </Link>
@@ -753,17 +753,17 @@ export default function TrainingFeedbackPage() {
   }
 
   return (
-    <main className="bg-app-bg px-4 py-5 text-white sm:px-6 sm:py-8">
+    <main className="bg-app-bg px-4 py-5 text-app-heading sm:px-6 sm:py-8">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/athlete"
-          className="text-sm text-app-muted transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-app-heading"
         >
           ← Zurück
         </Link>
 
         <header className="mt-4">
-          <p className="text-sm font-medium text-amber-300">
+          <p className="text-sm font-medium text-app-warn">
             Training bewerten
           </p>
 
@@ -783,8 +783,8 @@ export default function TrainingFeedbackPage() {
               className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                 training.training_type ===
                 "water"
-                  ? "bg-sky-950 text-sky-300"
-                  : "bg-emerald-950 text-emerald-300"
+                  ? "bg-app-accent/10 text-app-accent"
+                  : "bg-app-good/10 text-app-good"
               }`}
             >
               {training.training_type ===
@@ -828,7 +828,7 @@ export default function TrainingFeedbackPage() {
                 Dauer
               </p>
 
-              <p className="mt-1 font-semibold text-white">
+              <p className="mt-1 font-semibold text-app-heading">
                 {training.duration_minutes !==
                 null
                   ? `${training.duration_minutes} Min.`
@@ -841,7 +841,7 @@ export default function TrainingFeedbackPage() {
                 Umfang
               </p>
 
-              <p className="mt-1 font-semibold text-white">
+              <p className="mt-1 font-semibold text-app-heading">
                 {training.training_type ===
                   "water" &&
                 training.total_meters !==
@@ -856,7 +856,7 @@ export default function TrainingFeedbackPage() {
         </section>
 
         {message && (
-          <div className="mt-5 rounded-2xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+          <div className="mt-5 rounded-2xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}
@@ -865,7 +865,7 @@ export default function TrainingFeedbackPage() {
         <section className="mt-5 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-amber-300">
+              <p className="text-sm font-medium text-app-warn">
                 Beanspruchung
               </p>
 
@@ -875,7 +875,7 @@ export default function TrainingFeedbackPage() {
             </div>
 
             {existingFeedback && (
-              <span className="rounded-full border border-emerald-800 bg-emerald-950/30 px-3 py-1 text-xs font-medium text-emerald-300">
+              <span className="rounded-full border border-app-good/40 bg-app-good/30 px-3 py-1 text-xs font-medium text-app-good">
                 Bereits gespeichert
               </span>
             )}
@@ -883,21 +883,21 @@ export default function TrainingFeedbackPage() {
 
           <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-app-muted">
             <div className="text-left">
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-app-heading">
                 1
               </span>{" "}
               = sehr leicht
             </div>
 
             <div className="text-center">
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-app-heading">
                 5
               </span>{" "}
               = mittel
             </div>
 
             <div className="text-right">
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-app-heading">
                 10
               </span>{" "}
               = maximal anstrengend
@@ -930,7 +930,7 @@ export default function TrainingFeedbackPage() {
                     }
                     className={`flex aspect-square items-center justify-center rounded-2xl text-lg font-bold transition ${
                       selected
-                        ? "scale-105 bg-amber-400 text-app-accent-ink shadow-lg shadow-amber-950/30"
+                        ? "scale-105 bg-app-warn text-app-accent-ink shadow-lg shadow-amber-950/30"
                         : "border border-app-border bg-app-bg text-app-text hover:border-app-border hover:bg-app-elevated"
                     }`}
                   >
@@ -991,7 +991,7 @@ export default function TrainingFeedbackPage() {
             rows={3}
             maxLength={500}
             placeholder="Zum Beispiel: Heute sehr müde oder die letzten 10 Minuten waren besonders anstrengend."
-            className="mt-4 min-h-[82px] w-full resize-y rounded-2xl border border-app-border bg-app-bg p-4 text-base text-white outline-none transition placeholder:text-app-faint focus:border-amber-400"
+            className="mt-4 min-h-[82px] w-full resize-y rounded-2xl border border-app-border bg-app-bg p-4 text-base text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-warn"
           />
 
           <p className="mt-1 text-right text-xs text-app-faint">
@@ -1017,7 +1017,7 @@ export default function TrainingFeedbackPage() {
             saving ||
             rpe === null
           }
-          className="mt-5 w-full rounded-2xl bg-amber-400 px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 w-full rounded-2xl bg-app-warn px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving
             ? "Wird gespeichert..."

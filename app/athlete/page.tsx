@@ -377,7 +377,7 @@ function RpeChart({
                   }
                   y={y + 4}
                   textAnchor="end"
-                  className="fill-slate-500 text-[10px]"
+                  className="fill-app-faint text-[10px]"
                 >
                   {tick}
                 </text>
@@ -433,7 +433,7 @@ function RpeChart({
                   cy={y}
                   r="3.8"
                   fill="currentColor"
-                  className="text-amber-300"
+                  className="text-app-warn"
                 />
 
                 <title>
@@ -454,7 +454,7 @@ function RpeChart({
                       11
                     }
                     textAnchor="middle"
-                    className="fill-slate-500 text-[10px]"
+                    className="fill-app-faint text-[10px]"
                   >
                     {formatShortDate(
                       point.date
@@ -1174,7 +1174,7 @@ export default function AthletePage() {
     "Athlet";
 
   return (
-    <main className="bg-app-bg px-4 py-5 text-white sm:px-6">
+    <main className="bg-app-bg px-4 py-5 text-app-heading sm:px-6">
       <div className="mx-auto max-w-5xl">
         {/* HEADER */}
 
@@ -1193,7 +1193,7 @@ export default function AthletePage() {
         </header>
 
         {message && (
-          <div className="mt-4 rounded-xl border border-red-900 bg-red-950/40 p-4 text-sm text-red-300">
+          <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/40 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}
@@ -1210,14 +1210,14 @@ export default function AthletePage() {
               <div
                 className={`flex min-h-[72px] items-center justify-between gap-4 rounded-xl border px-4 py-3 ${
                   todayCheckIn
-                    ? "border-emerald-900/70 bg-emerald-950/15"
+                    ? "border-app-good/70 bg-app-good/15"
                     : "border-app-border bg-app-surface"
                 }`}
               >
                 <div>
                   {todayCheckIn ? (
                     <>
-                      <p className="font-semibold text-emerald-300">
+                      <p className="font-semibold text-app-good">
                         ✓ Check-in erledigt
                       </p>
 
@@ -1252,7 +1252,7 @@ export default function AthletePage() {
                 {!todayCheckIn && (
                   <Link
                     href="/athlete/check-in"
-                    className="shrink-0 rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:bg-amber-300"
+                    className="shrink-0 rounded-lg bg-app-warn px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:bg-app-warn"
                   >
                     Check-in
                   </Link>
@@ -1328,7 +1328,7 @@ export default function AthletePage() {
                   {latestFeedback ? (
                     <>
                       <div className="mt-0.5 flex items-baseline gap-1">
-                        <span className="text-xl font-bold text-amber-300">
+                        <span className="text-xl font-bold text-app-warn">
                           {
                             latestFeedback.feedback.rpe
                           }
@@ -1410,8 +1410,8 @@ export default function AthletePage() {
                                 <span
                                   className={`text-[11px] ${
                                     completed
-                                      ? "text-emerald-400"
-                                      : "text-amber-300"
+                                      ? "text-app-good"
+                                      : "text-app-warn"
                                   }`}
                                 >
                                   {completed
@@ -1467,7 +1467,7 @@ export default function AthletePage() {
                               className={`shrink-0 rounded-lg px-4 py-2.5 text-center text-sm font-medium transition ${
                                 completed
                                   ? "border border-app-border text-app-text hover:bg-app-elevated"
-                                  : "bg-amber-400 text-app-accent-ink hover:bg-amber-300"
+                                  : "bg-app-warn text-app-accent-ink hover:bg-app-warn"
                               }`}
                             >
                               {completed
@@ -1647,7 +1647,7 @@ export default function AthletePage() {
                               {training ? (
                                 <Link
                                   href={`/athlete/feedback/${training.id}`}
-                                  className="block truncate text-sm font-medium text-app-text transition hover:text-white"
+                                  className="block truncate text-sm font-medium text-app-text transition hover:text-app-heading"
                                 >
                                   {
                                     training.title
@@ -1684,7 +1684,7 @@ export default function AthletePage() {
                             </div>
 
                             <div className="flex items-baseline gap-1">
-                              <span className="text-sm font-semibold text-amber-300">
+                              <span className="text-sm font-semibold text-app-warn">
                                 {
                                   feedback.rpe
                                 }
@@ -1736,7 +1736,7 @@ export default function AthletePage() {
                             </div>
 
                             <div className="shrink-0">
-                              <span className="text-sm font-semibold text-amber-300">
+                              <span className="text-sm font-semibold text-app-warn">
                                 {
                                   feedback.rpe
                                 }
@@ -1801,9 +1801,9 @@ function DayCard({
     ) {
       return {
         card:
-          "border-emerald-900/60 bg-emerald-950/15",
+          "border-app-good/60 bg-app-good/15",
         circle:
-          "bg-emerald-500/15 text-emerald-300",
+          "bg-app-good/15 text-app-good",
         symbol:
           "✓",
       };
@@ -1815,9 +1815,9 @@ function DayCard({
     ) {
       return {
         card:
-          "border-amber-800/50 bg-app-bg",
+          "border-app-warn/50 bg-app-bg",
         circle:
-          "bg-amber-400/15 text-amber-300",
+          "bg-app-warn/15 text-app-warn",
         symbol:
           "•",
       };
@@ -1829,9 +1829,9 @@ function DayCard({
     ) {
       return {
         card:
-          "border-red-900/50 bg-red-950/10",
+          "border-app-bad/50 bg-app-bad/10",
         circle:
-          "bg-red-500/10 text-red-300",
+          "bg-app-bad/10 text-app-bad",
         symbol:
           "×",
       };

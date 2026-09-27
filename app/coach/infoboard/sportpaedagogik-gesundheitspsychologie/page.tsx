@@ -70,11 +70,11 @@ export default function SportpaedagogikGesundheitspsychologiePage() {
                   </h2>
 
                   <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xs font-medium text-app-muted transition group-hover:text-white">
+                    <span className="text-xs font-medium text-app-muted transition group-hover:text-app-heading">
                       Öffnen
                     </span>
 
-                    <span className="text-sm text-app-faint transition group-hover:translate-x-1 group-hover:text-white">
+                    <span className="text-sm text-app-faint transition group-hover:translate-x-1 group-hover:text-app-heading">
                       →
                     </span>
                   </div>

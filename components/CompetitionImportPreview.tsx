@@ -249,7 +249,7 @@ export default function CompetitionImportPreview({
     <section className="rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-app-heading">
             Ausschreibung auslesen
           </h2>
 
@@ -267,7 +267,7 @@ export default function CompetitionImportPreview({
           onClick={
             analysePdf
           }
-          className="rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:bg-app-accent disabled:cursor-not-allowed disabled:opacity-50"
         >
           {analysing
             ? "Wird ausgelesen..."
@@ -276,21 +276,21 @@ export default function CompetitionImportPreview({
       </div>
 
       {error && (
-        <div className="mt-4 rounded-xl border border-red-900 bg-red-950/30 p-3 text-sm text-red-300">
+        <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/30 p-3 text-sm text-app-bad">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mt-4 rounded-xl border border-emerald-900 bg-emerald-950/30 p-3 text-sm text-emerald-300">
+        <div className="mt-4 rounded-xl border border-app-good/40 bg-app-good/30 p-3 text-sm text-app-good">
           {success}
         </div>
       )}
 
       {parsed && (
         <div className="mt-6 space-y-5">
-          <div className="rounded-xl border border-emerald-900 bg-emerald-950/20 p-4">
-            <p className="font-semibold text-emerald-300">
+          <div className="rounded-xl border border-app-good/40 bg-app-good/20 p-4">
+            <p className="font-semibold text-app-good">
               {
                 parsed.eventCount
               }{" "}
@@ -315,7 +315,7 @@ export default function CompetitionImportPreview({
                 className="overflow-hidden rounded-xl border border-app-border"
               >
                 <div className="bg-app-bg/70 px-4 py-3">
-                  <h3 className="font-semibold text-white">
+                  <h3 className="font-semibold text-app-heading">
                     {
                       section.sectionNumber
                     }
@@ -392,7 +392,7 @@ export default function CompetitionImportPreview({
                             className="px-4 py-3"
                           >
                             <div className="flex items-start gap-4">
-                              <span className="min-w-[70px] font-semibold text-sky-300">
+                              <span className="min-w-[70px] font-semibold text-app-accent">
                                 WK{" "}
                                 {
                                   event.eventNumber
@@ -400,7 +400,7 @@ export default function CompetitionImportPreview({
                               </span>
 
                               <div className="min-w-0">
-                                <p className="font-medium text-white">
+                                <p className="font-medium text-app-heading">
                                   {getDistanceLabel(
                                     event
                                   )}{" "}
@@ -434,7 +434,7 @@ export default function CompetitionImportPreview({
             )
           )}
 
-          <div className="rounded-xl border border-amber-800/50 bg-amber-950/20 p-4 text-sm text-amber-200">
+          <div className="rounded-xl border border-app-warn/50 bg-app-warn/20 p-4 text-sm text-app-warn">
             Bitte kontrolliere die erkannten WKs.
           </div>
 
@@ -447,7 +447,7 @@ export default function CompetitionImportPreview({
               onClick={
                 applyImport
               }
-              className="rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-app-good px-5 py-3 text-sm font-semibold text-app-bg transition hover:bg-app-good disabled:cursor-not-allowed disabled:opacity-50"
             >
               {applying
                 ? "Wird gespeichert..."

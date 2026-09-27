@@ -306,7 +306,7 @@ export default function GrowthPanel({
     <section className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
       <div className="flex flex-col gap-2 border-b border-app-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
-          <h2 className="font-semibold text-white">
+          <h2 className="font-semibold text-app-heading">
             Entwicklungsverlauf
           </h2>
           <p className="text-xs text-app-faint">
@@ -383,7 +383,7 @@ export default function GrowthPanel({
                 <p className="text-[11px] text-app-faint">
                   Alter
                 </p>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-app-heading">
                   {analysis.age !== null
                     ? `${fmt(analysis.age)} J.`
                     : "–"}
@@ -400,7 +400,7 @@ export default function GrowthPanel({
                     analysis.velocity >=
                       GROWTH_SPURT_CM_PER_YEAR
                       ? "text-app-warn"
-                      : "text-white"
+                      : "text-app-heading"
                   }`}
                 >
                   {analysis.velocity !== null
@@ -413,7 +413,7 @@ export default function GrowthPanel({
                 <p className="text-[11px] text-app-faint">
                   Reifeabstand
                 </p>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-app-heading">
                   {analysis.offset !== null
                     ? `${analysis.offset > 0 ? "+" : ""}${fmt(
                         analysis.offset
@@ -426,7 +426,7 @@ export default function GrowthPanel({
                 <p className="text-[11px] text-app-faint">
                   Wachstumsschub (APHV)
                 </p>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-app-heading">
                   {analysis.aphv !== null && sex
                     ? `${fmt(analysis.aphv)} J. (Ø ${fmt(
                         REFERENCE_APHV[sex]
@@ -590,7 +590,7 @@ export default function GrowthPanel({
                               `${m.measured_on}T12:00:00`
                             ).toLocaleDateString("de-DE")}
                           </td>
-                          <td className="px-2 py-2 text-right text-white">
+                          <td className="px-2 py-2 text-right text-app-heading">
                             {fmt(m.height_cm)}
                           </td>
                           <td className="px-2 py-2 text-right text-app-muted">

@@ -243,7 +243,7 @@ export default function TeamSchwimmerabfragePage() {
         </header>
 
         {message && (
-          <div className="mt-6 rounded-xl border border-red-900 bg-red-950 p-4 text-sm text-red-300">
+          <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}
@@ -339,7 +339,7 @@ function AthleteTable({
             href={`/coach/swimmerabfrage/athlet/${athlete.id}`}
             className="grid grid-cols-[1fr_110px] items-center border-b border-app-border py-3 transition last:border-b-0 hover:bg-app-elevated/60"
           >
-            <div className="font-medium text-sky-400 hover:text-sky-300">
+            <div className="font-medium text-app-accent hover:text-app-accent">
               {getFullName(athlete)}
             </div>
 

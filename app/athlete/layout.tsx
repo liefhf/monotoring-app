@@ -11,7 +11,7 @@ export default function AthleteLayout({
     <RoleGuard allowedRole="athlete">
       <div className="min-h-screen bg-app-bg text-app-text">
         <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-app-border bg-app-surface px-4 py-2 sm:px-6">
-          <span className="text-sm font-semibold text-white">
+          <span className="text-sm font-semibold text-app-heading">
             Monitoring App
           </span>
 

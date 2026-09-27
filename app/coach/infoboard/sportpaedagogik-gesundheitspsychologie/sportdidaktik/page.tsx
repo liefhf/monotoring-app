@@ -68,7 +68,7 @@ export default function SportdidaktikPage() {
           <ul className="mt-3 list-disc space-y-2 pl-6 text-sm leading-6 text-app-text">
             <li>
               den Stellenwert von{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 Methodik und Didaktik
               </strong>{" "}
               in der Sportpädagogik wiedergeben können,
@@ -76,7 +76,7 @@ export default function SportdidaktikPage() {
 
             <li>
               Grundlagen einer{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 zielorientierten Stundenplanung
               </strong>{" "}
               kennen,
@@ -84,7 +84,7 @@ export default function SportdidaktikPage() {
 
             <li>
               methodische Vorgehensweisen und{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 Trainingsprinzipien
               </strong>{" "}
               für eine effektive Stundengestaltung erläutern können,
@@ -92,7 +92,7 @@ export default function SportdidaktikPage() {
 
             <li>
               verschiedene{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 Unterrichtsformen
               </strong>{" "}
               voneinander abgrenzen können,
@@ -100,7 +100,7 @@ export default function SportdidaktikPage() {
 
             <li>
               Vor- und Nachteile verschiedener{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 Sozialformen
               </strong>{" "}
               erklären können.
@@ -118,42 +118,42 @@ export default function SportdidaktikPage() {
           <div className="mt-3 space-y-1 text-sm">
             <a
               href="#sportpaedagogik"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               Sportpädagogik
             </a>
 
             <a
               href="#didaktik-methodik"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               2.1 Didaktik, Methodik, Pädagogik und Sozialformen
             </a>
 
             <a
               href="#unterrichtsformen"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               2.2 Unterrichtsformen
             </a>
 
             <a
               href="#stundenplanung"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               2.3 Stundenverlaufsplanung
             </a>
 
             <a
               href="#uebungsreihen"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               2.4 Methodische Übungsreihen und Vermittlungsmethoden
             </a>
 
             <a
               href="#trainingsprinzipien"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               2.5 Trainingsprinzipien
             </a>
@@ -180,7 +180,7 @@ export default function SportdidaktikPage() {
                 sportpädagogische Fragestellungen.
               </p>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Dazu gehören beispielsweise:
               </p>
 
@@ -197,7 +197,7 @@ export default function SportdidaktikPage() {
 
             <div>
               <p className="leading-7">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Pädagogik
                 </strong>{" "}
                 wird als Lehre von Erziehung und Unterricht bzw. als
@@ -205,7 +205,7 @@ export default function SportdidaktikPage() {
               </p>
 
               <p className="mt-4 leading-7">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Sportpädagogik
                 </strong>{" "}
                 ist eine wichtige Bezugswissenschaft für Planung,
@@ -215,12 +215,12 @@ export default function SportdidaktikPage() {
 
               <p className="mt-4 leading-7">
                 Sie verbindet{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Theorie und Praxis des Sports bzw. der Bewegungsvermittlung.
                 </strong>
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Sportpädagogik:
               </p>
 
@@ -235,7 +235,7 @@ export default function SportdidaktikPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                <h3 className="font-semibold text-white">
+                <h3 className="font-semibold text-app-heading">
                   Handlungsfelder
                 </h3>
 
@@ -248,7 +248,7 @@ export default function SportdidaktikPage() {
               </div>
 
               <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                <h3 className="font-semibold text-white">
+                <h3 className="font-semibold text-app-heading">
                   Berufsgruppen
                 </h3>
 
@@ -270,13 +270,13 @@ export default function SportdidaktikPage() {
             <FigurePlaceholder title="Grundriss der Sportpädagogik und Verbindung von Theorie und Praxis" />
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Vermittlungsformen
               </h3>
 
               <p className="mt-3 leading-7">
                 Im Zentrum der praktischen Sportpädagogik steht die{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   zielgruppenspezifische Vermittlung
                 </strong>{" "}
                 von Bewegung.
@@ -287,7 +287,7 @@ export default function SportdidaktikPage() {
                 situationsabhängig anpassen.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Einflussfaktoren sind insbesondere:
               </p>
 
@@ -302,7 +302,7 @@ export default function SportdidaktikPage() {
                 angeleiteten Formen liegen.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Beispiele:
               </p>
 
@@ -332,12 +332,12 @@ export default function SportdidaktikPage() {
             {/* DIDAKTIK */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Didaktik
               </h3>
 
               <p className="mt-3 leading-7">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Didaktik
                 </strong>{" "}
                 ist eine zentrale Disziplin der Pädagogik.
@@ -355,19 +355,19 @@ export default function SportdidaktikPage() {
                 Unterricht, Training und Therapie.
               </p>
 
-              <h4 className="mt-7 text-lg font-semibold text-white">
+              <h4 className="mt-7 text-lg font-semibold text-app-heading">
                 Die vier Fragen der praktischen Sportdidaktik
               </h4>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-app-heading">
                     WOZU?
                   </p>
 
                   <p className="mt-2 text-sm">
                     Frage nach den{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       Lernzielen
                     </strong>
                     .
@@ -375,13 +375,13 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-app-heading">
                     WAS?
                   </p>
 
                   <p className="mt-2 text-sm">
                     Frage nach den{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       Lerninhalten
                     </strong>
                     .
@@ -389,13 +389,13 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-app-heading">
                     WIE?
                   </p>
 
                   <p className="mt-2 text-sm">
                     Frage nach dem{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       Vorgehen und den Methoden
                     </strong>
                     .
@@ -403,13 +403,13 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <p className="text-2xl font-bold text-white">
+                  <p className="text-2xl font-bold text-app-heading">
                     WOMIT?
                   </p>
 
                   <p className="mt-2 text-sm">
                     Frage nach den{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       Hilfsmitteln
                     </strong>
                     .
@@ -430,7 +430,7 @@ export default function SportdidaktikPage() {
             {/* GÜTEKRITERIEN */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Gütekriterien guten Unterrichts
               </h3>
 
@@ -453,7 +453,7 @@ export default function SportdidaktikPage() {
                     key={item}
                     className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
-                    <span className="font-bold text-white">
+                    <span className="font-bold text-app-heading">
                       {index + 1}.
                     </span>
 
@@ -477,17 +477,17 @@ export default function SportdidaktikPage() {
             {/* METHODIK */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Methodik
               </h3>
 
               <p className="mt-3 leading-7">
                 Das Wort{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Methodik
                 </strong>{" "}
                 stammt aus dem Griechischen und bezeichnet die{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Kunst des planmäßigen Vorgehens.
                 </strong>
               </p>
@@ -524,7 +524,7 @@ export default function SportdidaktikPage() {
             {/* PLANUNGSPROZESS */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Didaktik und Methodik im Planungsprozess
               </h3>
 
@@ -534,7 +534,7 @@ export default function SportdidaktikPage() {
                     1
                   </p>
 
-                  <h4 className="mt-1 font-semibold text-white">
+                  <h4 className="mt-1 font-semibold text-app-heading">
                     Konzeption
                   </h4>
 
@@ -549,7 +549,7 @@ export default function SportdidaktikPage() {
                     2
                   </p>
 
-                  <h4 className="mt-1 font-semibold text-white">
+                  <h4 className="mt-1 font-semibold text-app-heading">
                     Realisation
                   </h4>
 
@@ -563,7 +563,7 @@ export default function SportdidaktikPage() {
                     3
                   </p>
 
-                  <h4 className="mt-1 font-semibold text-white">
+                  <h4 className="mt-1 font-semibold text-app-heading">
                     Evaluation
                   </h4>
 
@@ -579,7 +579,7 @@ export default function SportdidaktikPage() {
             {/* VORÜBERLEGUNGEN */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Methodisch-didaktische Vorüberlegungen
               </h3>
 
@@ -590,21 +590,21 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 space-y-3">
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     WOZU?
                   </strong>{" "}
                   Welches Vermittlungsziel soll erreicht werden?
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     WAS?
                   </strong>{" "}
                   Welche Inhalte eignen sich zur Zielerreichung?
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     WIE?
                   </strong>{" "}
                   Welche Methode und welche Hilfsmittel eignen sich für die
@@ -628,7 +628,7 @@ export default function SportdidaktikPage() {
             {/* GRUNDLAGEN METHODISCH-DIDAKTISCH */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Grundlagen methodisch-didaktischen Handelns
               </h3>
 
@@ -679,7 +679,7 @@ export default function SportdidaktikPage() {
                     key={item.title}
                     className="rounded-xl border border-app-border bg-app-surface p-5"
                   >
-                    <h4 className="font-semibold text-white">
+                    <h4 className="font-semibold text-app-heading">
                       {item.title}
                     </h4>
 
@@ -694,12 +694,12 @@ export default function SportdidaktikPage() {
             {/* SOZIALFORMEN */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Sozial- und Organisationsformen
               </h3>
 
               <p className="mt-3 leading-7">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Sozialformen
                 </strong>{" "}
                 beschreiben die Anordnung bzw. Verteilung der Teilnehmenden
@@ -721,7 +721,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-8 space-y-8">
                 <div>
-                  <h4 className="text-lg font-semibold text-white">
+                  <h4 className="text-lg font-semibold text-app-heading">
                     Frontalunterricht
                   </h4>
 
@@ -738,7 +738,7 @@ export default function SportdidaktikPage() {
 
                   <div className="mt-5 grid gap-4 md:grid-cols-2">
                     <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                      <h5 className="font-semibold text-white">
+                      <h5 className="font-semibold text-app-heading">
                         Vorteile
                       </h5>
 
@@ -750,7 +750,7 @@ export default function SportdidaktikPage() {
                     </div>
 
                     <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                      <h5 className="font-semibold text-white">
+                      <h5 className="font-semibold text-app-heading">
                         Nachteile
                       </h5>
 
@@ -769,7 +769,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold text-white">
+                  <h4 className="text-lg font-semibold text-app-heading">
                     Parlamentarische Sozialform
                   </h4>
 
@@ -780,7 +780,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold text-white">
+                  <h4 className="text-lg font-semibold text-app-heading">
                     Halbkreis oder Kreis
                   </h4>
 
@@ -796,7 +796,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold text-white">
+                  <h4 className="text-lg font-semibold text-app-heading">
                     Paar-, Dreier- und Kleingruppenarbeit
                   </h4>
 
@@ -849,7 +849,7 @@ export default function SportdidaktikPage() {
 
           <div className="mt-8 space-y-10 text-app-text">
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Drei Hauptarten des Unterrichts
               </h3>
 
@@ -859,7 +859,7 @@ export default function SportdidaktikPage() {
                     1
                   </p>
 
-                  <p className="mt-1 font-semibold text-white">
+                  <p className="mt-1 font-semibold text-app-heading">
                     Geführter Unterricht
                   </p>
                 </div>
@@ -869,7 +869,7 @@ export default function SportdidaktikPage() {
                     2
                   </p>
 
-                  <p className="mt-1 font-semibold text-white">
+                  <p className="mt-1 font-semibold text-app-heading">
                     Offener Unterricht
                   </p>
                 </div>
@@ -879,7 +879,7 @@ export default function SportdidaktikPage() {
                     3
                   </p>
 
-                  <p className="mt-1 font-semibold text-white">
+                  <p className="mt-1 font-semibold text-app-heading">
                     Interaktiver Unterricht
                   </p>
                 </div>
@@ -889,7 +889,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Geführter Unterricht
               </h3>
 
@@ -904,7 +904,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Vorteile
                   </h4>
 
@@ -920,7 +920,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Nachteile
                   </h4>
 
@@ -936,7 +936,7 @@ export default function SportdidaktikPage() {
 
               <p className="mt-5 leading-7">
                 Im{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Leistungssport
                 </strong>{" "}
                 treten geführte Unterrichtsformen häufig auf. Gründe sind
@@ -947,7 +947,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Offener Unterricht
               </h3>
 
@@ -960,7 +960,7 @@ export default function SportdidaktikPage() {
                 </li>
               </ul>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Mögliche Formen:
               </p>
 
@@ -972,7 +972,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Vorteile
                   </h4>
 
@@ -986,7 +986,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Nachteile
                   </h4>
 
@@ -1005,13 +1005,13 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Interaktiver Unterricht
               </h3>
 
               <p className="mt-3 leading-7">
                 Interaktiver Unterricht basiert auf{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   kooperativem und dialogischem Lernen und Lehren.
                 </strong>
               </p>
@@ -1030,7 +1030,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Vorteile
                   </h4>
 
@@ -1045,7 +1045,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Nachteile
                   </h4>
 
@@ -1062,7 +1062,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Unterrichtsform und Zielgruppe
               </h3>
 
@@ -1082,7 +1082,7 @@ export default function SportdidaktikPage() {
               <p className="mt-5 leading-7">
                 In Breitensport, Gesundheitssport und Rehabilitation ist
                 ein{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Wechsel verschiedener Unterrichtsformen
                 </strong>{" "}
                 sinnvoll.
@@ -1106,7 +1106,7 @@ export default function SportdidaktikPage() {
 
           <div className="mt-8 space-y-10 text-app-text">
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Bedeutung der Stundenplanung
               </h3>
 
@@ -1144,13 +1144,13 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Bedingungsfeldanalyse
               </h3>
 
               <p className="mt-3 leading-7">
                 Die{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Bedingungsfeldanalyse
                 </strong>{" "}
                 ist der erste Schritt der Stundenplanung.
@@ -1178,7 +1178,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Voraussetzungen der Teilnehmenden
               </h3>
 
@@ -1197,7 +1197,7 @@ export default function SportdidaktikPage() {
 
               <p className="mt-5 leading-7">
                 Gruppen sind häufig{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   heterogen.
                 </strong>
               </p>
@@ -1209,7 +1209,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Räumliche und organisatorische Rahmenbedingungen
               </h3>
 
@@ -1227,7 +1227,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Klassischer Aufbau einer Einheit
               </h3>
 
@@ -1237,7 +1237,7 @@ export default function SportdidaktikPage() {
                     1
                   </p>
 
-                  <h4 className="mt-1 font-semibold text-white">
+                  <h4 className="mt-1 font-semibold text-app-heading">
                     Einleitung und Aufwärmen
                   </h4>
 
@@ -1256,7 +1256,7 @@ export default function SportdidaktikPage() {
                     2
                   </p>
 
-                  <h4 className="mt-1 font-semibold text-white">
+                  <h4 className="mt-1 font-semibold text-app-heading">
                     Hauptteil
                   </h4>
 
@@ -1276,7 +1276,7 @@ export default function SportdidaktikPage() {
                     3
                   </p>
 
-                  <h4 className="mt-1 font-semibold text-white">
+                  <h4 className="mt-1 font-semibold text-app-heading">
                     Ausklang
                   </h4>
 
@@ -1291,7 +1291,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Inhalte des schriftlichen Stundenverlaufsplans
               </h3>
 
@@ -1310,7 +1310,7 @@ export default function SportdidaktikPage() {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="rounded-xl border border-app-border bg-app-surface p-4 text-center text-sm font-medium text-white"
+                    className="rounded-xl border border-app-border bg-app-surface p-4 text-center text-sm font-medium text-app-heading"
                   >
                     {item}
                   </div>
@@ -1324,7 +1324,7 @@ export default function SportdidaktikPage() {
 
               <p className="mt-4 leading-7">
                 Ein Stundenverlaufsplan ist in der Regel{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   tabellarisch aufgebaut.
                 </strong>
               </p>
@@ -1333,7 +1333,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Vorteile eines Stundenverlaufsplans
               </h3>
 
@@ -1373,13 +1373,13 @@ export default function SportdidaktikPage() {
 
           <div className="mt-8 space-y-12 text-app-text">
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Induktive Methode
               </h3>
 
               <p className="mt-3 leading-7">
                 Bei der{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   induktiven Methode
                 </strong>{" "}
                 steht das eigenständige Üben der Lernenden im Mittelpunkt.
@@ -1387,13 +1387,13 @@ export default function SportdidaktikPage() {
 
               <p className="mt-3 leading-7">
                 Sie wird auch als{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Bottom-up-Ansatz
                 </strong>{" "}
                 beschrieben.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Merkmale:
               </p>
 
@@ -1408,7 +1408,7 @@ export default function SportdidaktikPage() {
                 <li>Selbsttätigkeit und Eigenständigkeit</li>
               </ul>
 
-              <h4 className="mt-7 text-lg font-semibold text-white">
+              <h4 className="mt-7 text-lg font-semibold text-app-heading">
                 Freie Bewegungsaufgaben
               </h4>
 
@@ -1419,7 +1419,7 @@ export default function SportdidaktikPage() {
                 <li>Sammeln eigener Bewegungserfahrungen</li>
               </ul>
 
-              <h4 className="mt-7 text-lg font-semibold text-white">
+              <h4 className="mt-7 text-lg font-semibold text-app-heading">
                 Gebundene Bewegungsaufgaben
               </h4>
 
@@ -1439,7 +1439,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Vorteile
                   </h4>
 
@@ -1451,7 +1451,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Nachteile
                   </h4>
 
@@ -1467,19 +1467,19 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Deduktive Methode
               </h3>
 
               <p className="mt-3 leading-7">
                 Bei der{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   deduktiven Methode
                 </strong>{" "}
                 gibt die Lehrperson entscheidende Hilfen und Lösungswege vor.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Merkmale:
               </p>
 
@@ -1493,7 +1493,7 @@ export default function SportdidaktikPage() {
                 <li>starke Steuerung durch die Lehrperson</li>
               </ul>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Typische Formen:
               </p>
 
@@ -1507,7 +1507,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Vorteile
                   </h4>
 
@@ -1524,7 +1524,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Nachteile
                   </h4>
 
@@ -1546,12 +1546,12 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Methodische Übungsreihen
               </h3>
 
               <p className="mt-3 leading-7">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Methodische Übungsreihen
                 </strong>{" "}
                 sind nach methodischen Grundsätzen geordnete Übungsfolgen.
@@ -1579,12 +1579,12 @@ export default function SportdidaktikPage() {
 
               <p className="mt-4 leading-7">
                 Die methodische Übungsreihe gehört zu den{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   deduktiven Vermittlungsformen.
                 </strong>
               </p>
 
-              <h4 className="mt-7 text-lg font-semibold text-white">
+              <h4 className="mt-7 text-lg font-semibold text-app-heading">
                 Grundprinzipien methodischer Übungsreihen
               </h4>
 
@@ -1600,7 +1600,7 @@ export default function SportdidaktikPage() {
                     key={item}
                     className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
-                    <span className="font-bold text-white">
+                    <span className="font-bold text-app-heading">
                       {index + 1}.
                     </span>
 
@@ -1620,7 +1620,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Methodische Spielreihen
               </h3>
 
@@ -1641,7 +1641,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Analytisch-synthetische Methode
               </h3>
 
@@ -1670,7 +1670,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Vorteile
                   </h4>
 
@@ -1685,7 +1685,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Nachteil
                   </h4>
 
@@ -1698,19 +1698,19 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Ganzheitsmethode
               </h3>
 
               <p className="mt-3 leading-7">
                 Bei der{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Ganzheitsmethode
                 </strong>{" "}
                 wird die Gesamtbewegung von Beginn an vollständig geübt.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Geeignet für:
               </p>
 
@@ -1723,7 +1723,7 @@ export default function SportdidaktikPage() {
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Vorteil
                   </h4>
 
@@ -1733,7 +1733,7 @@ export default function SportdidaktikPage() {
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-5">
-                  <h4 className="font-semibold text-white">
+                  <h4 className="font-semibold text-app-heading">
                     Nachteil
                   </h4>
 
@@ -1770,7 +1770,7 @@ export default function SportdidaktikPage() {
 
           <div className="mt-8 space-y-10 text-app-text">
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Bedeutung für die Stundenplanung
               </h3>
 
@@ -1809,7 +1809,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Neun Trainingsprinzipien
               </h3>
 
@@ -1829,7 +1829,7 @@ export default function SportdidaktikPage() {
                     key={item}
                     className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
-                    <span className="font-bold text-white">
+                    <span className="font-bold text-app-heading">
                       {index + 1}.
                     </span>
 
@@ -1842,7 +1842,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prinzip des trainingswirksamen Belastungsreizes
               </h3>
 
@@ -1865,7 +1865,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prinzip der progressiven Belastungssteigerung
               </h3>
 
@@ -1886,7 +1886,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prinzip der Kontinuität
               </h3>
 
@@ -1910,7 +1910,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prinzip der Variation der Trainingsbelastung
               </h3>
 
@@ -1932,7 +1932,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prinzip der individuellen Belastung
               </h3>
 
@@ -1941,7 +1941,7 @@ export default function SportdidaktikPage() {
                 angepasst werden.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Einflussfaktoren:
               </p>
 
@@ -1963,7 +1963,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prinzip der richtigen Belastungsfolge
               </h3>
 
@@ -1972,7 +1972,7 @@ export default function SportdidaktikPage() {
                 Reihenfolge eingesetzt werden.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Orientierung:
               </p>
 
@@ -1990,7 +1990,7 @@ export default function SportdidaktikPage() {
                     key={item}
                     className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
-                    <span className="font-bold text-white">
+                    <span className="font-bold text-app-heading">
                       {index + 1}.
                     </span>
 
@@ -2018,7 +2018,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prinzip der optimalen Gestaltung von Belastung und Erholung
               </h3>
 
@@ -2035,7 +2035,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Periodisierung und Zyklisierung
               </h3>
 
@@ -2062,7 +2062,7 @@ export default function SportdidaktikPage() {
                 konsequent eingesetzt.
               </p>
 
-              <p className="mt-5 font-medium text-white">
+              <p className="mt-5 font-medium text-app-heading">
                 Mögliche Gründe:
               </p>
 
@@ -2078,7 +2078,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Systematische Trainingssteuerung
               </h3>
 

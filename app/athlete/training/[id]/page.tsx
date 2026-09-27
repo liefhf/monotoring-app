@@ -513,7 +513,7 @@ export default function AthleteTrainingDetailPage() {
 
   if (loading) {
     return (
-      <main className="bg-app-bg p-8 text-white">
+      <main className="bg-app-bg p-8 text-app-heading">
         <div className="mx-auto max-w-4xl rounded-2xl border border-app-border bg-app-surface p-6">
           <p className="text-app-muted">
             Training wird geladen...
@@ -525,21 +525,21 @@ export default function AthleteTrainingDetailPage() {
 
   if (!training) {
     return (
-      <main className="bg-app-bg p-8 text-white">
+      <main className="bg-app-bg p-8 text-app-heading">
         <div className="mx-auto max-w-4xl">
           <Link
             href="/athlete/training"
-            className="text-sm text-app-muted hover:text-white"
+            className="text-sm text-app-muted hover:text-app-heading"
           >
             ← Zurück zum Trainingsplan
           </Link>
 
-          <div className="mt-6 rounded-2xl border border-red-900 bg-red-950/30 p-6">
+          <div className="mt-6 rounded-2xl border border-app-bad/40 bg-app-bad/30 p-6">
             <h1 className="text-xl font-semibold">
               Training nicht verfügbar
             </h1>
 
-            <p className="mt-2 text-sm text-red-300">
+            <p className="mt-2 text-sm text-app-bad">
               {message ||
                 "Das Training konnte nicht geladen werden."}
             </p>
@@ -553,7 +553,7 @@ export default function AthleteTrainingDetailPage() {
     <div className="mx-auto w-full max-w-[1600px]">
       <Link
         href="/athlete/training"
-        className="text-sm text-app-muted hover:text-white"
+        className="text-sm text-app-muted hover:text-app-heading"
       >
         ← Zurück zum Trainingsplan
       </Link>
@@ -581,8 +581,8 @@ export default function AthleteTrainingDetailPage() {
           className={`rounded-full px-4 py-2 text-sm ${
             training.training_type ===
             "water"
-              ? "bg-sky-950 text-sky-300"
-              : "bg-emerald-950 text-emerald-300"
+              ? "bg-app-accent/10 text-app-accent"
+              : "bg-app-good/10 text-app-good"
           }`}
         >
           {displayType}
@@ -590,7 +590,7 @@ export default function AthleteTrainingDetailPage() {
       </div>
 
       {message && (
-        <div className="mt-6 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+        <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
           {message}
         </div>
       )}
@@ -979,7 +979,7 @@ export default function AthleteTrainingDetailPage() {
               }
               className={`rounded-xl px-5 py-3 text-sm font-medium ${
                 completed
-                  ? "bg-emerald-500 text-app-accent-ink"
+                  ? "bg-app-good text-app-accent-ink"
                   : "border border-app-border hover:bg-app-elevated"
               }`}
             >

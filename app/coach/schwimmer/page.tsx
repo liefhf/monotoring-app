@@ -140,7 +140,7 @@ export default function SchwimmerPage() {
           <h1 className="mt-1 text-3xl font-bold">Meine Schwimmer</h1>
           <p className="mt-2 text-app-muted">
             Schwimmer anlegen, Zeiten eintragen und mit den{" "}
-            <Link href="/coach/pflichtzeiten" className="text-sky-400 hover:text-sky-300">
+            <Link href="/coach/pflichtzeiten" className="text-app-accent hover:text-app-accent">
               Pflichtzeiten
             </Link>{" "}
             vergleichen.
@@ -256,7 +256,7 @@ export default function SchwimmerPage() {
                       <td className="px-6 py-3">
                         <Link
                           href={`/coach/schwimmer/${swimmer.id}`}
-                          className="font-medium text-sky-400 hover:text-sky-300"
+                          className="font-medium text-app-accent hover:text-app-accent"
                         >
                           {getSwimmerName(swimmer)}
                         </Link>

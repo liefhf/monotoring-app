@@ -739,8 +739,8 @@ export default function AthleteDetailPage() {
       rounded-t-xl px-4 py-3 text-sm font-medium transition
       ${
         isActive
-          ? "border border-b-0 border-app-border bg-app-surface text-white"
-          : "text-app-muted hover:bg-app-surface hover:text-white"
+          ? "border border-b-0 border-app-border bg-app-surface text-app-heading"
+          : "text-app-muted hover:bg-app-surface hover:text-app-heading"
       }
     `;
   }
@@ -1290,7 +1290,7 @@ export default function AthleteDetailPage() {
         </header>
 
         {message && (
-          <div className="mt-6 rounded-xl border border-red-900 bg-red-950 p-4 text-sm text-red-300">
+          <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}
@@ -1434,7 +1434,7 @@ export default function AthleteDetailPage() {
                                   discipline.id
                                 )
                               }
-                              className="text-sm text-red-400 transition hover:text-red-300"
+                              className="text-sm text-app-bad transition hover:text-app-bad"
                             >
                               Entfernen
                             </button>
@@ -1931,7 +1931,7 @@ export default function AthleteDetailPage() {
                       onClick={
                         resetFilters
                       }
-                      className="text-sm text-app-muted transition hover:text-white"
+                      className="text-sm text-app-muted transition hover:text-app-heading"
                     >
                       Filter zurücksetzen
                     </button>
@@ -2316,22 +2316,22 @@ export default function AthleteDetailPage() {
                         >
                           <CartesianGrid
                             strokeDasharray="3 3"
-                            stroke="#334155"
+                            stroke="var(--app-border)"
                           />
 
                           <XAxis
                             dataKey="dateLabel"
-                            stroke="#94a3b8"
+                            stroke="var(--app-muted)"
                             tick={{
-                              fill: "#94a3b8",
+                              fill: "var(--app-muted)",
                               fontSize: 12,
                             }}
                           />
 
                           <YAxis
-                            stroke="#94a3b8"
+                            stroke="var(--app-muted)"
                             tick={{
-                              fill: "#94a3b8",
+                              fill: "var(--app-muted)",
                               fontSize: 12,
                             }}
                             tickFormatter={(
@@ -2349,9 +2349,9 @@ export default function AthleteDetailPage() {
                           <Tooltip
                             contentStyle={{
                               backgroundColor:
-                                "#0f172a",
+                                "var(--app-surface)",
                               border:
-                                "1px solid #334155",
+                                "1px solid var(--app-border)",
                               borderRadius:
                                 "12px",
                             }}
@@ -2374,7 +2374,7 @@ export default function AthleteDetailPage() {
                             type="monotone"
                             dataKey="time25"
                             name="25m-Bahn"
-                            stroke="#38bdf8"
+                            stroke="var(--chart-25)"
                             strokeWidth={3}
                             dot={{
                               r: 4,
@@ -2389,7 +2389,7 @@ export default function AthleteDetailPage() {
                             type="monotone"
                             dataKey="time50"
                             name="50m-Bahn"
-                            stroke="#f97316"
+                            stroke="var(--chart-50)"
                             strokeWidth={3}
                             dot={{
                               r: 4,
@@ -2487,7 +2487,7 @@ function BestTimesTable({
                     key={`${poolLength}-${event.stroke}-${event.distance}`}
                     className={`border-b border-app-border last:border-b-0 ${
                       startsNewStroke
-                        ? "border-t-2 border-t-slate-700"
+                        ? "border-t-2 border-t-app-border"
                         : ""
                     }`}
                   >
@@ -2542,7 +2542,7 @@ function InfoRow({
         {label}
       </div>
 
-      <div className="text-sm text-white">
+      <div className="text-sm text-app-heading">
         {value}
       </div>
     </div>

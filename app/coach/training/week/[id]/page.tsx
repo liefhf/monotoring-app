@@ -196,7 +196,7 @@ export default function WeekPage() {
       <div className="mb-8">
         <Link
           href={`/coach/training/meso/${weekData.mesoId}`}
-          className="text-sm text-app-muted hover:text-white"
+          className="text-sm text-app-muted hover:text-app-heading"
         >
           ← Zurück zum Mesozyklus
         </Link>
@@ -308,7 +308,7 @@ export default function WeekPage() {
 
                     <Link
                       href={getNewTrainingLink(day)}
-                      className="mt-3 inline-block text-sm text-app-text hover:text-white"
+                      className="mt-3 inline-block text-sm text-app-text hover:text-app-heading"
                     >
                       + Training
                     </Link>
@@ -323,8 +323,8 @@ export default function WeekPage() {
                         <span
                           className={`rounded-full px-2 py-1 text-[10px] font-medium ${
                             session.type === "Wasser"
-                              ? "bg-sky-950 text-sky-300"
-                              : "bg-emerald-950 text-emerald-300"
+                              ? "bg-app-accent/10 text-app-accent"
+                              : "bg-app-good/10 text-app-good"
                           }`}
                         >
                           {session.type}
@@ -369,7 +369,7 @@ export default function WeekPage() {
                 {day.sessions.length > 0 && (
                   <Link
                     href={getNewTrainingLink(day)}
-                    className="block rounded-xl border border-dashed border-app-border px-3 py-3 text-center text-sm text-app-muted hover:bg-app-elevated hover:text-white"
+                    className="block rounded-xl border border-dashed border-app-border px-3 py-3 text-center text-sm text-app-muted hover:bg-app-elevated hover:text-app-heading"
                   >
                     + weitere Einheit
                   </Link>

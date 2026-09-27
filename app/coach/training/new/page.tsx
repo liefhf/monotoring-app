@@ -1563,7 +1563,7 @@ function TrainingEditor() {
     <main>
       {materialPicker &&
         selectedMaterialRow && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-app-bg/80 p-4">
             <div className="w-full max-w-xl rounded-2xl border border-app-border bg-app-surface shadow-2xl">
               <div className="flex items-start justify-between border-b border-app-border p-5">
                 <div>
@@ -1616,8 +1616,8 @@ function TrainingEditor() {
                           }
                           className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left text-sm transition ${
                             isSelected
-                              ? "border-white bg-app-accent text-app-accent-ink"
-                              : "border-app-border bg-app-bg text-white hover:bg-app-elevated"
+                              ? "border-app-heading bg-app-accent text-app-accent-ink"
+                              : "border-app-border bg-app-bg text-app-heading hover:bg-app-elevated"
                           }`}
                         >
                           <span>
@@ -1706,14 +1706,14 @@ function TrainingEditor() {
           {weekFromUrl ? (
             <Link
               href={`/coach/training/week/${weekFromUrl}`}
-              className="text-sm text-app-muted hover:text-white"
+              className="text-sm text-app-muted hover:text-app-heading"
             >
               ← Zurück zur Woche
             </Link>
           ) : (
             <Link
               href="/coach/training"
-              className="text-sm text-app-muted hover:text-white"
+              className="text-sm text-app-muted hover:text-app-heading"
             >
               ← Zurück zur Trainingsübersicht
             </Link>
@@ -1769,14 +1769,14 @@ function TrainingEditor() {
         )}
 
         {hasPlanningContext && (
-          <section className="mt-6 rounded-2xl border border-sky-900 bg-sky-950/30 p-5">
-            <p className="text-xs font-medium uppercase tracking-wide text-sky-400">
+          <section className="mt-6 rounded-2xl border border-app-accent/40 bg-app-accent/30 p-5">
+            <p className="text-xs font-medium uppercase tracking-wide text-app-accent">
               Zugeordnet zur Trainingsplanung
             </p>
 
             <div className="mt-4 flex flex-wrap gap-3">
               {mesoFromUrl && (
-                <div className="rounded-xl border border-sky-900 bg-app-bg px-4 py-3">
+                <div className="rounded-xl border border-app-accent/40 bg-app-bg px-4 py-3">
                   <p className="text-xs text-app-faint">
                     Mesozyklus
                   </p>
@@ -1788,7 +1788,7 @@ function TrainingEditor() {
               )}
 
               {weekFromUrl && (
-                <div className="rounded-xl border border-sky-900 bg-app-bg px-4 py-3">
+                <div className="rounded-xl border border-app-accent/40 bg-app-bg px-4 py-3">
                   <p className="text-xs text-app-faint">
                     Mikrozyklus
                   </p>
@@ -1800,7 +1800,7 @@ function TrainingEditor() {
               )}
 
               {date && (
-                <div className="rounded-xl border border-sky-900 bg-app-bg px-4 py-3">
+                <div className="rounded-xl border border-app-accent/40 bg-app-bg px-4 py-3">
                   <p className="text-xs text-app-faint">
                     Trainingstag
                   </p>
@@ -2271,7 +2271,7 @@ function TrainingEditor() {
                                 row.id
                               )
                             }
-                            className="rounded-lg border border-red-900 px-2 text-xs text-red-400"
+                            className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
                           >
                             Löschen
                           </button>
@@ -2528,7 +2528,7 @@ function TrainingEditor() {
                                     .materials
                                     .length >
                                   0
-                                    ? "border-sky-700 bg-sky-950 text-sky-200"
+                                    ? "border-app-accent/40 bg-app-accent/10 text-app-accent"
                                     : "border-app-border bg-app-surface text-app-muted hover:bg-app-elevated"
                                 }`}
                               >
@@ -2648,7 +2648,7 @@ function TrainingEditor() {
                                     row.id
                                   )
                                 }
-                                className="rounded-lg border border-red-900 px-2 text-xs text-red-400 hover:bg-red-950"
+                                className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad hover:bg-app-bad/10"
                               >
                                 Löschen
                               </button>
@@ -2849,7 +2849,7 @@ function TrainingEditor() {
                               row.id
                             )
                           }
-                          className="rounded-lg border border-red-900 px-2 text-xs text-red-400"
+                          className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
                         >
                           Löschen
                         </button>

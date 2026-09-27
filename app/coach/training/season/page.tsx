@@ -157,45 +157,45 @@ const colorStyles: Record<
   }
 > = {
   amber: {
-    card: "border-amber-300 bg-amber-500 text-app-accent-ink",
-    dot: "bg-amber-500",
-    soft: "border-amber-700 bg-amber-950 text-amber-200",
+    card: "border-app-warn bg-app-warn text-app-accent-ink",
+    dot: "bg-app-warn",
+    soft: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   },
 
   blue: {
-    card: "border-sky-300 bg-sky-600 text-white",
-    dot: "bg-sky-500",
-    soft: "border-sky-800 bg-sky-950 text-sky-200",
+    card: "border-app-accent bg-app-accent text-app-accent-ink",
+    dot: "bg-app-accent",
+    soft: "border-app-accent/40 bg-app-accent/10 text-app-accent",
   },
 
   violet: {
-    card: "border-sky-300 bg-sky-600 text-white",
-    dot: "bg-sky-500",
-    soft: "border-sky-800 bg-sky-950 text-sky-200",
+    card: "border-app-accent bg-app-accent text-app-accent-ink",
+    dot: "bg-app-accent",
+    soft: "border-app-accent/40 bg-app-accent/10 text-app-accent",
   },
 
   cyan: {
-    card: "border-sky-300 bg-sky-600 text-white",
-    dot: "bg-sky-500",
-    soft: "border-sky-800 bg-sky-950 text-sky-200",
+    card: "border-app-accent bg-app-accent text-app-accent-ink",
+    dot: "bg-app-accent",
+    soft: "border-app-accent/40 bg-app-accent/10 text-app-accent",
   },
 
   emerald: {
-    card: "border-emerald-300 bg-emerald-500 text-app-accent-ink",
-    dot: "bg-emerald-500",
-    soft: "border-emerald-800 bg-emerald-950 text-emerald-200",
+    card: "border-app-good bg-app-good text-app-accent-ink",
+    dot: "bg-app-good",
+    soft: "border-app-good/40 bg-app-good/10 text-app-good",
   },
 
   red: {
-    card: "border-red-300 bg-red-500 text-white",
-    dot: "bg-red-500",
-    soft: "border-red-800 bg-red-950 text-red-200",
+    card: "border-app-bad bg-app-bad text-white",
+    dot: "bg-app-bad",
+    soft: "border-app-bad/40 bg-app-bad/10 text-app-bad",
   },
 
   orange: {
-    card: "border-amber-300 bg-amber-500 text-app-accent-ink",
-    dot: "bg-amber-500",
-    soft: "border-amber-800 bg-amber-950 text-amber-200",
+    card: "border-app-warn bg-app-warn text-app-accent-ink",
+    dot: "bg-app-warn",
+    soft: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   },
 
   pink: {
@@ -211,7 +211,7 @@ const colorStyles: Record<
   },
 
   slate: {
-    card: "border-app-border bg-app-elevated text-white",
+    card: "border-app-border bg-app-elevated text-app-heading",
     dot: "bg-app-elevated",
     soft: "border-app-border bg-app-elevated text-app-text",
   },
@@ -1439,7 +1439,7 @@ export default function SeasonPlanningPage() {
                   setSelectedTeamId(event.target.value);
                   setSelectedCalendarDate(null);
                 }}
-                className="mt-0.5 min-w-36 bg-transparent text-sm font-semibold text-white outline-none"
+                className="mt-0.5 min-w-36 bg-transparent text-sm font-semibold text-app-heading outline-none"
               >
                 <option
                   value=""
@@ -1580,7 +1580,7 @@ export default function SeasonPlanningPage() {
             </div>
 
             {editingEventId && (
-              <span className="rounded-full border border-sky-800 bg-sky-950 px-3 py-1 text-xs text-sky-300">
+              <span className="rounded-full border border-app-accent/40 bg-app-accent/10 px-3 py-1 text-xs text-app-accent">
                 Bearbeiten
               </span>
             )}
@@ -1775,7 +1775,7 @@ export default function SeasonPlanningPage() {
                       deleteEvent(event);
                     }
                   }}
-                  className="rounded-xl border border-red-800 px-4 py-3 text-sm text-red-300 hover:bg-red-950"
+                  className="rounded-xl border border-app-bad/40 px-4 py-3 text-sm text-app-bad hover:bg-app-bad/10"
                 >
                   Löschen
                 </button>
@@ -1831,7 +1831,7 @@ export default function SeasonPlanningPage() {
             </div>
 
             {editingTaskId && (
-              <span className="rounded-full border border-sky-800 bg-sky-950 px-3 py-1 text-xs text-sky-300">
+              <span className="rounded-full border border-app-accent/40 bg-app-accent/10 px-3 py-1 text-xs text-app-accent">
                 Bearbeiten
               </span>
             )}
@@ -1992,7 +1992,7 @@ export default function SeasonPlanningPage() {
                       deleteTask(task);
                     }
                   }}
-                  className="rounded-xl border border-red-800 px-4 py-3 text-sm text-red-300 hover:bg-red-950"
+                  className="rounded-xl border border-app-bad/40 px-4 py-3 text-sm text-app-bad hover:bg-app-bad/10"
                 >
                   Löschen
                 </button>
@@ -2135,9 +2135,9 @@ export default function SeasonPlanningPage() {
                         key={cell.dateString}
                         className={`relative min-h-28 rounded-lg border p-2 transition ${
                           cell.dateString === today
-                            ? "border-white bg-app-elevated"
+                            ? "border-app-heading bg-app-elevated"
                             : isSelected
-                            ? "border-sky-500 bg-app-elevated"
+                            ? "border-app-accent bg-app-elevated"
                             : "border-app-border bg-app-bg hover:border-app-border"
                         }`}
                       >
@@ -2171,7 +2171,7 @@ export default function SeasonPlanningPage() {
                                   cell.dateString!
                                 );
                               }}
-                              className="pointer-events-auto flex h-5 w-5 items-center justify-center rounded-md text-xs text-app-faint hover:bg-app-elevated hover:text-white"
+                              className="pointer-events-auto flex h-5 w-5 items-center justify-center rounded-md text-xs text-app-faint hover:bg-app-elevated hover:text-app-heading"
                               title="Eintrag hinzufügen"
                             >
                               +
@@ -2194,7 +2194,7 @@ export default function SeasonPlanningPage() {
 
                                       editEvent(event);
                                     }}
-                                    className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-white/40 ${
+                                    className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-app-heading/40 ${
                                       colorStyles[color]
                                         .card
                                     }`}
@@ -2219,7 +2219,7 @@ export default function SeasonPlanningPage() {
 
                                       editTask(task);
                                     }}
-                                    className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-white/40 ${
+                                    className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-app-heading/40 ${
                                       colorStyles[color]
                                         .card
                                     } ${
@@ -2268,7 +2268,7 @@ export default function SeasonPlanningPage() {
                                       cell.dateString!
                                     );
                                   }}
-                                  className="block w-full rounded-md border border-app-border px-2 py-2 text-left text-[10px] font-semibold text-white hover:bg-app-elevated"
+                                  className="block w-full rounded-md border border-app-border px-2 py-2 text-left text-[10px] font-semibold text-app-heading hover:bg-app-elevated"
                                 >
                                   Aufgabe / Frist
                                 </button>
@@ -2282,7 +2282,7 @@ export default function SeasonPlanningPage() {
                                       null
                                     );
                                   }}
-                                  className="block w-full rounded-md px-2 py-1.5 text-left text-[9px] text-app-faint hover:text-white"
+                                  className="block w-full rounded-md px-2 py-1.5 text-left text-[9px] text-app-faint hover:text-app-heading"
                                 >
                                   Schließen
                                 </button>
@@ -2369,7 +2369,7 @@ export default function SeasonPlanningPage() {
                             </p>
 
                             {task.due_date < today && (
-                              <p className="mt-1 text-xs font-semibold text-red-300">
+                              <p className="mt-1 text-xs font-semibold text-app-bad">
                                 Überfällig
                               </p>
                             )}
@@ -2391,7 +2391,7 @@ export default function SeasonPlanningPage() {
                               onClick={() =>
                                 deleteTask(task)
                               }
-                              className="rounded-lg border border-red-700 px-2 py-1 text-[10px] text-red-300 hover:bg-red-950"
+                              className="rounded-lg border border-app-bad/40 px-2 py-1 text-[10px] text-app-bad hover:bg-app-bad/10"
                             >
                               Löschen
                             </button>
@@ -2412,7 +2412,7 @@ export default function SeasonPlanningPage() {
                         (current) => !current
                       )
                     }
-                    className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm text-app-muted hover:bg-app-elevated hover:text-white"
+                    className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm text-app-muted hover:bg-app-elevated hover:text-app-heading"
                   >
                     <span>
                       Erledigte Aufgaben{" "}
@@ -2491,7 +2491,7 @@ export default function SeasonPlanningPage() {
                                     onClick={() =>
                                       deleteTask(task)
                                     }
-                                    className="rounded-lg border border-red-700 px-2 py-1 text-[10px] text-red-300"
+                                    className="rounded-lg border border-app-bad/40 px-2 py-1 text-[10px] text-app-bad"
                                   >
                                     Löschen
                                   </button>
@@ -2530,17 +2530,17 @@ export default function SeasonPlanningPage() {
 
               <div className="flex flex-wrap gap-5 text-xs text-app-muted">
                 <span className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full bg-amber-400" />
+                  <span className="h-3 w-3 rounded-full bg-app-warn" />
                   1 Tag
                 </span>
 
                 <span className="flex items-center gap-2">
-                  <span className="h-3 w-9 rounded-full bg-sky-500" />
+                  <span className="h-3 w-9 rounded-full bg-app-accent" />
                   Zeitraum
                 </span>
 
                 <span className="flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full bg-emerald-500" />
+                  <span className="h-3 w-3 rounded-full bg-app-good" />
                   Frist
                 </span>
 
@@ -2680,7 +2680,7 @@ export default function SeasonPlanningPage() {
                                   onClick={() =>
                                     editEvent(event)
                                   }
-                                  className={`w-full rounded-lg border px-3 py-2 text-left transition hover:ring-2 hover:ring-white/40 ${
+                                  className={`w-full rounded-lg border px-3 py-2 text-left transition hover:ring-2 hover:ring-app-heading/40 ${
                                     colorStyles[color]
                                       .card
                                   }`}
@@ -2734,7 +2734,7 @@ export default function SeasonPlanningPage() {
                               onClick={() =>
                                 editEvent(event)
                               }
-                              className={`block h-3 w-full rounded-full transition hover:ring-2 hover:ring-white/50 ${
+                              className={`block h-3 w-full rounded-full transition hover:ring-2 hover:ring-app-heading/50 ${
                                 colorStyles[color]
                                   .dot
                               }`}
@@ -2898,7 +2898,7 @@ export default function SeasonPlanningPage() {
                                 onClick={() =>
                                   editTask(task)
                                 }
-                                className={`w-full rounded-lg border px-2 py-2 text-left transition hover:ring-2 hover:ring-white/40 ${
+                                className={`w-full rounded-lg border px-2 py-2 text-left transition hover:ring-2 hover:ring-app-heading/40 ${
                                   colorStyles[color]
                                     .card
                                 }`}
@@ -3012,7 +3012,7 @@ export default function SeasonPlanningPage() {
                         onClick={() =>
                           deleteEvent(event)
                         }
-                        className="rounded-lg border border-red-900/60 bg-red-950/30 px-3 py-1.5 text-xs font-semibold hover:bg-red-950/60"
+                        className="rounded-lg border border-app-bad/60 bg-app-bad/30 px-3 py-1.5 text-xs font-semibold hover:bg-app-bad/60"
                       >
                         Löschen
                       </button>

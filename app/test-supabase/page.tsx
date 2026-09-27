@@ -22,7 +22,7 @@ export default function TestSupabasePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-app-bg p-10 text-white">
+    <main className="min-h-screen bg-app-bg p-10 text-app-heading">
       <div className="mx-auto max-w-2xl rounded-2xl border border-app-border bg-app-surface p-6">
         <h1 className="text-2xl font-bold">
           Supabase Verbindungstest

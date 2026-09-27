@@ -63,7 +63,7 @@ export default function RoleGuard({
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-app-bg text-white">
+      <main className="flex min-h-screen items-center justify-center bg-app-bg text-app-heading">
         <p className="text-sm text-app-muted">
           Zugriff wird geprüft...
         </p>

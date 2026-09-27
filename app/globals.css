@@ -5,36 +5,126 @@
  *
  * Wer hier eine Farbe aendert, aendert sie ueberall.
  * Bitte in den Seiten keine rohen Farbklassen wie
- * bg-slate-900 mehr verwenden, sondern die Klassen
- * aus diesem System: bg-app-surface, text-app-muted
- * und so weiter.
+ * bg-slate-900 oder text-white verwenden, sondern die
+ * Klassen aus diesem System: bg-app-surface,
+ * text-app-heading, text-app-muted und so weiter.
+ *
+ * Es gibt ein helles und ein dunkles Design. Ohne
+ * Auswahl folgt die App der Einstellung des Geraets;
+ * der Schalter in der Navigation setzt data-theme auf
+ * <html> (siehe components/ThemeToggle.tsx).
  */
+
+/* ---------- Hell (Standard) ---------- */
 :root {
+  color-scheme: light;
+
   /* Flaechen */
-  --app-bg: #020617;        /* Seitengrund                      */
-  --app-surface: #0f172a;   /* Karten, Leisten, Tabellen        */
-  --app-elevated: #1e293b;  /* Hover, hervorgehobene Zeilen     */
-  --app-border: #334155;    /* Kanten                           */
+  --app-bg: #f3f6fa;        /* Seitengrund                      */
+  --app-surface: #ffffff;   /* Karten, Leisten, Tabellen        */
+  --app-elevated: #eaf0f7;  /* Hover, hervorgehobene Zeilen     */
+  --app-border: #d7e0eb;    /* Kanten                           */
 
   /* Schrift */
-  --app-heading: #ffffff;   /* Ueberschriften und Werte         */
-  --app-text: #e2e8f0;      /* Fliesstext                       */
-  --app-muted: #94a3b8;     /* Nebensaechliches                 */
-  --app-faint: #64748b;     /* Beschriftungen, Platzhalter      */
+  --app-heading: #0b1b33;   /* Ueberschriften und Werte         */
+  --app-text: #26364f;      /* Fliesstext                       */
+  --app-muted: #5b6b82;     /* Nebensaechliches                 */
+  --app-faint: #8494aa;     /* Beschriftungen, Platzhalter      */
 
-  /* Akzent - nur fuer die wichtigste Aktion und den
-     aktiven Menuepunkt. Nie fuer Zustaende. */
-  --app-accent: #38bdf8;
-  --app-accent-ink: #04202e; /* Schrift auf Akzentflaechen      */
+  /* Akzent - Beckenblau. Fuer die wichtigste Aktion,
+     Links und den aktiven Menuepunkt. Nie fuer Zustaende. */
+  --app-accent: #0b76c5;
+  --app-accent-ink: #ffffff; /* Schrift auf Akzentflaechen      */
 
   /* Signalfarben - stehen fuer einen Zustand, nie fuer Deko. */
-  --app-good: #34d399;
-  --app-warn: #fbbf24;
-  --app-bad: #f87171;
+  --app-good: #0d9467;
+  --app-warn: #b7700a;
+  --app-bad: #d23f47;
 
   /* Landtraining. Frueher gruen - das kollidierte mit
      "Befinden gut". */
+  --app-sand: #b07a26;
+
+  /* Kalender-Kategorien */
+  --cat-training: #0e8f9c;
+  --cat-competition: #e0562a;
+  --cat-camp: #7a55d4;
+  --cat-meeting: #b7700a;
+
+  /* Diagramme: 25m- und 50m-Bahn */
+  --chart-25: #0b76c5;
+  --chart-50: #e0562a;
+
+  --app-shadow: 0 1px 2px rgb(15 35 70 / 0.06), 0 4px 16px rgb(15 35 70 / 0.06);
+}
+
+/* ---------- Dunkel ----------
+   Zweimal dieselben Werte: einmal fuer den Schalter
+   (data-theme="dark"), einmal fuer "wie das Geraet". */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --app-bg: #06101d;
+  --app-surface: #0c1a2c;
+  --app-elevated: #14263d;
+  --app-border: #213752;
+
+  --app-heading: #f2f6fb;
+  --app-text: #d2ddea;
+  --app-muted: #8ea2bc;
+  --app-faint: #5f7392;
+
+  --app-accent: #3cb4f0;
+  --app-accent-ink: #03192a;
+
+  --app-good: #34d399;
+  --app-warn: #fbbf24;
+  --app-bad: #f87171;
   --app-sand: #e0b263;
+
+  --cat-training: #2dd4bf;
+  --cat-competition: #fb8a5c;
+  --cat-camp: #a78bfa;
+  --cat-meeting: #fbbf24;
+
+  --chart-25: #3cb4f0;
+  --chart-50: #fb8a5c;
+
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --app-bg: #06101d;
+    --app-surface: #0c1a2c;
+    --app-elevated: #14263d;
+    --app-border: #213752;
+
+    --app-heading: #f2f6fb;
+    --app-text: #d2ddea;
+    --app-muted: #8ea2bc;
+    --app-faint: #5f7392;
+
+    --app-accent: #3cb4f0;
+    --app-accent-ink: #03192a;
+
+    --app-good: #34d399;
+    --app-warn: #fbbf24;
+    --app-bad: #f87171;
+    --app-sand: #e0b263;
+
+    --cat-training: #2dd4bf;
+    --cat-competition: #fb8a5c;
+    --cat-camp: #a78bfa;
+    --cat-meeting: #fbbf24;
+
+    --chart-25: #3cb4f0;
+    --chart-50: #fb8a5c;
+
+    --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  }
 }
 
 @theme inline {
@@ -53,25 +143,59 @@
   --color-app-bad: var(--app-bad);
   --color-app-sand: var(--app-sand);
 
-  --font-sans: var(--font-geist-sans);
+  --color-cat-training: var(--cat-training);
+  --color-cat-competition: var(--cat-competition);
+  --color-cat-camp: var(--cat-camp);
+  --color-cat-meeting: var(--cat-meeting);
+
+  --shadow-app: var(--app-shadow);
+
+  --font-sans: var(--font-app-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-body {
-  background: var(--app-bg);
-  color: var(--app-text);
+/*
+ * Grundregeln in der base-Ebene: So gewinnen Klassen wie
+ * text-app-accent-ink an einer Ueberschrift immer.
+ */
+@layer base {
+  body {
+    background: var(--app-bg);
+    color: var(--app-text);
+    font-family: var(--font-app-sans), ui-sans-serif, system-ui,
+      "Segoe UI", Roboto, sans-serif;
 
-  /*
-   * Vorher stand hier Arial. Dadurch wurde die in
-   * app/layout.tsx geladene Schrift Geist nie benutzt.
-   */
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui,
-    "Segoe UI", Roboto, sans-serif;
+    /*
+     * Ziffern bekommen alle dieselbe Breite. Dadurch stehen
+     * Meter, Zeiten und Messwerte in Listen sauber
+     * untereinander.
+     */
+    font-variant-numeric: tabular-nums;
+  }
 
-  /*
-   * Ziffern bekommen alle dieselbe Breite. Dadurch stehen
-   * Meter, Zeiten und Messwerte in Listen sauber
-   * untereinander.
-   */
-  font-variant-numeric: tabular-nums;
+  h1,
+  h2,
+  h3 {
+    color: var(--app-heading);
+    letter-spacing: -0.01em;
+  }
+
+  /* Sanfter Wechsel zwischen hell und dunkel */
+  body,
+  main,
+  section,
+  aside,
+  nav {
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--app-accent) 25%, transparent);
+  }
+
+  /* Sichtbarer Fokus fuer Tastaturbedienung */
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--app-accent);
+    outline-offset: 2px;
+  }
 }

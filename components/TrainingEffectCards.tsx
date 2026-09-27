@@ -137,7 +137,7 @@ export default function TrainingEffectCards() {
       <details className="group">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
           <div>
-            <h2 className="text-sm font-semibold text-white">
+            <h2 className="text-sm font-semibold text-app-heading">
               Was dein Training bewirkt
             </h2>
             <p className="text-xs text-app-faint">
@@ -160,7 +160,7 @@ export default function TrainingEffectCards() {
                 key={card.key}
                 className={`w-60 shrink-0 snap-start rounded-lg border p-3 ${
                   isActive
-                    ? "border-sky-700 bg-sky-950/40"
+                    ? "border-app-accent/40 bg-app-accent/40"
                     : "border-app-border bg-app-bg"
                 }`}
               >
@@ -169,12 +169,12 @@ export default function TrainingEffectCards() {
                     {card.tag}
                   </p>
                   {isActive && (
-                    <span className="rounded-full bg-sky-900/70 px-2 py-0.5 text-[10px] text-sky-300">
+                    <span className="rounded-full bg-app-accent/70 px-2 py-0.5 text-[10px] text-app-accent">
                       diese Woche
                     </span>
                   )}
                 </div>
-                <h3 className="mt-1 text-sm font-semibold text-white">
+                <h3 className="mt-1 text-sm font-semibold text-app-heading">
                   {card.title}
                 </h3>
                 <p className="mt-1 text-xs leading-5 text-app-muted">

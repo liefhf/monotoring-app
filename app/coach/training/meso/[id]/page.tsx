@@ -75,7 +75,7 @@ export default function MesoPage() {
       <div className="mb-8">
         <Link
           href="/coach/training/season"
-          className="text-sm text-app-muted hover:text-white"
+          className="text-sm text-app-muted hover:text-app-heading"
         >
           ← Zurück zur Jahresplanung
         </Link>

@@ -77,7 +77,7 @@ export default function EinfuehrungPage() {
           <ul className="mt-3 list-disc space-y-1.5 pl-6 text-sm leading-6 text-app-text">
             <li>
               grundlegende Begriffe für das bewegungsbezogene Arbeitsfeld in{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 Prävention und Rehabilitation
               </strong>{" "}
               definieren können,
@@ -85,7 +85,7 @@ export default function EinfuehrungPage() {
 
             <li>
               den Forschungsstand zum Zusammenhang von{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 körperlicher Aktivität und Gesundheit
               </strong>{" "}
               wiedergeben können,
@@ -93,7 +93,7 @@ export default function EinfuehrungPage() {
 
             <li>
               Konzepte zum Zusammenhang von{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 körperlicher Aktivität, Wohlbefinden und Gesundheit
               </strong>{" "}
               erläutern können,
@@ -101,7 +101,7 @@ export default function EinfuehrungPage() {
 
             <li>
               konzeptionelle Unterschiede von Bewegungsangeboten in{" "}
-              <strong className="text-white">
+              <strong className="text-app-heading">
                 Prävention und Rehabilitation
               </strong>{" "}
               benennen können.
@@ -119,42 +119,42 @@ export default function EinfuehrungPage() {
           <div className="mt-3 space-y-1 text-sm">
             <a
               href="#grundbegriffe"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               1.1 Grundlegende Begrifflichkeiten
             </a>
 
             <a
               href="#gesundheitssport"
-              className="block rounded-lg px-6 py-2 text-app-muted hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-6 py-2 text-app-muted hover:bg-app-elevated hover:text-app-heading"
             >
               Gesundheitssport
             </a>
 
             <a
               href="#rehabilitationssport"
-              className="block rounded-lg px-6 py-2 text-app-muted hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-6 py-2 text-app-muted hover:bg-app-elevated hover:text-app-heading"
             >
               Rehabilitationssport
             </a>
 
             <a
               href="#bewegungstherapie"
-              className="block rounded-lg px-6 py-2 text-app-muted hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-6 py-2 text-app-muted hover:bg-app-elevated hover:text-app-heading"
             >
               Bewegungstherapie
             </a>
 
             <a
               href="#forschungsstand"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               1.2 Körperliche Aktivität, Sport und Gesundheit: Stand der Forschung
             </a>
 
             <a
               href="#praevention"
-              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-app-heading"
             >
               1.3 Körperliche Aktivität und Sport als Mittel in Prävention,
               Rehabilitation und Gesundheitsförderung
@@ -177,7 +177,7 @@ export default function EinfuehrungPage() {
           <p className="mt-5 leading-6 text-app-text">
             Für eine zielgruppen- und handlungsfeldspezifische Arbeit im
             Gesundheits- und Rehabilitationssport müssen die Begriffe{" "}
-            <strong className="text-white">
+            <strong className="text-app-heading">
               Bewegung, körperliche Aktivität, Sport, Fitness, Training,
               Üben und Entwicklung
             </strong>{" "}
@@ -188,12 +188,12 @@ export default function EinfuehrungPage() {
             {/* BEWEGUNG */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Bewegung und Fortbewegung
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Bewegung
                 </strong>{" "}
                 kann sowohl passiv als auch aktiv erfolgen.
@@ -209,7 +209,7 @@ export default function EinfuehrungPage() {
                 </li>
 
                 <li>
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     Fortbewegung
                   </strong>{" "}
                   bezeichnet die aktive Bewegung eines Individuums von Ort
@@ -217,7 +217,7 @@ export default function EinfuehrungPage() {
                 </li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Beispiele für Fortbewegung:
               </p>
 
@@ -241,17 +241,17 @@ export default function EinfuehrungPage() {
             {/* BELASTUNG */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Belastung und Beanspruchung
               </h3>
 
               <p className="mt-3 leading-6">
                 Die Begriffe{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Belastung
                 </strong>{" "}
                 und{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Beanspruchung
                 </strong>{" "}
                 dürfen nicht synonym verwendet werden.
@@ -259,7 +259,7 @@ export default function EinfuehrungPage() {
 
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="text-lg font-semibold text-white">
+                  <h4 className="text-lg font-semibold text-app-heading">
                     Belastung
                   </h4>
 
@@ -268,7 +268,7 @@ export default function EinfuehrungPage() {
                     Anforderung.
                   </p>
 
-                  <p className="mt-3 font-medium text-white">
+                  <p className="mt-3 font-medium text-app-heading">
                     Beispiele:
                   </p>
 
@@ -282,13 +282,13 @@ export default function EinfuehrungPage() {
                     </li>
                   </ul>
 
-                  <p className="mt-3 font-semibold text-white">
+                  <p className="mt-3 font-semibold text-app-heading">
                     Belastung = extrinsischer Faktor
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="text-lg font-semibold text-white">
+                  <h4 className="text-lg font-semibold text-app-heading">
                     Beanspruchung
                   </h4>
 
@@ -327,12 +327,12 @@ export default function EinfuehrungPage() {
             {/* KÖRPERLICHE AKTIVITÄT */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Körperliche Aktivität
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Körperliche Aktivität
                 </strong>{" "}
                 ist der konzeptionelle Oberbegriff für alle
@@ -342,7 +342,7 @@ export default function EinfuehrungPage() {
               <ul className="mt-3 list-disc space-y-1.5 pl-6 leading-6">
                 <li>
                   durch{" "}
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     Kontraktionen der Skelettmuskulatur
                   </strong>{" "}
                   entstehen und
@@ -350,7 +350,7 @@ export default function EinfuehrungPage() {
 
                 <li>
                   zu einem{" "}
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     zusätzlichen Energieverbrauch über den Grundumsatz hinaus
                   </strong>{" "}
                   führen.
@@ -361,7 +361,7 @@ export default function EinfuehrungPage() {
                 Der Kontext der Aktivität ist zunächst unerheblich.
               </p>
 
-              <p className="mt-3 font-medium text-white">
+              <p className="mt-3 font-medium text-app-heading">
                 Körperliche Aktivität kann stattfinden:
               </p>
 
@@ -386,7 +386,7 @@ export default function EinfuehrungPage() {
             {/* GESUNDHEITSFÖRDERNDE AKTIVITÄT */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Gesundheitsfördernde körperliche Aktivität
               </h3>
 
@@ -397,20 +397,20 @@ export default function EinfuehrungPage() {
 
               {/* MINDESTEMPFEHLUNG */}
 
-              <div className="mt-4 overflow-hidden rounded-2xl border border-sky-900/70 bg-app-surface">
+              <div className="mt-4 overflow-hidden rounded-2xl border border-app-accent/70 bg-app-surface">
                 <div className="border-b border-app-border px-5 py-4 sm:px-6">
-                  <span className="inline-flex rounded-lg bg-sky-500 px-3 py-1.5 text-sm font-bold text-white sm:text-base">
+                  <span className="inline-flex rounded-lg bg-app-accent px-3 py-1.5 text-sm font-bold text-app-accent-ink sm:text-base">
                     Mindestempfehlung
                   </span>
                 </div>
 
                 <div className="grid lg:grid-cols-[1fr_auto_1fr_auto_1fr]">
                   <div className="p-5 sm:p-6">
-                    <p className="text-sm font-medium text-sky-300">
+                    <p className="text-sm font-medium text-app-accent">
                       Moderate Aktivität
                     </p>
 
-                    <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                    <p className="mt-2 text-4xl font-bold tracking-tight text-app-heading sm:text-5xl">
                       150 Min.
                     </p>
 
@@ -420,17 +420,17 @@ export default function EinfuehrungPage() {
                   </div>
 
                   <div className="flex items-center justify-center border-y border-app-border px-5 py-3 lg:border-x lg:border-y-0">
-                    <span className="text-sm font-bold uppercase tracking-wide text-sky-300">
+                    <span className="text-sm font-bold uppercase tracking-wide text-app-accent">
                       oder
                     </span>
                   </div>
 
                   <div className="p-5 sm:p-6">
-                    <p className="text-sm font-medium text-sky-300">
+                    <p className="text-sm font-medium text-app-accent">
                       Intensive Aktivität
                     </p>
 
-                    <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                    <p className="mt-2 text-4xl font-bold tracking-tight text-app-heading sm:text-5xl">
                       75 Min.
                     </p>
 
@@ -440,17 +440,17 @@ export default function EinfuehrungPage() {
                   </div>
 
                   <div className="flex items-center justify-center border-y border-app-border px-5 py-3 lg:border-x lg:border-y-0">
-                    <span className="text-2xl font-light text-sky-400">
+                    <span className="text-2xl font-light text-app-accent">
                       +
                     </span>
                   </div>
 
                   <div className="p-5 sm:p-6">
-                    <p className="text-sm font-medium text-sky-300">
+                    <p className="text-sm font-medium text-app-accent">
                       Muskelkräftigung
                     </p>
 
-                    <p className="mt-2 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+                    <p className="mt-2 text-4xl font-bold tracking-tight text-app-heading sm:text-5xl">
                       2×
                     </p>
 
@@ -476,7 +476,7 @@ export default function EinfuehrungPage() {
 
               <div className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface/80">
                 <div className="border-b border-app-border px-5 py-4 sm:px-6">
-                  <span className="inline-flex rounded-lg border border-sky-700 bg-sky-950/60 px-3 py-1.5 text-sm font-bold text-sky-200 sm:text-base">
+                  <span className="inline-flex rounded-lg border border-app-accent/40 bg-app-accent/60 px-3 py-1.5 text-sm font-bold text-app-accent sm:text-base">
                     Für zusätzliche Gesundheitseffekte
                   </span>
                 </div>
@@ -487,7 +487,7 @@ export default function EinfuehrungPage() {
                       Moderate Aktivität
                     </p>
 
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    <p className="mt-2 text-3xl font-bold tracking-tight text-app-heading sm:text-4xl">
                       bis 300 Min.
                     </p>
 
@@ -507,7 +507,7 @@ export default function EinfuehrungPage() {
                       Intensive Aktivität
                     </p>
 
-                    <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                    <p className="mt-2 text-3xl font-bold tracking-tight text-app-heading sm:text-4xl">
                       bis 150 Min.
                     </p>
 
@@ -524,14 +524,14 @@ export default function EinfuehrungPage() {
                 <div className="space-y-2 text-sm text-app-text sm:text-base">
                   <p>
                     Einzelne Aktivitätseinheit laut Studienheft:{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       mindestens 10 Minuten
                     </strong>
                   </p>
 
                   <p>
                     Über{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       300 Minuten pro Woche
                     </strong>
                     : im Studienheft keine Evidenz für zusätzliche
@@ -544,7 +544,7 @@ export default function EinfuehrungPage() {
             {/* MODERATE AKTIVITÄT */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Moderate körperliche Aktivität
               </h3>
 
@@ -553,7 +553,7 @@ export default function EinfuehrungPage() {
                 dass die Atmung stärker als normalerweise beansprucht wird.
               </p>
 
-              <p className="mt-3 font-medium text-white">
+              <p className="mt-3 font-medium text-app-heading">
                 Beispiele:
               </p>
 
@@ -572,17 +572,17 @@ export default function EinfuehrungPage() {
             {/* SPORT */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Sport
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Sport ist eine Unterkategorie der körperlichen Aktivität.
                 </strong>
               </p>
 
-              <p className="mt-3 font-medium text-white">
+              <p className="mt-3 font-medium text-app-heading">
                 Mit Sport werden insbesondere verbunden:
               </p>
 
@@ -593,7 +593,7 @@ export default function EinfuehrungPage() {
                 <li>Spaß an der Bewegung</li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Sport umfasst verschiedene:
               </p>
 
@@ -614,12 +614,12 @@ export default function EinfuehrungPage() {
             {/* BREITENSPORT */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Breitensport
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Breitensport bzw. Freizeitsport
                 </strong>{" "}
                 dient vor allem:
@@ -635,12 +635,12 @@ export default function EinfuehrungPage() {
             {/* LEISTUNGSSPORT */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Leistungssport
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Leistungssport
                 </strong>{" "}
                 ist gekennzeichnet durch:
@@ -663,13 +663,13 @@ export default function EinfuehrungPage() {
             {/* FITNESS */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Fitness
               </h3>
 
               <p className="mt-3 leading-6">
                 Der Begriff{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Fitness
                 </strong>{" "}
                 ist ohne zusätzlichen Bezug nicht eindeutig.
@@ -677,7 +677,7 @@ export default function EinfuehrungPage() {
 
               <p className="mt-3 leading-6">
                 Fitness beschreibt die{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Tauglichkeit bzw. Leistungsbereitschaft für eine
                   spezifische Aufgabe.
                 </strong>
@@ -690,7 +690,7 @@ export default function EinfuehrungPage() {
                 </InfoBox>
               </div>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Beispiele:
               </p>
 
@@ -705,7 +705,7 @@ export default function EinfuehrungPage() {
                 </li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Für den Fitnesssport werden verschiedene Zielperspektiven
                 beschrieben:
               </p>
@@ -716,7 +716,7 @@ export default function EinfuehrungPage() {
                 <li>Funktionale Ziele</li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Mögliche funktionale Ziele:
               </p>
 
@@ -729,18 +729,18 @@ export default function EinfuehrungPage() {
             {/* TRAINING */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Training
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Körperliches Training
                 </strong>{" "}
                 ist eine Unterkategorie körperlicher Aktivität.
               </p>
 
-              <p className="mt-3 font-medium text-white">
+              <p className="mt-3 font-medium text-app-heading">
                 Training ist:
               </p>
 
@@ -785,12 +785,12 @@ export default function EinfuehrungPage() {
             {/* TRAININGSPRINZIPIEN */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Trainingsprinzipien
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Trainingsprinzipien
                 </strong>{" "}
                 sind allgemeingültige Bedingungen für die Wirksamkeit von
@@ -798,34 +798,34 @@ export default function EinfuehrungPage() {
                 Anpassungserscheinungen.
               </p>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Unterschieden werden:
               </p>
 
               <ul className="mt-2 list-disc space-y-1 pl-6 leading-6">
                 <li>
                   Prinzipien, die{" "}
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     Anpassungen auslösen
                   </strong>
                 </li>
 
                 <li>
                   Prinzipien, die{" "}
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     Anpassungserscheinungen optimieren
                   </strong>
                 </li>
 
                 <li>
                   Prinzipien, die Anpassungen{" "}
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     in spezifische Richtungen lenken
                   </strong>
                 </li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Zusätzlich sollten didaktische Prinzipien berücksichtigt
                 werden:
               </p>
@@ -843,12 +843,12 @@ export default function EinfuehrungPage() {
             {/* LERNEN */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Lernen
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Lernen
                 </strong>{" "}
                 ist Teil menschlicher Entwicklung.
@@ -879,11 +879,11 @@ export default function EinfuehrungPage() {
 
               <p className="mt-3 leading-6">
                 Lernen ist ein{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   aktiver Prozess
                 </strong>{" "}
                 und von genetisch weitgehend festgelegten Vorgängen wie{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Reifung oder Altern
                 </strong>{" "}
                 abzugrenzen.
@@ -893,12 +893,12 @@ export default function EinfuehrungPage() {
             {/* ÜBEN */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Üben
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Üben
                 </strong>{" "}
                 beschreibt die systematische Wiederholung gezielter
@@ -906,7 +906,7 @@ export default function EinfuehrungPage() {
                 durch Verbesserung der Koordination.
               </p>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Der Schwerpunkt liegt insbesondere auf:
               </p>
 
@@ -916,13 +916,13 @@ export default function EinfuehrungPage() {
                 <li>Bewegungssteuerung</li>
               </ul>
 
-              <h4 className="mt-5 text-lg font-semibold text-white">
+              <h4 className="mt-5 text-lg font-semibold text-app-heading">
                 Training und Üben im Vergleich
               </h4>
 
               <div className="mt-3 overflow-x-auto rounded-xl border border-app-border">
                 <table className="w-full min-w-[700px] border-collapse text-left text-sm">
-                  <thead className="bg-app-surface text-white">
+                  <thead className="bg-app-surface text-app-heading">
                     <tr>
                       <th className="border-b border-r border-app-border p-3">
                         Training
@@ -991,19 +991,19 @@ export default function EinfuehrungPage() {
             {/* ENTWICKLUNG */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Entwicklung
               </h3>
 
               <p className="mt-3 leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Entwicklung
                 </strong>{" "}
                 ist ein menschlicher, lebenslanger und ganzheitlicher
                 Veränderungsprozess.
               </p>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Sie betrifft:
               </p>
 
@@ -1018,7 +1018,7 @@ export default function EinfuehrungPage() {
                 dieser Merkmale bedeuten.
               </p>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Die motorische Entwicklung steht besonders in Beziehung zu:
               </p>
 
@@ -1029,32 +1029,32 @@ export default function EinfuehrungPage() {
                 <li>Sozialisation</li>
               </ul>
 
-              <h4 className="mt-5 text-lg font-semibold text-white">
+              <h4 className="mt-5 text-lg font-semibold text-app-heading">
                 Akzeleration und Retardierung
               </h4>
 
               <div className="mt-3 grid gap-3 md:grid-cols-2">
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h5 className="font-semibold text-white">
+                  <h5 className="font-semibold text-app-heading">
                     Akzeleration
                   </h5>
 
                   <p className="mt-2 text-sm leading-6">
                     Bezeichnet eine{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       beschleunigte Entwicklung.
                     </strong>
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h5 className="font-semibold text-white">
+                  <h5 className="font-semibold text-app-heading">
                     Retardierung
                   </h5>
 
                   <p className="mt-2 text-sm leading-6">
                     Bezeichnet eine{" "}
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       verzögerte Entwicklung.
                     </strong>
                   </p>
@@ -1085,7 +1085,7 @@ export default function EinfuehrungPage() {
           <div className="mt-5 space-y-7 text-app-text">
             <div>
               <p className="leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Gesundheitssport
                 </strong>{" "}
                 umfasst Angebote und Programme, die den Kernzielen und
@@ -1103,7 +1103,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Zielgruppen
               </h3>
 
@@ -1126,7 +1126,7 @@ export default function EinfuehrungPage() {
                 </li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Beispiele für gesundheitliche Probleme:
               </p>
 
@@ -1137,7 +1137,7 @@ export default function EinfuehrungPage() {
 
               <p className="mt-4 leading-6">
                 Gesundheitssport ist{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   hochstrukturiert
                 </strong>{" "}
                 und gezielt auf gesundheitsfördernde Wirkungen ausgerichtet.
@@ -1145,15 +1145,15 @@ export default function EinfuehrungPage() {
 
               <p className="mt-3 leading-6">
                 Diese Wirkungen betreffen den{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Gesundheitsstatus
                 </strong>
                 , das{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Gesundheitsverhalten
                 </strong>{" "}
                 und die{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Gesundheitsverhältnisse
                 </strong>
                 .
@@ -1163,14 +1163,14 @@ export default function EinfuehrungPage() {
             {/* SECHS KERNZIELE */}
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Sechs Kernziele des Gesundheitssports
               </h3>
 
               <div className="mt-4 grid items-start gap-3 lg:grid-cols-2">
                 {/* 1 */}
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="font-semibold leading-6 text-white">
+                  <h4 className="font-semibold leading-6 text-app-heading">
                     1. Stärkung physischer Gesundheitsressourcen
                   </h4>
 
@@ -1190,7 +1190,7 @@ export default function EinfuehrungPage() {
 
                 {/* 2 */}
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="font-semibold leading-6 text-white">
+                  <h4 className="font-semibold leading-6 text-app-heading">
                     2. Stärkung psychosozialer Gesundheitsressourcen
                   </h4>
 
@@ -1211,7 +1211,7 @@ export default function EinfuehrungPage() {
 
                 {/* 3 */}
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="font-semibold leading-6 text-white">
+                  <h4 className="font-semibold leading-6 text-app-heading">
                     3. Verminderung von Risikofaktoren
                   </h4>
 
@@ -1234,7 +1234,7 @@ export default function EinfuehrungPage() {
 
                 {/* 4 */}
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="font-semibold leading-6 text-white">
+                  <h4 className="font-semibold leading-6 text-app-heading">
                     4. Bewältigung von Beschwerden und Missbefinden
                   </h4>
 
@@ -1263,12 +1263,12 @@ export default function EinfuehrungPage() {
 
                 {/* 5 */}
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="font-semibold leading-6 text-white">
+                  <h4 className="font-semibold leading-6 text-app-heading">
                     5. Aufbau von und Bindung an gesundheitssportliche Aktivität
                   </h4>
 
                   <p className="mt-2 text-sm leading-6 text-app-text">
-                    <strong className="text-white">
+                    <strong className="text-app-heading">
                       Bindung
                     </strong>{" "}
                     bedeutet die regelmäßige und langfristige Teilnahme am
@@ -1279,7 +1279,7 @@ export default function EinfuehrungPage() {
                     Langfristiges Dabeibleiben ist ein zentrales Ziel.
                   </p>
 
-                  <p className="mt-3 text-sm font-medium leading-6 text-white">
+                  <p className="mt-3 text-sm font-medium leading-6 text-app-heading">
                     Regelmäßige sportliche Aktivität kann außerdem weitere
                     Aspekte des Lebensstils beeinflussen:
                   </p>
@@ -1293,7 +1293,7 @@ export default function EinfuehrungPage() {
 
                 {/* 6 */}
                 <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                  <h4 className="font-semibold leading-6 text-white">
+                  <h4 className="font-semibold leading-6 text-app-heading">
                     6. Verbesserung der Bewegungsverhältnisse
                   </h4>
 
@@ -1351,7 +1351,7 @@ export default function EinfuehrungPage() {
           <div className="mt-5 space-y-7 text-app-text">
             <div>
               <p className="leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Rehabilitationssport
                 </strong>{" "}
                 richtet sich insbesondere an:
@@ -1374,7 +1374,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Ziele des Rehabilitationssports
               </h3>
 
@@ -1391,7 +1391,7 @@ export default function EinfuehrungPage() {
                 <li>Hilfe zur Selbsthilfe bieten</li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Übergeordnete Ziele:
               </p>
 
@@ -1418,7 +1418,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Rehabilitationssport als Gruppenangebot
               </h3>
 
@@ -1438,7 +1438,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Typische Indikationsbereiche
               </h3>
 
@@ -1457,13 +1457,13 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Prävention und Rehabilitation im Vergleich
               </h3>
 
               <div className="mt-3 overflow-x-auto rounded-xl border border-app-border">
                 <table className="w-full min-w-[800px] border-collapse text-left text-sm">
-                  <thead className="bg-app-surface text-white">
+                  <thead className="bg-app-surface text-app-heading">
                     <tr>
                       <th className="border-b border-r border-app-border p-3">
                         Merkmal
@@ -1481,7 +1481,7 @@ export default function EinfuehrungPage() {
 
                   <tbody className="text-app-text">
                     <tr>
-                      <td className="border-b border-r border-app-border p-3 font-medium text-white">
+                      <td className="border-b border-r border-app-border p-3 font-medium text-app-heading">
                         Zielgruppe
                       </td>
 
@@ -1496,7 +1496,7 @@ export default function EinfuehrungPage() {
                     </tr>
 
                     <tr>
-                      <td className="border-b border-r border-app-border p-3 font-medium text-white">
+                      <td className="border-b border-r border-app-border p-3 font-medium text-app-heading">
                         Zielsetzung
                       </td>
 
@@ -1512,7 +1512,7 @@ export default function EinfuehrungPage() {
                     </tr>
 
                     <tr>
-                      <td className="border-b border-r border-app-border p-3 font-medium text-white">
+                      <td className="border-b border-r border-app-border p-3 font-medium text-app-heading">
                         Qualifikation
                       </td>
 
@@ -1526,7 +1526,7 @@ export default function EinfuehrungPage() {
                     </tr>
 
                     <tr>
-                      <td className="border-b border-r border-app-border p-3 font-medium text-white">
+                      <td className="border-b border-r border-app-border p-3 font-medium text-app-heading">
                         Ärztliche Verordnung
                       </td>
 
@@ -1540,7 +1540,7 @@ export default function EinfuehrungPage() {
                     </tr>
 
                     <tr>
-                      <td className="border-r border-app-border p-3 font-medium text-white">
+                      <td className="border-r border-app-border p-3 font-medium text-app-heading">
                         Einbindung
                       </td>
 
@@ -1580,7 +1580,7 @@ export default function EinfuehrungPage() {
           <div className="mt-5 space-y-7 text-app-text">
             <div>
               <p className="leading-6">
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Sport- und Bewegungstherapie
                 </strong>{" "}
                 wird als ärztlich indizierte und verordnete Bewegung mit
@@ -1600,13 +1600,13 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Ziele der Bewegungstherapie
               </h3>
 
               <p className="mt-3 leading-6">
                 Die Bewegungstherapie ist{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   mehrdimensional.
                 </strong>
               </p>
@@ -1623,14 +1623,14 @@ export default function EinfuehrungPage() {
 
               <p className="mt-4 leading-6">
                 Ein übergeordnetes Ziel ist die Hinführung zu einem{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   körperlich aktiven Lebensstil.
                 </strong>
               </p>
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Dimensionen der Bewegungstherapie
               </h3>
 
@@ -1700,7 +1700,7 @@ export default function EinfuehrungPage() {
                 Risikofaktor dar.
               </p>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Im Studienheft werden Zusammenhänge mit folgenden
                 Erkrankungen bzw. Gesundheitsproblemen beschrieben:
               </p>
@@ -1717,7 +1717,7 @@ export default function EinfuehrungPage() {
 
               <p className="mt-4 leading-6">
                 Es besteht außerdem ein{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   inverser Zusammenhang zwischen dem Umfang körperlicher
                   Aktivität und der Gesamtmortalität.
                 </strong>
@@ -1732,7 +1732,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Positive Auswirkungen körperlicher Aktivität
               </h3>
 
@@ -1764,7 +1764,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Bewegungsmangel
               </h3>
 
@@ -1775,14 +1775,14 @@ export default function EinfuehrungPage() {
               <ul className="mt-3 list-disc space-y-1 pl-6 leading-6">
                 <li>
                   weniger als{" "}
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     150 Minuten moderate körperliche Aktivität pro Woche
                   </strong>
                 </li>
 
                 <li>
                   oder weniger als{" "}
-                  <strong className="text-white">
+                  <strong className="text-app-heading">
                     75 Minuten intensive körperliche Aktivität pro Woche
                   </strong>
                   .
@@ -1824,7 +1824,7 @@ export default function EinfuehrungPage() {
             <div>
               <p className="leading-6">
                 Körperlich-sportliche Aktivität kann Gesundheit sowohl{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   direkt als auch indirekt
                 </strong>{" "}
                 beeinflussen.
@@ -1835,7 +1835,7 @@ export default function EinfuehrungPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <h3 className="text-xl font-semibold text-white">
+                <h3 className="text-xl font-semibold text-app-heading">
                   Belastungsparameter körperlich-sportlicher Aktivität
                 </h3>
 
@@ -1848,7 +1848,7 @@ export default function EinfuehrungPage() {
               </div>
 
               <div>
-                <h3 className="text-xl font-semibold text-white">
+                <h3 className="text-xl font-semibold text-app-heading">
                   Psychosoziale Parameter
                 </h3>
 
@@ -1867,7 +1867,7 @@ export default function EinfuehrungPage() {
 
             <div className="grid gap-3 md:grid-cols-2">
               <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-app-heading">
                   Physische Gesundheitsressourcen
                 </h3>
 
@@ -1884,7 +1884,7 @@ export default function EinfuehrungPage() {
               </div>
 
               <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-app-heading">
                   Psychosoziale Gesundheitsressourcen
                 </h3>
 
@@ -1900,7 +1900,7 @@ export default function EinfuehrungPage() {
               </div>
 
               <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-app-heading">
                   Physische Belastungssymptome
                 </h3>
 
@@ -1913,7 +1913,7 @@ export default function EinfuehrungPage() {
               </div>
 
               <div className="rounded-xl border border-app-border bg-app-surface p-4">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-app-heading">
                   Psychosoziale Belastungssymptome
                 </h3>
 
@@ -1928,7 +1928,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Indirekte Wirkung körperlicher Aktivität
               </h3>
 
@@ -1956,7 +1956,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Direkte Wirkung körperlicher Aktivität
               </h3>
 
@@ -1973,7 +1973,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Externe Rahmenbedingungen
               </h3>
 
@@ -1993,11 +1993,11 @@ export default function EinfuehrungPage() {
 
               <p className="mt-4 leading-6">
                 Diese Faktoren können sowohl{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Anforderungen
                 </strong>{" "}
                 als auch{" "}
-                <strong className="text-white">
+                <strong className="text-app-heading">
                   Ressourcen
                 </strong>{" "}
                 darstellen.
@@ -2011,7 +2011,7 @@ export default function EinfuehrungPage() {
             </div>
 
             <div>
-              <h3 className="text-xl font-semibold text-white">
+              <h3 className="text-xl font-semibold text-app-heading">
                 Anforderungen an gesundheitswirksame körperliche Aktivität
               </h3>
 
@@ -2026,7 +2026,7 @@ export default function EinfuehrungPage() {
                 <li>mindestens mit moderater Intensität</li>
               </ul>
 
-              <p className="mt-4 font-medium text-white">
+              <p className="mt-4 font-medium text-app-heading">
                 Kennzeichen moderater Intensität:
               </p>
 

@@ -321,7 +321,7 @@ export default function TrainingPage() {
         {/* Kopf */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-white">
+            <h1 className="text-2xl font-semibold text-app-heading">
               Training
             </h1>
 
@@ -333,14 +333,14 @@ export default function TrainingPage() {
           <div className="flex flex-wrap gap-2">
             <Link
               href="/coach/training/season"
-              className="rounded-lg border border-app-border px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-white"
+              className="rounded-lg border border-app-border px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-app-heading"
             >
               Jahresplanung
             </Link>
 
             <Link
               href="/coach/training/new"
-              className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+              className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
             >
               + Training erstellen
             </Link>
@@ -360,7 +360,7 @@ export default function TrainingPage() {
               Heute
             </p>
 
-            <p className="mt-1.5 text-2xl font-semibold text-white">
+            <p className="mt-1.5 text-2xl font-semibold text-app-heading">
               {todayTrainings.length}
             </p>
 
@@ -374,7 +374,7 @@ export default function TrainingPage() {
               Diese Woche
             </p>
 
-            <p className="mt-1.5 text-2xl font-semibold text-white">
+            <p className="mt-1.5 text-2xl font-semibold text-app-heading">
               {weekTrainings.length}
             </p>
 
@@ -415,7 +415,7 @@ export default function TrainingPage() {
         {/* Kommende Einheiten */}
         <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
           <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-sm font-semibold text-white">
+            <h2 className="text-sm font-semibold text-app-heading">
               Kommende Einheiten
             </h2>
 
@@ -425,7 +425,7 @@ export default function TrainingPage() {
                 onChange={(event) =>
                   setSelectedTeam(event.target.value)
                 }
-                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-white outline-none transition focus:border-app-accent"
+                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-app-heading outline-none transition focus:border-app-accent"
               >
                 <option value="all">
                   Alle Teams
@@ -448,7 +448,7 @@ export default function TrainingPage() {
                     event.target.value as TypeFilter
                   )
                 }
-                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-white outline-none transition focus:border-app-accent"
+                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-app-heading outline-none transition focus:border-app-accent"
               >
                 <option value="all">
                   Alle Arten
@@ -477,7 +477,7 @@ export default function TrainingPage() {
 
               <Link
                 href="/coach/training/new"
-                className="mt-4 inline-block rounded-lg bg-app-accent px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110"
+                className="mt-4 inline-block rounded-lg bg-app-accent px-4 py-2 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
               >
                 Erstes Training erstellen
               </Link>
@@ -562,7 +562,7 @@ export default function TrainingPage() {
                           <td className="px-4 py-2.5">
                             <Link
                               href={`/coach/training/session/${training.id}`}
-                              className="block max-w-[26rem] truncate text-sm font-medium text-white hover:underline"
+                              className="block max-w-[26rem] truncate text-sm font-medium text-app-heading hover:underline"
                             >
                               {training.title}
                             </Link>
@@ -610,7 +610,7 @@ export default function TrainingPage() {
                           <td className="px-4 py-2.5 text-right">
                             <Link
                               href={`/coach/training/new?session=${training.id}`}
-                              className="text-xs text-app-muted transition hover:text-white"
+                              className="text-xs text-app-muted transition hover:text-app-heading"
                             >
                               Bearbeiten
                             </Link>
@@ -628,7 +628,7 @@ export default function TrainingPage() {
         {/* Planungsbereiche */}
         <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
           <div className="border-b border-app-border px-4 py-3">
-            <h2 className="text-sm font-semibold text-white">
+            <h2 className="text-sm font-semibold text-app-heading">
               Planung
             </h2>
           </div>
@@ -640,7 +640,7 @@ export default function TrainingPage() {
                 className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
               >
                 <span className="min-w-0">
-                  <span className="block text-sm font-medium text-white">
+                  <span className="block text-sm font-medium text-app-heading">
                     Jahresplanung
                   </span>
 
@@ -661,7 +661,7 @@ export default function TrainingPage() {
                 className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
               >
                 <span className="min-w-0">
-                  <span className="block text-sm font-medium text-white">
+                  <span className="block text-sm font-medium text-app-heading">
                     Wochenplanung
                   </span>
 
@@ -682,7 +682,7 @@ export default function TrainingPage() {
                 className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
               >
                 <span className="min-w-0">
-                  <span className="block text-sm font-medium text-white">
+                  <span className="block text-sm font-medium text-app-heading">
                     Training schreiben
                   </span>
 

@@ -93,8 +93,8 @@ export default function AthleteNav() {
               }
               className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[11px] font-medium transition ${
                 active
-                  ? "bg-app-elevated text-sky-400"
-                  : "text-app-muted hover:bg-app-elevated hover:text-white"
+                  ? "bg-app-elevated text-app-accent"
+                  : "text-app-muted hover:bg-app-elevated hover:text-app-heading"
               }`}
             >
               <svg

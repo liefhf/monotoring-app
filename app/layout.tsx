@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const appSans = Plus_Jakarta_Sans({
+  variable: "--font-app-sans",
   subsets: ["latin"],
 });
 
@@ -18,14 +18,25 @@ export const metadata: Metadata = {
     "Trainingssteuerung, Athletenmonitoring und Wettkampforganisation.",
 };
 
+/*
+ * Setzt das gespeicherte Design (hell/dunkel), bevor die
+ * Seite gezeichnet wird - sonst blitzt kurz das falsche auf.
+ * Ohne gespeicherte Wahl entscheidet die Geraeteeinstellung.
+ */
+const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+
 export default function RootLayout({
   children,
 }: LayoutProps<"/">) {
   return (
     <html
       lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
+      className={`${appSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="flex min-h-full flex-col bg-app-bg text-app-text">
         {children}
       </body>

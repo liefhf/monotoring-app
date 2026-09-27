@@ -132,13 +132,13 @@ export default function NewCompetitionPage() {
     <div className="mx-auto max-w-2xl">
       <Link
         href="/coach/competitions"
-        className="text-sm text-app-muted transition hover:text-white"
+        className="text-sm text-app-muted transition hover:text-app-heading"
       >
         ← Zurück
       </Link>
 
       <div className="mt-5">
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">
+        <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
           Wettkampf anlegen
         </h1>
       </div>
@@ -170,7 +170,7 @@ export default function NewCompetitionPage() {
             }
             required
             placeholder="z. B. Internationaler Hochtaunus-Cup"
-            className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition placeholder:text-app-faint focus:border-sky-500"
+            className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-accent"
           />
         </div>
 
@@ -197,7 +197,7 @@ export default function NewCompetitionPage() {
                 )
               }
               required
-              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition focus:border-sky-500"
+              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-app-heading outline-none transition focus:border-app-accent"
             />
           </div>
 
@@ -227,7 +227,7 @@ export default function NewCompetitionPage() {
                   event.target.value
                 )
               }
-              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition focus:border-sky-500"
+              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-app-heading outline-none transition focus:border-app-accent"
             />
           </div>
         </div>
@@ -255,12 +255,12 @@ export default function NewCompetitionPage() {
             }
             required
             placeholder="z. B. Oberursel"
-            className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition placeholder:text-app-faint focus:border-sky-500"
+            className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-accent"
           />
         </div>
 
         {error && (
-          <div className="rounded-xl border border-red-900 bg-red-950/30 p-3 text-sm text-red-300">
+          <div className="rounded-xl border border-app-bad/40 bg-app-bad/30 p-3 text-sm text-app-bad">
             {error}
           </div>
         )}
@@ -270,7 +270,7 @@ export default function NewCompetitionPage() {
           disabled={
             saving
           }
-          className="w-full rounded-xl bg-sky-500 px-5 py-3 font-semibold text-white transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          className="w-full rounded-xl bg-app-accent px-5 py-3 font-semibold text-app-accent-ink transition hover:bg-app-accent disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
         >
           {saving
             ? "Wird gespeichert..."

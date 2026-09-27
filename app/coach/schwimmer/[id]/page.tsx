@@ -452,7 +452,7 @@ export default function SchwimmerDetailPage() {
   if (!swimmer) {
     return (
       <main className="mx-auto max-w-6xl">
-        <div className="rounded-xl border border-red-900 bg-red-950 p-4 text-sm text-red-300">
+        <div className="rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
           {message || "Schwimmer nicht gefunden."}
         </div>
         <BackLink />
@@ -535,8 +535,8 @@ export default function SchwimmerDetailPage() {
               onClick={() => setTab(item.value)}
               className={`-mb-px rounded-t-xl border px-4 py-2.5 text-sm transition ${
                 tab === item.value
-                  ? "border-app-border border-b-app-bg bg-app-bg font-semibold text-white"
-                  : "border-transparent text-sky-400 hover:text-sky-300"
+                  ? "border-app-border border-b-app-bg bg-app-bg font-semibold text-app-heading"
+                  : "border-transparent text-app-accent hover:text-app-accent"
               }`}
             >
               {item.label}
@@ -557,7 +557,7 @@ export default function SchwimmerDetailPage() {
               <Card
                 title="Registrierdaten"
                 action={
-                  <button type="button" onClick={startEditingInfos} className="text-sm text-sky-400 hover:text-sky-300">
+                  <button type="button" onClick={startEditingInfos} className="text-sm text-app-accent hover:text-app-accent">
                     bearbeiten
                   </button>
                 }
@@ -596,12 +596,12 @@ export default function SchwimmerDetailPage() {
                               <span className="ml-2 text-xs font-normal text-app-muted">{result.round}</span>
                             )}
                           </td>
-                          <td className="px-4 py-2 font-semibold text-white">
+                          <td className="px-4 py-2 font-semibold text-app-heading">
                             {formatTime(result.time_ms)}
                             {result.is_split && <span className="ml-1.5 text-xs font-normal text-app-muted">(Zw.)</span>}
                           </td>
                           <td className="px-4 py-2">{result.points ?? "–"}</td>
-                          <td className="px-4 py-2 text-sky-400">{result.location || "–"}</td>
+                          <td className="px-4 py-2 text-app-accent">{result.location || "–"}</td>
                           <td className="px-4 py-2 text-app-muted">{formatMonthShort(result.result_date)}</td>
                           <td className="px-2 py-2 text-right">
                             <DeleteButton
@@ -648,7 +648,7 @@ export default function SchwimmerDetailPage() {
                       {rows.map((result) => (
                         <tr key={result.id} className="border-b border-app-border last:border-b-0 even:bg-app-bg/40">
                           <td className="px-4 py-2 font-medium">{result.event_label}</td>
-                          <td className="px-4 py-2 font-semibold text-white">{formatTime(result.time_ms)}</td>
+                          <td className="px-4 py-2 font-semibold text-app-heading">{formatTime(result.time_ms)}</td>
                           <td className="px-4 py-2">
                             {kind === "staffel"
                               ? result.placement
@@ -656,7 +656,7 @@ export default function SchwimmerDetailPage() {
                                 : "–"
                               : result.points ?? "–"}
                           </td>
-                          <td className="px-4 py-2 text-sky-400">{result.location || "–"}</td>
+                          <td className="px-4 py-2 text-app-accent">{result.location || "–"}</td>
                           <td className="px-4 py-2 text-app-muted">{formatMonthShort(result.result_date)}</td>
                           <td className="px-2 py-2 text-right">
                             <DeleteButton
@@ -691,7 +691,7 @@ export default function SchwimmerDetailPage() {
                       return (
                         <tr key={eventKey(event)} className="border-b border-app-border last:border-b-0 even:bg-app-bg/40">
                           <td className="px-4 py-2 font-medium">{formatEventShort(event).replace(" ", "")}</td>
-                          <td className="px-4 py-2 font-semibold text-white">{best ? formatTime(best.time_ms) : ""}</td>
+                          <td className="px-4 py-2 font-semibold text-app-heading">{best ? formatTime(best.time_ms) : ""}</td>
                           <td className="px-4 py-2">{best?.location ?? ""}</td>
                           <td className="px-4 py-2 text-right text-app-muted">
                             {best ? formatMonthYear(best.result_date) : ""}
@@ -1053,18 +1053,18 @@ function EventChart({
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 10, right: compact ? 10 : 20, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
-        <XAxis dataKey="dateLabel" stroke="#94a3b8" tick={{ fill: "#94a3b8", fontSize: compact ? 10 : 12 }} />
+        <CartesianGrid stroke="var(--app-border)" strokeDasharray="3 3" />
+        <XAxis dataKey="dateLabel" stroke="var(--app-muted)" tick={{ fill: "var(--app-muted)", fontSize: compact ? 10 : 12 }} />
         <YAxis
           reversed
           domain={["dataMin - 500", "dataMax + 500"]}
-          stroke="#94a3b8"
-          tick={{ fill: "#94a3b8", fontSize: compact ? 10 : 12 }}
+          stroke="var(--app-muted)"
+          tick={{ fill: "var(--app-muted)", fontSize: compact ? 10 : 12 }}
           tickFormatter={(value) => formatTime(Number(value))}
           width={compact ? 58 : 75}
         />
         <Tooltip
-          contentStyle={{ backgroundColor: "#0f172a", border: "1px solid #334155", borderRadius: "12px" }}
+          contentStyle={{ backgroundColor: "var(--app-surface)", border: "1px solid var(--app-border)", borderRadius: "12px" }}
           formatter={(value, name) => [formatTime(Number(value)), name]}
           labelFormatter={(label, payload) => {
             const location = payload?.[0]?.payload?.location;
@@ -1073,15 +1073,15 @@ function EventChart({
         />
         {!compact && <Legend />}
         {has25 && (
-          <Line type="monotone" dataKey="time25" name="25m-Bahn" stroke="#38bdf8" strokeWidth={compact ? 2 : 3} dot={dot} activeDot={{ r: 6 }} connectNulls />
+          <Line type="monotone" dataKey="time25" name="25m-Bahn" stroke="var(--chart-25)" strokeWidth={compact ? 2 : 3} dot={dot} activeDot={{ r: 6 }} connectNulls />
         )}
         {has50 && (
-          <Line type="monotone" dataKey="time50" name="50m-Bahn" stroke="#f97316" strokeWidth={compact ? 2 : 3} dot={dot} activeDot={{ r: 6 }} connectNulls />
+          <Line type="monotone" dataKey="time50" name="50m-Bahn" stroke="var(--chart-50)" strokeWidth={compact ? 2 : 3} dot={dot} activeDot={{ r: 6 }} connectNulls />
         )}
         {required && requiredPool && (
           <ReferenceLine
             y={required.time_ms}
-            stroke={requiredPool === 25 ? "#38bdf8" : "#f97316"}
+            stroke={requiredPool === 25 ? "var(--chart-25)" : "var(--chart-50)"}
             strokeDasharray="6 4"
             ifOverflow="extendDomain"
             label={
@@ -1089,7 +1089,7 @@ function EventChart({
                 ? undefined
                 : {
                     value: `Pflichtzeit ${formatTime(required.time_ms)} (${requiredPool}m)`,
-                    fill: "#e2e8f0",
+                    fill: "var(--app-text)",
                     fontSize: 12,
                     position: "insideTopRight",
                   }
@@ -1165,7 +1165,7 @@ function DevelopmentChart({
           <div className="p-4">
             <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 px-2">
               <p className="text-xs text-app-faint">Oben = schneller. Jeder Punkt ist ein Start.</p>
-              <button type="button" onClick={() => onEventChange("all")} className="text-sm text-sky-400 hover:text-sky-300">
+              <button type="button" onClick={() => onEventChange("all")} className="text-sm text-app-accent hover:text-app-accent">
                 ← Alle Strecken
               </button>
             </div>
@@ -1193,7 +1193,7 @@ function DevelopmentChart({
                   className="rounded-xl border border-app-border bg-app-bg p-3 text-left transition hover:border-app-accent"
                 >
                   <div className="flex items-baseline justify-between gap-2 px-1">
-                    <span className="font-semibold text-white">{formatEvent(event)}</span>
+                    <span className="font-semibold text-app-heading">{formatEvent(event)}</span>
                     <span className="text-xs text-app-muted">{bestLabel(event)}</span>
                   </div>
                   <div className="mt-2 h-40 w-full">
@@ -1257,7 +1257,7 @@ function QualificationTable({
           {standards.length === 0 && (
             <p className="text-sm text-app-muted">
               Noch keine Pflichtzeiten angelegt.{" "}
-              <Link href="/coach/pflichtzeiten" className="text-sky-400 hover:text-sky-300">
+              <Link href="/coach/pflichtzeiten" className="text-app-accent hover:text-app-accent">
                 Pflichtzeiten eintragen →
               </Link>
             </p>
@@ -1279,7 +1279,7 @@ function QualificationTable({
                 ? ` · es zählen Zeiten von ${formatDate(selectedStandard.valid_from)} bis ${formatDate(selectedStandard.valid_to)}`
                 : ""}
               {rows.length > 0 && (
-                <span className="font-semibold text-white"> · {fulfilled} von {rows.length} erfüllt</span>
+                <span className="font-semibold text-app-heading"> · {fulfilled} von {rows.length} erfüllt</span>
               )}
             </p>
           )}
@@ -1296,7 +1296,7 @@ function QualificationTable({
                 return (
                   <tr key={eventKey(event)} className="border-b border-app-border last:border-b-0 even:bg-app-bg/40">
                     <td className="px-4 py-2 font-medium">{formatEvent(event)}</td>
-                    <td className="px-4 py-2 font-semibold text-white">{best ? formatTime(best.time_ms) : "–"}</td>
+                    <td className="px-4 py-2 font-semibold text-app-heading">{best ? formatTime(best.time_ms) : "–"}</td>
                     <td className="px-4 py-2 text-app-muted">
                       {best ? `${formatDate(best.result_date)}${best.location ? ` · ${best.location}` : ""}` : "–"}
                     </td>
@@ -1305,11 +1305,11 @@ function QualificationTable({
                       {diff === null ? (
                         <span className="text-app-faint">keine Zeit</span>
                       ) : diff <= 0 ? (
-                        <span className="rounded-full bg-emerald-950 px-2.5 py-1 text-xs font-semibold text-app-good">
+                        <span className="rounded-full bg-app-good/10 px-2.5 py-1 text-xs font-semibold text-app-good">
                           ✓ erfüllt ({formatTimeDifference(diff)})
                         </span>
                       ) : (
-                        <span className="rounded-full bg-red-950 px-2.5 py-1 text-xs font-semibold text-app-bad">
+                        <span className="rounded-full bg-app-bad/10 px-2.5 py-1 text-xs font-semibold text-app-bad">
                           fehlt {formatTimeDifference(diff)}
                         </span>
                       )}
@@ -1369,7 +1369,7 @@ function InfoRow({ label, value }: { label: string; value: string | null }) {
   return (
     <div className="grid grid-cols-[140px_1fr] gap-3 border-b border-app-border px-5 py-3 text-sm last:border-b-0">
       <span className="font-semibold text-app-text">{label}:</span>
-      <span className={value ? "text-white" : "text-app-faint"}>{value || "–"}</span>
+      <span className={value ? "text-app-heading" : "text-app-faint"}>{value || "–"}</span>
     </div>
   );
 }

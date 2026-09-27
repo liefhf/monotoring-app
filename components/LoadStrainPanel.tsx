@@ -265,7 +265,7 @@ export default function LoadStrainPanel(props: Props) {
   return (
     <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
       <div className="flex flex-col gap-1 border-b border-app-border px-4 py-3 sm:px-5">
-        <h2 className="font-semibold text-white">
+        <h2 className="font-semibold text-app-heading">
           Belastung vs. Beanspruchung
         </h2>
 
@@ -304,7 +304,7 @@ export default function LoadStrainPanel(props: Props) {
                 <p className="text-[11px] text-app-faint">
                   Ø Abweichung
                 </p>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-app-heading">
                   {summary.avgDiff > 0 ? "+" : ""}
                   {summary.avgDiff.toLocaleString("de-DE", {
                     maximumFractionDigits: 1,
@@ -316,7 +316,7 @@ export default function LoadStrainPanel(props: Props) {
                 <p className="text-[11px] text-app-faint">
                   wie geplant
                 </p>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-app-heading">
                   {summary.matchRate} %
                 </p>
               </div>
@@ -329,7 +329,7 @@ export default function LoadStrainPanel(props: Props) {
                   className={`text-sm font-semibold ${
                     summary.harder > 0
                       ? "text-app-bad"
-                      : "text-white"
+                      : "text-app-heading"
                   }`}
                 >
                   {summary.harder} / {summary.count}
@@ -383,7 +383,7 @@ export default function LoadStrainPanel(props: Props) {
                       <td className="px-4 py-2 sm:px-5">
                         <Link
                           href={row.href}
-                          className="text-app-text hover:text-white"
+                          className="text-app-text hover:text-app-heading"
                         >
                           {mode === "athlete" && row.date && (
                             <span className="mr-2 text-xs text-app-faint">
@@ -396,7 +396,7 @@ export default function LoadStrainPanel(props: Props) {
                       <td className="px-2 py-2 text-right text-app-muted">
                         {row.planned ?? "–"}
                       </td>
-                      <td className="px-2 py-2 text-right font-semibold text-white">
+                      <td className="px-2 py-2 text-right font-semibold text-app-heading">
                         {row.reported ?? "–"}
                       </td>
                       <td className="px-2 py-2 text-right text-xs text-app-muted">

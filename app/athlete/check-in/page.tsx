@@ -463,7 +463,7 @@ export default function DailyCheckInPage() {
 
   if (loading) {
     return (
-      <main className="bg-app-bg px-4 py-8 text-white">
+      <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
           <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-sm text-app-muted">
             Check-in wird geladen...
@@ -475,10 +475,10 @@ export default function DailyCheckInPage() {
 
   if (success) {
     return (
-      <main className="bg-app-bg px-4 py-8 text-white sm:px-6">
+      <main className="bg-app-bg px-4 py-8 text-app-heading sm:px-6">
         <div className="mx-auto max-w-xl">
-          <section className="rounded-2xl border border-emerald-900/70 bg-app-surface p-6 text-center">
-            <h1 className="text-2xl font-bold text-emerald-300">
+          <section className="rounded-2xl border border-app-good/70 bg-app-surface p-6 text-center">
+            <h1 className="text-2xl font-bold text-app-good">
               ✓ Check-in erledigt
             </h1>
 
@@ -494,7 +494,7 @@ export default function DailyCheckInPage() {
 
             <Link
               href="/athlete"
-              className="mt-5 block w-full rounded-xl bg-amber-400 px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:bg-amber-300"
+              className="mt-5 block w-full rounded-xl bg-app-warn px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:bg-app-warn"
             >
               Zurück zum Dashboard
             </Link>
@@ -505,11 +505,11 @@ export default function DailyCheckInPage() {
   }
 
   return (
-    <main className="bg-app-bg px-4 py-5 text-white sm:px-6">
+    <main className="bg-app-bg px-4 py-5 text-app-heading sm:px-6">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/athlete"
-          className="text-sm text-app-muted transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-app-heading"
         >
           ← Zurück zum Dashboard
         </Link>
@@ -535,9 +535,9 @@ export default function DailyCheckInPage() {
                 key={item}
                 className={`h-1.5 flex-1 rounded-full ${
                   item < step
-                    ? "bg-emerald-500"
+                    ? "bg-app-good"
                     : item === step
-                    ? "bg-amber-400"
+                    ? "bg-app-warn"
                     : "bg-app-elevated"
                 }`}
               />
@@ -546,7 +546,7 @@ export default function DailyCheckInPage() {
         </div>
 
         {message && (
-          <div className="mt-4 rounded-xl border border-amber-900/60 bg-amber-950/20 p-3 text-sm text-amber-200">
+          <div className="mt-4 rounded-xl border border-app-warn/60 bg-app-warn/20 p-3 text-sm text-app-warn">
             {message}
           </div>
         )}
@@ -676,7 +676,7 @@ export default function DailyCheckInPage() {
                       )
                     }
                     placeholder="z. B. 7,5"
-                    className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-amber-400"
+                    className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
                   />
 
                   <span className="shrink-0 text-sm text-app-faint">
@@ -707,7 +707,7 @@ export default function DailyCheckInPage() {
                     }
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
                       hasPain
-                        ? "bg-red-500/15 text-red-300"
+                        ? "bg-app-bad/15 text-app-bad"
                         : "bg-app-elevated text-app-text"
                     }`}
                   >
@@ -739,7 +739,7 @@ export default function DailyCheckInPage() {
                         )
                       }
                       placeholder="z. B. Schulter"
-                      className="mt-2 w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-amber-400"
+                      className="mt-2 w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
                     />
                   </div>
                 )}
@@ -766,7 +766,7 @@ export default function DailyCheckInPage() {
                   maxLength={500}
                   rows={3}
                   placeholder="Optionaler Hinweis für deinen Coach..."
-                  className="mt-2 w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-amber-400"
+                  className="mt-2 w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
                 />
               </div>
             </div>
@@ -787,7 +787,7 @@ export default function DailyCheckInPage() {
             <button
               type="button"
               onClick={goNext}
-              className="min-h-12 rounded-xl bg-amber-400 px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-amber-300"
+              className="min-h-12 rounded-xl bg-app-warn px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-app-warn"
             >
               Weiter →
             </button>
@@ -798,7 +798,7 @@ export default function DailyCheckInPage() {
                 submitCheckIn
               }
               disabled={saving}
-              className="min-h-12 rounded-xl bg-amber-400 px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-12 rounded-xl bg-app-warn px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Speichert..."
@@ -873,8 +873,8 @@ function ScaleGrid({
               }
               className={`flex min-h-12 items-center justify-center rounded-xl border text-sm font-semibold transition ${
                 active
-                  ? "border-amber-400 bg-amber-400/10 text-amber-300"
-                  : "border-app-border bg-app-bg text-app-muted hover:border-app-border hover:text-white"
+                  ? "border-app-warn bg-app-warn/10 text-app-warn"
+                  : "border-app-border bg-app-bg text-app-muted hover:border-app-border hover:text-app-heading"
               }`}
             >
               {option.label}

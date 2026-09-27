@@ -80,7 +80,7 @@ function navClass(active: boolean) {
   return `block rounded-xl px-4 py-3 text-sm transition ${
     active
       ? "bg-app-accent font-semibold text-app-accent-ink"
-      : "text-app-text hover:bg-app-elevated hover:text-white"
+      : "text-app-text hover:bg-app-elevated hover:text-app-heading"
   }`;
 }
 
@@ -133,7 +133,7 @@ export default function CoachNav() {
             type="button"
             onClick={() => setMenuOpen(true)}
             aria-label="Menü öffnen"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated hover:text-white"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated hover:text-app-heading"
           >
             <svg
               viewBox="0 0 20 20"
@@ -148,7 +148,7 @@ export default function CoachNav() {
             </svg>
           </button>
 
-          <span className="truncate text-sm font-semibold text-white">
+          <span className="truncate text-sm font-semibold text-app-heading">
             {currentLabel}
           </span>
         </div>
@@ -169,7 +169,7 @@ export default function CoachNav() {
           <div className="absolute inset-y-0 left-0 flex w-64 max-w-[85%] flex-col border-r border-app-border bg-app-surface">
             <div className="flex items-start justify-between gap-3 border-b border-app-border px-5 py-5">
               <div className="min-w-0">
-                <h2 className="text-lg font-bold text-white">
+                <h2 className="text-lg font-bold text-app-heading">
                   Monitoring App
                 </h2>
 
@@ -182,7 +182,7 @@ export default function CoachNav() {
                 type="button"
                 onClick={() => setMenuOpen(false)}
                 aria-label="Menü schließen"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated hover:text-white"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated hover:text-app-heading"
               >
                 <svg
                   viewBox="0 0 20 20"
@@ -218,7 +218,7 @@ export default function CoachNav() {
       {/* Desktop: feste Seitenleiste */}
       <aside className="hidden w-64 shrink-0 border-r border-app-border bg-app-surface lg:flex lg:flex-col">
         <div className="border-b border-app-border px-6 py-6">
-          <h2 className="text-xl font-bold text-white">
+          <h2 className="text-xl font-bold text-app-heading">
             Monitoring App
           </h2>
 

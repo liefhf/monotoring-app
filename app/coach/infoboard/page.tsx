@@ -108,7 +108,7 @@ export default function InfoboardPage() {
                 {page.title}
               </h2>
 
-              <p className="mt-3 text-sm font-medium text-white">
+              <p className="mt-3 text-sm font-medium text-app-heading">
                 Öffnen →
               </p>
             </Link>

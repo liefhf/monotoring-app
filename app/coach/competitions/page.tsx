@@ -103,14 +103,14 @@ function getStatusClasses(
 ) {
   switch (status) {
     case "completed":
-      return "border-emerald-800 bg-emerald-950/40 text-emerald-300";
+      return "border-app-good/40 bg-app-good/40 text-app-good";
 
     case "cancelled":
-      return "border-red-900 bg-red-950/40 text-red-300";
+      return "border-app-bad/40 bg-app-bad/40 text-app-bad";
 
     case "planned":
     default:
-      return "border-sky-800 bg-sky-950/40 text-sky-300";
+      return "border-app-accent/40 bg-app-accent/40 text-app-accent";
   }
 }
 
@@ -181,20 +181,20 @@ export default function CompetitionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-white sm:text-3xl">
+        <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
           Wettkämpfe
         </h1>
 
         <Link
           href="/coach/competitions/new"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-400"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:bg-app-accent"
         >
           + Wettkampf anlegen
         </Link>
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+        <div className="rounded-2xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
           {error}
         </div>
       )}
@@ -224,7 +224,7 @@ export default function CompetitionsPage() {
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
-                    <h2 className="text-lg font-semibold text-white transition group-hover:text-sky-300">
+                    <h2 className="text-lg font-semibold text-app-heading transition group-hover:text-app-accent">
                       {
                         competition.name
                       }
@@ -257,7 +257,7 @@ export default function CompetitionsPage() {
                       )}
                     </span>
 
-                    <span className="text-app-faint transition group-hover:text-sky-300">
+                    <span className="text-app-faint transition group-hover:text-app-accent">
                       →
                     </span>
                   </div>

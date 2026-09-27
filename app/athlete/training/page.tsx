@@ -244,7 +244,7 @@ export default function AthleteTrainingPage() {
     status: DisplayTraining["status"]
   ) {
     if (status === "Heute") {
-      return "bg-sky-950 text-sky-300";
+      return "bg-app-accent/10 text-app-accent";
     }
 
     if (status === "Vergangen") {
@@ -282,7 +282,7 @@ export default function AthleteTrainingPage() {
       </div>
 
       {message && (
-        <div className="mt-6 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+        <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
           {message}
         </div>
       )}
@@ -418,8 +418,8 @@ export default function AthleteTrainingPage() {
                                   className={`rounded-full px-2 py-1 text-[10px] font-medium ${
                                     training.type ===
                                     "Wasser"
-                                      ? "bg-sky-950 text-sky-300"
-                                      : "bg-emerald-950 text-emerald-300"
+                                      ? "bg-app-accent/10 text-app-accent"
+                                      : "bg-app-good/10 text-app-good"
                                   }`}
                                 >
                                   {
@@ -549,8 +549,8 @@ export default function AthleteTrainingPage() {
                           className={`rounded-full px-3 py-1 text-xs ${
                             training.type ===
                             "Wasser"
-                              ? "bg-sky-950 text-sky-300"
-                              : "bg-emerald-950 text-emerald-300"
+                              ? "bg-app-accent/10 text-app-accent"
+                              : "bg-app-good/10 text-app-good"
                           }`}
                         >
                           {

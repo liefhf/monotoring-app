@@ -337,7 +337,7 @@ function TrendChart({
                     y + 4
                   }
                   textAnchor="end"
-                  className="fill-slate-500 text-[11px]"
+                  className="fill-app-faint text-[11px]"
                 >
                   {metric ===
                   "rpe"
@@ -407,7 +407,7 @@ function TrendChart({
                   className={
                     metric ===
                     "rpe"
-                      ? "text-amber-300"
+                      ? "text-app-warn"
                       : "text-app-text"
                   }
                 />
@@ -431,7 +431,7 @@ function TrendChart({
                       18
                     }
                     textAnchor="middle"
-                    className="fill-slate-500 text-[11px]"
+                    className="fill-app-faint text-[11px]"
                   >
                     {formatShortDate(
                       point.date
@@ -1123,7 +1123,7 @@ export default function CoachAnalyticsPage() {
                 event.target.value
               )
             }
-            className="w-full rounded-xl border border-app-border bg-app-surface px-3 py-2.5 text-sm text-white outline-none transition focus:border-app-accent md:w-auto"
+            className="w-full rounded-xl border border-app-border bg-app-surface px-3 py-2.5 text-sm text-app-heading outline-none transition focus:border-app-accent md:w-auto"
           >
             <option value="all">
               Alle Teams
@@ -1151,7 +1151,7 @@ export default function CoachAnalyticsPage() {
         </header>
 
         {message && (
-          <div className="mt-4 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+          <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
             {
               message
             }
@@ -1199,7 +1199,7 @@ export default function CoachAnalyticsPage() {
             </p>
 
             <div className="mt-1 flex items-baseline gap-1">
-              <p className="text-2xl font-bold text-amber-300">
+              <p className="text-2xl font-bold text-app-warn">
                 {overallAverageRpe !==
                 null
                   ? overallAverageRpe.toLocaleString(
@@ -1277,7 +1277,7 @@ export default function CoachAnalyticsPage() {
                   chartMetric ===
                   "rpe"
                     ? "bg-app-accent text-app-accent-ink"
-                    : "text-app-muted hover:text-white"
+                    : "text-app-muted hover:text-app-heading"
                 }`}
               >
                 RPE
@@ -1294,7 +1294,7 @@ export default function CoachAnalyticsPage() {
                   chartMetric ===
                   "meters"
                     ? "bg-app-accent text-app-accent-ink"
-                    : "text-app-muted hover:text-white"
+                    : "text-app-muted hover:text-app-heading"
                 }`}
               >
                 Umfang
@@ -1311,7 +1311,7 @@ export default function CoachAnalyticsPage() {
                   chartMetric ===
                   "duration"
                     ? "bg-app-accent text-app-accent-ink"
-                    : "text-app-muted hover:text-white"
+                    : "text-app-muted hover:text-app-heading"
                 }`}
               >
                 Dauer
@@ -1410,7 +1410,7 @@ export default function CoachAnalyticsPage() {
                               )}
                             </p>
 
-                            <h3 className="mt-1 truncate text-sm font-semibold text-white">
+                            <h3 className="mt-1 truncate text-sm font-semibold text-app-heading">
                               {
                                 session.training.title
                               }
@@ -1427,7 +1427,7 @@ export default function CoachAnalyticsPage() {
                             className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${
                               session.training.training_type ===
                               "water"
-                                ? "bg-sky-950 text-sky-300"
+                                ? "bg-app-accent/10 text-app-accent"
                                 : "bg-app-elevated text-app-text"
                             }`}
                           >
@@ -1478,7 +1478,7 @@ export default function CoachAnalyticsPage() {
                             null ? (
                               <>
                                 <div className="mt-0.5 flex items-baseline gap-1">
-                                  <span className="text-sm font-semibold text-amber-300">
+                                  <span className="text-sm font-semibold text-app-warn">
                                     {session.averageRpe.toLocaleString(
                                       "de-DE",
                                       {
@@ -1540,7 +1540,7 @@ export default function CoachAnalyticsPage() {
                         </div>
 
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">
+                          <p className="truncate text-sm font-semibold text-app-heading">
                             {
                               session.training.title
                             }
@@ -1584,7 +1584,7 @@ export default function CoachAnalyticsPage() {
                           null ? (
                             <>
                               <div className="flex items-baseline gap-1">
-                                <span className="text-sm font-bold text-amber-300">
+                                <span className="text-sm font-bold text-app-warn">
                                   {session.averageRpe.toLocaleString(
                                     "de-DE",
                                     {

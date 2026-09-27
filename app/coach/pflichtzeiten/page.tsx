@@ -213,7 +213,7 @@ export default function PflichtzeitenPage() {
                   className="flex items-center justify-between gap-4 border-b border-app-border px-6 py-4 last:border-b-0 hover:bg-app-elevated/60"
                 >
                   <Link href={`/coach/pflichtzeiten/${standard.id}`} className="min-w-0 flex-1">
-                    <span className="font-medium text-sky-400 hover:text-sky-300">
+                    <span className="font-medium text-app-accent hover:text-app-accent">
                       {standard.name}
                     </span>
                     <span className="mt-1 block text-sm text-app-muted">

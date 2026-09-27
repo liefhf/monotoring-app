@@ -727,7 +727,7 @@ export default function CoachPage() {
       {/* Kopf */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">
+          <h1 className="text-2xl font-semibold text-app-heading">
             Dashboard
           </h1>
 
@@ -738,7 +738,7 @@ export default function CoachPage() {
 
         <Link
           href="/coach/training/new"
-          className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+          className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
         >
           + Training erstellen
         </Link>
@@ -766,7 +766,7 @@ export default function CoachPage() {
                 Befinden heute
               </p>
 
-              <p className="mt-1.5 text-2xl font-semibold text-white">
+              <p className="mt-1.5 text-2xl font-semibold text-app-heading">
                 {averageToday !== null
                   ? formatScore(averageToday)
                   : "—"}
@@ -787,7 +787,7 @@ export default function CoachPage() {
                 className={`mt-1.5 text-2xl font-semibold ${
                   warningAthletes.length > 0
                     ? "text-app-warn"
-                    : "text-white"
+                    : "text-app-heading"
                 }`}
               >
                 {warningAthletes.length}
@@ -803,7 +803,7 @@ export default function CoachPage() {
                 Trainings heute
               </p>
 
-              <p className="mt-1.5 text-2xl font-semibold text-white">
+              <p className="mt-1.5 text-2xl font-semibold text-app-heading">
                 {todayTrainings.length}
               </p>
 
@@ -817,7 +817,7 @@ export default function CoachPage() {
                 Athleten
               </p>
 
-              <p className="mt-1.5 text-2xl font-semibold text-white">
+              <p className="mt-1.5 text-2xl font-semibold text-app-heading">
                 {dashboardAthletes.length}
               </p>
 
@@ -830,13 +830,13 @@ export default function CoachPage() {
           {/* Athletenliste */}
           <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
             <div className="flex items-center justify-between gap-4 border-b border-app-border px-4 py-3">
-              <h2 className="text-sm font-semibold text-white">
+              <h2 className="text-sm font-semibold text-app-heading">
                 Athleten im Blick
               </h2>
 
               <Link
                 href="/coach/athletes"
-                className="text-xs text-app-muted transition hover:text-white"
+                className="text-xs text-app-muted transition hover:text-app-heading"
               >
                 Alle Athleten →
               </Link>
@@ -883,7 +883,7 @@ export default function CoachPage() {
                           <td className="px-4 py-2.5">
                             <Link
                               href={`/coach/athletes/${athlete.id}`}
-                              className="text-sm font-medium text-white hover:underline"
+                              className="text-sm font-medium text-app-heading hover:underline"
                             >
                               {athlete.name}
                             </Link>
@@ -898,7 +898,7 @@ export default function CoachPage() {
                           <td className="px-4 py-2.5">
                             {athlete.score !== null ? (
                               <div className="flex items-center gap-2.5">
-                                <span className="w-7 text-sm font-semibold text-white">
+                                <span className="w-7 text-sm font-semibold text-app-heading">
                                   {formatScore(athlete.score)}
                                 </span>
 
@@ -962,13 +962,13 @@ export default function CoachPage() {
             {/* Teams */}
             <section className="overflow-hidden rounded-xl border border-app-border bg-app-surface">
               <div className="flex items-center justify-between gap-4 border-b border-app-border px-4 py-3">
-                <h2 className="text-sm font-semibold text-white">
+                <h2 className="text-sm font-semibold text-app-heading">
                   Meine Teams
                 </h2>
 
                 <Link
                   href="/coach/teams"
-                  className="text-xs text-app-muted transition hover:text-white"
+                  className="text-xs text-app-muted transition hover:text-app-heading"
                 >
                   Alle Teams →
                 </Link>
@@ -987,7 +987,7 @@ export default function CoachPage() {
                         className="flex items-center justify-between gap-4 px-4 py-3"
                       >
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-white">
+                          <p className="truncate text-sm font-medium text-app-heading">
                             {team.name}
                           </p>
 
@@ -1018,13 +1018,13 @@ export default function CoachPage() {
             {/* Training heute */}
             <section className="overflow-hidden rounded-xl border border-app-border bg-app-surface">
               <div className="flex items-center justify-between gap-4 border-b border-app-border px-4 py-3">
-                <h2 className="text-sm font-semibold text-white">
+                <h2 className="text-sm font-semibold text-app-heading">
                   Training heute
                 </h2>
 
                 <Link
                   href="/coach/training"
-                  className="text-xs text-app-muted transition hover:text-white"
+                  className="text-xs text-app-muted transition hover:text-app-heading"
                 >
                   Trainingsplanung →
                 </Link>
@@ -1043,14 +1043,14 @@ export default function CoachPage() {
                           href={`/coach/training/new?session=${training.id}`}
                           className="flex items-center gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
                         >
-                          <span className="w-12 shrink-0 text-sm font-semibold text-white">
+                          <span className="w-12 shrink-0 text-sm font-semibold text-app-heading">
                             {training.start_time
                               ? training.start_time.slice(0, 5)
                               : "—"}
                           </span>
 
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate text-sm font-medium text-white">
+                            <span className="block truncate text-sm font-medium text-app-heading">
                               {training.title}
                             </span>
 

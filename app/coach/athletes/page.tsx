@@ -277,7 +277,7 @@ export default function CoachAthletesPage() {
       {/* Kopf */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">
+          <h1 className="text-2xl font-semibold text-app-heading">
             Athleten
           </h1>
 
@@ -288,7 +288,7 @@ export default function CoachAthletesPage() {
 
         <Link
           href="/coach/teams"
-          className="rounded-lg border border-app-border px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-white"
+          className="rounded-lg border border-app-border px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-app-heading"
         >
           Teamzuordnung verwalten
         </Link>
@@ -301,7 +301,7 @@ export default function CoachAthletesPage() {
             Athleten
           </p>
 
-          <p className="mt-1.5 text-2xl font-semibold text-white">
+          <p className="mt-1.5 text-2xl font-semibold text-app-heading">
             {athleteRows.length}
           </p>
         </div>
@@ -311,7 +311,7 @@ export default function CoachAthletesPage() {
             Teams
           </p>
 
-          <p className="mt-1.5 text-2xl font-semibold text-white">
+          <p className="mt-1.5 text-2xl font-semibold text-app-heading">
             {teams.length}
           </p>
         </div>
@@ -321,7 +321,7 @@ export default function CoachAthletesPage() {
             Zuordnungen
           </p>
 
-          <p className="mt-1.5 text-2xl font-semibold text-white">
+          <p className="mt-1.5 text-2xl font-semibold text-app-heading">
             {members.length}
           </p>
         </div>
@@ -339,7 +339,7 @@ export default function CoachAthletesPage() {
       */}
       <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
         <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-sm font-semibold text-white">
+          <h2 className="text-sm font-semibold text-app-heading">
             Meine Athleten
           </h2>
 
@@ -359,7 +359,7 @@ export default function CoachAthletesPage() {
                 setSearch(event.target.value)
               }
               placeholder="Suchen…"
-              className="w-full rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-white outline-none transition placeholder:text-app-faint focus:border-app-accent sm:w-56"
+              className="w-full rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-accent sm:w-56"
             />
 
             <span className="shrink-0 whitespace-nowrap text-xs text-app-faint">
@@ -397,7 +397,7 @@ export default function CoachAthletesPage() {
                     className="flex items-center gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-white">
+                      <span className="block truncate text-sm font-medium text-app-heading">
                         {athlete.fullName}
                       </span>
 

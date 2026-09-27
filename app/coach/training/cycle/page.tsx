@@ -539,7 +539,7 @@ export default function OlympicCyclePage() {
                     key={definition.cycleYear}
                     className={`flex min-h-72 flex-col rounded-2xl border p-5 ${
                       isCurrent
-                        ? "border-white bg-app-elevated"
+                        ? "border-app-heading bg-app-elevated"
                         : "border-app-border bg-app-surface"
                     }`}
                   >

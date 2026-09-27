@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-app-bg text-white">
+    <main className="flex min-h-screen items-center justify-center bg-app-bg text-app-heading">
       <div className="text-center">
         <h1 className="text-4xl font-bold">
           Monitoring App

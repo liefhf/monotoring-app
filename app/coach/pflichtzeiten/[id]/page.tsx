@@ -303,7 +303,7 @@ export default function PflichtzeitenDetailPage() {
   if (!standard) {
     return (
       <main className="mx-auto max-w-6xl">
-        <div className="rounded-xl border border-red-900 bg-red-950 p-4 text-sm text-red-300">
+        <div className="rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
           {message || "Pflichtzeiten-Liste nicht gefunden."}
         </div>
         <BackLink />
@@ -465,14 +465,14 @@ export default function PflichtzeitenDetailPage() {
                             {formatBirthYearRange(qualifyingTime.birth_year_from, qualifyingTime.birth_year_to)}
                           </td>
                           <td className="px-4 py-2.5 font-medium">{formatEvent(qualifyingTime)}</td>
-                          <td className="px-4 py-2.5 font-semibold text-white">
+                          <td className="px-4 py-2.5 font-semibold text-app-heading">
                             {formatTime(qualifyingTime.time_ms)}
                           </td>
                           <td className="space-x-4 px-4 py-2.5 text-right">
                             <button
                               type="button"
                               onClick={() => handleEditTime(qualifyingTime)}
-                              className="text-xs text-app-faint transition hover:text-white"
+                              className="text-xs text-app-faint transition hover:text-app-heading"
                             >
                               Ändern
                             </button>
@@ -529,7 +529,7 @@ export default function PflichtzeitenDetailPage() {
                           <td className="px-6 py-2.5">
                             <Link
                               href={`/coach/schwimmer/${swimmer.id}`}
-                              className="font-medium text-sky-400 hover:text-sky-300"
+                              className="font-medium text-app-accent hover:text-app-accent"
                             >
                               {getSwimmerName(swimmer)}
                             </Link>
@@ -586,17 +586,17 @@ export default function PflichtzeitenDetailPage() {
                       {rows.map(({ event, best, required, diff }) => (
                         <tr key={eventKey(event)} className="border-b border-app-border last:border-b-0">
                           <td className="px-6 py-2 font-medium">{formatEvent(event)}</td>
-                          <td className="px-4 py-2 text-white">{best ? formatTime(best.time_ms) : "–"}</td>
+                          <td className="px-4 py-2 text-app-heading">{best ? formatTime(best.time_ms) : "–"}</td>
                           <td className="px-4 py-2">{formatTime(required.time_ms)}</td>
                           <td className="px-4 py-2">
                             {diff === null ? (
                               <span className="text-app-faint">keine Zeit</span>
                             ) : diff <= 0 ? (
-                              <span className="rounded-full bg-emerald-950 px-2.5 py-1 text-xs font-semibold text-app-good">
+                              <span className="rounded-full bg-app-good/10 px-2.5 py-1 text-xs font-semibold text-app-good">
                                 ✓ erfüllt ({formatTimeDifference(diff)})
                               </span>
                             ) : (
-                              <span className="rounded-full bg-red-950 px-2.5 py-1 text-xs font-semibold text-app-bad">
+                              <span className="rounded-full bg-app-bad/10 px-2.5 py-1 text-xs font-semibold text-app-bad">
                                 fehlt {formatTimeDifference(diff)}
                               </span>
                             )}
@@ -615,7 +615,7 @@ export default function PflichtzeitenDetailPage() {
                 {swimmersWithoutMatch.map(({ swimmer }, index) => (
                   <span key={swimmer.id}>
                     {index > 0 && ", "}
-                    <Link href={`/coach/schwimmer/${swimmer.id}`} className="text-sky-400 hover:text-sky-300">
+                    <Link href={`/coach/schwimmer/${swimmer.id}`} className="text-app-accent hover:text-app-accent">
                       {getSwimmerName(swimmer)}
                     </Link>
                     {swimmer.birth_year === null || swimmer.gender === null ? " (Jahrgang/Geschlecht fehlt)" : ""}

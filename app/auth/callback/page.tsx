@@ -138,7 +138,7 @@ export default function AuthCallbackPage() {
 
         {errorMessage ? (
           <>
-            <div className="mt-6 rounded-xl border border-red-900 bg-red-950 p-4 text-sm text-red-300">
+            <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
               {errorMessage}
             </div>
 

@@ -504,7 +504,7 @@ export default function CoachTeamsPage() {
                                   member.id
                                 )
                               }
-                              className="rounded-lg border border-app-border px-3 py-2 text-xs text-app-muted hover:bg-app-elevated hover:text-white"
+                              className="rounded-lg border border-app-border px-3 py-2 text-xs text-app-muted hover:bg-app-elevated hover:text-app-heading"
                             >
                               Entfernen
                             </button>

@@ -356,7 +356,7 @@ function LineChart({
                   }
                   y={y + 4}
                   textAnchor="end"
-                  className="fill-slate-500 text-[11px]"
+                  className="fill-app-faint text-[11px]"
                 >
                   {tick.toLocaleString(
                     "de-DE"
@@ -416,7 +416,7 @@ function LineChart({
                   fill="currentColor"
                   className={
                     highlight
-                      ? "text-amber-300"
+                      ? "text-app-warn"
                       : "text-app-text"
                   }
                 />
@@ -445,7 +445,7 @@ function LineChart({
                       14
                     }
                     textAnchor="middle"
-                    className="fill-slate-500 text-[11px]"
+                    className="fill-app-faint text-[11px]"
                   >
                     {formatShortDate(
                       point.date
@@ -1214,7 +1214,7 @@ export default function CoachAthleteProfilePage() {
       return {
         label: "Gut",
         className:
-          "border-emerald-900/60 bg-emerald-950/30 text-emerald-300",
+          "border-app-good/60 bg-app-good/30 text-app-good",
       };
     }
 
@@ -1225,7 +1225,7 @@ export default function CoachAthleteProfilePage() {
         label:
           "Beobachten",
         className:
-          "border-amber-900/60 bg-amber-950/20 text-amber-300",
+          "border-app-warn/60 bg-app-warn/20 text-app-warn",
       };
     }
 
@@ -1233,7 +1233,7 @@ export default function CoachAthleteProfilePage() {
       label:
         "Auffällig",
       className:
-        "border-red-900/60 bg-red-950/20 text-red-300",
+        "border-app-bad/60 bg-app-bad/20 text-app-bad",
     };
   }
 
@@ -1249,10 +1249,10 @@ export default function CoachAthleteProfilePage() {
     if (
       rpe <= 7
     ) {
-      return "text-amber-200";
+      return "text-app-warn";
     }
 
-    return "text-amber-300";
+    return "text-app-warn";
   }
 
   const currentStatus =
@@ -1264,7 +1264,7 @@ export default function CoachAthleteProfilePage() {
     <div className="mx-auto w-full max-w-[1500px]">
       <Link
         href="/coach/athletes"
-        className="text-xs text-app-faint transition hover:text-white"
+        className="text-xs text-app-faint transition hover:text-app-heading"
       >
         ← Zurück zu Athleten
       </Link>
@@ -1274,7 +1274,7 @@ export default function CoachAthleteProfilePage() {
           Athletenprofil wird geladen...
         </div>
       ) : message ? (
-        <div className="mt-4 rounded-xl border border-red-900 bg-red-950/40 p-5 text-sm text-red-300">
+        <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/40 p-5 text-sm text-app-bad">
           {
             message
           }
@@ -1383,7 +1383,7 @@ export default function CoachAthleteProfilePage() {
               </p>
 
               <div className="mt-1 flex items-baseline gap-1">
-                <p className="text-2xl font-bold text-amber-300">
+                <p className="text-2xl font-bold text-app-warn">
                   {averageRpe !==
                   null
                     ? averageRpe.toLocaleString(
@@ -1642,7 +1642,7 @@ export default function CoachAthleteProfilePage() {
                         befindenChartMetric ===
                         option.value
                           ? "bg-app-accent font-medium text-app-accent-ink"
-                          : "text-app-muted hover:text-white"
+                          : "text-app-muted hover:text-app-heading"
                       }`}
                     >
                       {
@@ -1815,7 +1815,7 @@ export default function CoachAthleteProfilePage() {
                     Ø RPE
                   </p>
 
-                  <p className="mt-0.5 text-sm font-semibold text-amber-300">
+                  <p className="mt-0.5 text-sm font-semibold text-app-warn">
                     {averageRpe !==
                     null
                       ? averageRpe.toLocaleString(
@@ -1866,7 +1866,7 @@ export default function CoachAthleteProfilePage() {
                       trainingChartMetric ===
                       "rpe"
                         ? "bg-app-accent font-medium text-app-accent-ink"
-                        : "text-app-muted hover:text-white"
+                        : "text-app-muted hover:text-app-heading"
                     }`}
                   >
                     RPE
@@ -1883,7 +1883,7 @@ export default function CoachAthleteProfilePage() {
                       trainingChartMetric ===
                       "meters"
                         ? "bg-app-accent font-medium text-app-accent-ink"
-                        : "text-app-muted hover:text-white"
+                        : "text-app-muted hover:text-app-heading"
                     }`}
                   >
                     Umfang
@@ -1900,7 +1900,7 @@ export default function CoachAthleteProfilePage() {
                       trainingChartMetric ===
                       "duration"
                         ? "bg-app-accent font-medium text-app-accent-ink"
-                        : "text-app-muted hover:text-white"
+                        : "text-app-muted hover:text-app-heading"
                     }`}
                   >
                     Dauer
@@ -2024,7 +2024,7 @@ export default function CoachAthleteProfilePage() {
                             </div>
 
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-medium text-white">
+                              <p className="truncate text-sm font-medium text-app-heading">
                                 {training?.title ??
                                   "Training"}
                               </p>

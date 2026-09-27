@@ -824,12 +824,12 @@ export default function CompetitionDetailPage() {
       <div className="space-y-4">
         <Link
           href="/coach/competitions"
-          className="text-sm text-app-muted transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-app-heading"
         >
           ← Zurück zu Wettkämpfe
         </Link>
 
-        <div className="rounded-2xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+        <div className="rounded-2xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
           {error ||
             "Wettkampf wurde nicht gefunden."}
         </div>
@@ -841,7 +841,7 @@ export default function CompetitionDetailPage() {
     <div className="space-y-6">
       <Link
         href="/coach/competitions"
-        className="text-sm text-app-muted transition hover:text-white"
+        className="text-sm text-app-muted transition hover:text-app-heading"
       >
         ← Zurück zu Wettkämpfe
       </Link>
@@ -850,7 +850,7 @@ export default function CompetitionDetailPage() {
       <section className="rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white sm:text-3xl">
+            <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
               {
                 competition.name
               }
@@ -877,7 +877,7 @@ export default function CompetitionDetailPage() {
             </div>
           </div>
 
-          <span className="w-fit rounded-full border border-sky-800 bg-sky-950/40 px-3 py-1 text-xs font-semibold text-sky-300">
+          <span className="w-fit rounded-full border border-app-accent/40 bg-app-accent/40 px-3 py-1 text-xs font-semibold text-app-accent">
             {getStatusLabel(
               competition.status
             )}
@@ -887,14 +887,14 @@ export default function CompetitionDetailPage() {
 
       {/* AUSSCHREIBUNG */}
       <section className="rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6">
-        <h2 className="text-lg font-semibold text-white">
+        <h2 className="text-lg font-semibold text-app-heading">
           Ausschreibung
         </h2>
 
         {document && (
           <div className="mt-4 flex flex-col gap-3 rounded-xl border border-app-border bg-app-bg/60 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <p className="truncate font-medium text-white">
+              <p className="truncate font-medium text-app-heading">
                 {
                   document.file_name
                 }
@@ -912,7 +912,7 @@ export default function CompetitionDetailPage() {
               onClick={
                 openPdf
               }
-              className="shrink-0 rounded-lg border border-app-border px-3 py-2 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-white"
+              className="shrink-0 rounded-lg border border-app-border px-3 py-2 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-app-heading"
             >
               PDF öffnen
             </button>
@@ -936,7 +936,7 @@ export default function CompetitionDetailPage() {
           }}
           className={`mt-4 cursor-pointer rounded-2xl border-2 border-dashed p-7 text-center transition sm:p-9 ${
             isDragging
-              ? "border-sky-400 bg-sky-500/10"
+              ? "border-app-accent bg-app-accent/10"
               : "border-app-border bg-app-bg/40 hover:border-app-border hover:bg-app-bg/70"
           }`}
         >
@@ -952,11 +952,11 @@ export default function CompetitionDetailPage() {
             className="hidden"
           />
 
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-app-elevated text-xl font-semibold text-white">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-app-elevated text-xl font-semibold text-app-heading">
             PDF
           </div>
 
-          <p className="mt-4 font-semibold text-white">
+          <p className="mt-4 font-semibold text-app-heading">
             {document
               ? "Neue Ausschreibung hier hineinziehen"
               : "PDF hier hineinziehen"}
@@ -971,7 +971,7 @@ export default function CompetitionDetailPage() {
           </p>
 
           {uploading && (
-            <p className="mt-4 text-sm font-medium text-sky-300">
+            <p className="mt-4 text-sm font-medium text-app-accent">
               PDF wird hochgeladen...
             </p>
           )}
@@ -1024,7 +1024,7 @@ export default function CompetitionDetailPage() {
                   className="rounded-2xl border border-app-border bg-app-surface p-5"
                 >
                   <div className="border-b border-app-border pb-4">
-                    <h2 className="text-lg font-semibold text-white">
+                    <h2 className="text-lg font-semibold text-app-heading">
                       {
                         section.section_number
                       }
@@ -1100,7 +1100,7 @@ export default function CompetitionDetailPage() {
                               className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between"
                             >
                               <div className="flex min-w-0 items-start gap-3">
-                                <span className="min-w-[68px] shrink-0 font-semibold text-sky-300">
+                                <span className="min-w-[68px] shrink-0 font-semibold text-app-accent">
                                   WK{" "}
                                   {
                                     event.event_number
@@ -1108,7 +1108,7 @@ export default function CompetitionDetailPage() {
                                 </span>
 
                                 <div className="min-w-0">
-                                  <p className="font-medium text-white">
+                                  <p className="font-medium text-app-heading">
                                     {getDistanceLabel(
                                       event
                                     )}{" "}

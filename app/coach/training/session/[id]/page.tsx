@@ -503,14 +503,14 @@ export default function CoachTrainingSessionPage() {
     return (
       <main>
         <div className="mx-auto max-w-[1200px]">
-          <div className="rounded-2xl border border-red-900 bg-red-950/30 p-5 text-sm text-red-300">
+          <div className="rounded-2xl border border-app-bad/40 bg-app-bad/30 p-5 text-sm text-app-bad">
             {message ||
               "Training konnte nicht geladen werden."}
           </div>
 
           <Link
             href="/coach/training"
-            className="mt-5 inline-block text-sm text-app-muted transition hover:text-white"
+            className="mt-5 inline-block text-sm text-app-muted transition hover:text-app-heading"
           >
             ← Zurück zum Training
           </Link>
@@ -524,7 +524,7 @@ export default function CoachTrainingSessionPage() {
       <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
         <Link
           href="/coach/training"
-          className="text-sm text-app-muted transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-app-heading"
         >
           ← Zurück zum Training
         </Link>
@@ -574,7 +574,7 @@ export default function CoachTrainingSessionPage() {
         </header>
 
         {message && (
-          <div className="mt-4 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+          <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}
@@ -611,8 +611,8 @@ export default function CoachTrainingSessionPage() {
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                     training.training_type ===
                     "water"
-                      ? "bg-sky-950 text-sky-300"
-                      : "bg-emerald-950 text-emerald-300"
+                      ? "bg-app-accent/10 text-app-accent"
+                      : "bg-app-good/10 text-app-good"
                   }`}
                 >
                   {training.training_type ===
@@ -693,7 +693,7 @@ export default function CoachTrainingSessionPage() {
                   </p>
 
                   <div className="mt-1 flex items-baseline gap-1.5">
-                    <span className="text-2xl font-bold tracking-tight text-amber-300">
+                    <span className="text-2xl font-bold tracking-tight text-app-warn">
                       {averageRpe !==
                       null
                         ? averageRpe.toLocaleString(
@@ -820,7 +820,7 @@ export default function CoachTrainingSessionPage() {
                         null ? (
                           <div className="flex items-center gap-2 md:block">
                             <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-bold text-amber-300">
+                              <span className="text-lg font-bold text-app-warn">
                                 {
                                   athlete.rpe
                                 }

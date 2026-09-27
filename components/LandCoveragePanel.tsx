@@ -187,7 +187,7 @@ export default function LandCoveragePanel() {
   return (
     <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
       <div className="border-b border-app-border px-4 py-3 sm:px-5">
-        <h2 className="font-semibold text-white">
+        <h2 className="font-semibold text-app-heading">
           Kräftigung & Kernziele
         </h2>
         <p className="text-xs text-app-faint">

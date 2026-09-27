@@ -709,11 +709,11 @@ export default function PainReportPage() {
     bodySelections.length > 0;
 
   return (
-    <main className="bg-app-bg px-4 py-6 text-white sm:px-6">
+    <main className="bg-app-bg px-4 py-6 text-app-heading sm:px-6">
       <div className="mx-auto max-w-3xl">
         <Link
           href="/athlete"
-          className="text-sm text-app-muted transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-app-heading"
         >
           ← Zurück
         </Link>
@@ -732,9 +732,9 @@ export default function PainReportPage() {
                 key={item}
                 className={`h-2.5 w-2.5 rounded-full transition-all ${
                   item === step
-                    ? "scale-110 bg-amber-400"
+                    ? "scale-110 bg-app-warn"
                     : item < step
-                    ? "bg-emerald-500"
+                    ? "bg-app-good"
                     : "bg-app-elevated"
                 }`}
               />
@@ -743,7 +743,7 @@ export default function PainReportPage() {
         </div>
 
         {message && (
-          <div className="mt-5 rounded-2xl border border-amber-900 bg-amber-950/20 p-4 text-center text-sm text-amber-200">
+          <div className="mt-5 rounded-2xl border border-app-warn/40 bg-app-warn/20 p-4 text-center text-sm text-app-warn">
             {message}
           </div>
         )}
@@ -772,13 +772,13 @@ export default function PainReportPage() {
                           selection
                         )
                       }
-                      className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-200 transition hover:bg-amber-500/20"
+                      className="rounded-full border border-app-warn/40 bg-app-warn/10 px-3 py-1.5 text-xs font-semibold text-app-warn transition hover:bg-app-warn/20"
                     >
                       {
                         selection.label
                       }
 
-                      <span className="ml-1.5 text-amber-400">
+                      <span className="ml-1.5 text-app-warn">
                         ×
                       </span>
                     </button>
@@ -823,8 +823,8 @@ export default function PainReportPage() {
                         }
                         className={`absolute z-10 transition-all duration-150 ${
                           active
-                            ? "border border-amber-200/80 bg-amber-400/45 shadow-[0_0_10px_rgba(251,146,60,0.30)]"
-                            : "border border-transparent bg-transparent hover:border-amber-200/20 hover:bg-amber-300/10"
+                            ? "border border-app-warn/80 bg-app-warn/45 shadow-[0_0_10px_rgba(251,146,60,0.30)]"
+                            : "border border-transparent bg-transparent hover:border-app-warn/20 hover:bg-app-warn/10"
                         }`}
                         style={{
                           left: `${zone.left}%`,
@@ -868,22 +868,22 @@ export default function PainReportPage() {
                     number,
                     string
                   > = {
-                    1: "border-amber-500/30 bg-amber-500/5 text-amber-200",
-                    2: "border-amber-500/30 bg-amber-500/5 text-amber-200",
-                    3: "border-amber-500/30 bg-amber-500/5 text-amber-200",
-                    4: "border-red-500/30 bg-red-500/5 text-red-200",
-                    5: "border-red-600/40 bg-red-600/10 text-red-200",
+                    1: "border-app-warn/30 bg-app-warn/5 text-app-warn",
+                    2: "border-app-warn/30 bg-app-warn/5 text-app-warn",
+                    3: "border-app-warn/30 bg-app-warn/5 text-app-warn",
+                    4: "border-app-bad/30 bg-app-bad/5 text-app-bad",
+                    5: "border-app-bad/40 bg-app-bad/10 text-app-bad",
                   };
 
                   const activeClasses: Record<
                     number,
                     string
                   > = {
-                    1: "border-amber-400 bg-amber-400/90 text-app-accent-ink ring-2 ring-amber-300/30",
-                    2: "border-amber-400 bg-amber-400/90 text-app-accent-ink ring-2 ring-amber-300/30",
-                    3: "border-amber-400 bg-amber-400/90 text-app-accent-ink ring-2 ring-amber-300/30",
-                    4: "border-red-400 bg-red-400/90 text-white ring-2 ring-red-300/30",
-                    5: "border-red-500 bg-red-500/90 text-white ring-2 ring-red-400/30",
+                    1: "border-app-warn bg-app-warn/90 text-app-accent-ink ring-2 ring-app-warn/30",
+                    2: "border-app-warn bg-app-warn/90 text-app-accent-ink ring-2 ring-app-warn/30",
+                    3: "border-app-warn bg-app-warn/90 text-app-accent-ink ring-2 ring-app-warn/30",
+                    4: "border-app-bad bg-app-bad/90 text-white ring-2 ring-app-bad/30",
+                    5: "border-app-bad bg-app-bad/90 text-white ring-2 ring-app-bad/30",
                   };
 
                   return (
@@ -944,7 +944,7 @@ export default function PainReportPage() {
               rows={3}
               maxLength={500}
               placeholder="z. B. zieht beim Laufen"
-              className="mt-5 min-h-[96px] w-full resize-y rounded-2xl border border-app-border bg-app-bg p-4 text-base text-white outline-none transition placeholder:text-app-faint focus:border-amber-400"
+              className="mt-5 min-h-[96px] w-full resize-y rounded-2xl border border-app-border bg-app-bg p-4 text-base text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-warn"
             />
 
             <p className="mt-2 text-right text-xs text-app-faint">
@@ -982,7 +982,7 @@ export default function PainReportPage() {
                 (step === 2 &&
                   painLevel === null)
               }
-              className="rounded-2xl bg-amber-400 px-5 py-4 font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-app-elevated disabled:text-app-faint"
+              className="rounded-2xl bg-app-warn px-5 py-4 font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:bg-app-elevated disabled:text-app-faint"
             >
               Weiter →
             </button>
@@ -995,7 +995,7 @@ export default function PainReportPage() {
               disabled={
                 saving
               }
-              className="rounded-2xl bg-amber-400 px-4 py-4 font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-2xl bg-app-warn px-4 py-4 font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Wird gespeichert..."
