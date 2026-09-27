@@ -23,6 +23,7 @@ const mainItems: NavItem[] = [
 ];
 
 const moreItems: NavItem[] = [
+  { href: "/athlete/wettkaempfe", label: "Wettkämpfe", icon: "trophy" },
   { href: "/athlete/news", label: "News", icon: "news" },
   { href: "/athlete/gruppen", label: "Gruppenräume", icon: "chat" },
   { href: "/athlete/pain", label: "Schmerz", icon: "heart" },

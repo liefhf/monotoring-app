@@ -877,11 +877,20 @@ export default function CompetitionDetailPage() {
             </div>
           </div>
 
-          <span className="w-fit rounded-full border border-app-accent/40 bg-app-accent/10 px-3 py-1 text-xs font-semibold text-app-accent">
-            {getStatusLabel(
-              competition.status
-            )}
-          </span>
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <span className="w-fit rounded-full border border-app-accent/40 bg-app-accent/10 px-3 py-1 text-xs font-semibold text-app-accent">
+              {getStatusLabel(
+                competition.status
+              )}
+            </span>
+
+            <Link
+              href={`/coach/competitions/${competition.id}/auswertung`}
+              className="inline-flex items-center gap-2 rounded-xl bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink shadow-app transition hover:brightness-110"
+            >
+              Auswertung & Feedback →
+            </Link>
+          </div>
         </div>
       </section>
 

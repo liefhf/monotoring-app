@@ -139,7 +139,7 @@ export default function CoachNav() {
   return (
     <>
       {/* Mobil: Kopfzeile mit Menueknopf */}
-      <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-app-border bg-app-surface/90 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-app-border bg-app-surface/90 px-4 py-3 backdrop-blur lg:hidden print:hidden">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -193,7 +193,7 @@ export default function CoachNav() {
       )}
 
       {/* Desktop: feste Seitenleiste */}
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-app-border bg-app-surface lg:flex lg:flex-col">
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-app-border bg-app-surface lg:flex lg:flex-col print:hidden">
         <div className="border-b border-app-border px-4 py-5">
           <Logo subtitle="Coach-Bereich" />
         </div>

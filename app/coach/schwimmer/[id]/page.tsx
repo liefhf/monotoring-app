@@ -15,6 +15,7 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
+import { AthleteLinkCard, SwimmerCompetitionStarts } from "@/components/SwimmerCompetitionPanels";
 import {
   Gender,
   OtherResult,
@@ -58,7 +59,7 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten";
+type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "wettkaempfe";
 
 const TABS: { value: Tab; label: string }[] = [
   { value: "infos", label: "Infos" },
@@ -67,6 +68,7 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "bestzeiten", label: "Bestzeiten" },
   { value: "entwicklung", label: "Entwicklung" },
   { value: "pflichtzeiten", label: "Pflichtzeiten" },
+  { value: "wettkaempfe", label: "Wettkampf-Feedback" },
 ];
 
 /* Felder, die im Tab "Infos" bearbeitet werden (alle als Text im Formular) */
@@ -573,6 +575,10 @@ export default function SchwimmerDetailPage() {
                 <InfoRow label="Vereins-ID" value={swimmer.club_id} />
                 <InfoRow label="Mitglied seit" value={swimmer.club_since ? formatDate(swimmer.club_since) : null} />
               </Card>
+
+              <div className="lg:col-span-2">
+                <AthleteLinkCard swimmerId={swimmerId} />
+              </div>
             </div>
           )
         )}
@@ -719,6 +725,8 @@ export default function SchwimmerDetailPage() {
             onEventChange={setChartEventKey}
           />
         )}
+
+        {tab === "wettkaempfe" && <SwimmerCompetitionStarts swimmerId={swimmerId} />}
 
         {tab === "pflichtzeiten" && (
           <QualificationTable
