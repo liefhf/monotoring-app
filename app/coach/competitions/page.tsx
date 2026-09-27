@@ -103,14 +103,14 @@ function getStatusClasses(
 ) {
   switch (status) {
     case "completed":
-      return "border-app-good/40 bg-app-good/40 text-app-good";
+      return "border-app-good/40 bg-app-good/10 text-app-good";
 
     case "cancelled":
-      return "border-app-bad/40 bg-app-bad/40 text-app-bad";
+      return "border-app-bad/40 bg-app-bad/10 text-app-bad";
 
     case "planned":
     default:
-      return "border-app-accent/40 bg-app-accent/40 text-app-accent";
+      return "border-app-accent/40 bg-app-accent/10 text-app-accent";
   }
 }
 
@@ -194,7 +194,7 @@ export default function CompetitionsPage() {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
+        <div className="rounded-2xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
           {error}
         </div>
       )}

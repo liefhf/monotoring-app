@@ -282,7 +282,7 @@ export default function AthleteTrainingPage() {
       </div>
 
       {message && (
-        <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
+        <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
           {message}
         </div>
       )}

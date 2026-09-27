@@ -276,13 +276,13 @@ export default function CompetitionImportPreview({
       </div>
 
       {error && (
-        <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/30 p-3 text-sm text-app-bad">
+        <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/10 p-3 text-sm text-app-bad">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mt-4 rounded-xl border border-app-good/40 bg-app-good/30 p-3 text-sm text-app-good">
+        <div className="mt-4 rounded-xl border border-app-good/40 bg-app-good/10 p-3 text-sm text-app-good">
           {success}
         </div>
       )}

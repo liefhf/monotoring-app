@@ -160,7 +160,7 @@ export default function TrainingEffectCards() {
                 key={card.key}
                 className={`w-60 shrink-0 snap-start rounded-lg border p-3 ${
                   isActive
-                    ? "border-app-accent/40 bg-app-accent/40"
+                    ? "border-app-accent/40 bg-app-accent/10"
                     : "border-app-border bg-app-bg"
                 }`}
               >
@@ -169,7 +169,7 @@ export default function TrainingEffectCards() {
                     {card.tag}
                   </p>
                   {isActive && (
-                    <span className="rounded-full bg-app-accent/70 px-2 py-0.5 text-[10px] text-app-accent">
+                    <span className="rounded-full bg-app-accent/10 px-2 py-0.5 text-[10px] text-app-accent">
                       diese Woche
                     </span>
                   )}

@@ -7,6 +7,24 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import {
+  LatestNews,
+  QuickTiles,
+  Tile,
+  UpcomingEntries,
+} from "@/components/DashboardWidgets";
+
+/* Kacheln im Schnellzugriff - die haeufigsten Wege */
+const COACH_TILES: Tile[] = [
+  { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
+  { href: "/coach/training", label: "Training", icon: "training" },
+  { href: "/coach/schwimmer", label: "Schwimmer", icon: "swimmer" },
+  { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
+  { href: "/coach/news", label: "News-Wall", icon: "news" },
+  { href: "/coach/gruppen", label: "Gruppenräume", icon: "chat" },
+  { href: "/coach/competitions", label: "Wettkämpfe", icon: "trophy" },
+  { href: "/coach/analytics", label: "Analysen", icon: "chart" },
+];
 
 type Team = {
   id: string;
@@ -742,6 +760,16 @@ export default function CoachPage() {
         >
           + Training erstellen
         </Link>
+      </div>
+
+      {/* Schnellzugriff und was als Naechstes ansteht */}
+      <section className="mt-6">
+        <QuickTiles tiles={COACH_TILES} />
+      </section>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <UpcomingEntries href="/coach/kalender" />
+        <LatestNews href="/coach/news" />
       </div>
 
       {message && (

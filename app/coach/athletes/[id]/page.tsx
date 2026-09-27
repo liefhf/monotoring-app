@@ -1214,7 +1214,7 @@ export default function CoachAthleteProfilePage() {
       return {
         label: "Gut",
         className:
-          "border-app-good/60 bg-app-good/30 text-app-good",
+          "border-app-good/60 bg-app-good/10 text-app-good",
       };
     }
 
@@ -1274,7 +1274,7 @@ export default function CoachAthleteProfilePage() {
           Athletenprofil wird geladen...
         </div>
       ) : message ? (
-        <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/40 p-5 text-sm text-app-bad">
+        <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/10 p-5 text-sm text-app-bad">
           {
             message
           }

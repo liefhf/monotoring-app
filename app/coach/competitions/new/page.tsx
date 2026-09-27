@@ -260,7 +260,7 @@ export default function NewCompetitionPage() {
         </div>
 
         {error && (
-          <div className="rounded-xl border border-app-bad/40 bg-app-bad/30 p-3 text-sm text-app-bad">
+          <div className="rounded-xl border border-app-bad/40 bg-app-bad/10 p-3 text-sm text-app-bad">
             {error}
           </div>
         )}

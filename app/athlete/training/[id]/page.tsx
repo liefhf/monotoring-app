@@ -534,7 +534,7 @@ export default function AthleteTrainingDetailPage() {
             ← Zurück zum Trainingsplan
           </Link>
 
-          <div className="mt-6 rounded-2xl border border-app-bad/40 bg-app-bad/30 p-6">
+          <div className="mt-6 rounded-2xl border border-app-bad/40 bg-app-bad/10 p-6">
             <h1 className="text-xl font-semibold">
               Training nicht verfügbar
             </h1>
@@ -590,7 +590,7 @@ export default function AthleteTrainingDetailPage() {
       </div>
 
       {message && (
-        <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
+        <div className="mt-6 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
           {message}
         </div>
       )}

@@ -2603,7 +2603,7 @@ export default function SeasonPlanningPage() {
 
                     {todayPosition !== null && (
                       <div
-                        className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-app-accent/70"
+                        className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-app-accent/10"
                         style={{
                           left: `${todayPosition}%`,
                         }}
@@ -2829,7 +2829,7 @@ export default function SeasonPlanningPage() {
 
                     {todayPosition !== null && (
                       <div
-                        className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-app-accent/70"
+                        className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-app-accent/10"
                         style={{
                           left: `${todayPosition}%`,
                         }}
@@ -3012,7 +3012,7 @@ export default function SeasonPlanningPage() {
                         onClick={() =>
                           deleteEvent(event)
                         }
-                        className="rounded-lg border border-app-bad/60 bg-app-bad/30 px-3 py-1.5 text-xs font-semibold hover:bg-app-bad/60"
+                        className="rounded-lg border border-app-bad/60 bg-app-bad/10 px-3 py-1.5 text-xs font-semibold hover:bg-app-bad/10"
                       >
                         Löschen
                       </button>

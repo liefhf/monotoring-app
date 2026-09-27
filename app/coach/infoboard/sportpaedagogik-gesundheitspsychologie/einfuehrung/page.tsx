@@ -476,7 +476,7 @@ export default function EinfuehrungPage() {
 
               <div className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface/80">
                 <div className="border-b border-app-border px-5 py-4 sm:px-6">
-                  <span className="inline-flex rounded-lg border border-app-accent/40 bg-app-accent/60 px-3 py-1.5 text-sm font-bold text-app-accent sm:text-base">
+                  <span className="inline-flex rounded-lg border border-app-accent/40 bg-app-accent/10 px-3 py-1.5 text-sm font-bold text-app-accent sm:text-base">
                     Für zusätzliche Gesundheitseffekte
                   </span>
                 </div>

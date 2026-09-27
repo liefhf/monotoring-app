@@ -675,7 +675,7 @@ export default function TrainingFeedbackPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-app-bad/40 bg-app-bad/30 p-6 text-app-bad">
+          <div className="rounded-3xl border border-app-bad/40 bg-app-bad/10 p-6 text-app-bad">
             {message ||
               "Training konnte nicht geladen werden."}
           </div>
@@ -700,7 +700,7 @@ export default function TrainingFeedbackPage() {
       <main className="bg-app-bg px-4 py-8 text-app-heading sm:px-6">
         <div className="mx-auto max-w-2xl">
           <section className="overflow-hidden rounded-3xl border border-app-good/40 bg-app-surface">
-            <div className="bg-app-good/40 px-6 py-8 text-center sm:px-8 sm:py-10">
+            <div className="bg-app-good/10 px-6 py-8 text-center sm:px-8 sm:py-10">
               <div className="text-6xl">
                 🔥
               </div>
@@ -856,7 +856,7 @@ export default function TrainingFeedbackPage() {
         </section>
 
         {message && (
-          <div className="mt-5 rounded-2xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
+          <div className="mt-5 rounded-2xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}
@@ -875,7 +875,7 @@ export default function TrainingFeedbackPage() {
             </div>
 
             {existingFeedback && (
-              <span className="rounded-full border border-app-good/40 bg-app-good/30 px-3 py-1 text-xs font-medium text-app-good">
+              <span className="rounded-full border border-app-good/40 bg-app-good/10 px-3 py-1 text-xs font-medium text-app-good">
                 Bereits gespeichert
               </span>
             )}

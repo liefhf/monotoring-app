@@ -829,7 +829,7 @@ export default function CompetitionDetailPage() {
           ← Zurück zu Wettkämpfe
         </Link>
 
-        <div className="rounded-2xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
+        <div className="rounded-2xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
           {error ||
             "Wettkampf wurde nicht gefunden."}
         </div>
@@ -877,7 +877,7 @@ export default function CompetitionDetailPage() {
             </div>
           </div>
 
-          <span className="w-fit rounded-full border border-app-accent/40 bg-app-accent/40 px-3 py-1 text-xs font-semibold text-app-accent">
+          <span className="w-fit rounded-full border border-app-accent/40 bg-app-accent/10 px-3 py-1 text-xs font-semibold text-app-accent">
             {getStatusLabel(
               competition.status
             )}

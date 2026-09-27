@@ -503,7 +503,7 @@ export default function CoachTrainingSessionPage() {
     return (
       <main>
         <div className="mx-auto max-w-[1200px]">
-          <div className="rounded-2xl border border-app-bad/40 bg-app-bad/30 p-5 text-sm text-app-bad">
+          <div className="rounded-2xl border border-app-bad/40 bg-app-bad/10 p-5 text-sm text-app-bad">
             {message ||
               "Training konnte nicht geladen werden."}
           </div>
@@ -574,7 +574,7 @@ export default function CoachTrainingSessionPage() {
         </header>
 
         {message && (
-          <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/30 p-4 text-sm text-app-bad">
+          <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}

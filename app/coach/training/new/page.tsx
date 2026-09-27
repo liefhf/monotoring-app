@@ -1769,7 +1769,7 @@ function TrainingEditor() {
         )}
 
         {hasPlanningContext && (
-          <section className="mt-6 rounded-2xl border border-app-accent/40 bg-app-accent/30 p-5">
+          <section className="mt-6 rounded-2xl border border-app-accent/40 bg-app-accent/10 p-5">
             <p className="text-xs font-medium uppercase tracking-wide text-app-accent">
               Zugeordnet zur Trainingsplanung
             </p>

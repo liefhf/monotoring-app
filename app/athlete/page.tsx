@@ -8,6 +8,7 @@ import {
 } from "react";
 import { supabase } from "@/lib/supabase";
 import TrainingEffectCards from "@/components/TrainingEffectCards";
+import { LatestNews, UpcomingEntries } from "@/components/DashboardWidgets";
 
 type Profile = {
   id: string;
@@ -1192,8 +1193,14 @@ export default function AthletePage() {
           </p>
         </header>
 
+        {/* Termine und Neuigkeiten vom Trainer */}
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <UpcomingEntries href="/athlete/termine" limit={3} />
+          <LatestNews href="/athlete/news" limit={2} />
+        </div>
+
         {message && (
-          <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/40 p-4 text-sm text-app-bad">
+          <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
             {message}
           </div>
         )}
