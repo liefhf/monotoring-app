@@ -3,6 +3,13 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import {
+  EntryCategory,
+  categoryToSeasonType,
+  isoToLocalParts,
+  localToIso,
+  seasonTypeToCategory,
+} from "@/lib/community";
 
 type DatabaseEventType =
   | "competition"
@@ -554,29 +561,50 @@ export default function SeasonPlanningPage() {
 
     setTeams((teamData ?? []) as Team[]);
 
-    const { data: eventData, error: eventError } = await supabase
-      .from("calendar_events")
+    /*
+     * Termine kommen aus dem gemeinsamen Kalender
+     * (calendar_entries) - dieselben wie unter "Kalender".
+     * Hier werden sie ganztaegig als Zeitraum gezeigt.
+     */
+    const { data: entryData, error: eventError } = await supabase
+      .from("calendar_entries")
       .select(
-        `
-          id,
-          coach_id,
-          team_id,
-          title,
-          event_type,
-          start_date,
-          end_date,
-          location,
-          description,
-          color,
-          created_at
-        `
+        "id, coach_id, team_id, title, category, starts_at, ends_at, location, description, color, created_at"
       )
       .eq("coach_id", user.id)
-      .lte("start_date", queryEnd)
-      .or(`end_date.is.null,end_date.gte.${queryStart}`)
-      .order("start_date", {
+      .lte("starts_at", localToIso(queryEnd, "23:59"))
+      .or(`ends_at.is.null,ends_at.gte.${localToIso(queryStart, "00:00")}`)
+      .order("starts_at", {
         ascending: true,
       });
+
+    const eventData = (
+      (entryData ?? []) as {
+        id: string;
+        coach_id: string;
+        team_id: string | null;
+        title: string;
+        category: EntryCategory;
+        starts_at: string;
+        ends_at: string | null;
+        location: string | null;
+        description: string | null;
+        color: string | null;
+        created_at: string;
+      }[]
+    ).map((entry) => ({
+      id: entry.id,
+      coach_id: entry.coach_id,
+      team_id: entry.team_id,
+      title: entry.title,
+      event_type: categoryToSeasonType(entry.category),
+      start_date: isoToLocalParts(entry.starts_at)[0],
+      end_date: entry.ends_at ? isoToLocalParts(entry.ends_at)[0] : null,
+      location: entry.location,
+      description: entry.description,
+      color: entry.color,
+      created_at: entry.created_at,
+    }));
 
     if (eventError) {
       setMessage(
@@ -587,7 +615,7 @@ export default function SeasonPlanningPage() {
       return;
     }
 
-    setEvents((eventData ?? []) as CalendarEvent[]);
+    setEvents(eventData as CalendarEvent[]);
 
     const { data: taskData, error: taskError } = await supabase
       .from("calendar_tasks")
@@ -789,12 +817,14 @@ export default function SeasonPlanningPage() {
       return;
     }
 
+    /* Gespeichert wird im gemeinsamen Kalender, ganztaegig */
     const payload = {
       team_id: newEventTeamId || null,
       title: newEventTitle.trim(),
-      event_type: newEventType,
-      start_date: newEventStartDate,
-      end_date: newEventEndDate || null,
+      category: seasonTypeToCategory(newEventType),
+      starts_at: localToIso(newEventStartDate, "00:00"),
+      ends_at: localToIso(newEventEndDate || newEventStartDate, "23:59"),
+      all_day: true,
       location: newEventLocation.trim() || null,
       description: newEventDescription.trim() || null,
       color: newEventColor,
@@ -802,7 +832,7 @@ export default function SeasonPlanningPage() {
 
     if (editingEventId) {
       const { error } = await supabase
-        .from("calendar_events")
+        .from("calendar_entries")
         .update(payload)
         .eq("id", editingEventId)
         .eq("coach_id", user.id);
@@ -827,10 +857,16 @@ export default function SeasonPlanningPage() {
       return;
     }
 
+    /*
+     * Neue Termine aus der Saisonplanung stehen zuerst im
+     * Trainerkalender (wie bisher nur fuer Trainer sichtbar).
+     * Unter "Kalender" laesst sich das pro Termin aendern.
+     */
     const { error } = await supabase
-      .from("calendar_events")
+      .from("calendar_entries")
       .insert({
         coach_id: user.id,
+        visibility: "coach",
         ...payload,
       });
 
@@ -975,7 +1011,7 @@ export default function SeasonPlanningPage() {
     }
 
     const { error } = await supabase
-      .from("calendar_events")
+      .from("calendar_entries")
       .delete()
       .eq("id", event.id);
 

@@ -15,7 +15,10 @@ export type EntryCategory =
   | "wettkampf"
   | "trainingslager"
   | "besprechung"
-  | "sonstiges";
+  | "leistungstest"
+  | "sonstiges"
+  /* nur Anzeige: Fristen aus der Saisonplanung (calendar_tasks) */
+  | "frist";
 
 export type CalendarEntry = {
   id: string;
@@ -83,11 +86,70 @@ export const CATEGORIES: {
   { value: "wettkampf", label: "Wettkampf", dot: "bg-cat-competition", chip: "bg-cat-competition/15 text-cat-competition" },
   { value: "trainingslager", label: "Trainingslager", dot: "bg-cat-camp", chip: "bg-cat-camp/15 text-cat-camp" },
   { value: "besprechung", label: "Besprechung", dot: "bg-cat-meeting", chip: "bg-cat-meeting/15 text-cat-meeting" },
+  { value: "leistungstest", label: "Leistungstest", dot: "bg-app-good", chip: "bg-app-good/15 text-app-good" },
   { value: "sonstiges", label: "Sonstiges", dot: "bg-app-muted", chip: "bg-app-muted/15 text-app-muted" },
 ];
 
+/* Fristen werden angezeigt, aber nicht als Termin-Kategorie angeboten */
+const DEADLINE_CATEGORY = {
+  value: "frist" as EntryCategory,
+  label: "Frist",
+  dot: "bg-app-bad",
+  chip: "bg-app-bad/12 text-app-bad",
+};
+
 export function getCategory(value: EntryCategory) {
-  return CATEGORIES.find((category) => category.value === value) ?? CATEGORIES[4];
+  if (value === "frist") return DEADLINE_CATEGORY;
+
+  return CATEGORIES.find((category) => category.value === value) ?? CATEGORIES[CATEGORIES.length - 1];
+}
+
+/*
+ * Saisonplanung (alte Termin-Arten) <-> Kalender-Kategorien.
+ * Die Saisonplanung speichert seit der Zusammenfuehrung in
+ * calendar_entries (supabase/kalender_zusammenfuehren.sql).
+ */
+export type SeasonEventType = "competition" | "training_camp" | "testing" | "meeting" | "other";
+
+const SEASON_TO_CATEGORY: Record<SeasonEventType, EntryCategory> = {
+  competition: "wettkampf",
+  training_camp: "trainingslager",
+  testing: "leistungstest",
+  meeting: "besprechung",
+  other: "sonstiges",
+};
+
+export function seasonTypeToCategory(type: SeasonEventType): EntryCategory {
+  return SEASON_TO_CATEGORY[type];
+}
+
+export function categoryToSeasonType(category: EntryCategory): SeasonEventType {
+  const found = (Object.keys(SEASON_TO_CATEGORY) as SeasonEventType[]).find((type) => SEASON_TO_CATEGORY[type] === category);
+
+  return found ?? "other";
+}
+
+/* Frist aus der Saisonplanung als Kalendereintrag (nur Anzeige) */
+export type DeadlineTask = { id: string; team_id: string | null; title: string; due_date: string; completed: boolean; description: string | null };
+
+export function taskToEntry(task: DeadlineTask, coachId: string): CalendarEntry {
+  return {
+    id: `task-${task.id}`,
+    coach_id: coachId,
+    team_id: task.team_id,
+    title: `${task.completed ? "✓ " : ""}${task.title}`,
+    description: task.description,
+    location: null,
+    category: "frist",
+    visibility: "coach",
+    starts_at: localToIso(task.due_date, "00:00"),
+    ends_at: localToIso(task.due_date, "23:59"),
+    all_day: true,
+    registration_enabled: false,
+    registration_deadline: null,
+    max_participants: null,
+    fee_note: null,
+  };
 }
 
 export const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];

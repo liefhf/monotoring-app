@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   CalendarEntry,
+  categoryToSeasonType,
   entryOnDay,
+  getCategory,
+  seasonTypeToCategory,
+  taskToEntry,
   formatFileSize,
   getMonthGrid,
   isRegistrationOpen,
@@ -75,5 +79,24 @@ describe("formatFileSize", () => {
     expect(formatFileSize(2048)).toBe("2 KB");
     expect(formatFileSize(5.5 * 1024 * 1024)).toBe("5,5 MB");
     expect(formatFileSize(null)).toBe("");
+  });
+});
+
+describe("Saisonplanung und Kalender", () => {
+  it("uebersetzt Termin-Arten in beide Richtungen", () => {
+    for (const type of ["competition", "training_camp", "testing", "meeting", "other"] as const) {
+      expect(categoryToSeasonType(seasonTypeToCategory(type))).toBe(type);
+    }
+    expect(categoryToSeasonType("training")).toBe("other");
+  });
+
+  it("zeigt Fristen als ganztaegigen Trainertermin", () => {
+    const entry = taskToEntry({ id: "t1", team_id: null, title: "Meldeschluss", due_date: "2026-10-01", completed: true, description: null }, "c");
+    expect(entry.id).toBe("task-t1");
+    expect(entry.title).toBe("✓ Meldeschluss");
+    expect(entry.visibility).toBe("coach");
+    expect(entryOnDay(entry, "2026-10-01")).toBe(true);
+    expect(entryOnDay(entry, "2026-10-02")).toBe(false);
+    expect(getCategory("frist").label).toBe("Frist");
   });
 });

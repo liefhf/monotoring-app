@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import {
   CALENDAR_COLUMNS,
   CATEGORIES,
   CalendarEntry,
+  DeadlineTask,
   EntryCategory,
   TeamOption,
   formatDay,
@@ -13,6 +15,7 @@ import {
   getCategory,
   isoToLocalParts,
   localToIso,
+  taskToEntry,
 } from "@/lib/community";
 import CalendarView from "@/components/CalendarView";
 import { Icon } from "@/components/icons";
@@ -117,6 +120,7 @@ function entryToDraft(entry: CalendarEntry): Draft {
 
 export default function CoachKalenderPage() {
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
+  const [tasks, setTasks] = useState<CalendarEntry[]>([]);
   const [teams, setTeams] = useState<TeamOption[]>([]);
   const [counts, setCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -151,6 +155,15 @@ export default function CoachKalenderPage() {
     setEntries(loaded);
     setTeams(((teamResponse.data ?? []) as TeamOption[]).filter((team) => team.is_coach));
 
+    /* Fristen aus der Saisonplanung mit anzeigen (nur Trainer) */
+    const { data: userData } = await supabase.auth.getUser();
+    const { data: taskData } = await supabase
+      .from("calendar_tasks")
+      .select("id, team_id, title, due_date, completed, description")
+      .order("due_date");
+
+    setTasks(((taskData ?? []) as DeadlineTask[]).map((task) => taskToEntry(task, userData.user?.id ?? "")));
+
     const withRegistration = loaded.filter((entry) => entry.registration_enabled).map((entry) => entry.id);
 
     if (withRegistration.length > 0) {
@@ -180,17 +193,19 @@ export default function CoachKalenderPage() {
 
   const visibleEntries = useMemo(
     () =>
-      entries.filter(
+      [...entries, ...tasks].filter(
         (entry) =>
           (view === "all" || entry.visibility === view) &&
           (!teamFilter || entry.team_id === teamFilter || entry.team_id === null)
       ),
-    [entries, view, teamFilter]
+    [entries, tasks, view, teamFilter]
   );
 
   async function openEntry(entry: CalendarEntry) {
     setSelected(entry);
     setRegistrations([]);
+
+    if (entry.category === "frist") return;
 
     if (entry.registration_enabled) {
       const { data } = await supabase.rpc("entry_registrations_for_coach", { p_entry_id: entry.id });
@@ -441,21 +456,30 @@ export default function CoachKalenderPage() {
               </div>
             )}
 
-            <div className="flex flex-wrap justify-between gap-2 border-t border-app-border pt-4">
-              <button type="button" onClick={() => handleDelete(selected)} className={`${buttonGhost} text-app-bad`}>
-                Löschen
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setDraft(entryToDraft(selected));
-                  setSelected(null);
-                }}
-                className={buttonPrimary}
-              >
-                Bearbeiten
-              </button>
-            </div>
+            {selected.category === "frist" ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-app-border pt-4">
+                <p className="text-sm text-app-muted">Frist aus der Saisonplanung – dort abhaken oder ändern.</p>
+                <Link href="/coach/training/season" className={buttonPrimary}>
+                  Zur Saisonplanung
+                </Link>
+              </div>
+            ) : (
+              <div className="flex flex-wrap justify-between gap-2 border-t border-app-border pt-4">
+                <button type="button" onClick={() => handleDelete(selected)} className={`${buttonGhost} text-app-bad`}>
+                  Löschen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraft(entryToDraft(selected));
+                    setSelected(null);
+                  }}
+                  className={buttonPrimary}
+                >
+                  Bearbeiten
+                </button>
+              </div>
+            )}
           </div>
         )}
       </Modal>
