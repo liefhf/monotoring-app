@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const appSans = Plus_Jakarta_Sans({
@@ -34,11 +35,12 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${appSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
       <body className="flex min-h-full flex-col bg-app-bg text-app-text">
         {children}
+        {/* beforeInteractive: laeuft vor dem ersten Zeichnen, landet im <head> */}
+        <Script id="theme-init" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
       </body>
     </html>
   );
