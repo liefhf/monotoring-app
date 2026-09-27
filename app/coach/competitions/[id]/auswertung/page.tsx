@@ -43,6 +43,7 @@ import {
   summarize,
 } from "@/lib/competitionFeedback";
 import { Icon } from "@/components/icons";
+import RelayPanel from "@/components/RelayPanel";
 import {
   Card,
   EmptyState,
@@ -65,7 +66,7 @@ import {
  * sich Bestzeiten und Entwicklung von selbst.
  */
 
-type Tab = "starts" | "auswertung" | "fazit";
+type Tab = "starts" | "staffeln" | "auswertung" | "fazit";
 
 type Competition = {
   id: string;
@@ -623,6 +624,7 @@ export default function WettkampfAuswertungPage() {
   const tabs: { value: Tab; label: string }[] = [
     { value: "starts", label: `Starts & Feedback (${starts.length})` },
     { value: "auswertung", label: "Auswertung" },
+    { value: "staffeln", label: "Staffeln" },
     { value: "fazit", label: "Fazit" },
   ];
 
@@ -1050,6 +1052,11 @@ export default function WettkampfAuswertungPage() {
             )}
           </Card>
         </div>
+      )}
+
+      {/* ============ STAFFELN ============ */}
+      {tab === "staffeln" && (
+        <RelayPanel competitionId={competitionId} defaultDate={competition.start_date} swimmers={swimmers} results={results} />
       )}
 
       {/* ============ FAZIT ============ */}
