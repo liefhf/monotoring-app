@@ -1,23 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { formatDate, formatEvent, formatTime } from "@/lib/swim";
-import { CompetitionStart, START_COLUMNS, STATUS_LABELS, averageRating } from "@/lib/competitionFeedback";
-import { Card, EmptyState, Notice, buttonSecondary, inputClass } from "@/components/ui";
+import { Card, Notice, buttonSecondary, inputClass } from "@/components/ui";
 
 /*
- * Zusatz-Bausteine fuer die Schwimmer-Detailseite:
- * - Verknuepfung mit dem Login eines Athleten
- * - Liste der Wettkampf-Starts mit Feedback
- * Beide laden ihre Daten selbst, damit die Schwimmerseite
- * auch ohne supabase/wettkampf_feedback.sql funktioniert.
+ * Verknuepft einen Schwimmer aus "Meine Schwimmer" mit dem
+ * Login eines Athleten aus den eigenen Teams. Danach sieht der
+ * Athlet sein Wettkampf-Feedback und kann sich selbst einschaetzen.
+ * Laedt seine Daten selbst und blendet sich aus, solange
+ * supabase/wettkampf_feedback.sql noch nicht ausgefuehrt wurde.
  */
 
 type AthleteOption = { id: string; name: string };
 
-export function AthleteLinkCard({ swimmerId }: { swimmerId: string }) {
+export default function AthleteLinkCard({ swimmerId }: { swimmerId: string }) {
   const [profileId, setProfileId] = useState<string | null>(null);
   const [athletes, setAthletes] = useState<AthleteOption[]>([]);
   const [selected, setSelected] = useState("");
@@ -105,64 +102,5 @@ export function AthleteLinkCard({ swimmerId }: { swimmerId: string }) {
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
       </div>
     </Card>
-  );
-}
-
-type StartRow = CompetitionStart & { competitions: { name: string } | null };
-
-export function SwimmerCompetitionStarts({ swimmerId }: { swimmerId: string }) {
-  const [starts, setStarts] = useState<StartRow[] | null>(null);
-
-  useEffect(() => {
-    supabase
-      .from("competition_starts")
-      .select(`${START_COLUMNS}, competitions(name)`)
-      .eq("swimmer_id", swimmerId)
-      .order("start_date", { ascending: false })
-      .then(({ data, error }) => setStarts(error ? [] : ((data ?? []) as unknown as StartRow[])));
-  }, [swimmerId]);
-
-  if (starts === null) {
-    return <p className="mt-6 text-sm text-app-muted">Wird geladen...</p>;
-  }
-
-  return (
-    <div className="mt-6">
-      <Card title="Wettkampf-Feedback" description="Alle Starts mit deiner Bewertung. Erfasst wird unter Wettkämpfe → Auswertung & Feedback.">
-        {starts.length === 0 ? (
-          <EmptyState icon="trophy" title="Noch kein Wettkampf-Feedback">
-            Öffne einen Wettkampf und klicke auf „Auswertung & Feedback“.
-          </EmptyState>
-        ) : (
-          <ul className="divide-y divide-app-border">
-            {starts.map((start) => {
-              const average = averageRating(start);
-
-              return (
-                <li key={start.id}>
-                  <Link
-                    href={`/coach/competitions/${start.competition_id}/auswertung`}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3 transition hover:bg-app-elevated"
-                  >
-                    <span className="w-24 shrink-0 text-sm text-app-muted">{formatDate(start.start_date)}</span>
-                    <span className="min-w-40 flex-1">
-                      <span className="block font-medium text-app-heading">{formatEvent(start)}</span>
-                      <span className="block text-xs text-app-muted">{start.competitions?.name ?? "Wettkampf"}</span>
-                    </span>
-                    <span className="w-20 font-semibold text-app-heading">
-                      {start.status === "ok" && start.time_ms ? formatTime(start.time_ms) : STATUS_LABELS[start.status]}
-                    </span>
-                    <span className="w-24 text-xs text-app-muted">{average !== null ? `Ø Note ${average.toFixed(1).replace(".", ",")}` : ""}</span>
-                    <span className="w-full text-sm text-app-text sm:w-auto sm:flex-1">
-                      {start.to_improve ? `Daran arbeiten: ${start.to_improve}` : start.went_well ?? ""}
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </Card>
-    </div>
   );
 }

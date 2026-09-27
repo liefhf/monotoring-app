@@ -11,6 +11,10 @@ import {
   roundFromType,
   strokeFromText,
   suggestTimes,
+  seasonStartYear,
+  formatSeason,
+  buildSeasonMatrix,
+  ratingTrend,
   summarize,
 } from "@/lib/competitionFeedback";
 
@@ -190,5 +194,45 @@ describe("kleine Helfer", () => {
     expect(formatPercent(-0.46)).toBe("−0,5 %");
     expect(formatPercent(2)).toBe("+2,0 %");
     expect(averageRating(start({ rating_start: null, rating_turns: null, rating_technique: null, rating_pacing: null, rating_finish: null }))).toBeNull();
+  });
+});
+
+describe("Saison-Auswertung", () => {
+  it("ordnet Daten der Saison ab August zu", () => {
+    expect(seasonStartYear("2026-07-31")).toBe(2025);
+    expect(seasonStartYear("2026-08-01")).toBe(2026);
+    expect(formatSeason(2026)).toBe("2026/27");
+  });
+
+  it("stellt Wettkaempfe nebeneinander und nimmt pro Wettkampf die schnellste Zeit", () => {
+    const starts = [
+      start({ id: "1", competition_id: "b", start_date: "2026-05-02", time_ms: 63000 }),
+      start({ id: "2", competition_id: "a", start_date: "2026-03-01", time_ms: 65000 }),
+      start({ id: "3", competition_id: "b", start_date: "2026-05-03", time_ms: 62500, round: "Finale" }),
+      start({ id: "4", competition_id: "b", distance: 50, time_ms: 29000 }),
+      start({ id: "5", competition_id: "a", status: "dsq", time_ms: null, distance: 200 }),
+    ];
+    const matrix = buildSeasonMatrix(starts, { a: "Frühjahr", b: "Bezirk" });
+
+    expect(matrix.columns.map((c) => c.name)).toEqual(["Frühjahr", "Bezirk"]);
+    expect(matrix.rows).toHaveLength(2);
+    const row100 = matrix.rows.find((row) => row.distance === 100)!;
+    expect(row100.cells.b.id).toBe("3");
+    expect(row100.cells.a.id).toBe("2");
+  });
+
+  it("berechnet den Notenverlauf je Wettkampf", () => {
+    const starts = [
+      start({ id: "1", competition_id: "a", rating_turns: 2 }),
+      start({ id: "2", competition_id: "a", rating_turns: 3 }),
+      start({ id: "3", competition_id: "b", rating_turns: 4 }),
+    ];
+    const trend = ratingTrend(starts, [
+      { id: "a", name: "A", date: "2026-03-01" },
+      { id: "b", name: "B", date: "2026-05-01" },
+    ]);
+
+    expect(trend.map((row) => row.rating_turns)).toEqual([2.5, 4]);
+    expect(trend[0].rating_underwater).toBeNull();
   });
 });

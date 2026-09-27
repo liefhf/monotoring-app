@@ -15,7 +15,8 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
-import { AthleteLinkCard, SwimmerCompetitionStarts } from "@/components/SwimmerCompetitionPanels";
+import AthleteLinkCard from "@/components/AthleteLinkCard";
+import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import {
   Gender,
   OtherResult,
@@ -68,7 +69,7 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "bestzeiten", label: "Bestzeiten" },
   { value: "entwicklung", label: "Entwicklung" },
   { value: "pflichtzeiten", label: "Pflichtzeiten" },
-  { value: "wettkaempfe", label: "Wettkampf-Feedback" },
+  { value: "wettkaempfe", label: "Saison-Auswertung" },
 ];
 
 /* Felder, die im Tab "Infos" bearbeitet werden (alle als Text im Formular) */
@@ -726,7 +727,7 @@ export default function SchwimmerDetailPage() {
           />
         )}
 
-        {tab === "wettkaempfe" && <SwimmerCompetitionStarts swimmerId={swimmerId} />}
+        {tab === "wettkaempfe" && <SwimmerSeasonReport swimmerId={swimmerId} />}
 
         {tab === "pflichtzeiten" && (
           <QualificationTable

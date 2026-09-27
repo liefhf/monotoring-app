@@ -288,3 +288,76 @@ export function summarize(evaluations: StartEvaluation[]) {
     strongest: sortedByAverage.slice(-2).reverse().filter((category) => category.average! >= 3.5),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Saison-Auswertung                                                   */
+/* ------------------------------------------------------------------ */
+
+/* Saison beginnt im August: 2026-09-01 -> 2026 ("2026/27") */
+export function seasonStartYear(date: string) {
+  const year = Number(date.slice(0, 4));
+  const month = Number(date.slice(5, 7));
+
+  return month >= 8 ? year : year - 1;
+}
+
+export function formatSeason(startYear: number) {
+  return `${startYear}/${String(startYear + 1).slice(2)}`;
+}
+
+export type SeasonCompetition = { id: string; name: string; date: string };
+
+/*
+ * Wettkaempfe einer Saison in zeitlicher Reihenfolge und je
+ * Strecke/Bahn die gewerteten Zeiten pro Wettkampf (bei mehreren
+ * Laeufen die schnellste).
+ */
+export function buildSeasonMatrix(starts: CompetitionStart[], names: Record<string, string>) {
+  const competitions = new Map<string, SeasonCompetition>();
+
+  for (const start of starts) {
+    const existing = competitions.get(start.competition_id);
+
+    if (!existing || start.start_date < existing.date) {
+      competitions.set(start.competition_id, {
+        id: start.competition_id,
+        name: names[start.competition_id] ?? "Wettkampf",
+        date: start.start_date,
+      });
+    }
+  }
+
+  const columns = [...competitions.values()].sort((a, b) => a.date.localeCompare(b.date));
+  const rows = new Map<string, { distance: number; stroke: Stroke; pool: PoolLength; cells: Record<string, CompetitionStart> }>();
+
+  for (const start of starts) {
+    if (start.status !== "ok" || !start.time_ms) continue;
+
+    const key = `${start.pool_length}-${start.distance}-${start.stroke}`;
+    const row = rows.get(key) ?? { distance: start.distance, stroke: start.stroke, pool: start.pool_length, cells: {} };
+    const current = row.cells[start.competition_id];
+
+    if (!current || start.time_ms < current.time_ms!) {
+      row.cells[start.competition_id] = start;
+    }
+
+    rows.set(key, row);
+  }
+
+  return { columns, rows: [...rows.values()] };
+}
+
+/* Durchschnittsnote je Bereich und Wettkampf (fuer den Verlauf) */
+export function ratingTrend(starts: CompetitionStart[], columns: SeasonCompetition[]) {
+  return columns.map((column) => {
+    const own = starts.filter((start) => start.competition_id === column.id);
+    const row: Record<string, number | string | null> = { competition: column.name, date: column.date };
+
+    for (const category of RATING_CATEGORIES) {
+      const values = own.map((start) => start[category.key]).filter((value): value is number => typeof value === "number");
+      row[category.key] = values.length ? Math.round((values.reduce((sum, value) => sum + value, 0) / values.length) * 10) / 10 : null;
+    }
+
+    return row;
+  });
+}
