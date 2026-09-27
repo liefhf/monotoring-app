@@ -2,6 +2,7 @@ import RoleGuard from "@/components/RoleGuard";
 import LogoutButton from "@/components/LogoutButton";
 import AthleteNav from "@/components/AthleteNav";
 import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 import Logo from "@/components/Logo";
 
 export default function AthleteLayout({
@@ -16,6 +17,7 @@ export default function AthleteLayout({
           <Logo />
 
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <ThemeToggle />
             <LogoutButton />
           </div>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 import Logo from "@/components/Logo";
 import { Icon, IconName } from "@/components/icons";
 
@@ -156,6 +157,7 @@ export default function CoachNav() {
         </div>
 
         <div className="flex items-center gap-2">
+          <NotificationBell />
           <ThemeToggle />
           <LogoutButton />
         </div>
@@ -194,8 +196,9 @@ export default function CoachNav() {
 
       {/* Desktop: feste Seitenleiste */}
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-app-border bg-app-surface lg:flex lg:flex-col print:hidden">
-        <div className="border-b border-app-border px-4 py-5">
+        <div className="relative z-10 flex items-center justify-between gap-2 border-b border-app-border px-4 py-5">
           <Logo subtitle="Coach-Bereich" />
+          <NotificationBell align="left" />
         </div>
 
         <NavLinks pathname={pathname} />
