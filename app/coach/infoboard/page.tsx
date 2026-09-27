@@ -81,10 +81,10 @@ const infoPages = [
 
 export default function InfoboardPage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-white">
+    <main>
       <div className="mx-auto max-w-7xl">
         <div>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-app-muted">
             Coach Bereich
           </p>
 
@@ -92,7 +92,7 @@ export default function InfoboardPage() {
             Infoboard
           </h1>
 
-          <p className="mt-2 text-slate-400">
+          <p className="mt-2 text-app-muted">
             Informationen und Nachschlagewerk für den Trainer.
           </p>
         </div>
@@ -102,7 +102,7 @@ export default function InfoboardPage() {
             <Link
               key={page.href}
               href={page.href}
-              className="rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-slate-600 hover:bg-slate-800"
+              className="rounded-2xl border border-app-border bg-app-surface p-5 transition hover:border-app-border hover:bg-app-elevated"
             >
               <h2 className="text-lg font-semibold leading-6">
                 {page.title}
@@ -118,7 +118,7 @@ export default function InfoboardPage() {
         <div className="mt-8">
           <Link
             href="/coach"
-            className="inline-block rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="inline-block rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Zurück zum Coach-Bereich
           </Link>

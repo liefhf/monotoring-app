@@ -157,31 +157,31 @@ const colorStyles: Record<
   }
 > = {
   amber: {
-    card: "border-amber-300 bg-amber-500 text-slate-950",
+    card: "border-amber-300 bg-amber-500 text-app-accent-ink",
     dot: "bg-amber-500",
     soft: "border-amber-700 bg-amber-950 text-amber-200",
   },
 
   blue: {
-    card: "border-blue-300 bg-blue-600 text-white",
-    dot: "bg-blue-500",
-    soft: "border-blue-800 bg-blue-950 text-blue-200",
+    card: "border-sky-300 bg-sky-600 text-white",
+    dot: "bg-sky-500",
+    soft: "border-sky-800 bg-sky-950 text-sky-200",
   },
 
   violet: {
-    card: "border-violet-300 bg-violet-600 text-white",
-    dot: "bg-violet-500",
-    soft: "border-violet-800 bg-violet-950 text-violet-200",
+    card: "border-sky-300 bg-sky-600 text-white",
+    dot: "bg-sky-500",
+    soft: "border-sky-800 bg-sky-950 text-sky-200",
   },
 
   cyan: {
-    card: "border-cyan-300 bg-cyan-600 text-white",
-    dot: "bg-cyan-500",
-    soft: "border-cyan-800 bg-cyan-950 text-cyan-200",
+    card: "border-sky-300 bg-sky-600 text-white",
+    dot: "bg-sky-500",
+    soft: "border-sky-800 bg-sky-950 text-sky-200",
   },
 
   emerald: {
-    card: "border-emerald-300 bg-emerald-500 text-slate-950",
+    card: "border-emerald-300 bg-emerald-500 text-app-accent-ink",
     dot: "bg-emerald-500",
     soft: "border-emerald-800 bg-emerald-950 text-emerald-200",
   },
@@ -193,9 +193,9 @@ const colorStyles: Record<
   },
 
   orange: {
-    card: "border-orange-300 bg-orange-500 text-slate-950",
-    dot: "bg-orange-500",
-    soft: "border-orange-800 bg-orange-950 text-orange-200",
+    card: "border-amber-300 bg-amber-500 text-app-accent-ink",
+    dot: "bg-amber-500",
+    soft: "border-amber-800 bg-amber-950 text-amber-200",
   },
 
   pink: {
@@ -205,15 +205,15 @@ const colorStyles: Record<
   },
 
   lime: {
-    card: "border-lime-300 bg-lime-500 text-slate-950",
+    card: "border-lime-300 bg-lime-500 text-app-accent-ink",
     dot: "bg-lime-500",
     soft: "border-lime-800 bg-lime-950 text-lime-200",
   },
 
   slate: {
-    card: "border-slate-400 bg-slate-600 text-white",
-    dot: "bg-slate-500",
-    soft: "border-slate-700 bg-slate-800 text-slate-200",
+    card: "border-app-border bg-app-elevated text-white",
+    dot: "bg-app-elevated",
+    soft: "border-app-border bg-app-elevated text-app-text",
   },
 };
 
@@ -389,33 +389,6 @@ export default function SeasonPlanningPage() {
 
   const [newTaskColor, setNewTaskColor] =
     useState<ColorKey>("emerald");
-
-  const navigation = [
-    {
-      name: "Dashboard",
-      href: "/coach",
-    },
-    {
-      name: "Teams",
-      href: "/coach/teams",
-    },
-    {
-      name: "Athleten",
-      href: "/coach/athletes",
-    },
-    {
-      name: "Training",
-      href: "/coach/training",
-    },
-    {
-      name: "Auswertungen",
-      href: "/coach/analytics",
-    },
-    {
-      name: "Einstellungen",
-      href: "/coach/settings",
-    },
-  ];
 
   const todayDate = new Date();
   const today = getLocalDateString(todayDate);
@@ -1433,1008 +1406,1073 @@ export default function SeasonPlanningPage() {
     : "Alle Teams";
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        {/* SIDEBAR */}
+    <div className="mx-auto w-full max-w-[1800px]">
+      {/* KOPF */}
 
-        <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex lg:flex-col">
-          <div className="border-b border-slate-800 px-6 py-6">
-            <h2 className="text-xl font-bold">
-              Monitoring App
-            </h2>
+      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <p className="text-sm text-app-muted">
+            Organisation & Saisonplanung
+          </p>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Coach Bereich
-            </p>
+          <h1 className="mt-1 text-3xl font-bold">
+            Jahresplanung
+          </h1>
+
+          <p className="mt-2 text-app-muted">
+            Wettkämpfe, Fristen und wichtige Saisontermine.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* TEAM-FILTER */}
+
+          <div className="flex items-center gap-3 rounded-xl border border-app-border bg-app-surface px-3 py-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-wide text-app-faint">
+                Ansicht
+              </p>
+
+              <select
+                value={selectedTeamId}
+                onChange={(event) => {
+                  setSelectedTeamId(event.target.value);
+                  setSelectedCalendarDate(null);
+                }}
+                className="mt-0.5 min-w-36 bg-transparent text-sm font-semibold text-white outline-none"
+              >
+                <option
+                  value=""
+                  className="bg-app-surface"
+                >
+                  Alle Teams
+                </option>
+
+                {teams.map((team) => (
+                  <option
+                    key={team.id}
+                    value={team.id}
+                    className="bg-app-surface"
+                  >
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <nav className="flex-1 space-y-2 p-4">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`block rounded-xl px-4 py-3 text-sm ${
-                  item.name === "Training"
-                    ? "bg-white font-medium text-slate-950"
-                    : "text-slate-300 hover:bg-slate-800"
-                }`}
+          {/* SAISON */}
+
+          <div className="flex items-center gap-2 rounded-xl border border-app-border bg-app-surface px-3 py-2">
+            <button
+              type="button"
+              onClick={() =>
+                setSeasonStartYear(
+                  (current) => current - 1
+                )
+              }
+              className="rounded-lg px-2 py-1 hover:bg-app-elevated"
+            >
+              ←
+            </button>
+
+            <div className="px-3 text-center">
+              <p className="text-[10px] uppercase text-app-faint">
+                Saison
+              </p>
+
+              <p className="font-semibold">
+                {seasonStartYear} /{" "}
+                {seasonStartYear + 1}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                setSeasonStartYear(
+                  (current) => current + 1
+                )
+              }
+              className="rounded-lg px-2 py-1 hover:bg-app-elevated"
+            >
+              →
+            </button>
+          </div>
+
+          {/* NEUER TERMIN */}
+
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedCalendarDate(null);
+              setShowTaskForm(false);
+              setEditingTaskId(null);
+
+              resetEventForm();
+
+              setShowEventForm(true);
+            }}
+            className="rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
+          >
+            + Termin
+          </button>
+
+          {/* NEUE AUFGABE */}
+
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedCalendarDate(null);
+              setShowEventForm(false);
+              setEditingEventId(null);
+
+              resetTaskForm();
+
+              setShowTaskForm(true);
+            }}
+            className="rounded-xl bg-app-accent px-4 py-3 text-sm font-medium text-app-accent-ink"
+          >
+            + Aufgabe / Frist
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-4 flex items-center gap-2 text-xs text-app-faint">
+        <span>
+          Angezeigt:
+        </span>
+
+        <span className="rounded-full border border-app-border bg-app-surface px-3 py-1 font-medium text-app-text">
+          {selectedTeamName}
+        </span>
+
+        {selectedTeamId && (
+          <span>
+            + allgemeine Termine
+          </span>
+        )}
+      </div>
+
+      {message && (
+        <div className="mt-6 rounded-xl border border-app-border bg-app-surface p-4 text-sm">
+          {message}
+        </div>
+      )}
+
+      {/* TERMIN FORMULAR */}
+
+      {showEventForm && (
+        <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+          <div className="flex items-start justify-between border-b border-app-border p-5">
+            <div>
+              <p className="text-sm text-app-muted">
+                {editingEventId
+                  ? "Bestehender Termin"
+                  : "Neuer Termin"}
+              </p>
+
+              <h2 className="mt-1 text-xl font-semibold">
+                {editingEventId
+                  ? "Termin bearbeiten"
+                  : "Termin anlegen"}
+              </h2>
+            </div>
+
+            {editingEventId && (
+              <span className="rounded-full border border-sky-800 bg-sky-950 px-3 py-1 text-xs text-sky-300">
+                Bearbeiten
+              </span>
+            )}
+          </div>
+
+          <div className="grid gap-5 p-5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="xl:col-span-2">
+              <label className="mb-2 block text-sm text-app-muted">
+                Titel
+              </label>
+
+              <input
+                value={newEventTitle}
+                onChange={(event) =>
+                  setNewEventTitle(event.target.value)
+                }
+                placeholder="z. B. Deutsche Meisterschaft"
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Art
+              </label>
+
+              <select
+                value={newEventType}
+                onChange={(event) => {
+                  const nextType =
+                    event.target.value as DatabaseEventType;
+
+                  setNewEventType(nextType);
+
+                  if (!editingEventId) {
+                    setNewEventColor(
+                      getDefaultEventColor(nextType)
+                    );
+                  }
+                }}
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
               >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-        </aside>
+                {eventTypeOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* INHALT */}
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Team
+              </label>
 
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1800px] px-6 py-8">
-            {/* KOPF */}
+              <select
+                value={newEventTeamId}
+                onChange={(event) =>
+                  setNewEventTeamId(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              >
+                <option value="">
+                  Alle / Allgemein
+                </option>
 
-            <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-              <div>
-                <p className="text-sm text-slate-400">
-                  Organisation & Saisonplanung
-                </p>
+                {teams.map((team) => (
+                  <option
+                    key={team.id}
+                    value={team.id}
+                  >
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                <h1 className="mt-1 text-3xl font-bold">
-                  Jahresplanung
-                </h1>
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Start
+              </label>
 
-                <p className="mt-2 text-slate-400">
-                  Wettkämpfe, Fristen und wichtige Saisontermine.
-                </p>
+              <input
+                type="date"
+                value={newEventStartDate}
+                onChange={(event) =>
+                  setNewEventStartDate(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Ende
+              </label>
+
+              <input
+                type="date"
+                value={newEventEndDate}
+                onChange={(event) =>
+                  setNewEventEndDate(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Farbe
+              </label>
+
+              <select
+                value={newEventColor}
+                onChange={(event) =>
+                  setNewEventColor(
+                    event.target.value as ColorKey
+                  )
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              >
+                {colorOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className={`h-4 w-4 rounded-full ${
+                    colorStyles[newEventColor].dot
+                  }`}
+                />
+
+                <span className="text-xs text-app-faint">
+                  Vorschau
+                </span>
               </div>
+            </div>
 
-              <div className="flex flex-wrap items-center gap-2">
-                {/* TEAM-FILTER */}
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Ort
+              </label>
 
-                <div className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-wide text-slate-500">
-                      Ansicht
-                    </p>
+              <input
+                value={newEventLocation}
+                onChange={(event) =>
+                  setNewEventLocation(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              />
+            </div>
 
-                    <select
-                      value={selectedTeamId}
-                      onChange={(event) => {
-                        setSelectedTeamId(event.target.value);
-                        setSelectedCalendarDate(null);
-                      }}
-                      className="mt-0.5 min-w-36 bg-transparent text-sm font-semibold text-white outline-none"
-                    >
-                      <option
-                        value=""
-                        className="bg-slate-900"
-                      >
-                        Alle Teams
-                      </option>
+            <div className="md:col-span-2 xl:col-span-4">
+              <label className="mb-2 block text-sm text-app-muted">
+                Notiz
+              </label>
 
-                      {teams.map((team) => (
-                        <option
-                          key={team.id}
-                          value={team.id}
-                          className="bg-slate-900"
-                        >
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              <textarea
+                rows={3}
+                value={newEventDescription}
+                onChange={(event) =>
+                  setNewEventDescription(
+                    event.target.value
+                  )
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-app-border p-5">
+            <div>
+              {editingEventId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const event = events.find(
+                      (item) =>
+                        item.id === editingEventId
+                    );
+
+                    if (event) {
+                      deleteEvent(event);
+                    }
+                  }}
+                  className="rounded-xl border border-red-800 px-4 py-3 text-sm text-red-300 hover:bg-red-950"
+                >
+                  Löschen
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  resetEventForm();
+                  setShowEventForm(false);
+                }}
+                className="rounded-xl border border-app-border px-4 py-3"
+              >
+                Abbrechen
+              </button>
+
+              <button
+                type="button"
+                disabled={saving}
+                onClick={saveEvent}
+                className="rounded-xl bg-app-accent px-4 py-3 font-medium text-app-accent-ink disabled:opacity-50"
+              >
+                {saving
+                  ? "Speichert..."
+                  : editingEventId
+                  ? "Änderungen speichern"
+                  : "Termin speichern"}
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* AUFGABEN FORMULAR */}
+
+      {showTaskForm && (
+        <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+          <div className="flex items-start justify-between border-b border-app-border p-5">
+            <div>
+              <p className="text-sm text-app-muted">
+                {editingTaskId
+                  ? "Bestehende Aufgabe"
+                  : "Neue Aufgabe"}
+              </p>
+
+              <h2 className="mt-1 text-xl font-semibold">
+                {editingTaskId
+                  ? "Aufgabe / Frist bearbeiten"
+                  : "Aufgabe / Frist anlegen"}
+              </h2>
+            </div>
+
+            {editingTaskId && (
+              <span className="rounded-full border border-sky-800 bg-sky-950 px-3 py-1 text-xs text-sky-300">
+                Bearbeiten
+              </span>
+            )}
+          </div>
+
+          <div className="grid gap-5 p-5 md:grid-cols-2 xl:grid-cols-4">
+            <div className="xl:col-span-2">
+              <label className="mb-2 block text-sm text-app-muted">
+                Aufgabe
+              </label>
+
+              <input
+                value={newTaskTitle}
+                onChange={(event) =>
+                  setNewTaskTitle(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Fällig
+              </label>
+
+              <input
+                type="date"
+                value={newTaskDueDate}
+                onChange={(event) =>
+                  setNewTaskDueDate(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Team
+              </label>
+
+              <select
+                value={newTaskTeamId}
+                onChange={(event) =>
+                  setNewTaskTeamId(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              >
+                <option value="">
+                  Alle / Allgemein
+                </option>
+
+                {teams.map((team) => (
+                  <option
+                    key={team.id}
+                    value={team.id}
+                  >
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm text-app-muted">
+                Farbe
+              </label>
+
+              <select
+                value={newTaskColor}
+                onChange={(event) =>
+                  setNewTaskColor(
+                    event.target.value as ColorKey
+                  )
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              >
+                {colorOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className={`h-4 w-4 rounded-full ${
+                    colorStyles[newTaskColor].dot
+                  }`}
+                />
+
+                <span className="text-xs text-app-faint">
+                  Vorschau
+                </span>
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-2 block text-sm text-app-muted">
+                Gehört zu
+              </label>
+
+              <select
+                value={newTaskEventId}
+                onChange={(event) =>
+                  setNewTaskEventId(event.target.value)
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              >
+                <option value="">
+                  Kein Termin
+                </option>
+
+                {allSeasonEvents.map((event) => (
+                  <option
+                    key={event.id}
+                    value={event.id}
+                  >
+                    {formatDate(event.start_date)} –{" "}
+                    {event.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-2 xl:col-span-4">
+              <label className="mb-2 block text-sm text-app-muted">
+                Notiz
+              </label>
+
+              <textarea
+                rows={3}
+                value={newTaskDescription}
+                onChange={(event) =>
+                  setNewTaskDescription(
+                    event.target.value
+                  )
+                }
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-app-border p-5">
+            <div>
+              {editingTaskId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const task = tasks.find(
+                      (item) =>
+                        item.id === editingTaskId
+                    );
+
+                    if (task) {
+                      deleteTask(task);
+                    }
+                  }}
+                  className="rounded-xl border border-red-800 px-4 py-3 text-sm text-red-300 hover:bg-red-950"
+                >
+                  Löschen
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  resetTaskForm();
+                  setShowTaskForm(false);
+                }}
+                className="rounded-xl border border-app-border px-4 py-3"
+              >
+                Abbrechen
+              </button>
+
+              <button
+                type="button"
+                disabled={saving}
+                onClick={saveTask}
+                className="rounded-xl bg-app-accent px-4 py-3 font-medium text-app-accent-ink disabled:opacity-50"
+              >
+                {saving
+                  ? "Speichert..."
+                  : editingTaskId
+                  ? "Änderungen speichern"
+                  : "Aufgabe speichern"}
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {loading ? (
+        <div className="mt-6 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+          Wird geladen...
+        </div>
+      ) : (
+        <>
+          {/* MONAT + TO-DOS */}
+
+          <section className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_0.7fr]">
+            {/* MONAT */}
+
+            <div className="rounded-2xl border border-app-border bg-app-surface">
+              <div className="flex flex-col gap-4 border-b border-app-border p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-app-muted">
+                    Monatsübersicht
+                  </p>
+
+                  <h2 className="mt-1 text-2xl font-semibold capitalize">
+                    {visibleMonthName}
+                  </h2>
+
+                  <p className="mt-1 text-xs text-app-faint">
+                    {visibleMonthEvents.length} Termine ·{" "}
+                    {visibleMonthTasks.length} Fristen
+                  </p>
+
+                  <p className="mt-1 text-[10px] text-app-faint">
+                    Tipp: Klicke auf einen Tag, um direkt etwas anzulegen.
+                  </p>
                 </div>
 
-                {/* SAISON */}
-
-                <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900 px-3 py-2">
+                <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() =>
-                      setSeasonStartYear(
-                        (current) => current - 1
-                      )
-                    }
-                    className="rounded-lg px-2 py-1 hover:bg-slate-800"
+                    onClick={goToPreviousMonth}
+                    className="rounded-xl border border-app-border px-3 py-2 hover:bg-app-elevated"
                   >
                     ←
                   </button>
 
-                  <div className="px-3 text-center">
-                    <p className="text-[10px] uppercase text-slate-500">
-                      Saison
-                    </p>
-
-                    <p className="font-semibold">
-                      {seasonStartYear} /{" "}
-                      {seasonStartYear + 1}
-                    </p>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={goToCurrentMonth}
+                    className="rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
+                  >
+                    Heute
+                  </button>
 
                   <button
                     type="button"
-                    onClick={() =>
-                      setSeasonStartYear(
-                        (current) => current + 1
-                      )
-                    }
-                    className="rounded-lg px-2 py-1 hover:bg-slate-800"
+                    onClick={goToNextMonth}
+                    className="rounded-xl border border-app-border px-3 py-2 hover:bg-app-elevated"
                   >
                     →
                   </button>
                 </div>
-
-                {/* NEUER TERMIN */}
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedCalendarDate(null);
-                    setShowTaskForm(false);
-                    setEditingTaskId(null);
-
-                    resetEventForm();
-
-                    setShowEventForm(true);
-                  }}
-                  className="rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
-                >
-                  + Termin
-                </button>
-
-                {/* NEUE AUFGABE */}
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedCalendarDate(null);
-                    setShowEventForm(false);
-                    setEditingEventId(null);
-
-                    resetTaskForm();
-
-                    setShowTaskForm(true);
-                  }}
-                  className="rounded-xl bg-white px-4 py-3 text-sm font-medium text-slate-950"
-                >
-                  + Aufgabe / Frist
-                </button>
               </div>
-            </div>
 
-            <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
-              <span>
-                Angezeigt:
-              </span>
-
-              <span className="rounded-full border border-slate-800 bg-slate-900 px-3 py-1 font-medium text-slate-300">
-                {selectedTeamName}
-              </span>
-
-              {selectedTeamId && (
-                <span>
-                  + allgemeine Termine
-                </span>
-              )}
-            </div>
-
-            {message && (
-              <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-4 text-sm">
-                {message}
-              </div>
-            )}
-
-            {/* TERMIN FORMULAR */}
-
-            {showEventForm && (
-              <section className="mt-6 rounded-2xl border border-slate-700 bg-slate-900">
-                <div className="flex items-start justify-between border-b border-slate-800 p-5">
-                  <div>
-                    <p className="text-sm text-slate-400">
-                      {editingEventId
-                        ? "Bestehender Termin"
-                        : "Neuer Termin"}
-                    </p>
-
-                    <h2 className="mt-1 text-xl font-semibold">
-                      {editingEventId
-                        ? "Termin bearbeiten"
-                        : "Termin anlegen"}
-                    </h2>
-                  </div>
-
-                  {editingEventId && (
-                    <span className="rounded-full border border-blue-800 bg-blue-950 px-3 py-1 text-xs text-blue-300">
-                      Bearbeiten
-                    </span>
-                  )}
+              <div className="p-5">
+                <div className="grid grid-cols-7 gap-2 text-center text-xs text-app-faint">
+                  <div>Mo</div>
+                  <div>Di</div>
+                  <div>Mi</div>
+                  <div>Do</div>
+                  <div>Fr</div>
+                  <div>Sa</div>
+                  <div>So</div>
                 </div>
 
-                <div className="grid gap-5 p-5 md:grid-cols-2 xl:grid-cols-4">
-                  <div className="xl:col-span-2">
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Titel
-                    </label>
+                <div className="mt-2 grid grid-cols-7 gap-2">
+                  {calendarCells.map((cell, index) => {
+                    if (!cell.day || !cell.dateString) {
+                      return (
+                        <div
+                          key={`empty-${index}`}
+                          className="min-h-24"
+                        />
+                      );
+                    }
 
-                    <input
-                      value={newEventTitle}
-                      onChange={(event) =>
-                        setNewEventTitle(event.target.value)
-                      }
-                      placeholder="z. B. Deutsche Meisterschaft"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none"
-                    />
-                  </div>
+                    const dayEvents =
+                      visibleMonthEvents.filter(
+                        (event) =>
+                          cell.dateString! >=
+                            event.start_date &&
+                          cell.dateString! <=
+                            (event.end_date ??
+                              event.start_date)
+                      );
 
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Art
-                    </label>
+                    const dayTasks =
+                      visibleMonthTasks.filter(
+                        (task) =>
+                          task.due_date ===
+                          cell.dateString
+                      );
 
-                    <select
-                      value={newEventType}
-                      onChange={(event) => {
-                        const nextType =
-                          event.target.value as DatabaseEventType;
+                    const isSelected =
+                      selectedCalendarDate ===
+                      cell.dateString;
 
-                        setNewEventType(nextType);
-
-                        if (!editingEventId) {
-                          setNewEventColor(
-                            getDefaultEventColor(nextType)
-                          );
-                        }
-                      }}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    >
-                      {eventTypeOptions.map((option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                        >
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Team
-                    </label>
-
-                    <select
-                      value={newEventTeamId}
-                      onChange={(event) =>
-                        setNewEventTeamId(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    >
-                      <option value="">
-                        Alle / Allgemein
-                      </option>
-
-                      {teams.map((team) => (
-                        <option
-                          key={team.id}
-                          value={team.id}
-                        >
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Start
-                    </label>
-
-                    <input
-                      type="date"
-                      value={newEventStartDate}
-                      onChange={(event) =>
-                        setNewEventStartDate(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Ende
-                    </label>
-
-                    <input
-                      type="date"
-                      value={newEventEndDate}
-                      onChange={(event) =>
-                        setNewEventEndDate(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Farbe
-                    </label>
-
-                    <select
-                      value={newEventColor}
-                      onChange={(event) =>
-                        setNewEventColor(
-                          event.target.value as ColorKey
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    >
-                      {colorOptions.map((option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                        >
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <div className="mt-2 flex items-center gap-2">
-                      <span
-                        className={`h-4 w-4 rounded-full ${
-                          colorStyles[newEventColor].dot
+                    return (
+                      <div
+                        key={cell.dateString}
+                        className={`relative min-h-28 rounded-lg border p-2 transition ${
+                          cell.dateString === today
+                            ? "border-white bg-app-elevated"
+                            : isSelected
+                            ? "border-sky-500 bg-app-elevated"
+                            : "border-app-border bg-app-bg hover:border-app-border"
                         }`}
-                      />
-
-                      <span className="text-xs text-slate-500">
-                        Vorschau
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Ort
-                    </label>
-
-                    <input
-                      value={newEventLocation}
-                      onChange={(event) =>
-                        setNewEventLocation(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 xl:col-span-4">
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Notiz
-                    </label>
-
-                    <textarea
-                      rows={3}
-                      value={newEventDescription}
-                      onChange={(event) =>
-                        setNewEventDescription(
-                          event.target.value
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 p-5">
-                  <div>
-                    {editingEventId && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const event = events.find(
-                            (item) =>
-                              item.id === editingEventId
-                          );
-
-                          if (event) {
-                            deleteEvent(event);
-                          }
-                        }}
-                        className="rounded-xl border border-red-800 px-4 py-3 text-sm text-red-300 hover:bg-red-950"
                       >
-                        Löschen
-                      </button>
-                    )}
-                  </div>
+                        {/* Klickbarer Hintergrund */}
 
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        resetEventForm();
-                        setShowEventForm(false);
-                      }}
-                      className="rounded-xl border border-slate-700 px-4 py-3"
-                    >
-                      Abbrechen
-                    </button>
-
-                    <button
-                      type="button"
-                      disabled={saving}
-                      onClick={saveEvent}
-                      className="rounded-xl bg-white px-4 py-3 font-medium text-slate-950 disabled:opacity-50"
-                    >
-                      {saving
-                        ? "Speichert..."
-                        : editingEventId
-                        ? "Änderungen speichern"
-                        : "Termin speichern"}
-                    </button>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {/* AUFGABEN FORMULAR */}
-
-            {showTaskForm && (
-              <section className="mt-6 rounded-2xl border border-slate-700 bg-slate-900">
-                <div className="flex items-start justify-between border-b border-slate-800 p-5">
-                  <div>
-                    <p className="text-sm text-slate-400">
-                      {editingTaskId
-                        ? "Bestehende Aufgabe"
-                        : "Neue Aufgabe"}
-                    </p>
-
-                    <h2 className="mt-1 text-xl font-semibold">
-                      {editingTaskId
-                        ? "Aufgabe / Frist bearbeiten"
-                        : "Aufgabe / Frist anlegen"}
-                    </h2>
-                  </div>
-
-                  {editingTaskId && (
-                    <span className="rounded-full border border-blue-800 bg-blue-950 px-3 py-1 text-xs text-blue-300">
-                      Bearbeiten
-                    </span>
-                  )}
-                </div>
-
-                <div className="grid gap-5 p-5 md:grid-cols-2 xl:grid-cols-4">
-                  <div className="xl:col-span-2">
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Aufgabe
-                    </label>
-
-                    <input
-                      value={newTaskTitle}
-                      onChange={(event) =>
-                        setNewTaskTitle(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Fällig
-                    </label>
-
-                    <input
-                      type="date"
-                      value={newTaskDueDate}
-                      onChange={(event) =>
-                        setNewTaskDueDate(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Team
-                    </label>
-
-                    <select
-                      value={newTaskTeamId}
-                      onChange={(event) =>
-                        setNewTaskTeamId(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    >
-                      <option value="">
-                        Alle / Allgemein
-                      </option>
-
-                      {teams.map((team) => (
-                        <option
-                          key={team.id}
-                          value={team.id}
-                        >
-                          {team.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Farbe
-                    </label>
-
-                    <select
-                      value={newTaskColor}
-                      onChange={(event) =>
-                        setNewTaskColor(
-                          event.target.value as ColorKey
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    >
-                      {colorOptions.map((option) => (
-                        <option
-                          key={option.value}
-                          value={option.value}
-                        >
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-
-                    <div className="mt-2 flex items-center gap-2">
-                      <span
-                        className={`h-4 w-4 rounded-full ${
-                          colorStyles[newTaskColor].dot
-                        }`}
-                      />
-
-                      <span className="text-xs text-slate-500">
-                        Vorschau
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Gehört zu
-                    </label>
-
-                    <select
-                      value={newTaskEventId}
-                      onChange={(event) =>
-                        setNewTaskEventId(event.target.value)
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    >
-                      <option value="">
-                        Kein Termin
-                      </option>
-
-                      {allSeasonEvents.map((event) => (
-                        <option
-                          key={event.id}
-                          value={event.id}
-                        >
-                          {formatDate(event.start_date)} –{" "}
-                          {event.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2 xl:col-span-4">
-                    <label className="mb-2 block text-sm text-slate-400">
-                      Notiz
-                    </label>
-
-                    <textarea
-                      rows={3}
-                      value={newTaskDescription}
-                      onChange={(event) =>
-                        setNewTaskDescription(
-                          event.target.value
-                        )
-                      }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3"
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 p-5">
-                  <div>
-                    {editingTaskId && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const task = tasks.find(
-                            (item) =>
-                              item.id === editingTaskId
-                          );
-
-                          if (task) {
-                            deleteTask(task);
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openCalendarDay(
+                              cell.dateString!
+                            )
                           }
-                        }}
-                        className="rounded-xl border border-red-800 px-4 py-3 text-sm text-red-300 hover:bg-red-950"
-                      >
-                        Löschen
-                      </button>
-                    )}
-                  </div>
+                          className="absolute inset-0 z-0 rounded-lg"
+                          aria-label={`Eintrag am ${formatDate(
+                            cell.dateString
+                          )} anlegen`}
+                        />
 
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        resetTaskForm();
-                        setShowTaskForm(false);
-                      }}
-                      className="rounded-xl border border-slate-700 px-4 py-3"
-                    >
-                      Abbrechen
-                    </button>
+                        <div className="relative z-10 pointer-events-none">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-semibold text-app-muted">
+                              {cell.day}
+                            </p>
 
-                    <button
-                      type="button"
-                      disabled={saving}
-                      onClick={saveTask}
-                      className="rounded-xl bg-white px-4 py-3 font-medium text-slate-950 disabled:opacity-50"
-                    >
-                      {saving
-                        ? "Speichert..."
-                        : editingTaskId
-                        ? "Änderungen speichern"
-                        : "Aufgabe speichern"}
-                    </button>
-                  </div>
-                </div>
-              </section>
-            )}
+                            <button
+                              type="button"
+                              onClick={(event) => {
+                                event.stopPropagation();
 
-            {loading ? (
-              <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center text-slate-400">
-                Wird geladen...
-              </div>
-            ) : (
-              <>
-                {/* MONAT + TO-DOS */}
-
-                <section className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_0.7fr]">
-                  {/* MONAT */}
-
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900">
-                    <div className="flex flex-col gap-4 border-b border-slate-800 p-5 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm text-slate-400">
-                          Monatsübersicht
-                        </p>
-
-                        <h2 className="mt-1 text-2xl font-semibold capitalize">
-                          {visibleMonthName}
-                        </h2>
-
-                        <p className="mt-1 text-xs text-slate-500">
-                          {visibleMonthEvents.length} Termine ·{" "}
-                          {visibleMonthTasks.length} Fristen
-                        </p>
-
-                        <p className="mt-1 text-[10px] text-slate-600">
-                          Tipp: Klicke auf einen Tag, um direkt etwas anzulegen.
-                        </p>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <button
-                          type="button"
-                          onClick={goToPreviousMonth}
-                          className="rounded-xl border border-slate-700 px-3 py-2 hover:bg-slate-800"
-                        >
-                          ←
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={goToCurrentMonth}
-                          className="rounded-xl border border-slate-700 px-4 py-2 text-sm hover:bg-slate-800"
-                        >
-                          Heute
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={goToNextMonth}
-                          className="rounded-xl border border-slate-700 px-3 py-2 hover:bg-slate-800"
-                        >
-                          →
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-5">
-                      <div className="grid grid-cols-7 gap-2 text-center text-xs text-slate-500">
-                        <div>Mo</div>
-                        <div>Di</div>
-                        <div>Mi</div>
-                        <div>Do</div>
-                        <div>Fr</div>
-                        <div>Sa</div>
-                        <div>So</div>
-                      </div>
-
-                      <div className="mt-2 grid grid-cols-7 gap-2">
-                        {calendarCells.map((cell, index) => {
-                          if (!cell.day || !cell.dateString) {
-                            return (
-                              <div
-                                key={`empty-${index}`}
-                                className="min-h-24"
-                              />
-                            );
-                          }
-
-                          const dayEvents =
-                            visibleMonthEvents.filter(
-                              (event) =>
-                                cell.dateString! >=
-                                  event.start_date &&
-                                cell.dateString! <=
-                                  (event.end_date ??
-                                    event.start_date)
-                            );
-
-                          const dayTasks =
-                            visibleMonthTasks.filter(
-                              (task) =>
-                                task.due_date ===
-                                cell.dateString
-                            );
-
-                          const isSelected =
-                            selectedCalendarDate ===
-                            cell.dateString;
-
-                          return (
-                            <div
-                              key={cell.dateString}
-                              className={`relative min-h-28 rounded-lg border p-2 transition ${
-                                cell.dateString === today
-                                  ? "border-white bg-slate-800"
-                                  : isSelected
-                                  ? "border-blue-500 bg-slate-800"
-                                  : "border-slate-800 bg-slate-950 hover:border-slate-600"
-                              }`}
+                                openCalendarDay(
+                                  cell.dateString!
+                                );
+                              }}
+                              className="pointer-events-auto flex h-5 w-5 items-center justify-center rounded-md text-xs text-app-faint hover:bg-app-elevated hover:text-white"
+                              title="Eintrag hinzufügen"
                             >
-                              {/* Klickbarer Hintergrund */}
+                              +
+                            </button>
+                          </div>
 
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  openCalendarDay(
-                                    cell.dateString!
-                                  )
-                                }
-                                className="absolute inset-0 z-0 rounded-lg"
-                                aria-label={`Eintrag am ${formatDate(
-                                  cell.dateString
-                                )} anlegen`}
-                              />
+                          <div className="mt-1 space-y-1">
+                            {dayEvents
+                              .slice(0, 3)
+                              .map((event) => {
+                                const color =
+                                  getEventColorKey(event);
 
-                              <div className="relative z-10 pointer-events-none">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-sm font-semibold text-slate-400">
-                                    {cell.day}
-                                  </p>
-
+                                return (
                                   <button
+                                    key={event.id}
                                     type="button"
-                                    onClick={(event) => {
-                                      event.stopPropagation();
+                                    onClick={(clickEvent) => {
+                                      clickEvent.stopPropagation();
 
-                                      openCalendarDay(
-                                        cell.dateString!
-                                      );
+                                      editEvent(event);
                                     }}
-                                    className="pointer-events-auto flex h-5 w-5 items-center justify-center rounded-md text-xs text-slate-600 hover:bg-slate-700 hover:text-white"
-                                    title="Eintrag hinzufügen"
+                                    className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-white/40 ${
+                                      colorStyles[color]
+                                        .card
+                                    }`}
                                   >
-                                    +
+                                    {event.title}
                                   </button>
-                                </div>
+                                );
+                              })}
 
-                                <div className="mt-1 space-y-1">
-                                  {dayEvents
-                                    .slice(0, 3)
-                                    .map((event) => {
-                                      const color =
-                                        getEventColorKey(event);
+                            {dayTasks
+                              .slice(0, 3)
+                              .map((task) => {
+                                const color =
+                                  getTaskColorKey(task);
 
-                                      return (
-                                        <button
-                                          key={event.id}
-                                          type="button"
-                                          onClick={(clickEvent) => {
-                                            clickEvent.stopPropagation();
+                                return (
+                                  <button
+                                    key={task.id}
+                                    type="button"
+                                    onClick={(clickEvent) => {
+                                      clickEvent.stopPropagation();
 
-                                            editEvent(event);
-                                          }}
-                                          className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-white/40 ${
-                                            colorStyles[color]
-                                              .card
-                                          }`}
-                                        >
-                                          {event.title}
-                                        </button>
-                                      );
-                                    })}
+                                      editTask(task);
+                                    }}
+                                    className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-white/40 ${
+                                      colorStyles[color]
+                                        .card
+                                    } ${
+                                      task.completed
+                                        ? "opacity-60 line-through"
+                                        : ""
+                                    }`}
+                                  >
+                                    {task.title}
+                                  </button>
+                                );
+                              })}
+                          </div>
 
-                                  {dayTasks
-                                    .slice(0, 3)
-                                    .map((task) => {
-                                      const color =
-                                        getTaskColorKey(task);
+                          {/* AUSWAHLFENSTER IM TAG */}
 
-                                      return (
-                                        <button
-                                          key={task.id}
-                                          type="button"
-                                          onClick={(clickEvent) => {
-                                            clickEvent.stopPropagation();
-
-                                            editTask(task);
-                                          }}
-                                          className={`pointer-events-auto block w-full truncate rounded px-1.5 py-1 text-left text-[10px] transition hover:ring-2 hover:ring-white/40 ${
-                                            colorStyles[color]
-                                              .card
-                                          } ${
-                                            task.completed
-                                              ? "opacity-60 line-through"
-                                              : ""
-                                          }`}
-                                        >
-                                          {task.title}
-                                        </button>
-                                      );
-                                    })}
-                                </div>
-
-                                {/* AUSWAHLFENSTER IM TAG */}
-
-                                {isSelected && (
-                                  <div className="pointer-events-auto relative z-30 mt-3 rounded-lg border border-slate-600 bg-slate-900 p-2 shadow-xl">
-                                    <p className="px-1 pb-2 text-[10px] font-semibold text-slate-400">
-                                      {formatDate(
-                                        cell.dateString
-                                      )}
-                                    </p>
-
-                                    <div className="space-y-1">
-                                      <button
-                                        type="button"
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-
-                                          createEventForDate(
-                                            cell.dateString!
-                                          );
-                                        }}
-                                        className="block w-full rounded-md bg-white px-2 py-2 text-left text-[10px] font-semibold text-slate-950 hover:bg-slate-200"
-                                      >
-                                        Termin anlegen
-                                      </button>
-
-                                      <button
-                                        type="button"
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-
-                                          createTaskForDate(
-                                            cell.dateString!
-                                          );
-                                        }}
-                                        className="block w-full rounded-md border border-slate-700 px-2 py-2 text-left text-[10px] font-semibold text-white hover:bg-slate-800"
-                                      >
-                                        Aufgabe / Frist
-                                      </button>
-
-                                      <button
-                                        type="button"
-                                        onClick={(event) => {
-                                          event.stopPropagation();
-
-                                          setSelectedCalendarDate(
-                                            null
-                                          );
-                                        }}
-                                        className="block w-full rounded-md px-2 py-1.5 text-left text-[9px] text-slate-500 hover:text-white"
-                                      >
-                                        Schließen
-                                      </button>
-                                    </div>
-                                  </div>
+                          {isSelected && (
+                            <div className="pointer-events-auto relative z-30 mt-3 rounded-lg border border-app-border bg-app-surface p-2 shadow-xl">
+                              <p className="px-1 pb-2 text-[10px] font-semibold text-app-muted">
+                                {formatDate(
+                                  cell.dateString
                                 )}
+                              </p>
+
+                              <div className="space-y-1">
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+
+                                    createEventForDate(
+                                      cell.dateString!
+                                    );
+                                  }}
+                                  className="block w-full rounded-md bg-app-accent px-2 py-2 text-left text-[10px] font-semibold text-app-accent-ink hover:brightness-110"
+                                >
+                                  Termin anlegen
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+
+                                    createTaskForDate(
+                                      cell.dateString!
+                                    );
+                                  }}
+                                  className="block w-full rounded-md border border-app-border px-2 py-2 text-left text-[10px] font-semibold text-white hover:bg-app-elevated"
+                                >
+                                  Aufgabe / Frist
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+
+                                    setSelectedCalendarDate(
+                                      null
+                                    );
+                                  }}
+                                  className="block w-full rounded-md px-2 py-1.5 text-left text-[9px] text-app-faint hover:text-white"
+                                >
+                                  Schließen
+                                </button>
                               </div>
                             </div>
-                          );
-                        })}
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* FRISTEN & TO-DOS */}
+
+            <div className="rounded-2xl border border-app-border bg-app-surface">
+              <div className="border-b border-app-border p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm text-app-muted">
+                      Organisation
+                    </p>
+
+                    <h2 className="mt-1 text-xl font-semibold">
+                      Fristen & To-dos
+                    </h2>
                   </div>
 
-                  {/* FRISTEN & TO-DOS */}
+                  <span className="rounded-full bg-app-bg px-3 py-1 text-xs">
+                    {completedTasks.length}/
+                    {seasonTasks.length}
+                  </span>
+                </div>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900">
-                    <div className="border-b border-slate-800 p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm text-slate-400">
-                            Organisation
-                          </p>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-app-elevated">
+                  <div
+                    className="h-full rounded-full bg-app-accent"
+                    style={{
+                      width: `${taskProgress}%`,
+                    }}
+                  />
+                </div>
+              </div>
 
-                          <h2 className="mt-1 text-xl font-semibold">
-                            Fristen & To-dos
-                          </h2>
+              <div className="space-y-3 p-5">
+                {openTasks.length === 0 ? (
+                  <div className="rounded-xl border border-app-border bg-app-bg p-5 text-center text-sm text-app-faint">
+                    Keine offenen Aufgaben für diese Ansicht.
+                  </div>
+                ) : (
+                  openTasks.slice(0, 10).map((task) => {
+                    const color = getTaskColorKey(task);
+
+                    return (
+                      <div
+                        key={task.id}
+                        className={`rounded-xl border p-3 ${
+                          colorStyles[color].soft
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <button
+                            type="button"
+                            onClick={() => toggleTask(task)}
+                            className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current"
+                            title="Als erledigt markieren"
+                          >
+                            ✓
+                          </button>
+
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold">
+                              {task.title}
+                            </p>
+
+                            <p className="mt-1 text-xs opacity-70">
+                              Fällig:{" "}
+                              {formatDate(task.due_date)}
+                            </p>
+
+                            <p className="mt-1 text-[10px] opacity-60">
+                              {getTeamName(task.team_id)}
+                            </p>
+
+                            {task.due_date < today && (
+                              <p className="mt-1 text-xs font-semibold text-red-300">
+                                Überfällig
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex shrink-0 gap-1">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                editTask(task)
+                              }
+                              className="rounded-lg border border-current px-2 py-1 text-[10px] opacity-70 hover:opacity-100"
+                            >
+                              Bearbeiten
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                deleteTask(task)
+                              }
+                              className="rounded-lg border border-red-700 px-2 py-1 text-[10px] text-red-300 hover:bg-red-950"
+                            >
+                              Löschen
+                            </button>
+                          </div>
                         </div>
-
-                        <span className="rounded-full bg-slate-950 px-3 py-1 text-xs">
-                          {completedTasks.length}/
-                          {seasonTasks.length}
-                        </span>
                       </div>
+                    );
+                  })
+                )}
 
-                      <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800">
-                        <div
-                          className="h-full rounded-full bg-white"
-                          style={{
-                            width: `${taskProgress}%`,
-                          }}
-                        />
-                      </div>
-                    </div>
+                {/* ERLEDIGTE */}
 
-                    <div className="space-y-3 p-5">
-                      {openTasks.length === 0 ? (
-                        <div className="rounded-xl border border-slate-800 bg-slate-950 p-5 text-center text-sm text-slate-500">
-                          Keine offenen Aufgaben für diese Ansicht.
-                        </div>
+                <div className="border-t border-app-border pt-4">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowCompletedTasks(
+                        (current) => !current
+                      )
+                    }
+                    className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm text-app-muted hover:bg-app-elevated hover:text-white"
+                  >
+                    <span>
+                      Erledigte Aufgaben{" "}
+                      <span className="text-app-faint">
+                        ({completedTasks.length})
+                      </span>
+                    </span>
+
+                    <span>
+                      {showCompletedTasks ? "▲" : "▼"}
+                    </span>
+                  </button>
+
+                  {showCompletedTasks && (
+                    <div className="mt-3 space-y-2">
+                      {completedTasks.length === 0 ? (
+                        <p className="px-3 py-4 text-sm text-app-faint">
+                          Noch keine erledigten Aufgaben.
+                        </p>
                       ) : (
-                        openTasks.slice(0, 10).map((task) => {
-                          const color = getTaskColorKey(task);
+                        completedTasks.map((task) => {
+                          const color =
+                            getTaskColorKey(task);
 
                           return (
                             <div
                               key={task.id}
-                              className={`rounded-xl border p-3 ${
+                              className={`rounded-xl border p-3 opacity-70 ${
                                 colorStyles[color].soft
                               }`}
                             >
                               <div className="flex items-start gap-3">
                                 <button
                                   type="button"
-                                  onClick={() => toggleTask(task)}
-                                  className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current"
-                                  title="Als erledigt markieren"
+                                  onClick={() =>
+                                    toggleTask(task)
+                                  }
+                                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current bg-app-accent/10"
+                                  title="Wieder als offen markieren"
                                 >
-                                  ✓
+                                  ↺
                                 </button>
 
                                 <div className="min-w-0 flex-1">
-                                  <p className="font-semibold">
+                                  <p className="font-medium line-through">
                                     {task.title}
                                   </p>
 
                                   <p className="mt-1 text-xs opacity-70">
-                                    Fällig:{" "}
-                                    {formatDate(task.due_date)}
+                                    Ursprünglich fällig:{" "}
+                                    {formatDate(
+                                      task.due_date
+                                    )}
                                   </p>
 
                                   <p className="mt-1 text-[10px] opacity-60">
-                                    {getTeamName(task.team_id)}
+                                    {getTeamName(
+                                      task.team_id
+                                    )}
                                   </p>
-
-                                  {task.due_date < today && (
-                                    <p className="mt-1 text-xs font-semibold text-red-300">
-                                      Überfällig
-                                    </p>
-                                  )}
                                 </div>
 
                                 <div className="flex shrink-0 gap-1">
@@ -2443,7 +2481,7 @@ export default function SeasonPlanningPage() {
                                     onClick={() =>
                                       editTask(task)
                                     }
-                                    className="rounded-lg border border-current px-2 py-1 text-[10px] opacity-70 hover:opacity-100"
+                                    className="rounded-lg border border-current px-2 py-1 text-[10px]"
                                   >
                                     Bearbeiten
                                   </button>
@@ -2453,7 +2491,7 @@ export default function SeasonPlanningPage() {
                                     onClick={() =>
                                       deleteTask(task)
                                     }
-                                    className="rounded-lg border border-red-700 px-2 py-1 text-[10px] text-red-300 hover:bg-red-950"
+                                    className="rounded-lg border border-red-700 px-2 py-1 text-[10px] text-red-300"
                                   >
                                     Löschen
                                   </button>
@@ -2463,647 +2501,544 @@ export default function SeasonPlanningPage() {
                           );
                         })
                       )}
-
-                      {/* ERLEDIGTE */}
-
-                      <div className="border-t border-slate-800 pt-4">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowCompletedTasks(
-                              (current) => !current
-                            )
-                          }
-                          className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
-                        >
-                          <span>
-                            Erledigte Aufgaben{" "}
-                            <span className="text-slate-500">
-                              ({completedTasks.length})
-                            </span>
-                          </span>
-
-                          <span>
-                            {showCompletedTasks ? "▲" : "▼"}
-                          </span>
-                        </button>
-
-                        {showCompletedTasks && (
-                          <div className="mt-3 space-y-2">
-                            {completedTasks.length === 0 ? (
-                              <p className="px-3 py-4 text-sm text-slate-500">
-                                Noch keine erledigten Aufgaben.
-                              </p>
-                            ) : (
-                              completedTasks.map((task) => {
-                                const color =
-                                  getTaskColorKey(task);
-
-                                return (
-                                  <div
-                                    key={task.id}
-                                    className={`rounded-xl border p-3 opacity-70 ${
-                                      colorStyles[color].soft
-                                    }`}
-                                  >
-                                    <div className="flex items-start gap-3">
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          toggleTask(task)
-                                        }
-                                        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-current bg-white/10"
-                                        title="Wieder als offen markieren"
-                                      >
-                                        ↺
-                                      </button>
-
-                                      <div className="min-w-0 flex-1">
-                                        <p className="font-medium line-through">
-                                          {task.title}
-                                        </p>
-
-                                        <p className="mt-1 text-xs opacity-70">
-                                          Ursprünglich fällig:{" "}
-                                          {formatDate(
-                                            task.due_date
-                                          )}
-                                        </p>
-
-                                        <p className="mt-1 text-[10px] opacity-60">
-                                          {getTeamName(
-                                            task.team_id
-                                          )}
-                                        </p>
-                                      </div>
-
-                                      <div className="flex shrink-0 gap-1">
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            editTask(task)
-                                          }
-                                          className="rounded-lg border border-current px-2 py-1 text-[10px]"
-                                        >
-                                          Bearbeiten
-                                        </button>
-
-                                        <button
-                                          type="button"
-                                          onClick={() =>
-                                            deleteTask(task)
-                                          }
-                                          className="rounded-lg border border-red-700 px-2 py-1 text-[10px] text-red-300"
-                                        >
-                                          Löschen
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })
-                            )}
-                          </div>
-                        )}
-                      </div>
                     </div>
-                  </div>
-                </section>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
 
-                {/* JAHRESZEITSTRAHL */}
+          {/* JAHRESZEITSTRAHL */}
 
-                <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="flex flex-col gap-4 border-b border-slate-800 p-5 md:flex-row md:items-end md:justify-between">
-                    <div>
-                      <p className="text-sm text-slate-400">
-                        Saisonübersicht
-                      </p>
+          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+            <div className="flex flex-col gap-4 border-b border-app-border p-5 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-sm text-app-muted">
+                  Saisonübersicht
+                </p>
 
-                      <h2 className="mt-1 text-2xl font-semibold">
-                        Jahreszeitstrahl
-                      </h2>
+                <h2 className="mt-1 text-2xl font-semibold">
+                  Jahreszeitstrahl
+                </h2>
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        August {seasonStartYear} bis Juli{" "}
-                        {seasonStartYear + 1} ·{" "}
-                        {selectedTeamName}
-                      </p>
+                <p className="mt-1 text-sm text-app-faint">
+                  August {seasonStartYear} bis Juli{" "}
+                  {seasonStartYear + 1} ·{" "}
+                  {selectedTeamName}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-5 text-xs text-app-muted">
+                <span className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-amber-400" />
+                  1 Tag
+                </span>
+
+                <span className="flex items-center gap-2">
+                  <span className="h-3 w-9 rounded-full bg-sky-500" />
+                  Zeitraum
+                </span>
+
+                <span className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-emerald-500" />
+                  Frist
+                </span>
+
+                {todayIsInSeason && (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-0.5 bg-app-accent" />
+                    Heute
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="overflow-x-auto p-5">
+              <div className="min-w-[1500px] overflow-hidden rounded-xl border border-app-border bg-app-bg">
+                {/* MONATE */}
+
+                <div className="relative grid grid-cols-12 border-b border-app-border">
+                  {months.map((month) => (
+                    <div
+                      key={`${month.year}-${month.month}`}
+                      className="border-r border-app-border py-4 text-center text-sm font-semibold last:border-r-0"
+                    >
+                      {month.label}
                     </div>
+                  ))}
 
-                    <div className="flex flex-wrap gap-5 text-xs text-slate-400">
-                      <span className="flex items-center gap-2">
-                        <span className="h-3 w-3 rounded-full bg-amber-400" />
-                        1 Tag
-                      </span>
+                  {todayPosition !== null && (
+                    <div
+                      className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-app-accent/80"
+                      style={{
+                        left: `${todayPosition}%`,
+                      }}
+                    />
+                  )}
+                </div>
 
-                      <span className="flex items-center gap-2">
-                        <span className="h-3 w-9 rounded-full bg-blue-500" />
-                        Zeitraum
-                      </span>
+                {/* TERMINE */}
 
-                      <span className="flex items-center gap-2">
-                        <span className="h-3 w-3 rounded-full bg-emerald-500" />
-                        Frist
-                      </span>
-
-                      {todayIsInSeason && (
-                        <span className="flex items-center gap-2">
-                          <span className="h-4 w-0.5 bg-white" />
-                          Heute
-                        </span>
-                      )}
-                    </div>
+                <div className="border-b border-app-border">
+                  <div className="border-b border-app-border px-4 py-3 text-xs uppercase tracking-wide text-app-faint">
+                    Saisontermine
                   </div>
 
-                  <div className="overflow-x-auto p-5">
-                    <div className="min-w-[1500px] overflow-hidden rounded-xl border border-slate-800 bg-slate-950">
-                      {/* MONATE */}
-
-                      <div className="relative grid grid-cols-12 border-b border-slate-800">
-                        {months.map((month) => (
-                          <div
-                            key={`${month.year}-${month.month}`}
-                            className="border-r border-slate-800 py-4 text-center text-sm font-semibold last:border-r-0"
-                          >
-                            {month.label}
-                          </div>
-                        ))}
-
-                        {todayPosition !== null && (
-                          <div
-                            className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-white/80"
-                            style={{
-                              left: `${todayPosition}%`,
-                            }}
-                          />
-                        )}
-                      </div>
-
-                      {/* TERMINE */}
-
-                      <div className="border-b border-slate-800">
-                        <div className="border-b border-slate-800 px-4 py-3 text-xs uppercase tracking-wide text-slate-500">
-                          Saisontermine
-                        </div>
-
+                  <div
+                    className="relative"
+                    style={{
+                      height: `${
+                        eventLaneCount * 110 + 35
+                      }px`,
+                    }}
+                  >
+                    <div className="pointer-events-none absolute inset-0 grid grid-cols-12">
+                      {months.map((month) => (
                         <div
-                          className="relative"
-                          style={{
-                            height: `${
-                              eventLaneCount * 110 + 35
-                            }px`,
-                          }}
-                        >
-                          <div className="pointer-events-none absolute inset-0 grid grid-cols-12">
-                            {months.map((month) => (
-                              <div
-                                key={`${month.year}-${month.month}`}
-                                className="border-r border-slate-800 last:border-r-0"
-                              />
-                            ))}
-                          </div>
+                          key={`${month.year}-${month.month}`}
+                          className="border-r border-app-border last:border-r-0"
+                        />
+                      ))}
+                    </div>
 
-                          {todayPosition !== null && (
+                    {todayPosition !== null && (
+                      <div
+                        className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-app-accent/70"
+                        style={{
+                          left: `${todayPosition}%`,
+                        }}
+                      >
+                        <div className="absolute -left-7 -top-1 rounded-full bg-app-accent px-2 py-1 text-[9px] font-bold text-app-accent-ink">
+                          HEUTE
+                        </div>
+                      </div>
+                    )}
+
+                    {positionedEvents.map(
+                      ({ event, lane }) => {
+                        const color =
+                          getEventColorKey(event);
+
+                        const single =
+                          isSingleDayEvent(event);
+
+                        const laneTop =
+                          18 + lane * 110;
+
+                        if (single) {
+                          const position =
+                            getPosition(
+                              event.start_date
+                            );
+
+                          return (
                             <div
-                              className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-white/70"
+                              key={event.id}
+                              className="absolute z-30"
                               style={{
-                                left: `${todayPosition}%`,
+                                left: `${position}%`,
+                                top: `${laneTop}px`,
                               }}
                             >
-                              <div className="absolute -left-7 -top-1 rounded-full bg-white px-2 py-1 text-[9px] font-bold text-slate-950">
-                                HEUTE
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  editEvent(event)
+                                }
+                                className={`absolute left-0 top-0 h-4 w-4 -translate-x-1/2 rounded-full ring-4 ring-app-accent-ink transition hover:scale-125 ${
+                                  colorStyles[color]
+                                    .dot
+                                }`}
+                              />
+
+                              <div className="absolute left-0 top-4 h-4 w-px bg-app-elevated" />
+
+                              <div
+                                className="absolute top-8 w-48"
+                                style={{
+                                  left:
+                                    position < 7
+                                      ? "8px"
+                                      : position > 93
+                                      ? "auto"
+                                      : "50%",
+
+                                  right:
+                                    position > 93
+                                      ? "8px"
+                                      : "auto",
+
+                                  transform:
+                                    position >= 7 &&
+                                    position <= 93
+                                      ? "translateX(-50%)"
+                                      : "none",
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    editEvent(event)
+                                  }
+                                  className={`w-full rounded-lg border px-3 py-2 text-left transition hover:ring-2 hover:ring-white/40 ${
+                                    colorStyles[color]
+                                      .card
+                                  }`}
+                                >
+                                  <p className="text-[10px] font-semibold opacity-80">
+                                    {formatShortDate(
+                                      event.start_date
+                                    )}
+                                  </p>
+
+                                  <p className="mt-1 text-xs font-bold">
+                                    {event.title}
+                                  </p>
+
+                                  <p className="mt-1 truncate text-[9px] opacity-70">
+                                    {getTeamName(
+                                      event.team_id
+                                    )}
+                                  </p>
+                                </button>
                               </div>
                             </div>
-                          )}
+                          );
+                        }
 
-                          {positionedEvents.map(
-                            ({ event, lane }) => {
-                              const color =
-                                getEventColorKey(event);
+                        const start =
+                          getRangeStart(
+                            event.start_date
+                          );
 
-                              const single =
-                                isSingleDayEvent(event);
+                        const end =
+                          getRangeEnd(
+                            event.end_date ??
+                              event.start_date
+                          );
 
-                              const laneTop =
-                                18 + lane * 110;
+                        const width = end - start;
 
-                              if (single) {
-                                const position =
-                                  getPosition(
-                                    event.start_date
-                                  );
-
-                                return (
-                                  <div
-                                    key={event.id}
-                                    className="absolute z-30"
-                                    style={{
-                                      left: `${position}%`,
-                                      top: `${laneTop}px`,
-                                    }}
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        editEvent(event)
-                                      }
-                                      className={`absolute left-0 top-0 h-4 w-4 -translate-x-1/2 rounded-full ring-4 ring-slate-950 transition hover:scale-125 ${
-                                        colorStyles[color]
-                                          .dot
-                                      }`}
-                                    />
-
-                                    <div className="absolute left-0 top-4 h-4 w-px bg-slate-500" />
-
-                                    <div
-                                      className="absolute top-8 w-48"
-                                      style={{
-                                        left:
-                                          position < 7
-                                            ? "8px"
-                                            : position > 93
-                                            ? "auto"
-                                            : "50%",
-
-                                        right:
-                                          position > 93
-                                            ? "8px"
-                                            : "auto",
-
-                                        transform:
-                                          position >= 7 &&
-                                          position <= 93
-                                            ? "translateX(-50%)"
-                                            : "none",
-                                      }}
-                                    >
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          editEvent(event)
-                                        }
-                                        className={`w-full rounded-lg border px-3 py-2 text-left transition hover:ring-2 hover:ring-white/40 ${
-                                          colorStyles[color]
-                                            .card
-                                        }`}
-                                      >
-                                        <p className="text-[10px] font-semibold opacity-80">
-                                          {formatShortDate(
-                                            event.start_date
-                                          )}
-                                        </p>
-
-                                        <p className="mt-1 text-xs font-bold">
-                                          {event.title}
-                                        </p>
-
-                                        <p className="mt-1 truncate text-[9px] opacity-70">
-                                          {getTeamName(
-                                            event.team_id
-                                          )}
-                                        </p>
-                                      </button>
-                                    </div>
-                                  </div>
-                                );
-                              }
-
-                              const start =
-                                getRangeStart(
-                                  event.start_date
-                                );
-
-                              const end =
-                                getRangeEnd(
-                                  event.end_date ??
-                                    event.start_date
-                                );
-
-                              const width = end - start;
-
-                              return (
-                                <div
-                                  key={event.id}
-                                  className="absolute z-30"
-                                  style={{
-                                    left: `${start}%`,
-                                    width: `${width}%`,
-                                    top: `${laneTop + 4}px`,
-                                  }}
-                                >
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      editEvent(event)
-                                    }
-                                    className={`block h-3 w-full rounded-full transition hover:ring-2 hover:ring-white/50 ${
-                                      colorStyles[color]
-                                        .dot
-                                    }`}
-                                  />
-
-                                  <div className="mt-2 flex min-w-[95px] justify-between text-[9px] text-slate-400">
-                                    <span>
-                                      {formatShortDate(
-                                        event.start_date
-                                      )}
-                                    </span>
-
-                                    <span>
-                                      {formatShortDate(
-                                        event.end_date
-                                      )}
-                                    </span>
-                                  </div>
-
-                                  <div
-                                    className="absolute top-8 w-48"
-                                    style={{
-                                      left: "50%",
-                                      transform:
-                                        "translateX(-50%)",
-                                    }}
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        editEvent(event)
-                                      }
-                                      className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-left transition hover:border-slate-500"
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <span
-                                          className={`h-3 w-3 shrink-0 rounded-full ${
-                                            colorStyles[
-                                              color
-                                            ].dot
-                                          }`}
-                                        />
-
-                                        <span className="truncate text-xs font-semibold">
-                                          {event.title}
-                                        </span>
-                                      </div>
-
-                                      <p className="mt-1 truncate pl-5 text-[9px] text-slate-500">
-                                        {getTeamName(
-                                          event.team_id
-                                        )}
-                                      </p>
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            }
-                          )}
-
-                          {positionedEvents.length === 0 && (
-                            <div className="absolute inset-0 flex items-center justify-center text-sm text-slate-600">
-                              Keine Termine für diese Ansicht.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* FRISTEN */}
-
-                      <div>
-                        <div className="border-b border-slate-800 px-4 py-3 text-xs uppercase tracking-wide text-slate-500">
-                          Fristen & To-dos
-                        </div>
-
-                        <div
-                          className="relative"
-                          style={{
-                            height: `${
-                              taskLaneCount * 95 + 35
-                            }px`,
-                          }}
-                        >
-                          <div className="pointer-events-none absolute inset-0 grid grid-cols-12">
-                            {months.map((month) => (
-                              <div
-                                key={`${month.year}-${month.month}`}
-                                className="border-r border-slate-800 last:border-r-0"
-                              />
-                            ))}
-                          </div>
-
-                          {todayPosition !== null && (
-                            <div
-                              className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-white/70"
-                              style={{
-                                left: `${todayPosition}%`,
-                              }}
-                            />
-                          )}
-
-                          {positionedTasks.map(
-                            ({ task, lane }) => {
-                              const position =
-                                getPosition(task.due_date);
-
-                              const color =
-                                getTaskColorKey(task);
-
-                              return (
-                                <div
-                                  key={task.id}
-                                  className={`absolute z-30 ${
-                                    task.completed
-                                      ? "opacity-45"
-                                      : ""
-                                  }`}
-                                  style={{
-                                    left: `${position}%`,
-                                    top: `${
-                                      16 + lane * 95
-                                    }px`,
-                                  }}
-                                >
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      editTask(task)
-                                    }
-                                    className={`absolute h-4 w-4 -translate-x-1/2 rounded-full ring-4 ring-slate-950 transition hover:scale-125 ${
-                                      colorStyles[color].dot
-                                    }`}
-                                  />
-
-                                  <div className="absolute top-4 h-4 w-px bg-slate-500" />
-
-                                  <div
-                                    className="absolute top-8 w-36"
-                                    style={{
-                                      left:
-                                        position < 5
-                                          ? "8px"
-                                          : position > 95
-                                          ? "auto"
-                                          : "50%",
-
-                                      right:
-                                        position > 95
-                                          ? "8px"
-                                          : "auto",
-
-                                      transform:
-                                        position >= 5 &&
-                                        position <= 95
-                                          ? "translateX(-50%)"
-                                          : "none",
-                                    }}
-                                  >
-                                    <button
-                                      type="button"
-                                      onClick={() =>
-                                        editTask(task)
-                                      }
-                                      className={`w-full rounded-lg border px-2 py-2 text-left transition hover:ring-2 hover:ring-white/40 ${
-                                        colorStyles[color]
-                                          .card
-                                      }`}
-                                    >
-                                      <p className="text-[9px] font-semibold">
-                                        {formatShortDate(
-                                          task.due_date
-                                        )}
-                                      </p>
-
-                                      <p
-                                        className={`mt-1 truncate text-[10px] font-bold ${
-                                          task.completed
-                                            ? "line-through"
-                                            : ""
-                                        }`}
-                                      >
-                                        {task.title}
-                                      </p>
-
-                                      <p className="mt-1 truncate text-[8px] opacity-70">
-                                        {getTeamName(
-                                          task.team_id
-                                        )}
-                                      </p>
-                                    </button>
-                                  </div>
-                                </div>
-                              );
-                            }
-                          )}
-
-                          {positionedTasks.length === 0 && (
-                            <div className="absolute inset-0 flex items-center justify-center text-sm text-slate-600">
-                              Keine Fristen für diese Ansicht.
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                {/* NÄCHSTE TERMINE */}
-
-                <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="flex items-center justify-between border-b border-slate-800 p-5">
-                    <div>
-                      <h2 className="text-xl font-semibold">
-                        Nächste wichtige Termine
-                      </h2>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        {selectedTeamName}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
-                    {upcomingEvents.map((event) => {
-                      const color =
-                        getEventColorKey(event);
-
-                      return (
-                        <div
-                          key={event.id}
-                          className={`rounded-xl border p-4 ${
-                            colorStyles[color].card
-                          }`}
-                        >
-                          <p className="text-xs font-medium">
-                            {formatDate(event.start_date)}
-
-                            {!isSingleDayEvent(event) &&
-                              ` – ${formatDate(
-                                event.end_date
-                              )}`}
-                          </p>
-
-                          <h3 className="mt-2 font-bold">
-                            {event.title}
-                          </h3>
-
-                          <p className="mt-2 text-xs">
-                            {getEventTypeLabel(
-                              event.event_type
-                            )}{" "}
-                            ·{" "}
-                            {getTeamName(event.team_id)}
-                          </p>
-
-                          {event.location && (
-                            <p className="mt-1 text-xs opacity-75">
-                              {event.location}
-                            </p>
-                          )}
-
-                          <div className="mt-4 flex gap-2">
+                        return (
+                          <div
+                            key={event.id}
+                            className="absolute z-30"
+                            style={{
+                              left: `${start}%`,
+                              width: `${width}%`,
+                              top: `${laneTop + 4}px`,
+                            }}
+                          >
                             <button
                               type="button"
                               onClick={() =>
                                 editEvent(event)
                               }
-                              className="rounded-lg border border-current px-3 py-1.5 text-xs font-semibold opacity-80 hover:opacity-100"
-                            >
-                              Bearbeiten
-                            </button>
+                              className={`block h-3 w-full rounded-full transition hover:ring-2 hover:ring-white/50 ${
+                                colorStyles[color]
+                                  .dot
+                              }`}
+                            />
 
-                            <button
-                              type="button"
-                              onClick={() =>
-                                deleteEvent(event)
-                              }
-                              className="rounded-lg border border-red-900/60 bg-red-950/30 px-3 py-1.5 text-xs font-semibold hover:bg-red-950/60"
+                            <div className="mt-2 flex min-w-[95px] justify-between text-[9px] text-app-muted">
+                              <span>
+                                {formatShortDate(
+                                  event.start_date
+                                )}
+                              </span>
+
+                              <span>
+                                {formatShortDate(
+                                  event.end_date
+                                )}
+                              </span>
+                            </div>
+
+                            <div
+                              className="absolute top-8 w-48"
+                              style={{
+                                left: "50%",
+                                transform:
+                                  "translateX(-50%)",
+                              }}
                             >
-                              Löschen
-                            </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  editEvent(event)
+                                }
+                                className="w-full rounded-lg border border-app-border bg-app-surface px-3 py-2 text-left transition hover:border-app-border"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span
+                                    className={`h-3 w-3 shrink-0 rounded-full ${
+                                      colorStyles[
+                                        color
+                                      ].dot
+                                    }`}
+                                  />
+
+                                  <span className="truncate text-xs font-semibold">
+                                    {event.title}
+                                  </span>
+                                </div>
+
+                                <p className="mt-1 truncate pl-5 text-[9px] text-app-faint">
+                                  {getTeamName(
+                                    event.team_id
+                                  )}
+                                </p>
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      }
+                    )}
 
-                    {upcomingEvents.length === 0 && (
-                      <div className="col-span-full py-8 text-center text-sm text-slate-500">
-                        Keine kommenden Termine für diese Ansicht.
+                    {positionedEvents.length === 0 && (
+                      <div className="absolute inset-0 flex items-center justify-center text-sm text-app-faint">
+                        Keine Termine für diese Ansicht.
                       </div>
                     )}
                   </div>
-                </section>
-
-                <div className="mt-6">
-                  <Link
-                    href="/coach"
-                    className="inline-block rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
-                  >
-                    ← Zurück zum Dashboard
-                  </Link>
                 </div>
-              </>
-            )}
+
+                {/* FRISTEN */}
+
+                <div>
+                  <div className="border-b border-app-border px-4 py-3 text-xs uppercase tracking-wide text-app-faint">
+                    Fristen & To-dos
+                  </div>
+
+                  <div
+                    className="relative"
+                    style={{
+                      height: `${
+                        taskLaneCount * 95 + 35
+                      }px`,
+                    }}
+                  >
+                    <div className="pointer-events-none absolute inset-0 grid grid-cols-12">
+                      {months.map((month) => (
+                        <div
+                          key={`${month.year}-${month.month}`}
+                          className="border-r border-app-border last:border-r-0"
+                        />
+                      ))}
+                    </div>
+
+                    {todayPosition !== null && (
+                      <div
+                        className="pointer-events-none absolute bottom-0 top-0 z-20 w-px bg-app-accent/70"
+                        style={{
+                          left: `${todayPosition}%`,
+                        }}
+                      />
+                    )}
+
+                    {positionedTasks.map(
+                      ({ task, lane }) => {
+                        const position =
+                          getPosition(task.due_date);
+
+                        const color =
+                          getTaskColorKey(task);
+
+                        return (
+                          <div
+                            key={task.id}
+                            className={`absolute z-30 ${
+                              task.completed
+                                ? "opacity-45"
+                                : ""
+                            }`}
+                            style={{
+                              left: `${position}%`,
+                              top: `${
+                                16 + lane * 95
+                              }px`,
+                            }}
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                editTask(task)
+                              }
+                              className={`absolute h-4 w-4 -translate-x-1/2 rounded-full ring-4 ring-app-accent-ink transition hover:scale-125 ${
+                                colorStyles[color].dot
+                              }`}
+                            />
+
+                            <div className="absolute top-4 h-4 w-px bg-app-elevated" />
+
+                            <div
+                              className="absolute top-8 w-36"
+                              style={{
+                                left:
+                                  position < 5
+                                    ? "8px"
+                                    : position > 95
+                                    ? "auto"
+                                    : "50%",
+
+                                right:
+                                  position > 95
+                                    ? "8px"
+                                    : "auto",
+
+                                transform:
+                                  position >= 5 &&
+                                  position <= 95
+                                    ? "translateX(-50%)"
+                                    : "none",
+                              }}
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  editTask(task)
+                                }
+                                className={`w-full rounded-lg border px-2 py-2 text-left transition hover:ring-2 hover:ring-white/40 ${
+                                  colorStyles[color]
+                                    .card
+                                }`}
+                              >
+                                <p className="text-[9px] font-semibold">
+                                  {formatShortDate(
+                                    task.due_date
+                                  )}
+                                </p>
+
+                                <p
+                                  className={`mt-1 truncate text-[10px] font-bold ${
+                                    task.completed
+                                      ? "line-through"
+                                      : ""
+                                  }`}
+                                >
+                                  {task.title}
+                                </p>
+
+                                <p className="mt-1 truncate text-[8px] opacity-70">
+                                  {getTeamName(
+                                    task.team_id
+                                  )}
+                                </p>
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      }
+                    )}
+
+                    {positionedTasks.length === 0 && (
+                      <div className="absolute inset-0 flex items-center justify-center text-sm text-app-faint">
+                        Keine Fristen für diese Ansicht.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* NÄCHSTE TERMINE */}
+
+          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+            <div className="flex items-center justify-between border-b border-app-border p-5">
+              <div>
+                <h2 className="text-xl font-semibold">
+                  Nächste wichtige Termine
+                </h2>
+
+                <p className="mt-1 text-xs text-app-faint">
+                  {selectedTeamName}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 p-5 md:grid-cols-2 xl:grid-cols-3">
+              {upcomingEvents.map((event) => {
+                const color =
+                  getEventColorKey(event);
+
+                return (
+                  <div
+                    key={event.id}
+                    className={`rounded-xl border p-4 ${
+                      colorStyles[color].card
+                    }`}
+                  >
+                    <p className="text-xs font-medium">
+                      {formatDate(event.start_date)}
+
+                      {!isSingleDayEvent(event) &&
+                        ` – ${formatDate(
+                          event.end_date
+                        )}`}
+                    </p>
+
+                    <h3 className="mt-2 font-bold">
+                      {event.title}
+                    </h3>
+
+                    <p className="mt-2 text-xs">
+                      {getEventTypeLabel(
+                        event.event_type
+                      )}{" "}
+                      ·{" "}
+                      {getTeamName(event.team_id)}
+                    </p>
+
+                    {event.location && (
+                      <p className="mt-1 text-xs opacity-75">
+                        {event.location}
+                      </p>
+                    )}
+
+                    <div className="mt-4 flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          editEvent(event)
+                        }
+                        className="rounded-lg border border-current px-3 py-1.5 text-xs font-semibold opacity-80 hover:opacity-100"
+                      >
+                        Bearbeiten
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          deleteEvent(event)
+                        }
+                        className="rounded-lg border border-red-900/60 bg-red-950/30 px-3 py-1.5 text-xs font-semibold hover:bg-red-950/60"
+                      >
+                        Löschen
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {upcomingEvents.length === 0 && (
+                <div className="col-span-full py-8 text-center text-sm text-app-faint">
+                  Keine kommenden Termine für diese Ansicht.
+                </div>
+              )}
+            </div>
+          </section>
+
+          <div className="mt-6">
+            <Link
+              href="/coach"
+              className="inline-block rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
+            >
+              ← Zurück zum Dashboard
+            </Link>
           </div>
-        </div>
-      </div>
-    </main>
+        </>
+      )}
+    </div>
   );
 }

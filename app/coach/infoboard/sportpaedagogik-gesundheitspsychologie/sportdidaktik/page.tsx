@@ -8,12 +8,12 @@ function InfoBox({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900 p-4">
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+    <div className="rounded-xl border border-app-border bg-app-surface p-4">
+      <p className="text-xs font-semibold uppercase tracking-wide text-app-faint">
         {title}
       </p>
 
-      <div className="mt-2 leading-7 text-slate-200">
+      <div className="mt-2 leading-7 text-app-text">
         {children}
       </div>
     </div>
@@ -26,12 +26,12 @@ function FigurePlaceholder({
   title: string;
 }) {
   return (
-    <div className="mt-6 rounded-xl border border-dashed border-slate-700 bg-slate-900/50 p-5">
-      <p className="text-sm font-medium text-slate-300">
+    <div className="mt-6 rounded-xl border border-dashed border-app-border bg-app-surface/50 p-5">
+      <p className="text-sm font-medium text-app-text">
         Abbildung folgt
       </p>
 
-      <p className="mt-1 text-xs text-slate-500">
+      <p className="mt-1 text-xs text-app-faint">
         {title}
       </p>
     </div>
@@ -40,12 +40,12 @@ function FigurePlaceholder({
 
 export default function SportdidaktikPage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-white">
+    <main>
       <div className="mx-auto max-w-5xl">
         {/* KOPF */}
 
         <header>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-app-muted">
             Sportpädagogik und Gesundheitspsychologie
           </p>
 
@@ -56,16 +56,16 @@ export default function SportdidaktikPage() {
 
         {/* LERNORIENTIERUNG */}
 
-        <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-5">
+        <section className="mt-8 rounded-2xl border border-app-border bg-app-surface p-5">
           <h2 className="text-lg font-semibold">
             Lernorientierung
           </h2>
 
-          <p className="mt-3 text-sm leading-7 text-slate-300">
+          <p className="mt-3 text-sm leading-7 text-app-text">
             Nach Bearbeitung dieses Kapitels solltest du:
           </p>
 
-          <ul className="mt-3 list-disc space-y-2 pl-6 text-sm leading-6 text-slate-300">
+          <ul className="mt-3 list-disc space-y-2 pl-6 text-sm leading-6 text-app-text">
             <li>
               den Stellenwert von{" "}
               <strong className="text-white">
@@ -110,50 +110,50 @@ export default function SportdidaktikPage() {
 
         {/* INHALT */}
 
-        <nav className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-          <p className="text-sm font-semibold text-slate-300">
+        <nav className="mt-5 rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm font-semibold text-app-text">
             Inhalt
           </p>
 
           <div className="mt-3 space-y-1 text-sm">
             <a
               href="#sportpaedagogik"
-              className="block rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
             >
               Sportpädagogik
             </a>
 
             <a
               href="#didaktik-methodik"
-              className="block rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
             >
               2.1 Didaktik, Methodik, Pädagogik und Sozialformen
             </a>
 
             <a
               href="#unterrichtsformen"
-              className="block rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
             >
               2.2 Unterrichtsformen
             </a>
 
             <a
               href="#stundenplanung"
-              className="block rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
             >
               2.3 Stundenverlaufsplanung
             </a>
 
             <a
               href="#uebungsreihen"
-              className="block rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
             >
               2.4 Methodische Übungsreihen und Vermittlungsmethoden
             </a>
 
             <a
               href="#trainingsprinzipien"
-              className="block rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="block rounded-lg px-3 py-2 text-app-text hover:bg-app-elevated hover:text-white"
             >
               2.5 Trainingsprinzipien
             </a>
@@ -168,11 +168,11 @@ export default function SportdidaktikPage() {
           id="sportpaedagogik"
           className="mt-12 scroll-mt-8"
         >
-          <h2 className="border-b border-slate-800 pb-3 text-2xl font-bold">
+          <h2 className="border-b border-app-border pb-3 text-2xl font-bold">
             Sportpädagogik
           </h2>
 
-          <div className="mt-8 space-y-8 text-slate-300">
+          <div className="mt-8 space-y-8 text-app-text">
             <div>
               <p className="leading-7">
                 Bei der Planung, Durchführung und Auswertung von Trainings-,
@@ -234,7 +234,7 @@ export default function SportdidaktikPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+              <div className="rounded-xl border border-app-border bg-app-surface p-5">
                 <h3 className="font-semibold text-white">
                   Handlungsfelder
                 </h3>
@@ -247,7 +247,7 @@ export default function SportdidaktikPage() {
                 </ul>
               </div>
 
-              <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+              <div className="rounded-xl border border-app-border bg-app-surface p-5">
                 <h3 className="font-semibold text-white">
                   Berufsgruppen
                 </h3>
@@ -324,11 +324,11 @@ export default function SportdidaktikPage() {
           id="didaktik-methodik"
           className="mt-16 scroll-mt-8"
         >
-          <h2 className="border-b border-slate-800 pb-3 text-2xl font-bold">
+          <h2 className="border-b border-app-border pb-3 text-2xl font-bold">
             2.1 Didaktik, Methodik, Pädagogik und Sozialformen
           </h2>
 
-          <div className="mt-8 space-y-12 text-slate-300">
+          <div className="mt-8 space-y-12 text-app-text">
             {/* DIDAKTIK */}
 
             <div>
@@ -360,7 +360,7 @@ export default function SportdidaktikPage() {
               </h4>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <p className="text-2xl font-bold text-white">
                     WOZU?
                   </p>
@@ -374,7 +374,7 @@ export default function SportdidaktikPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <p className="text-2xl font-bold text-white">
                     WAS?
                   </p>
@@ -388,7 +388,7 @@ export default function SportdidaktikPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <p className="text-2xl font-bold text-white">
                     WIE?
                   </p>
@@ -402,7 +402,7 @@ export default function SportdidaktikPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <p className="text-2xl font-bold text-white">
                     WOMIT?
                   </p>
@@ -451,7 +451,7 @@ export default function SportdidaktikPage() {
                 ].map((item, index) => (
                   <li
                     key={item}
-                    className="flex gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"
+                    className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
                     <span className="font-bold text-white">
                       {index + 1}.
@@ -529,8 +529,8 @@ export default function SportdidaktikPage() {
               </h3>
 
               <div className="mt-5 grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     1
                   </p>
 
@@ -544,8 +544,8 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     2
                   </p>
 
@@ -558,8 +558,8 @@ export default function SportdidaktikPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     3
                   </p>
 
@@ -589,21 +589,21 @@ export default function SportdidaktikPage() {
               </p>
 
               <div className="mt-5 space-y-3">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <div className="rounded-xl border border-app-border bg-app-surface p-4">
                   <strong className="text-white">
                     WOZU?
                   </strong>{" "}
                   Welches Vermittlungsziel soll erreicht werden?
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <div className="rounded-xl border border-app-border bg-app-surface p-4">
                   <strong className="text-white">
                     WAS?
                   </strong>{" "}
                   Welche Inhalte eignen sich zur Zielerreichung?
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <div className="rounded-xl border border-app-border bg-app-surface p-4">
                   <strong className="text-white">
                     WIE?
                   </strong>{" "}
@@ -677,7 +677,7 @@ export default function SportdidaktikPage() {
                 ].map((item) => (
                   <div
                     key={item.title}
-                    className="rounded-xl border border-slate-800 bg-slate-900 p-5"
+                    className="rounded-xl border border-app-border bg-app-surface p-5"
                   >
                     <h4 className="font-semibold text-white">
                       {item.title}
@@ -737,7 +737,7 @@ export default function SportdidaktikPage() {
                   </ul>
 
                   <div className="mt-5 grid gap-4 md:grid-cols-2">
-                    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                    <div className="rounded-xl border border-app-border bg-app-surface p-5">
                       <h5 className="font-semibold text-white">
                         Vorteile
                       </h5>
@@ -749,7 +749,7 @@ export default function SportdidaktikPage() {
                       </ul>
                     </div>
 
-                    <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                    <div className="rounded-xl border border-app-border bg-app-surface p-5">
                       <h5 className="font-semibold text-white">
                         Nachteile
                       </h5>
@@ -843,19 +843,19 @@ export default function SportdidaktikPage() {
           id="unterrichtsformen"
           className="mt-16 scroll-mt-8"
         >
-          <h2 className="border-b border-slate-800 pb-3 text-2xl font-bold">
+          <h2 className="border-b border-app-border pb-3 text-2xl font-bold">
             2.2 Unterrichtsformen
           </h2>
 
-          <div className="mt-8 space-y-10 text-slate-300">
+          <div className="mt-8 space-y-10 text-app-text">
             <div>
               <h3 className="text-xl font-semibold text-white">
                 Drei Hauptarten des Unterrichts
               </h3>
 
               <div className="mt-5 grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     1
                   </p>
 
@@ -864,8 +864,8 @@ export default function SportdidaktikPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     2
                   </p>
 
@@ -874,8 +874,8 @@ export default function SportdidaktikPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     3
                   </p>
 
@@ -903,7 +903,7 @@ export default function SportdidaktikPage() {
               </ul>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Vorteile
                   </h4>
@@ -919,7 +919,7 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Nachteile
                   </h4>
@@ -971,7 +971,7 @@ export default function SportdidaktikPage() {
               </ul>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Vorteile
                   </h4>
@@ -985,7 +985,7 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Nachteile
                   </h4>
@@ -1029,7 +1029,7 @@ export default function SportdidaktikPage() {
               </ul>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Vorteile
                   </h4>
@@ -1044,7 +1044,7 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Nachteile
                   </h4>
@@ -1099,12 +1099,12 @@ export default function SportdidaktikPage() {
           id="stundenplanung"
           className="mt-16 scroll-mt-8"
         >
-          <h2 className="border-b border-slate-800 pb-3 text-2xl font-bold">
+          <h2 className="border-b border-app-border pb-3 text-2xl font-bold">
             2.3 Stundenverlaufsplanung: Aufbau einer Übungs-, Therapie- oder
             Trainingseinheit
           </h2>
 
-          <div className="mt-8 space-y-10 text-slate-300">
+          <div className="mt-8 space-y-10 text-app-text">
             <div>
               <h3 className="text-xl font-semibold text-white">
                 Bedeutung der Stundenplanung
@@ -1232,8 +1232,8 @@ export default function SportdidaktikPage() {
               </h3>
 
               <div className="mt-5 grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     1
                   </p>
 
@@ -1251,8 +1251,8 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     2
                   </p>
 
@@ -1271,8 +1271,8 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
-                  <p className="text-sm text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
+                  <p className="text-sm text-app-faint">
                     3
                   </p>
 
@@ -1310,7 +1310,7 @@ export default function SportdidaktikPage() {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="rounded-xl border border-slate-800 bg-slate-900 p-4 text-center text-sm font-medium text-white"
+                    className="rounded-xl border border-app-border bg-app-surface p-4 text-center text-sm font-medium text-white"
                   >
                     {item}
                   </div>
@@ -1367,11 +1367,11 @@ export default function SportdidaktikPage() {
           id="uebungsreihen"
           className="mt-16 scroll-mt-8"
         >
-          <h2 className="border-b border-slate-800 pb-3 text-2xl font-bold">
+          <h2 className="border-b border-app-border pb-3 text-2xl font-bold">
             2.4 Methodische Übungsreihen und Vermittlungsmethoden
           </h2>
 
-          <div className="mt-8 space-y-12 text-slate-300">
+          <div className="mt-8 space-y-12 text-app-text">
             <div>
               <h3 className="text-xl font-semibold text-white">
                 Induktive Methode
@@ -1438,7 +1438,7 @@ export default function SportdidaktikPage() {
               </div>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Vorteile
                   </h4>
@@ -1450,7 +1450,7 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Nachteile
                   </h4>
@@ -1506,7 +1506,7 @@ export default function SportdidaktikPage() {
               </ul>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Vorteile
                   </h4>
@@ -1523,7 +1523,7 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Nachteile
                   </h4>
@@ -1598,7 +1598,7 @@ export default function SportdidaktikPage() {
                 ].map((item, index) => (
                   <li
                     key={item}
-                    className="flex gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"
+                    className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
                     <span className="font-bold text-white">
                       {index + 1}.
@@ -1651,15 +1651,15 @@ export default function SportdidaktikPage() {
               </p>
 
               <ol className="mt-5 space-y-3">
-                <li className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <li className="rounded-xl border border-app-border bg-app-surface p-4">
                   1. Einzelteile isoliert üben.
                 </li>
 
-                <li className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <li className="rounded-xl border border-app-border bg-app-surface p-4">
                   2. Einzelteile beherrschen.
                 </li>
 
-                <li className="rounded-xl border border-slate-800 bg-slate-900 p-4">
+                <li className="rounded-xl border border-app-border bg-app-surface p-4">
                   3. Einzelteile zur Gesamtbewegung zusammensetzen.
                 </li>
               </ol>
@@ -1669,7 +1669,7 @@ export default function SportdidaktikPage() {
               </p>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Vorteile
                   </h4>
@@ -1684,7 +1684,7 @@ export default function SportdidaktikPage() {
                   </ul>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Nachteil
                   </h4>
@@ -1722,7 +1722,7 @@ export default function SportdidaktikPage() {
               </ul>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Vorteil
                   </h4>
@@ -1732,7 +1732,7 @@ export default function SportdidaktikPage() {
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+                <div className="rounded-xl border border-app-border bg-app-surface p-5">
                   <h4 className="font-semibold text-white">
                     Nachteil
                   </h4>
@@ -1764,11 +1764,11 @@ export default function SportdidaktikPage() {
           id="trainingsprinzipien"
           className="mt-16 scroll-mt-8"
         >
-          <h2 className="border-b border-slate-800 pb-3 text-2xl font-bold">
+          <h2 className="border-b border-app-border pb-3 text-2xl font-bold">
             2.5 Trainingsprinzipien
           </h2>
 
-          <div className="mt-8 space-y-10 text-slate-300">
+          <div className="mt-8 space-y-10 text-app-text">
             <div>
               <h3 className="text-xl font-semibold text-white">
                 Bedeutung für die Stundenplanung
@@ -1827,7 +1827,7 @@ export default function SportdidaktikPage() {
                 ].map((item, index) => (
                   <li
                     key={item}
-                    className="flex gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"
+                    className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
                     <span className="font-bold text-white">
                       {index + 1}.
@@ -1988,7 +1988,7 @@ export default function SportdidaktikPage() {
                 ].map((item, index) => (
                   <li
                     key={item}
-                    className="flex gap-3 rounded-xl border border-slate-800 bg-slate-900 p-4"
+                    className="flex gap-3 rounded-xl border border-app-border bg-app-surface p-4"
                   >
                     <span className="font-bold text-white">
                       {index + 1}.
@@ -2111,17 +2111,17 @@ export default function SportdidaktikPage() {
 
         {/* NAVIGATION */}
 
-        <div className="mt-16 flex flex-wrap gap-3 border-t border-slate-800 pt-8">
+        <div className="mt-16 flex flex-wrap gap-3 border-t border-app-border pt-8">
           <Link
             href="/coach/infoboard/sportpaedagogik-gesundheitspsychologie"
-            className="rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Zurück zur Themenübersicht
           </Link>
 
           <Link
             href="/coach/infoboard/sportpaedagogik-gesundheitspsychologie/einfuehrung"
-            className="rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Kapitel 1
           </Link>

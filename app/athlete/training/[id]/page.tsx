@@ -8,6 +8,12 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import {
+  PRACTICE_MODE_CLASS,
+  PRACTICE_MODE_HINT,
+  PRACTICE_MODE_LABEL,
+  parsePracticeMode,
+} from "@/lib/kapitel1";
 
 type TrainingSession = {
   id: string;
@@ -25,6 +31,7 @@ type TrainingSection = {
   section_key: string;
   section_name: string;
   sort_order: number;
+  practice_mode: string | null;
 };
 
 type TrainingRow = {
@@ -44,6 +51,7 @@ type TrainingRow = {
 type TrainingBlock = {
   id: string;
   name: string;
+  mode: "ueben" | "training" | null;
   rows: TrainingRow[];
 };
 
@@ -107,25 +115,6 @@ export default function AthleteTrainingDetailPage() {
 
   const [completed, setCompleted] =
     useState(false);
-
-  const navigation = [
-    {
-      name: "Dashboard",
-      href: "/athlete",
-    },
-    {
-      name: "Befinden",
-      href: "/athlete/befinden",
-    },
-    {
-      name: "Training",
-      href: "/athlete/training",
-    },
-    {
-      name: "Auswertung",
-      href: "/athlete/analytics",
-    },
-  ];
 
   useEffect(() => {
     if (!trainingId) {
@@ -289,7 +278,8 @@ export default function AthleteTrainingDetailPage() {
           id,
           section_key,
           section_name,
-          sort_order
+          sort_order,
+          practice_mode
         `
       )
       .eq(
@@ -434,6 +424,9 @@ export default function AthleteTrainingDetailPage() {
         (section) => ({
           id: section.id,
           name: section.section_name,
+          mode: parsePracticeMode(
+            section.practice_mode
+          ),
 
           rows: rows
             .filter(
@@ -520,9 +513,9 @@ export default function AthleteTrainingDetailPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 p-8 text-white">
-        <div className="mx-auto max-w-4xl rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-slate-400">
+      <main className="bg-app-bg p-8 text-white">
+        <div className="mx-auto max-w-4xl rounded-2xl border border-app-border bg-app-surface p-6">
+          <p className="text-app-muted">
             Training wird geladen...
           </p>
         </div>
@@ -532,11 +525,11 @@ export default function AthleteTrainingDetailPage() {
 
   if (!training) {
     return (
-      <main className="min-h-screen bg-slate-950 p-8 text-white">
+      <main className="bg-app-bg p-8 text-white">
         <div className="mx-auto max-w-4xl">
           <Link
             href="/athlete/training"
-            className="text-sm text-slate-400 hover:text-white"
+            className="text-sm text-app-muted hover:text-white"
           >
             ← Zurück zum Trainingsplan
           </Link>
@@ -557,476 +550,463 @@ export default function AthleteTrainingDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        {/* Seitenleiste */}
-        <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex lg:flex-col">
-          <div className="border-b border-slate-800 px-6 py-6">
-            <h2 className="text-xl font-bold">
-              Monitoring App
+    <div className="mx-auto w-full max-w-[1600px]">
+      <Link
+        href="/athlete/training"
+        className="text-sm text-app-muted hover:text-white"
+      >
+        ← Zurück zum Trainingsplan
+      </Link>
+
+      {/* Kopf */}
+      <div className="mt-5 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <p className="text-sm text-app-muted">
+            {weekday} ·{" "}
+            {formattedDate} ·{" "}
+            {displayTime} Uhr
+          </p>
+
+          <h1 className="mt-1 text-3xl font-bold">
+            {training.title}
+          </h1>
+
+          <p className="mt-2 text-app-muted">
+            {training.focus ??
+              "Kein Trainingsfokus eingetragen"}
+          </p>
+        </div>
+
+        <span
+          className={`rounded-full px-4 py-2 text-sm ${
+            training.training_type ===
+            "water"
+              ? "bg-sky-950 text-sky-300"
+              : "bg-emerald-950 text-emerald-300"
+          }`}
+        >
+          {displayType}
+        </span>
+      </div>
+
+      {message && (
+        <div className="mt-6 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+          {message}
+        </div>
+      )}
+
+      {/* Trainingsinfos */}
+      <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm text-app-muted">
+            Umfang
+          </p>
+
+          <p className="mt-2 text-2xl font-bold">
+            {training.training_type ===
+            "water"
+              ? `${totalMeters.toLocaleString(
+                  "de-DE"
+                )} m`
+              : `${landRows.length} Übungen`}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm text-app-muted">
+            Dauer
+          </p>
+
+          <p className="mt-2 text-2xl font-bold">
+            {training.duration_minutes ??
+              "—"}{" "}
+            Min
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm text-app-muted">
+            Trainingsart
+          </p>
+
+          <p className="mt-2 text-2xl font-bold">
+            {displayType}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm text-app-muted">
+            Schwerpunkt
+          </p>
+
+          <p className="mt-2 font-semibold">
+            {training.focus ?? "—"}
+          </p>
+        </div>
+      </section>
+
+      {/* Wassertraining */}
+      {training.training_type ===
+        "water" && (
+        <section className="mt-6 space-y-6">
+          {blocks.length === 0 ? (
+            <div className="rounded-2xl border border-app-border bg-app-surface p-6">
+              <p className="text-app-muted">
+                Für dieses Training wurden
+                keine Serien gespeichert.
+              </p>
+            </div>
+          ) : (
+            blocks.map((block) => {
+              const blockMeters =
+                block.rows.reduce(
+                  (total, row) =>
+                    total +
+                    row.repetitions *
+                      row.distance,
+                  0
+                );
+
+              return (
+                <div
+                  key={block.id}
+                  className="overflow-hidden rounded-2xl border border-app-border bg-app-surface"
+                >
+                  <div className="border-b border-app-border p-5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-semibold">
+                        {block.name}
+                      </h2>
+
+                      {block.mode && (
+                        <span
+                          title={
+                            PRACTICE_MODE_HINT[
+                              block.mode
+                            ]
+                          }
+                          className={`rounded-full border px-2.5 py-0.5 text-xs ${
+                            PRACTICE_MODE_CLASS[
+                              block.mode
+                            ]
+                          }`}
+                        >
+                          {
+                            PRACTICE_MODE_LABEL[
+                              block.mode
+                            ]
+                          }
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mt-1 text-sm text-app-muted">
+                      {blockMeters.toLocaleString(
+                        "de-DE"
+                      )}{" "}
+                      m
+                    </p>
+                  </div>
+
+                  {block.rows.length ===
+                  0 ? (
+                    <div className="p-5 text-sm text-app-faint">
+                      Keine Serien
+                      eingetragen.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto p-4">
+                      <div className="min-w-[1150px]">
+                        <div className="grid grid-cols-[80px_100px_2fr_130px_160px_130px_140px_100px] gap-2 px-2 pb-2 text-xs text-app-faint">
+                          <div>Wdh.</div>
+                          <div>Distanz</div>
+                          <div>Aufgabe</div>
+                          <div>Lage</div>
+                          <div>Material</div>
+                          <div>Belastung</div>
+                          <div>
+                            Pause / Abgang
+                          </div>
+                          <div>Meter</div>
+                        </div>
+
+                        <div className="space-y-2">
+                          {block.rows.map(
+                            (row) => {
+                              const interval =
+                                row.interval_type &&
+                                row.interval_time
+                                  ? `${row.interval_type} ${row.interval_time}`
+                                  : row.interval_time ??
+                                    row.interval_type ??
+                                    "—";
+
+                              return (
+                                <div
+                                  key={row.id}
+                                  className="grid grid-cols-[80px_100px_2fr_130px_160px_130px_140px_100px] gap-2 rounded-xl border border-app-border bg-app-bg p-3 text-sm"
+                                >
+                                  <div className="flex items-center">
+                                    {row.repetitions}×
+                                  </div>
+
+                                  <div className="flex items-center">
+                                    {row.distance} m
+                                  </div>
+
+                                  <div className="flex items-center font-medium">
+                                    {row.exercise ??
+                                      "—"}
+                                  </div>
+
+                                  <div className="flex items-center">
+                                    {row.style ??
+                                      "—"}
+                                  </div>
+
+                                  <div className="flex items-center text-app-muted">
+                                    {row.materials?.length >
+                                    0
+                                      ? row.materials.join(
+                                          ", "
+                                        )
+                                      : "—"}
+                                  </div>
+
+                                  <div className="flex items-center">
+                                    {row.zone ??
+                                      "—"}
+                                  </div>
+
+                                  <div className="flex items-center">
+                                    {interval}
+                                  </div>
+
+                                  <div className="flex items-center font-semibold">
+                                    {(
+                                      row.repetitions *
+                                      row.distance
+                                    ).toLocaleString(
+                                      "de-DE"
+                                    )}{" "}
+                                    m
+                                  </div>
+                                </div>
+                              );
+                            }
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </section>
+      )}
+
+      {/* Landtraining */}
+      {training.training_type ===
+        "land" && (
+        <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+          <div className="border-b border-app-border p-5">
+            <h2 className="text-xl font-semibold">
+              Landtraining
             </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Athlete Bereich
+            <p className="mt-1 text-sm text-app-muted">
+              Deine geplanten Übungen.
             </p>
           </div>
 
-          <nav className="flex-1 space-y-2 p-4">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`block rounded-xl px-4 py-3 text-sm transition ${
-                  item.name === "Training"
-                    ? "bg-white font-medium text-slate-950"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-        </aside>
+          {landRows.length === 0 ? (
+            <div className="p-8 text-center text-sm text-app-faint">
+              Für dieses Landtraining wurden
+              keine Übungen gespeichert.
+            </div>
+          ) : (
+            <div className="overflow-x-auto p-4">
+              <div className="min-w-[1050px]">
+                <div className="grid grid-cols-[2fr_100px_150px_130px_180px_140px] gap-2 px-3 pb-2 text-xs text-app-faint">
+                  <div>Übung</div>
+                  <div>Sätze</div>
+                  <div>Wdh./Zeit</div>
+                  <div>Gewicht</div>
+                  <div>Material</div>
+                  <div>Intensität</div>
+                </div>
 
-        {/* Inhalt */}
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1600px] px-6 py-8">
-            <Link
-              href="/athlete/training"
-              className="text-sm text-slate-400 hover:text-white"
-            >
-              ← Zurück zum Trainingsplan
-            </Link>
+                <div className="space-y-2">
+                  {landRows.map((row) => (
+                    <div
+                      key={row.id}
+                      className="grid grid-cols-[2fr_100px_150px_130px_180px_140px] gap-2 rounded-xl border border-app-border bg-app-bg p-3 text-sm"
+                    >
+                      <div className="flex items-center font-semibold">
+                        {row.exercise}
+                      </div>
 
-            {/* Kopf */}
-            <div className="mt-5 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+                      <div className="flex items-center">
+                        {row.sets ?? "—"}
+                      </div>
+
+                      <div className="flex items-center">
+                        {row.repetitions ??
+                          "—"}
+                      </div>
+
+                      <div className="flex items-center">
+                        {row.weight ?? "—"}
+                      </div>
+
+                      <div className="flex items-center text-app-text">
+                        {row.material ?? "—"}
+                      </div>
+
+                      <div className="flex items-center">
+                        {row.intensity ?? "—"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Rückmeldung */}
+      <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+        <div className="border-b border-app-border p-5">
+          <h2 className="text-xl font-semibold">
+            Rückmeldung zum Training
+          </h2>
+
+          <p className="mt-1 text-sm text-app-muted">
+            Diese Rückmeldung wird
+            dauerhaft gespeichert und kann
+            später vom Coach eingesehen
+            werden.
+          </p>
+        </div>
+
+        <div className="p-5">
+          {feedbackMessage && (
+            <div className="mb-6 rounded-xl border border-app-border bg-app-bg p-4 text-sm text-app-text">
+              {feedbackMessage}
+            </div>
+          )}
+
+          <div>
+            <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm text-slate-400">
-                  {weekday} ·{" "}
-                  {formattedDate} ·{" "}
-                  {displayTime} Uhr
+                <p className="font-medium">
+                  Wie anstrengend war die
+                  Einheit?
                 </p>
 
-                <h1 className="mt-1 text-3xl font-bold">
-                  {training.title}
-                </h1>
-
-                <p className="mt-2 text-slate-400">
-                  {training.focus ??
-                    "Kein Trainingsfokus eingetragen"}
+                <p className="mt-1 text-sm text-app-faint">
+                  RPE: 1 = sehr leicht, 10
+                  = maximal
                 </p>
               </div>
 
-              <span
-                className={`rounded-full px-4 py-2 text-sm ${
-                  training.training_type ===
-                  "water"
-                    ? "bg-blue-950 text-blue-300"
-                    : "bg-emerald-950 text-emerald-300"
-                }`}
-              >
-                {displayType}
-              </span>
+              <div className="rounded-xl bg-app-bg px-4 py-2 text-xl font-bold">
+                {rpe} / 10
+              </div>
             </div>
 
-            {message && (
-              <div className="mt-6 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
-                {message}
-              </div>
-            )}
+            <input
+              type="range"
+              min="1"
+              max="10"
+              value={rpe}
+              onChange={(event) =>
+                setRpe(
+                  Number(
+                    event.target.value
+                  )
+                )
+              }
+              className="mt-5 w-full"
+            />
 
-            {/* Trainingsinfos */}
-            <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                <p className="text-sm text-slate-400">
-                  Umfang
-                </p>
+            <div className="mt-2 flex justify-between text-xs text-app-faint">
+              <span>sehr leicht</span>
+              <span>mittel</span>
+              <span>maximal</span>
+            </div>
+          </div>
 
-                <p className="mt-2 text-2xl font-bold">
-                  {training.training_type ===
-                  "water"
-                    ? `${totalMeters.toLocaleString(
-                        "de-DE"
-                      )} m`
-                    : `${landRows.length} Übungen`}
-                </p>
-              </div>
+          <div className="mt-8">
+            <label className="mb-2 block font-medium">
+              Kommentar
+            </label>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                <p className="text-sm text-slate-400">
-                  Dauer
-                </p>
+            <textarea
+              value={feedback}
+              onChange={(event) =>
+                setFeedback(
+                  event.target.value
+                )
+              }
+              rows={4}
+              placeholder="Wie lief die Einheit? Gab es Probleme oder Besonderheiten?"
+              className="w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none"
+            />
+          </div>
 
-                <p className="mt-2 text-2xl font-bold">
-                  {training.duration_minutes ??
-                    "—"}{" "}
-                  Min
-                </p>
-              </div>
+          <div className="mt-6 flex flex-col gap-4 rounded-xl border border-app-border bg-app-bg p-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="font-medium">
+                Training abgeschlossen
+              </p>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                <p className="text-sm text-slate-400">
-                  Trainingsart
-                </p>
+              <p className="mt-1 text-sm text-app-faint">
+                Aktiviere dies, wenn du die
+                Einheit absolviert hast.
+              </p>
+            </div>
 
-                <p className="mt-2 text-2xl font-bold">
-                  {displayType}
-                </p>
-              </div>
+            <button
+              type="button"
+              onClick={() =>
+                setCompleted(
+                  (current) =>
+                    !current
+                )
+              }
+              className={`rounded-xl px-5 py-3 text-sm font-medium ${
+                completed
+                  ? "bg-emerald-500 text-app-accent-ink"
+                  : "border border-app-border hover:bg-app-elevated"
+              }`}
+            >
+              {completed
+                ? "✓ Abgeschlossen"
+                : "Als abgeschlossen markieren"}
+            </button>
+          </div>
 
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                <p className="text-sm text-slate-400">
-                  Schwerpunkt
-                </p>
-
-                <p className="mt-2 font-semibold">
-                  {training.focus ?? "—"}
-                </p>
-              </div>
-            </section>
-
-            {/* Wassertraining */}
-            {training.training_type ===
-              "water" && (
-              <section className="mt-6 space-y-6">
-                {blocks.length === 0 ? (
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-                    <p className="text-slate-400">
-                      Für dieses Training wurden
-                      keine Serien gespeichert.
-                    </p>
-                  </div>
-                ) : (
-                  blocks.map((block) => {
-                    const blockMeters =
-                      block.rows.reduce(
-                        (total, row) =>
-                          total +
-                          row.repetitions *
-                            row.distance,
-                        0
-                      );
-
-                    return (
-                      <div
-                        key={block.id}
-                        className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900"
-                      >
-                        <div className="border-b border-slate-800 p-5">
-                          <h2 className="text-xl font-semibold">
-                            {block.name}
-                          </h2>
-
-                          <p className="mt-1 text-sm text-slate-400">
-                            {blockMeters.toLocaleString(
-                              "de-DE"
-                            )}{" "}
-                            m
-                          </p>
-                        </div>
-
-                        {block.rows.length ===
-                        0 ? (
-                          <div className="p-5 text-sm text-slate-500">
-                            Keine Serien
-                            eingetragen.
-                          </div>
-                        ) : (
-                          <div className="overflow-x-auto p-4">
-                            <div className="min-w-[1150px]">
-                              <div className="grid grid-cols-[80px_100px_2fr_130px_160px_130px_140px_100px] gap-2 px-2 pb-2 text-xs text-slate-500">
-                                <div>Wdh.</div>
-                                <div>Distanz</div>
-                                <div>Aufgabe</div>
-                                <div>Lage</div>
-                                <div>Material</div>
-                                <div>Belastung</div>
-                                <div>
-                                  Pause / Abgang
-                                </div>
-                                <div>Meter</div>
-                              </div>
-
-                              <div className="space-y-2">
-                                {block.rows.map(
-                                  (row) => {
-                                    const interval =
-                                      row.interval_type &&
-                                      row.interval_time
-                                        ? `${row.interval_type} ${row.interval_time}`
-                                        : row.interval_time ??
-                                          row.interval_type ??
-                                          "—";
-
-                                    return (
-                                      <div
-                                        key={row.id}
-                                        className="grid grid-cols-[80px_100px_2fr_130px_160px_130px_140px_100px] gap-2 rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm"
-                                      >
-                                        <div className="flex items-center">
-                                          {row.repetitions}×
-                                        </div>
-
-                                        <div className="flex items-center">
-                                          {row.distance} m
-                                        </div>
-
-                                        <div className="flex items-center font-medium">
-                                          {row.exercise ??
-                                            "—"}
-                                        </div>
-
-                                        <div className="flex items-center">
-                                          {row.style ??
-                                            "—"}
-                                        </div>
-
-                                        <div className="flex items-center text-slate-400">
-                                          {row.materials?.length >
-                                          0
-                                            ? row.materials.join(
-                                                ", "
-                                              )
-                                            : "—"}
-                                        </div>
-
-                                        <div className="flex items-center">
-                                          {row.zone ??
-                                            "—"}
-                                        </div>
-
-                                        <div className="flex items-center">
-                                          {interval}
-                                        </div>
-
-                                        <div className="flex items-center font-semibold">
-                                          {(
-                                            row.repetitions *
-                                            row.distance
-                                          ).toLocaleString(
-                                            "de-DE"
-                                          )}{" "}
-                                          m
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </section>
-            )}
-
-            {/* Landtraining */}
-            {training.training_type ===
-              "land" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                <div className="border-b border-slate-800 p-5">
-                  <h2 className="text-xl font-semibold">
-                    Landtraining
-                  </h2>
-
-                  <p className="mt-1 text-sm text-slate-400">
-                    Deine geplanten Übungen.
-                  </p>
-                </div>
-
-                {landRows.length === 0 ? (
-                  <div className="p-8 text-center text-sm text-slate-500">
-                    Für dieses Landtraining wurden
-                    keine Übungen gespeichert.
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto p-4">
-                    <div className="min-w-[1050px]">
-                      <div className="grid grid-cols-[2fr_100px_150px_130px_180px_140px] gap-2 px-3 pb-2 text-xs text-slate-500">
-                        <div>Übung</div>
-                        <div>Sätze</div>
-                        <div>Wdh./Zeit</div>
-                        <div>Gewicht</div>
-                        <div>Material</div>
-                        <div>Intensität</div>
-                      </div>
-
-                      <div className="space-y-2">
-                        {landRows.map((row) => (
-                          <div
-                            key={row.id}
-                            className="grid grid-cols-[2fr_100px_150px_130px_180px_140px] gap-2 rounded-xl border border-slate-800 bg-slate-950 p-3 text-sm"
-                          >
-                            <div className="flex items-center font-semibold">
-                              {row.exercise}
-                            </div>
-
-                            <div className="flex items-center">
-                              {row.sets ?? "—"}
-                            </div>
-
-                            <div className="flex items-center">
-                              {row.repetitions ??
-                                "—"}
-                            </div>
-
-                            <div className="flex items-center">
-                              {row.weight ?? "—"}
-                            </div>
-
-                            <div className="flex items-center text-slate-300">
-                              {row.material ?? "—"}
-                            </div>
-
-                            <div className="flex items-center">
-                              {row.intensity ?? "—"}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
-
-            {/* Rückmeldung */}
-            <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900">
-              <div className="border-b border-slate-800 p-5">
-                <h2 className="text-xl font-semibold">
-                  Rückmeldung zum Training
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-400">
-                  Diese Rückmeldung wird
-                  dauerhaft gespeichert und kann
-                  später vom Coach eingesehen
-                  werden.
-                </p>
-              </div>
-
-              <div className="p-5">
-                {feedbackMessage && (
-                  <div className="mb-6 rounded-xl border border-slate-700 bg-slate-950 p-4 text-sm text-slate-300">
-                    {feedbackMessage}
-                  </div>
-                )}
-
-                <div>
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="font-medium">
-                        Wie anstrengend war die
-                        Einheit?
-                      </p>
-
-                      <p className="mt-1 text-sm text-slate-500">
-                        RPE: 1 = sehr leicht, 10
-                        = maximal
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl bg-slate-950 px-4 py-2 text-xl font-bold">
-                      {rpe} / 10
-                    </div>
-                  </div>
-
-                  <input
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={rpe}
-                    onChange={(event) =>
-                      setRpe(
-                        Number(
-                          event.target.value
-                        )
-                      )
-                    }
-                    className="mt-5 w-full"
-                  />
-
-                  <div className="mt-2 flex justify-between text-xs text-slate-600">
-                    <span>sehr leicht</span>
-                    <span>mittel</span>
-                    <span>maximal</span>
-                  </div>
-                </div>
-
-                <div className="mt-8">
-                  <label className="mb-2 block font-medium">
-                    Kommentar
-                  </label>
-
-                  <textarea
-                    value={feedback}
-                    onChange={(event) =>
-                      setFeedback(
-                        event.target.value
-                      )
-                    }
-                    rows={4}
-                    placeholder="Wie lief die Einheit? Gab es Probleme oder Besonderheiten?"
-                    className="w-full resize-none rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none"
-                  />
-                </div>
-
-                <div className="mt-6 flex flex-col gap-4 rounded-xl border border-slate-800 bg-slate-950 p-4 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <p className="font-medium">
-                      Training abgeschlossen
-                    </p>
-
-                    <p className="mt-1 text-sm text-slate-500">
-                      Aktiviere dies, wenn du die
-                      Einheit absolviert hast.
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCompleted(
-                        (current) =>
-                          !current
-                      )
-                    }
-                    className={`rounded-xl px-5 py-3 text-sm font-medium ${
-                      completed
-                        ? "bg-emerald-500 text-slate-950"
-                        : "border border-slate-700 hover:bg-slate-800"
-                    }`}
-                  >
-                    {completed
-                      ? "✓ Abgeschlossen"
-                      : "Als abgeschlossen markieren"}
-                  </button>
-                </div>
-
-                <div className="mt-6 flex justify-end">
-                  <button
-                    type="button"
-                    onClick={
-                      handleSaveFeedback
-                    }
-                    disabled={
-                      savingFeedback
-                    }
-                    className="rounded-xl bg-white px-5 py-3 text-sm font-medium text-slate-950 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {savingFeedback
-                      ? "Wird gespeichert..."
-                      : "Rückmeldung speichern"}
-                  </button>
-                </div>
-              </div>
-            </section>
+          <div className="mt-6 flex justify-end">
+            <button
+              type="button"
+              onClick={
+                handleSaveFeedback
+              }
+              disabled={
+                savingFeedback
+              }
+              className="rounded-xl bg-app-accent px-5 py-3 text-sm font-medium text-app-accent-ink hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {savingFeedback
+                ? "Wird gespeichert..."
+                : "Rückmeldung speichern"}
+            </button>
           </div>
         </div>
-      </div>
-    </main>
+      </section>
+    </div>
   );
 }

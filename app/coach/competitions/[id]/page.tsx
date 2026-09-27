@@ -810,7 +810,7 @@ export default function CompetitionDetailPage() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 text-sm text-slate-400">
+      <div className="rounded-2xl border border-app-border bg-app-surface p-5 text-sm text-app-muted">
         Wettkampf wird geladen...
       </div>
     );
@@ -824,7 +824,7 @@ export default function CompetitionDetailPage() {
       <div className="space-y-4">
         <Link
           href="/coach/competitions"
-          className="text-sm text-slate-400 transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-white"
         >
           ← Zurück zu Wettkämpfe
         </Link>
@@ -841,13 +841,13 @@ export default function CompetitionDetailPage() {
     <div className="space-y-6">
       <Link
         href="/coach/competitions"
-        className="text-sm text-slate-400 transition hover:text-white"
+        className="text-sm text-app-muted transition hover:text-white"
       >
         ← Zurück zu Wettkämpfe
       </Link>
 
       {/* WETTKAMPF-KOPF */}
-      <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+      <section className="rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-white sm:text-3xl">
@@ -856,7 +856,7 @@ export default function CompetitionDetailPage() {
               }
             </h1>
 
-            <div className="mt-3 space-y-1 text-sm text-slate-400">
+            <div className="mt-3 space-y-1 text-sm text-app-muted">
               <p>
                 {formatDate(
                   competition.start_date
@@ -886,13 +886,13 @@ export default function CompetitionDetailPage() {
       </section>
 
       {/* AUSSCHREIBUNG */}
-      <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+      <section className="rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6">
         <h2 className="text-lg font-semibold text-white">
           Ausschreibung
         </h2>
 
         {document && (
-          <div className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-700 bg-slate-950/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-4 flex flex-col gap-3 rounded-xl border border-app-border bg-app-bg/60 p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <p className="truncate font-medium text-white">
                 {
@@ -900,7 +900,7 @@ export default function CompetitionDetailPage() {
                 }
               </p>
 
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-app-faint">
                 {formatFileSize(
                   document.size_bytes
                 )}
@@ -912,7 +912,7 @@ export default function CompetitionDetailPage() {
               onClick={
                 openPdf
               }
-              className="shrink-0 rounded-lg border border-slate-700 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+              className="shrink-0 rounded-lg border border-app-border px-3 py-2 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-white"
             >
               PDF öffnen
             </button>
@@ -937,7 +937,7 @@ export default function CompetitionDetailPage() {
           className={`mt-4 cursor-pointer rounded-2xl border-2 border-dashed p-7 text-center transition sm:p-9 ${
             isDragging
               ? "border-sky-400 bg-sky-500/10"
-              : "border-slate-700 bg-slate-950/40 hover:border-slate-600 hover:bg-slate-950/70"
+              : "border-app-border bg-app-bg/40 hover:border-app-border hover:bg-app-bg/70"
           }`}
         >
           <input
@@ -952,7 +952,7 @@ export default function CompetitionDetailPage() {
             className="hidden"
           />
 
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-xl font-semibold text-white">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-app-elevated text-xl font-semibold text-white">
             PDF
           </div>
 
@@ -962,11 +962,11 @@ export default function CompetitionDetailPage() {
               : "PDF hier hineinziehen"}
           </p>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-app-muted">
             oder klicken und Datei auswählen
           </p>
 
-          <p className="mt-3 text-xs text-slate-600">
+          <p className="mt-3 text-xs text-app-faint">
             Nur PDF · maximal 10 MB
           </p>
 
@@ -978,7 +978,7 @@ export default function CompetitionDetailPage() {
         </div>
 
         {uploadMessage && (
-          <div className="mt-4 rounded-xl border border-slate-700 bg-slate-950/60 p-3 text-sm text-slate-300">
+          <div className="mt-4 rounded-xl border border-app-border bg-app-bg/60 p-3 text-sm text-app-text">
             {
               uploadMessage
             }
@@ -1005,7 +1005,7 @@ export default function CompetitionDetailPage() {
       <div className="space-y-5">
         {sections.length ===
         0 ? (
-          <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5 text-sm text-slate-500">
+          <section className="rounded-2xl border border-app-border bg-app-surface p-5 text-sm text-app-faint">
             Noch keine Abschnitte und WKs gespeichert.
           </section>
         ) : (
@@ -1021,9 +1021,9 @@ export default function CompetitionDetailPage() {
                   key={
                     section.id
                   }
-                  className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
+                  className="rounded-2xl border border-app-border bg-app-surface p-5"
                 >
-                  <div className="border-b border-slate-800 pb-4">
+                  <div className="border-b border-app-border pb-4">
                     <h2 className="text-lg font-semibold text-white">
                       {
                         section.section_number
@@ -1031,13 +1031,13 @@ export default function CompetitionDetailPage() {
                       . Abschnitt
                     </h2>
 
-                    <p className="mt-1 text-sm text-slate-400">
+                    <p className="mt-1 text-sm text-app-muted">
                       {formatDate(
                         section.section_date
                       )}
                     </p>
 
-                    <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-slate-500">
+                    <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-app-faint">
                       {section.admission_time && (
                         <span>
                           Einlass / Einschwimmen:{" "}
@@ -1070,7 +1070,7 @@ export default function CompetitionDetailPage() {
                     </div>
 
                     {section.notes && (
-                      <p className="mt-2 text-xs text-slate-500">
+                      <p className="mt-2 text-xs text-app-faint">
                         {
                           section.notes
                         }
@@ -1080,11 +1080,11 @@ export default function CompetitionDetailPage() {
 
                   {sectionEvents.length ===
                   0 ? (
-                    <p className="pt-4 text-sm text-slate-500">
+                    <p className="pt-4 text-sm text-app-faint">
                       Keine WKs in diesem Abschnitt.
                     </p>
                   ) : (
-                    <div className="divide-y divide-slate-800">
+                    <div className="divide-y divide-app-border">
                       {sectionEvents.map(
                         (event) => {
                           const roundLabel =
@@ -1121,7 +1121,7 @@ export default function CompetitionDetailPage() {
                                       : ""}
                                   </p>
 
-                                  <p className="mt-0.5 text-sm text-slate-400">
+                                  <p className="mt-0.5 text-sm text-app-muted">
                                     {getGenderLabel(
                                       event.gender
                                     )}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import LoadStrainPanel from "@/components/LoadStrainPanel";
 
 type TrainingSession = {
   id: string;
@@ -488,9 +489,9 @@ export default function CoachTrainingSessionPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6">
+      <main>
         <div className="mx-auto max-w-[1200px]">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-sm text-slate-400">
+          <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-sm text-app-muted">
             Training wird geladen...
           </div>
         </div>
@@ -500,7 +501,7 @@ export default function CoachTrainingSessionPage() {
 
   if (!training) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6">
+      <main>
         <div className="mx-auto max-w-[1200px]">
           <div className="rounded-2xl border border-red-900 bg-red-950/30 p-5 text-sm text-red-300">
             {message ||
@@ -509,7 +510,7 @@ export default function CoachTrainingSessionPage() {
 
           <Link
             href="/coach/training"
-            className="mt-5 inline-block text-sm text-slate-400 transition hover:text-white"
+            className="mt-5 inline-block text-sm text-app-muted transition hover:text-white"
           >
             ← Zurück zum Training
           </Link>
@@ -519,18 +520,18 @@ export default function CoachTrainingSessionPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main>
       <div className="mx-auto max-w-[1200px] px-4 py-6 sm:px-6 sm:py-8">
         <Link
           href="/coach/training"
-          className="text-sm text-slate-400 transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-white"
         >
           ← Zurück zum Training
         </Link>
 
-        <header className="mt-4 flex flex-col gap-4 border-b border-slate-800 pb-5 md:flex-row md:items-end md:justify-between">
+        <header className="mt-4 flex flex-col gap-4 border-b border-app-border pb-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-400">
+            <p className="text-sm font-medium text-app-muted">
               {team?.name ??
                 "Trainingseinheit"}
             </p>
@@ -539,7 +540,7 @@ export default function CoachTrainingSessionPage() {
               {training.title}
             </h1>
 
-            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-app-faint">
               <span>
                 {formatDate(
                   training.session_date
@@ -548,7 +549,7 @@ export default function CoachTrainingSessionPage() {
 
               {training.start_time && (
                 <>
-                  <span className="hidden text-slate-700 sm:inline">
+                  <span className="hidden text-app-faint sm:inline">
                     •
                   </span>
 
@@ -566,7 +567,7 @@ export default function CoachTrainingSessionPage() {
 
           <Link
             href={`/coach/training/new?session=${training.id}`}
-            className="w-full rounded-xl border border-slate-700 px-4 py-2.5 text-center text-sm font-medium transition hover:bg-slate-900 md:w-auto"
+            className="w-full rounded-xl border border-app-border px-4 py-2.5 text-center text-sm font-medium transition hover:bg-app-surface md:w-auto"
           >
             Training bearbeiten
           </Link>
@@ -584,7 +585,7 @@ export default function CoachTrainingSessionPage() {
               Belastung
             </h2>
 
-            <span className="text-slate-600">
+            <span className="text-app-faint">
               ↔
             </span>
 
@@ -594,14 +595,14 @@ export default function CoachTrainingSessionPage() {
           </div>
 
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+            <div className="rounded-2xl border border-app-border bg-app-surface p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-slate-500">
+                  <p className="text-xs uppercase tracking-wide text-app-faint">
                     Äußere Belastung
                   </p>
 
-                  <p className="mt-1 text-sm text-slate-400">
+                  <p className="mt-1 text-sm text-app-muted">
                     Geplante Trainingsanforderung
                   </p>
                 </div>
@@ -610,7 +611,7 @@ export default function CoachTrainingSessionPage() {
                   className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                     training.training_type ===
                     "water"
-                      ? "bg-blue-950 text-blue-300"
+                      ? "bg-sky-950 text-sky-300"
                       : "bg-emerald-950 text-emerald-300"
                   }`}
                 >
@@ -623,7 +624,7 @@ export default function CoachTrainingSessionPage() {
 
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-app-faint">
                     Umfang
                   </p>
 
@@ -640,7 +641,7 @@ export default function CoachTrainingSessionPage() {
                 </div>
 
                 <div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-app-faint">
                     Dauer
                   </p>
 
@@ -653,12 +654,12 @@ export default function CoachTrainingSessionPage() {
                 </div>
               </div>
 
-              <div className="mt-3 border-t border-slate-800 pt-3">
-                <p className="text-xs text-slate-500">
+              <div className="mt-3 border-t border-app-border pt-3">
+                <p className="text-xs text-app-faint">
                   Trainingsfokus
                 </p>
 
-                <p className="mt-1 text-sm font-medium text-slate-200">
+                <p className="mt-1 text-sm font-medium text-app-text">
                   {training.focus ||
                     "—"}
                 </p>
@@ -668,26 +669,26 @@ export default function CoachTrainingSessionPage() {
             <div className="hidden items-center justify-center px-1 lg:flex">
               <span
                 aria-hidden="true"
-                className="text-xl text-slate-600"
+                className="text-xl text-app-faint"
               >
                 ↔
               </span>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+            <div className="rounded-2xl border border-app-border bg-app-surface p-4">
               <div>
-                <p className="text-xs uppercase tracking-wide text-slate-500">
+                <p className="text-xs uppercase tracking-wide text-app-faint">
                   Innere Beanspruchung
                 </p>
 
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm text-app-muted">
                   Subjektive Reaktion der Athleten
                 </p>
               </div>
 
               <div className="mt-3 grid grid-cols-2 gap-3">
                 <div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-app-faint">
                     Ø RPE
                   </p>
 
@@ -709,14 +710,14 @@ export default function CoachTrainingSessionPage() {
 
                     {averageRpe !==
                       null && (
-                      <span className="text-sm text-slate-500">
+                      <span className="text-sm text-app-faint">
                         / 10
                       </span>
                     )}
                   </div>
 
                   {averageRpeText && (
-                    <p className="mt-1 text-xs text-slate-400">
+                    <p className="mt-1 text-xs text-app-muted">
                       {
                         averageRpeText
                       }
@@ -725,7 +726,7 @@ export default function CoachTrainingSessionPage() {
                 </div>
 
                 <div>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-app-faint">
                     Rückmeldungen
                   </p>
 
@@ -739,38 +740,45 @@ export default function CoachTrainingSessionPage() {
                     }
                   </p>
 
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-app-muted">
                     abgegeben
                   </p>
                 </div>
               </div>
 
-              <p className="mt-3 border-t border-slate-800 pt-3 text-xs leading-5 text-slate-500">
+              <p className="mt-3 border-t border-app-border pt-3 text-xs leading-5 text-app-faint">
                 RPE = subjektiv wahrgenommene Anstrengung des Athleten.
               </p>
             </div>
           </div>
         </section>
 
-        <section className="mt-5 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-          <div className="flex flex-col gap-1 border-b border-slate-800 px-4 py-3 sm:px-5">
+        {/* Kapitel 1.1 */}
+        {trainingId && (
+          <LoadStrainPanel
+            sessionId={trainingId}
+          />
+        )}
+
+        <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+          <div className="flex flex-col gap-1 border-b border-app-border px-4 py-3 sm:px-5">
             <h2 className="font-semibold">
               Athleten-Rückmeldungen
             </h2>
 
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-app-faint">
               Individuelle Beanspruchung nach der Trainingseinheit
             </p>
           </div>
 
           {athleteRows.length ===
           0 ? (
-            <div className="px-5 py-6 text-center text-sm text-slate-500">
+            <div className="px-5 py-6 text-center text-sm text-app-faint">
               Diesem Team sind aktuell keine Athleten zugeordnet.
             </div>
           ) : (
             <>
-              <div className="hidden grid-cols-[minmax(180px,1fr)_150px_2fr] gap-4 border-b border-slate-800 bg-slate-950/50 px-5 py-2 text-xs font-medium uppercase tracking-wide text-slate-600 md:grid">
+              <div className="hidden grid-cols-[minmax(180px,1fr)_150px_2fr] gap-4 border-b border-app-border bg-app-bg/50 px-5 py-2 text-xs font-medium uppercase tracking-wide text-app-faint md:grid">
                 <div>
                   Athlet
                 </div>
@@ -784,7 +792,7 @@ export default function CoachTrainingSessionPage() {
                 </div>
               </div>
 
-              <div className="divide-y divide-slate-800">
+              <div className="divide-y divide-app-border">
                 {athleteRows.map(
                   (athlete) => (
                     <div
@@ -794,14 +802,14 @@ export default function CoachTrainingSessionPage() {
                       className="grid gap-2.5 px-4 py-3 sm:px-5 md:grid-cols-[minmax(180px,1fr)_150px_2fr] md:items-center md:gap-4"
                     >
                       <div>
-                        <p className="text-sm font-semibold text-slate-100">
+                        <p className="text-sm font-semibold text-app-text">
                           {
                             athlete.name
                           }
                         </p>
 
                         {athlete.hasName && (
-                          <p className="mt-0.5 text-xs text-slate-600">
+                          <p className="mt-0.5 text-xs text-app-faint">
                             Athlet
                           </p>
                         )}
@@ -818,19 +826,19 @@ export default function CoachTrainingSessionPage() {
                                 }
                               </span>
 
-                              <span className="text-xs text-slate-500">
+                              <span className="text-xs text-app-faint">
                                 / 10
                               </span>
                             </div>
 
-                            <p className="text-xs text-slate-500 md:mt-0.5">
+                            <p className="text-xs text-app-faint md:mt-0.5">
                               {getRpeText(
                                 athlete.rpe
                               )}
                             </p>
                           </div>
                         ) : (
-                          <span className="inline-flex rounded-full bg-slate-800 px-2.5 py-1 text-xs text-slate-400">
+                          <span className="inline-flex rounded-full bg-app-elevated px-2.5 py-1 text-xs text-app-muted">
                             Keine Rückmeldung
                           </span>
                         )}
@@ -838,13 +846,13 @@ export default function CoachTrainingSessionPage() {
 
                       {athlete.completed ? (
                         athlete.comment ? (
-                          <p className="text-sm leading-5 text-slate-300">
+                          <p className="text-sm leading-5 text-app-text">
                             {
                               athlete.comment
                             }
                           </p>
                         ) : (
-                          <span className="text-sm text-slate-600">
+                          <span className="text-sm text-app-faint">
                             —
                           </span>
                         )

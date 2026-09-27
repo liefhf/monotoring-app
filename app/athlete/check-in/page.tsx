@@ -463,9 +463,9 @@ export default function DailyCheckInPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white">
+      <main className="bg-app-bg px-4 py-8 text-white">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-sm text-slate-400">
+          <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-sm text-app-muted">
             Check-in wird geladen...
           </div>
         </div>
@@ -475,16 +475,16 @@ export default function DailyCheckInPage() {
 
   if (success) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6">
+      <main className="bg-app-bg px-4 py-8 text-white sm:px-6">
         <div className="mx-auto max-w-xl">
-          <section className="rounded-2xl border border-emerald-900/70 bg-slate-900 p-6 text-center">
+          <section className="rounded-2xl border border-emerald-900/70 bg-app-surface p-6 text-center">
             <h1 className="text-2xl font-bold text-emerald-300">
               ✓ Check-in erledigt
             </h1>
 
             {checkInStreak !== null &&
               checkInStreak > 0 && (
-                <p className="mt-2 text-sm text-slate-400">
+                <p className="mt-2 text-sm text-app-muted">
                   {checkInStreak}{" "}
                   {checkInStreak === 1
                     ? "Tag in Folge"
@@ -494,7 +494,7 @@ export default function DailyCheckInPage() {
 
             <Link
               href="/athlete"
-              className="mt-5 block w-full rounded-xl bg-amber-400 px-5 py-3 text-center text-sm font-bold text-slate-950 transition hover:bg-amber-300"
+              className="mt-5 block w-full rounded-xl bg-amber-400 px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:bg-amber-300"
             >
               Zurück zum Dashboard
             </Link>
@@ -505,17 +505,17 @@ export default function DailyCheckInPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-5 text-white sm:px-6">
+    <main className="bg-app-bg px-4 py-5 text-white sm:px-6">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/athlete"
-          className="text-sm text-slate-400 transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-white"
         >
           ← Zurück zum Dashboard
         </Link>
 
         <header className="mt-4">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-app-faint">
             Täglicher Check-in
           </p>
 
@@ -523,7 +523,7 @@ export default function DailyCheckInPage() {
             Wie geht es dir heute?
           </h1>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-app-muted">
             Kurzer Überblick über dein aktuelles Befinden.
           </p>
         </header>
@@ -538,7 +538,7 @@ export default function DailyCheckInPage() {
                     ? "bg-emerald-500"
                     : item === step
                     ? "bg-amber-400"
-                    : "bg-slate-800"
+                    : "bg-app-elevated"
                 }`}
               />
             )
@@ -551,7 +551,7 @@ export default function DailyCheckInPage() {
           </div>
         )}
 
-        <section className="mt-4 rounded-2xl border border-slate-800 bg-slate-900 p-4 sm:p-5">
+        <section className="mt-4 rounded-2xl border border-app-border bg-app-surface p-4 sm:p-5">
           {step === 1 && (
             <>
               <QuestionHeader
@@ -642,7 +642,7 @@ export default function DailyCheckInPage() {
 
           {step === 6 && (
             <div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-app-faint">
                 Zusatzangaben
               </p>
 
@@ -650,14 +650,14 @@ export default function DailyCheckInPage() {
                 Noch etwas ergänzen?
               </h2>
 
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm text-app-muted">
                 Diese Angaben sind optional.
               </p>
 
               <div className="mt-5">
                 <label
                   htmlFor="sleep-hours"
-                  className="text-sm font-medium text-slate-300"
+                  className="text-sm font-medium text-app-text"
                 >
                   Schlafdauer
                 </label>
@@ -676,23 +676,23 @@ export default function DailyCheckInPage() {
                       )
                     }
                     placeholder="z. B. 7,5"
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition placeholder:text-slate-600 focus:border-amber-400"
+                    className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-amber-400"
                   />
 
-                  <span className="shrink-0 text-sm text-slate-500">
+                  <span className="shrink-0 text-sm text-app-faint">
                     Std.
                   </span>
                 </div>
               </div>
 
-              <div className="mt-5 rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+              <div className="mt-5 rounded-xl border border-app-border bg-app-bg/50 p-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm font-medium">
                       Beschwerden
                     </p>
 
-                    <p className="mt-0.5 text-xs text-slate-500">
+                    <p className="mt-0.5 text-xs text-app-faint">
                       Hast du aktuell Schmerzen oder Beschwerden?
                     </p>
                   </div>
@@ -708,7 +708,7 @@ export default function DailyCheckInPage() {
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
                       hasPain
                         ? "bg-red-500/15 text-red-300"
-                        : "bg-slate-800 text-slate-300"
+                        : "bg-app-elevated text-app-text"
                     }`}
                   >
                     {hasPain
@@ -721,7 +721,7 @@ export default function DailyCheckInPage() {
                   <div className="mt-4">
                     <label
                       htmlFor="pain-area"
-                      className="text-xs text-slate-500"
+                      className="text-xs text-app-faint"
                     >
                       Wo hast du Beschwerden?
                     </label>
@@ -739,7 +739,7 @@ export default function DailyCheckInPage() {
                         )
                       }
                       placeholder="z. B. Schulter"
-                      className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition placeholder:text-slate-600 focus:border-amber-400"
+                      className="mt-2 w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-amber-400"
                     />
                   </div>
                 )}
@@ -748,7 +748,7 @@ export default function DailyCheckInPage() {
               <div className="mt-5">
                 <label
                   htmlFor="comment"
-                  className="text-sm font-medium text-slate-300"
+                  className="text-sm font-medium text-app-text"
                 >
                   Kommentar
                 </label>
@@ -766,7 +766,7 @@ export default function DailyCheckInPage() {
                   maxLength={500}
                   rows={3}
                   placeholder="Optionaler Hinweis für deinen Coach..."
-                  className="mt-2 w-full resize-none rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition placeholder:text-slate-600 focus:border-amber-400"
+                  className="mt-2 w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-amber-400"
                 />
               </div>
             </div>
@@ -778,7 +778,7 @@ export default function DailyCheckInPage() {
             type="button"
             onClick={goBack}
             disabled={step === 1}
-            className="min-h-12 rounded-xl border border-slate-700 px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
+            className="min-h-12 rounded-xl border border-app-border px-4 py-3 text-sm font-semibold text-app-text transition hover:bg-app-surface disabled:cursor-not-allowed disabled:opacity-30"
           >
             Zurück
           </button>
@@ -787,7 +787,7 @@ export default function DailyCheckInPage() {
             <button
               type="button"
               onClick={goNext}
-              className="min-h-12 rounded-xl bg-amber-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-amber-300"
+              className="min-h-12 rounded-xl bg-amber-400 px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-amber-300"
             >
               Weiter →
             </button>
@@ -798,7 +798,7 @@ export default function DailyCheckInPage() {
                 submitCheckIn
               }
               disabled={saving}
-              className="min-h-12 rounded-xl bg-amber-400 px-4 py-3 text-sm font-bold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-12 rounded-xl bg-amber-400 px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Speichert..."
@@ -824,7 +824,7 @@ function QuestionHeader({
 }) {
   return (
     <div>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-app-faint">
         {eyebrow}
       </p>
 
@@ -832,7 +832,7 @@ function QuestionHeader({
         {title}
       </h2>
 
-      <div className="mt-2 flex justify-between text-[11px] text-slate-600">
+      <div className="mt-2 flex justify-between text-[11px] text-app-faint">
         <span>
           1 · {leftLabel}
         </span>
@@ -874,7 +874,7 @@ function ScaleGrid({
               className={`flex min-h-12 items-center justify-center rounded-xl border text-sm font-semibold transition ${
                 active
                   ? "border-amber-400 bg-amber-400/10 text-amber-300"
-                  : "border-slate-700 bg-slate-950 text-slate-400 hover:border-slate-500 hover:text-white"
+                  : "border-app-border bg-app-bg text-app-muted hover:border-app-border hover:text-white"
               }`}
             >
               {option.label}

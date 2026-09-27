@@ -246,14 +246,14 @@ export default function CompetitionImportPreview({
   }
 
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+    <section className="rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-white">
             Ausschreibung auslesen
           </h2>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-app-muted">
             WKs und Abschnitte automatisch erkennen.
           </p>
         </div>
@@ -297,7 +297,7 @@ export default function CompetitionImportPreview({
               WKs erkannt
             </p>
 
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-app-muted">
               {
                 parsed.sections
                   .length
@@ -312,9 +312,9 @@ export default function CompetitionImportPreview({
                 key={
                   section.sectionNumber
                 }
-                className="overflow-hidden rounded-xl border border-slate-800"
+                className="overflow-hidden rounded-xl border border-app-border"
               >
-                <div className="bg-slate-950/70 px-4 py-3">
+                <div className="bg-app-bg/70 px-4 py-3">
                   <h3 className="font-semibold text-white">
                     {
                       section.sectionNumber
@@ -323,14 +323,14 @@ export default function CompetitionImportPreview({
                   </h3>
 
                   {section.sectionDate && (
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-app-faint">
                       {formatDate(
                         section.sectionDate
                       )}
                     </p>
                   )}
 
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-app-faint">
                     {section.admissionTime && (
                       <span>
                         Einlass /
@@ -364,7 +364,7 @@ export default function CompetitionImportPreview({
                   </div>
 
                   {section.notes && (
-                    <p className="mt-2 text-xs text-slate-500">
+                    <p className="mt-2 text-xs text-app-faint">
                       {
                         section.notes
                       }
@@ -374,11 +374,11 @@ export default function CompetitionImportPreview({
 
                 {section.events.length ===
                 0 ? (
-                  <div className="px-4 py-4 text-sm text-slate-500">
+                  <div className="px-4 py-4 text-sm text-app-faint">
                     Keine WKs erkannt.
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-800">
+                  <div className="divide-y divide-app-border">
                     {section.events.map(
                       (event) => {
                         const round =
@@ -413,7 +413,7 @@ export default function CompetitionImportPreview({
                                     : ""}
                                 </p>
 
-                                <p className="mt-1 text-sm text-slate-400">
+                                <p className="mt-1 text-sm text-app-muted">
                                   {getGenderLabel(
                                     event.gender
                                   )}

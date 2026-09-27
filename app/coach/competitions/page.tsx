@@ -200,13 +200,13 @@ export default function CompetitionsPage() {
       )}
 
       {loading ? (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 text-sm text-slate-400">
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5 text-sm text-app-muted">
           Wettkämpfe werden geladen...
         </div>
       ) : competitions.length ===
         0 ? (
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6">
-          <p className="text-slate-400">
+        <div className="rounded-2xl border border-app-border bg-app-surface p-6">
+          <p className="text-app-muted">
             Noch keine Wettkämpfe
             angelegt.
           </p>
@@ -220,7 +220,7 @@ export default function CompetitionsPage() {
                   competition.id
                 }
                 href={`/coach/competitions/${competition.id}`}
-                className="group block rounded-2xl border border-slate-800 bg-slate-900 p-5 transition hover:border-slate-700 hover:bg-slate-900/80"
+                className="group block rounded-2xl border border-app-border bg-app-surface p-5 transition hover:border-app-border hover:bg-app-surface/80"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
@@ -230,7 +230,7 @@ export default function CompetitionsPage() {
                       }
                     </h2>
 
-                    <div className="mt-3 space-y-1 text-sm text-slate-400">
+                    <div className="mt-3 space-y-1 text-sm text-app-muted">
                       <p>
                         {formatCompetitionDate(
                           competition.start_date,
@@ -257,7 +257,7 @@ export default function CompetitionsPage() {
                       )}
                     </span>
 
-                    <span className="text-slate-500 transition group-hover:text-sky-300">
+                    <span className="text-app-faint transition group-hover:text-sky-300">
                       →
                     </span>
                   </div>

@@ -130,8 +130,8 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center">
+    <main className="flex min-h-screen items-center justify-center bg-app-bg px-6 text-app-text">
+      <div className="w-full max-w-md rounded-2xl border border-app-border bg-app-surface p-8 text-center">
         <h1 className="text-2xl font-bold">
           Monitoring App
         </h1>
@@ -144,13 +144,13 @@ export default function AuthCallbackPage() {
 
             <Link
               href="/login"
-              className="mt-6 inline-block rounded-xl bg-white px-5 py-3 font-medium text-slate-950 transition hover:bg-slate-200"
+              className="mt-6 inline-block rounded-xl bg-app-accent px-5 py-3 font-medium text-app-accent-ink transition hover:brightness-110"
             >
               Zurück zur Anmeldung
             </Link>
           </>
         ) : (
-          <p className="mt-4 text-sm text-slate-400">
+          <p className="mt-4 text-sm text-app-muted">
             Anmeldung wird abgeschlossen...
           </p>
         )}

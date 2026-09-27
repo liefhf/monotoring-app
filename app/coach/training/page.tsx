@@ -308,163 +308,124 @@ export default function TrainingPage() {
   ) {
     return new Date(
       `${date}T12:00:00`
-    ).toLocaleDateString("de-DE");
-  }
-
-  function getTrainingStatus(
-    training: TrainingSession
-  ) {
-    if (
-      training.session_date === today
-    ) {
-      return {
-        label: "Heute",
-        className:
-          "bg-blue-950 text-blue-300",
-      };
-    }
-
-    return {
-      label: "Geplant",
-      className:
-        "bg-slate-800 text-slate-300",
-    };
+    ).toLocaleDateString("de-DE", {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit",
+    });
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="mx-auto max-w-[1300px] px-4 py-6 sm:px-6 lg:px-8">
-        {/* KOPFBEREICH */}
-
-        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <main>
+      <div className="mx-auto w-full max-w-[1500px]">
+        {/* Kopf */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-400">
-              Coach Bereich
-            </p>
-
-            <h1 className="mt-1 text-3xl font-bold tracking-tight">
+            <h1 className="text-2xl font-semibold text-white">
               Training
             </h1>
 
-            <p className="mt-1.5 text-sm text-slate-400 sm:text-base">
-              Plane und verwalte die Trainingseinheiten deiner Teams.
+            <p className="mt-0.5 text-sm text-app-muted">
+              Einheiten deiner Teams
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
             <Link
               href="/coach/training/season"
-              className="rounded-xl border border-slate-700 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800"
+              className="rounded-lg border border-app-border px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-white"
             >
               Jahresplanung
             </Link>
 
             <Link
               href="/coach/training/new"
-              className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+              className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
             >
-              Training erstellen
+              + Training erstellen
             </Link>
           </div>
-        </header>
+        </div>
 
         {message && (
-          <div className="mt-5 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+          <div className="mt-5 rounded-lg border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-bad">
             {message}
           </div>
         )}
 
-        {/* KENNZAHLEN */}
-
-        <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3.5">
-            <p className="text-xs font-medium text-slate-400">
+        {/* Kennzahlen */}
+        <section className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-app-border bg-app-border lg:grid-cols-4">
+          <div className="bg-app-surface px-4 py-3.5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
               Heute
             </p>
 
-            <div className="mt-1.5 flex items-end justify-between gap-3">
-              <p className="text-2xl font-bold">
-                {todayTrainings.length}
-              </p>
+            <p className="mt-1.5 text-2xl font-semibold text-white">
+              {todayTrainings.length}
+            </p>
 
-              <p className="pb-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-xs">
-                Geplante Einheiten
-              </p>
-            </div>
+            <p className="mt-0.5 text-xs text-app-faint">
+              Geplante Einheiten
+            </p>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3.5">
-            <p className="text-xs font-medium text-slate-400">
+          <div className="bg-app-surface px-4 py-3.5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
               Diese Woche
             </p>
 
-            <div className="mt-1.5 flex items-end justify-between gap-3">
-              <p className="text-2xl font-bold">
-                {weekTrainings.length}
-              </p>
-
-              <p className="pb-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-xs">
-                Einheiten
-              </p>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3.5">
-            <p className="text-xs font-medium text-slate-400">
-              Wassertraining
+            <p className="mt-1.5 text-2xl font-semibold text-white">
+              {weekTrainings.length}
             </p>
 
-            <div className="mt-1.5 flex items-end justify-between gap-3">
-              <p className="text-2xl font-bold">
-                {waterTrainings.length}
-              </p>
-
-              <p className="pb-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-xs">
-                Diese Woche
-              </p>
-            </div>
+            <p className="mt-0.5 text-xs text-app-faint">
+              Einheiten gesamt
+            </p>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3.5">
-            <p className="text-xs font-medium text-slate-400">
-              Landtraining
+          <div className="bg-app-surface px-4 py-3.5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+              Wasser
             </p>
 
-            <div className="mt-1.5 flex items-end justify-between gap-3">
-              <p className="text-2xl font-bold">
-                {landTrainings.length}
-              </p>
+            <p className="mt-1.5 text-2xl font-semibold text-app-accent">
+              {waterTrainings.length}
+            </p>
 
-              <p className="pb-0.5 text-right text-[11px] leading-4 text-slate-500 sm:text-xs">
-                Diese Woche
-              </p>
-            </div>
+            <p className="mt-0.5 text-xs text-app-faint">
+              Diese Woche
+            </p>
+          </div>
+
+          <div className="bg-app-surface px-4 py-3.5">
+            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+              Land
+            </p>
+
+            <p className="mt-1.5 text-2xl font-semibold text-app-good">
+              {landTrainings.length}
+            </p>
+
+            <p className="mt-0.5 text-xs text-app-faint">
+              Diese Woche
+            </p>
           </div>
         </section>
 
-        {/* KOMMENDE TRAININGSEINHEITEN */}
+        {/* Kommende Einheiten */}
+        <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
+          <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3 md:flex-row md:items-center md:justify-between">
+            <h2 className="text-sm font-semibold text-white">
+              Kommende Einheiten
+            </h2>
 
-        <section className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-          <div className="flex flex-col gap-3 border-b border-slate-800 px-4 py-4 sm:px-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">
-                Kommende Trainingseinheiten
-              </h2>
-
-              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                Deine geplanten Trainingseinheiten im Überblick.
-              </p>
-            </div>
-
-            <div className="grid w-full gap-2 sm:grid-cols-2 md:w-auto">
+            <div className="flex flex-wrap gap-2">
               <select
                 value={selectedTeam}
                 onChange={(event) =>
-                  setSelectedTeam(
-                    event.target.value
-                  )
+                  setSelectedTeam(event.target.value)
                 }
-                className="min-w-0 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none transition focus:border-slate-500"
+                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-white outline-none transition focus:border-app-accent"
               >
                 <option value="all">
                   Alle Teams
@@ -484,14 +445,13 @@ export default function TrainingPage() {
                 value={selectedType}
                 onChange={(event) =>
                   setSelectedType(
-                    event.target
-                      .value as TypeFilter
+                    event.target.value as TypeFilter
                   )
                 }
-                className="min-w-0 rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white outline-none transition focus:border-slate-500"
+                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-white outline-none transition focus:border-app-accent"
               >
                 <option value="all">
-                  Alle Trainingsarten
+                  Alle Arten
                 </option>
 
                 <option value="water">
@@ -506,257 +466,237 @@ export default function TrainingPage() {
           </div>
 
           {loading ? (
-            <div className="p-7 text-center text-sm text-slate-400">
+            <div className="px-4 py-10 text-center text-sm text-app-muted">
               Trainings werden geladen...
             </div>
-          ) : filteredTrainings.length ===
-            0 ? (
-            <div className="p-7 text-center">
-              <p className="text-sm text-slate-500">
-                Keine kommenden Trainingseinheiten gefunden.
+          ) : filteredTrainings.length === 0 ? (
+            <div className="px-4 py-10 text-center">
+              <p className="text-sm text-app-faint">
+                Keine kommenden Einheiten gefunden.
               </p>
 
               <Link
                 href="/coach/training/new"
-                className="mt-4 inline-block rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-950 transition hover:bg-slate-200"
+                className="mt-4 inline-block rounded-lg bg-app-accent px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Erstes Training erstellen
               </Link>
             </div>
           ) : (
-            <div className="grid gap-3 p-4 sm:p-5 md:grid-cols-2 xl:grid-cols-3">
-              {filteredTrainings.map(
-                (training) => {
-                  const status =
-                    getTrainingStatus(
-                      training
-                    );
+            /*
+              Dichte Liste statt grosser Karten: beim Planen
+              vergleicht man Einheiten, statt eine zu lesen.
+            */
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[860px] text-left">
+                <thead>
+                  <tr className="border-b border-app-border text-[11px] uppercase tracking-wider text-app-faint">
+                    <th className="px-4 py-2.5 font-medium">
+                      Datum
+                    </th>
 
-                  const teamName =
-                    getTeamName(
-                      training.team_id
-                    );
+                    <th className="px-4 py-2.5 font-medium">
+                      Zeit
+                    </th>
 
-                  const trainingType =
-                    training.training_type ===
-                    "water"
-                      ? "Wasser"
-                      : "Land";
+                    <th className="px-4 py-2.5 font-medium">
+                      Einheit
+                    </th>
 
-                  return (
-                    <article
-                      key={training.id}
-                      className="flex h-full flex-col rounded-xl border border-slate-800 bg-slate-950 p-4"
-                    >
-                      {/* DATUM + STATUS */}
+                    <th className="px-4 py-2.5 font-medium">
+                      Team
+                    </th>
 
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-xs text-slate-400">
-                          {formatDate(
-                            training.session_date
-                          )}{" "}
-                          ·{" "}
-                          {training.start_time
-                            ? training.start_time.slice(
-                                0,
-                                5
-                              )
-                            : "—"}{" "}
-                          Uhr
-                        </p>
+                    <th className="px-4 py-2.5 font-medium">
+                      Art
+                    </th>
 
-                        <span
-                          className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${status.className}`}
+                    <th className="px-4 py-2.5 text-right font-medium">
+                      Dauer
+                    </th>
+
+                    <th className="px-4 py-2.5 text-right font-medium">
+                      Umfang
+                    </th>
+
+                    <th className="px-4 py-2.5 text-right font-medium">
+                      Bearbeiten
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody className="divide-y divide-app-border">
+                  {filteredTrainings.map(
+                    (training) => {
+                      const isToday =
+                        training.session_date === today;
+
+                      return (
+                        <tr
+                          key={training.id}
+                          className="transition hover:bg-app-elevated/40"
                         >
-                          {
-                            status.label
-                          }
-                        </span>
-                      </div>
+                          <td className="px-4 py-2.5">
+                            <Link
+                              href={`/coach/training/session/${training.id}`}
+                              className={`text-sm font-medium ${
+                                isToday
+                                  ? "text-app-accent"
+                                  : "text-app-text"
+                              }`}
+                            >
+                              {isToday
+                                ? "Heute"
+                                : formatDate(
+                                    training.session_date
+                                  )}
+                            </Link>
+                          </td>
 
-                      {/* TITEL */}
+                          <td className="px-4 py-2.5 text-sm text-app-text">
+                            {training.start_time
+                              ? training.start_time.slice(0, 5)
+                              : "—"}
+                          </td>
 
-                      <div className="mt-3">
-                        <h3 className="text-base font-semibold leading-6 text-white">
-                          {
-                            training.title
-                          }
-                        </h3>
+                          <td className="px-4 py-2.5">
+                            <Link
+                              href={`/coach/training/session/${training.id}`}
+                              className="block max-w-[26rem] truncate text-sm font-medium text-white hover:underline"
+                            >
+                              {training.title}
+                            </Link>
 
-                        {training.focus && (
-                          <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
-                            {
-                              training.focus
-                            }
-                          </p>
-                        )}
-                      </div>
+                            {training.focus && (
+                              <span className="mt-0.5 block max-w-[26rem] truncate text-xs text-app-faint">
+                                {training.focus}
+                              </span>
+                            )}
+                          </td>
 
-                      {/* INFORMATIONEN */}
+                          <td className="px-4 py-2.5 text-sm text-app-muted">
+                            {getTeamName(training.team_id)}
+                          </td>
 
-                      <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3 border-y border-slate-800 py-3 sm:grid-cols-4 xl:grid-cols-2 2xl:grid-cols-4">
-                        <div className="min-w-0">
-                          <p className="text-[11px] text-slate-600">
-                            Team
-                          </p>
+                          <td className="px-4 py-2.5">
+                            <span
+                              className={`rounded px-2 py-0.5 text-[11px] font-medium ${
+                                training.training_type === "water"
+                                  ? "bg-app-accent/15 text-app-accent"
+                                  : "bg-app-good/15 text-app-good"
+                              }`}
+                            >
+                              {training.training_type === "water"
+                                ? "Wasser"
+                                : "Land"}
+                            </span>
+                          </td>
 
-                          <p className="mt-0.5 truncate text-sm font-medium text-slate-200">
-                            {teamName}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Dauer
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-medium text-slate-200">
-                            {training.duration_minutes !==
-                            null
+                          <td className="px-4 py-2.5 text-right text-sm text-app-text">
+                            {training.duration_minutes !== null
                               ? `${training.duration_minutes} min`
                               : "—"}
-                          </p>
-                        </div>
+                          </td>
 
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Art
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-medium text-slate-200">
-                            {trainingType}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Umfang
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-medium text-slate-200">
-                            {training.training_type ===
-                              "water" &&
-                            training.total_meters !==
-                              null
+                          <td className="px-4 py-2.5 text-right text-sm text-app-text">
+                            {training.training_type === "water" &&
+                            training.total_meters !== null
                               ? `${training.total_meters.toLocaleString(
                                   "de-DE"
                                 )} m`
-                              : training.training_type ===
-                                "land"
-                              ? "Land"
                               : "—"}
-                          </p>
-                        </div>
-                      </div>
+                          </td>
 
-                      {/* AKTIONEN */}
-
-                      <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
-                        <Link
-                          href={`/coach/training/session/${training.id}`}
-                          className="rounded-lg bg-slate-100 px-3 py-2 text-center text-sm font-semibold text-slate-950 transition hover:bg-white"
-                        >
-                          Öffnen
-                        </Link>
-
-                        <Link
-                          href={`/coach/training/new?session=${training.id}`}
-                          className="rounded-lg border border-slate-700 px-3 py-2 text-center text-sm text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                        >
-                          Bearbeiten
-                        </Link>
-                      </div>
-                    </article>
-                  );
-                }
-              )}
+                          <td className="px-4 py-2.5 text-right">
+                            <Link
+                              href={`/coach/training/new?session=${training.id}`}
+                              className="text-xs text-app-muted transition hover:text-white"
+                            >
+                              Bearbeiten
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    }
+                  )}
+                </tbody>
+              </table>
             </div>
           )}
         </section>
 
-        {/* TRAININGSPLANUNG */}
-
-        <section className="mt-4">
-          <div className="mb-3">
-            <h2 className="text-lg font-semibold">
-              Trainingsplanung
+        {/* Planungsbereiche */}
+        <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
+          <div className="border-b border-app-border px-4 py-3">
+            <h2 className="text-sm font-semibold text-white">
+              Planung
             </h2>
-
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-              Direkter Zugriff auf deine Planungsbereiche.
-            </p>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-3">
-            <Link
-              href="/coach/training/season"
-              className="group rounded-xl border border-slate-800 bg-slate-900 px-4 py-3.5 transition hover:border-slate-600 hover:bg-slate-900/80"
-            >
-              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-600">
-                Saison
-              </p>
+          <ul className="divide-y divide-app-border">
+            <li>
+              <Link
+                href="/coach/training/season"
+                className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-white">
+                    Jahresplanung
+                  </span>
 
-              <div className="mt-1 flex items-center justify-between gap-3">
-                <p className="font-semibold text-white">
-                  Jahresplanung
-                </p>
+                  <span className="mt-0.5 block text-xs text-app-faint">
+                    Makrozyklen, Mesozyklen und Saisontermine
+                  </span>
+                </span>
 
-                <span className="text-sm text-slate-600 transition group-hover:text-slate-400">
+                <span className="shrink-0 text-app-muted">
                   →
                 </span>
-              </div>
+              </Link>
+            </li>
 
-              <p className="mt-1.5 text-xs leading-5 text-slate-500">
-                Makrozyklen, Mesozyklen und Saisontermine.
-              </p>
-            </Link>
+            <li>
+              <Link
+                href="/coach/training/week/1"
+                className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-white">
+                    Wochenplanung
+                  </span>
 
-            <Link
-              href="/coach/training/week/1"
-              className="group rounded-xl border border-slate-800 bg-slate-900 px-4 py-3.5 transition hover:border-slate-600 hover:bg-slate-900/80"
-            >
-              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-600">
-                Mikrozyklus
-              </p>
+                  <span className="mt-0.5 block text-xs text-app-faint">
+                    Montag bis Sonntag mit allen Einheiten
+                  </span>
+                </span>
 
-              <div className="mt-1 flex items-center justify-between gap-3">
-                <p className="font-semibold text-white">
-                  Wochenplanung
-                </p>
-
-                <span className="text-sm text-slate-600 transition group-hover:text-slate-400">
+                <span className="shrink-0 text-app-muted">
                   →
                 </span>
-              </div>
+              </Link>
+            </li>
 
-              <p className="mt-1.5 text-xs leading-5 text-slate-500">
-                Montag bis Sonntag mit allen Einheiten.
-              </p>
-            </Link>
+            <li>
+              <Link
+                href="/coach/training/new"
+                className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-medium text-white">
+                    Training schreiben
+                  </span>
 
-            <Link
-              href="/coach/training/new"
-              className="group rounded-xl border border-slate-800 bg-slate-900 px-4 py-3.5 transition hover:border-slate-600 hover:bg-slate-900/80"
-            >
-              <p className="text-[11px] font-medium uppercase tracking-wide text-slate-600">
-                Einzeltraining
-              </p>
+                  <span className="mt-0.5 block text-xs text-app-faint">
+                    Wasser- oder Landtraining erstellen
+                  </span>
+                </span>
 
-              <div className="mt-1 flex items-center justify-between gap-3">
-                <p className="font-semibold text-white">
-                  Training schreiben
-                </p>
-
-                <span className="text-sm text-slate-600 transition group-hover:text-slate-400">
+                <span className="shrink-0 text-app-muted">
                   →
                 </span>
-              </div>
-
-              <p className="mt-1.5 text-xs leading-5 text-slate-500">
-                Wasser- oder Landtraining erstellen.
-              </p>
-            </Link>
-          </div>
+              </Link>
+            </li>
+          </ul>
         </section>
       </div>
     </main>

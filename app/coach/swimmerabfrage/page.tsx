@@ -101,10 +101,10 @@ export default function SchwimmerabfragePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-white">
+    <main>
       <div className="mx-auto max-w-5xl">
         <header>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-app-muted">
             Coach Bereich
           </p>
 
@@ -119,15 +119,15 @@ export default function SchwimmerabfragePage() {
           </div>
         )}
 
-        <section className="mt-8 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-          <div className="border-b border-slate-800 px-6 py-4">
+        <section className="mt-8 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+          <div className="border-b border-app-border px-6 py-4">
             <h2 className="text-lg font-semibold">
               Mannschaften
             </h2>
           </div>
 
           {loading ? (
-            <div className="p-8 text-center text-slate-400">
+            <div className="p-8 text-center text-app-muted">
               Teams werden geladen...
             </div>
           ) : teams.length === 0 ? (
@@ -136,13 +136,13 @@ export default function SchwimmerabfragePage() {
                 Noch keine Teams vorhanden.
               </p>
 
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-app-muted">
                 Lege zuerst im Coach-Bereich ein Team an.
               </p>
             </div>
           ) : (
             <div className="px-6 py-4">
-              <div className="grid grid-cols-[1fr_140px] border-b border-slate-700 pb-3 text-sm font-semibold text-slate-300">
+              <div className="grid grid-cols-[1fr_140px] border-b border-app-border pb-3 text-sm font-semibold text-app-text">
                 <div>
                   Mannschaft
                 </div>
@@ -157,13 +157,13 @@ export default function SchwimmerabfragePage() {
                   <Link
                     key={team.id}
                     href={`/coach/swimmerabfrage/${team.id}`}
-                    className="grid grid-cols-[1fr_140px] items-center border-b border-slate-800 py-3 transition last:border-b-0 hover:bg-slate-800/60"
+                    className="grid grid-cols-[1fr_140px] items-center border-b border-app-border py-3 transition last:border-b-0 hover:bg-app-elevated/60"
                   >
-                    <div className="font-medium text-blue-400 hover:text-blue-300">
+                    <div className="font-medium text-sky-400 hover:text-sky-300">
                       {team.name}
                     </div>
 
-                    <div className="text-slate-300">
+                    <div className="text-app-text">
                       {team.athleteCount}
                     </div>
                   </Link>
@@ -176,7 +176,7 @@ export default function SchwimmerabfragePage() {
         <div className="mt-8">
           <Link
             href="/coach"
-            className="inline-block rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="inline-block rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Zurück zum Coach-Bereich
           </Link>

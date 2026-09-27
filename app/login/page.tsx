@@ -117,14 +117,14 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-6 text-white">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900 p-8">
+    <main className="flex min-h-screen items-center justify-center bg-app-bg px-6 text-white">
+      <div className="w-full max-w-md rounded-2xl border border-app-border bg-app-surface p-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold">
             Monitoring App
           </h1>
 
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 text-sm text-app-muted">
             Melde dich mit deinem Benutzerkonto an.
           </p>
         </div>
@@ -134,7 +134,7 @@ export default function LoginPage() {
           className="space-y-5"
         >
           <div>
-            <label className="mb-2 block text-sm text-slate-400">
+            <label className="mb-2 block text-sm text-app-muted">
               E-Mail
             </label>
 
@@ -146,12 +146,12 @@ export default function LoginPage() {
               }
               required
               placeholder="name@beispiel.de"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-slate-500"
+              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none focus:border-app-accent"
             />
           </div>
 
           <div>
-            <label className="mb-2 block text-sm text-slate-400">
+            <label className="mb-2 block text-sm text-app-muted">
               Passwort
             </label>
 
@@ -162,7 +162,7 @@ export default function LoginPage() {
                 setPassword(event.target.value)
               }
               placeholder="Dein Passwort"
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none focus:border-slate-500"
+              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none focus:border-app-accent"
             />
           </div>
 
@@ -181,7 +181,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading || !password}
-            className="w-full rounded-xl bg-white px-4 py-3 font-medium text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl bg-app-accent px-4 py-3 font-medium text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading
               ? "Anmeldung läuft..."
@@ -190,28 +190,28 @@ export default function LoginPage() {
         </form>
 
         <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-slate-800" />
+          <div className="h-px flex-1 bg-app-elevated" />
 
-          <span className="text-xs text-slate-500">
+          <span className="text-xs text-app-faint">
             oder
           </span>
 
-          <div className="h-px flex-1 bg-slate-800" />
+          <div className="h-px flex-1 bg-app-elevated" />
         </div>
 
         <button
           type="button"
           onClick={handleMagicLink}
           disabled={magicLinkLoading}
-          className="w-full rounded-xl border border-slate-700 px-4 py-3 font-medium transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-xl border border-app-border px-4 py-3 font-medium transition hover:bg-app-elevated disabled:cursor-not-allowed disabled:opacity-50"
         >
           {magicLinkLoading
             ? "Magic Link wird gesendet..."
             : "Magic Link per E-Mail senden"}
         </button>
 
-        <div className="mt-6 border-t border-slate-800 pt-5">
-          <p className="text-center text-xs leading-5 text-slate-500">
+        <div className="mt-6 border-t border-app-border pt-5">
+          <p className="text-center text-xs leading-5 text-app-faint">
             Nach der Anmeldung wirst du automatisch in deinen
             Coach- oder Athlete-Bereich weitergeleitet.
           </p>

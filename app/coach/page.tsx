@@ -102,37 +102,6 @@ export default function CoachPage() {
   const [message, setMessage] =
     useState("");
 
-  const navigation = [
-    {
-      name: "Dashboard",
-      href: "/coach",
-    },
-    {
-      name: "Teams",
-      href: "/coach/teams",
-    },
-    {
-      name: "Athleten",
-      href: "/coach/athletes",
-    },
-    {
-      name: "Schwimmerabfrage",
-      href: "/coach/swimmerabfrage",
-    },
-    {
-      name: "Training",
-      href: "/coach/training",
-    },
-    {
-      name: "Auswertungen",
-      href: "/coach/analytics",
-    },
-    {
-      name: "Einstellungen",
-      href: "/coach/settings",
-    },
-  ];
-
   useEffect(() => {
     loadDashboard();
   }, []);
@@ -434,27 +403,28 @@ export default function CoachPage() {
     return "Auffällig";
   }
 
-  function getStatusStyle(
+  /*
+   * Farbe steht hier fuer einen Zustand, nicht fuer Deko.
+   * Die Farbwerte selbst stehen in app/globals.css.
+   */
+  function statusText(
     status: DashboardAthlete["status"]
   ) {
-    if (status === "Gut") {
-      return "bg-emerald-950 text-emerald-300";
-    }
-
-    if (
-      status === "Beobachten"
-    ) {
-      return "bg-amber-950 text-amber-300";
-    }
-
-    if (
-      status === "Auffällig"
-    ) {
-      return "bg-red-950 text-red-300";
-    }
-
-    return "bg-slate-800 text-slate-300";
+    if (status === "Gut") return "text-app-good";
+    if (status === "Beobachten") return "text-app-warn";
+    if (status === "Auffällig") return "text-app-bad";
+    return "text-app-faint";
   }
+
+  function statusBar(
+    status: DashboardAthlete["status"]
+  ) {
+    if (status === "Gut") return "bg-app-good";
+    if (status === "Beobachten") return "bg-app-warn";
+    if (status === "Auffällig") return "bg-app-bad";
+    return "bg-app-elevated";
+  }
+
 
   function getTeamName(
     teamId: string
@@ -736,448 +706,382 @@ export default function CoachPage() {
       6
     );
 
+  const todayLabel =
+    new Date().toLocaleDateString(
+      "de-DE",
+      {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+      }
+    );
+
+  function formatScore(value: number) {
+    return value
+      .toFixed(1)
+      .replace(".", ",");
+  }
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex lg:flex-col">
-          <div className="border-b border-slate-800 px-6 py-6">
-            <h2 className="text-xl font-bold">
-              Monitoring App
-            </h2>
+    <div className="mx-auto w-full max-w-[1600px]">
+      {/* Kopf */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">
+            Dashboard
+          </h1>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Coach Bereich
-            </p>
-          </div>
+          <p className="mt-0.5 text-sm text-app-muted">
+            {todayLabel}
+          </p>
+        </div>
 
-          <nav className="flex-1 space-y-2 p-4">
-            {navigation.map(
-              (item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`block rounded-xl px-4 py-3 text-sm transition ${
-                    item.name ===
-                    "Dashboard"
-                      ? "bg-white font-medium text-slate-950"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              )
-            )}
-          </nav>
-        </aside>
+        <Link
+          href="/coach/training/new"
+          className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+        >
+          + Training erstellen
+        </Link>
+      </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1600px] px-6 py-8">
-            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-sm text-slate-400">
-                  Coach Bereich
-                </p>
+      {message && (
+        <div className="mt-5 rounded-lg border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-bad">
+          {message}
+        </div>
+      )}
 
-                <h1 className="mt-1 text-3xl font-bold">
-                  Dashboard
-                </h1>
+      {loading ? (
+        <div className="mt-6 rounded-xl border border-app-border bg-app-surface p-8 text-center text-sm text-app-muted">
+          Dashboard wird geladen...
+        </div>
+      ) : (
+        <>
+          {/*
+            Kennzahlen: eine Flaeche mit Haarlinien statt
+            vier einzelner Karten - liest sich als ein Objekt.
+          */}
+          <section className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-app-border bg-app-border sm:grid-cols-4">
+            <div className="bg-app-surface px-4 py-3.5">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+                Befinden heute
+              </p>
 
-                <p className="mt-2 text-slate-400">
-                  Überblick über Athleten, Teams, Befinden und Training.
-                </p>
-              </div>
+              <p className="mt-1.5 text-2xl font-semibold text-white">
+                {averageToday !== null
+                  ? formatScore(averageToday)
+                  : "—"}
+              </p>
+
+              <p className="mt-0.5 text-xs text-app-faint">
+                {todayBefinden.length} von{" "}
+                {dashboardAthletes.length} Athleten
+              </p>
+            </div>
+
+            <div className="bg-app-surface px-4 py-3.5">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+                Warnungen
+              </p>
+
+              <p
+                className={`mt-1.5 text-2xl font-semibold ${
+                  warningAthletes.length > 0
+                    ? "text-app-warn"
+                    : "text-white"
+                }`}
+              >
+                {warningAthletes.length}
+              </p>
+
+              <p className="mt-0.5 text-xs text-app-faint">
+                Athleten beobachten
+              </p>
+            </div>
+
+            <div className="bg-app-surface px-4 py-3.5">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+                Trainings heute
+              </p>
+
+              <p className="mt-1.5 text-2xl font-semibold text-white">
+                {todayTrainings.length}
+              </p>
+
+              <p className="mt-0.5 text-xs text-app-faint">
+                Geplante Einheiten
+              </p>
+            </div>
+
+            <div className="bg-app-surface px-4 py-3.5">
+              <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+                Athleten
+              </p>
+
+              <p className="mt-1.5 text-2xl font-semibold text-white">
+                {dashboardAthletes.length}
+              </p>
+
+              <p className="mt-0.5 text-xs text-app-faint">
+                In deinen Teams
+              </p>
+            </div>
+          </section>
+
+          {/* Athletenliste */}
+          <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
+            <div className="flex items-center justify-between gap-4 border-b border-app-border px-4 py-3">
+              <h2 className="text-sm font-semibold text-white">
+                Athleten im Blick
+              </h2>
 
               <Link
-                href="/coach/training/new"
-                className="rounded-xl bg-white px-5 py-3 text-center text-sm font-medium text-slate-950 transition hover:bg-slate-200"
+                href="/coach/athletes"
+                className="text-xs text-app-muted transition hover:text-white"
               >
-                + Training erstellen
+                Alle Athleten →
               </Link>
             </div>
 
-            {message && (
-              <div className="mt-6 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
-                {message}
-              </div>
-            )}
-
-            {loading ? (
-              <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-sm text-slate-400">
-                Dashboard wird geladen...
+            {visibleAthletes.length === 0 ? (
+              <div className="px-4 py-10 text-center text-sm text-app-faint">
+                Noch keine Athleten in deinen Teams.
               </div>
             ) : (
-              <>
-                <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Befinden heute
-                    </p>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] text-left">
+                  <thead>
+                    <tr className="border-b border-app-border text-[11px] uppercase tracking-wider text-app-faint">
+                      <th className="px-4 py-2.5 font-medium">
+                        Athlet
+                      </th>
 
-                    <p className="mt-2 text-3xl font-bold">
-                      {averageToday !== null
-                        ? averageToday
-                            .toFixed(1)
-                            .replace(
-                              ".",
-                              ","
-                            )
-                        : "—"}
-                    </p>
+                      <th className="px-4 py-2.5 font-medium">
+                        Team
+                      </th>
 
-                    <p className="mt-2 text-sm text-slate-500">
-                      {todayBefinden.length} von{" "}
-                      {
-                        dashboardAthletes.length
-                      }{" "}
-                      Athleten
-                    </p>
-                  </div>
+                      <th className="px-4 py-2.5 font-medium">
+                        Befinden
+                      </th>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Warnungen
-                    </p>
+                      <th className="px-4 py-2.5 font-medium">
+                        Status
+                      </th>
 
-                    <p className="mt-2 text-3xl font-bold">
-                      {
-                        warningAthletes.length
-                      }
-                    </p>
+                      <th className="px-4 py-2.5 font-medium">
+                        Letzter Eintrag
+                      </th>
+                    </tr>
+                  </thead>
 
-                    <p className="mt-2 text-sm text-slate-500">
-                      Athleten beobachten
-                    </p>
-                  </div>
+                  <tbody className="divide-y divide-app-border">
+                    {visibleAthletes.map(
+                      (athlete) => (
+                        <tr
+                          key={athlete.id}
+                          className="transition hover:bg-app-elevated/40"
+                        >
+                          <td className="px-4 py-2.5">
+                            <Link
+                              href={`/coach/athletes/${athlete.id}`}
+                              className="text-sm font-medium text-white hover:underline"
+                            >
+                              {athlete.name}
+                            </Link>
+                          </td>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Trainings heute
-                    </p>
+                          <td className="px-4 py-2.5 text-sm text-app-muted">
+                            {athlete.teamNames.length > 0
+                              ? athlete.teamNames.join(", ")
+                              : "—"}
+                          </td>
 
-                    <p className="mt-2 text-3xl font-bold">
-                      {
-                        todayTrainings.length
-                      }
-                    </p>
+                          <td className="px-4 py-2.5">
+                            {athlete.score !== null ? (
+                              <div className="flex items-center gap-2.5">
+                                <span className="w-7 text-sm font-semibold text-white">
+                                  {formatScore(athlete.score)}
+                                </span>
 
-                    <p className="mt-2 text-sm text-slate-500">
-                      Geplante Einheiten
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Athleten
-                    </p>
-
-                    <p className="mt-2 text-3xl font-bold">
-                      {
-                        dashboardAthletes.length
-                      }
-                    </p>
-
-                    <p className="mt-2 text-sm text-slate-500">
-                      In deinen Teams
-                    </p>
-                  </div>
-                </section>
-
-                <section className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="flex items-center justify-between border-b border-slate-800 p-5">
-                    <div>
-                      <h2 className="text-xl font-semibold">
-                        Athleten im Blick
-                      </h2>
-
-                      <p className="mt-1 text-sm text-slate-400">
-                        Aktueller Befinden-Status
-                      </p>
-                    </div>
-
-                    <Link
-                      href="/coach/athletes"
-                      className="text-sm text-slate-300 hover:text-white"
-                    >
-                      Alle Athleten →
-                    </Link>
-                  </div>
-
-                  {visibleAthletes.length === 0 ? (
-                    <div className="p-8 text-center text-sm text-slate-500">
-                      Noch keine Athleten in deinen Teams.
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[800px] text-left">
-                        <thead className="border-b border-slate-800 text-xs text-slate-500">
-                          <tr>
-                            <th className="px-5 py-4 font-medium">
-                              Athlet
-                            </th>
-
-                            <th className="px-5 py-4 font-medium">
-                              Team
-                            </th>
-
-                            <th className="px-5 py-4 font-medium">
-                              Befinden
-                            </th>
-
-                            <th className="px-5 py-4 font-medium">
-                              Status
-                            </th>
-
-                            <th className="px-5 py-4 font-medium">
-                              Letzter Eintrag
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody>
-                          {visibleAthletes.map(
-                            (athlete) => (
-                              <tr
-                                key={
-                                  athlete.id
-                                }
-                                className="border-b border-slate-800 last:border-b-0"
-                              >
-                                <td className="px-5 py-4">
-                                  <Link
-                                    href={`/coach/athletes/${athlete.id}`}
-                                    className="font-medium hover:underline"
-                                  >
-                                    {
-                                      athlete.name
-                                    }
-                                  </Link>
-                                </td>
-
-                                <td className="px-5 py-4 text-sm text-slate-400">
-                                  {athlete
-                                    .teamNames
-                                    .length > 0
-                                    ? athlete.teamNames.join(
-                                        ", "
-                                      )
-                                    : "—"}
-                                </td>
-
-                                <td className="px-5 py-4">
-                                  {athlete.score !== null ? (
-                                    <>
-                                      <span className="font-semibold">
-                                        {athlete.score
-                                          .toFixed(1)
-                                          .replace(
-                                            ".",
-                                            ","
-                                          )}
-                                      </span>
-
-                                      <span className="text-slate-500">
-                                        {" "}
-                                        / 10
-                                      </span>
-                                    </>
-                                  ) : (
-                                    <span className="text-slate-500">
-                                      —
-                                    </span>
-                                  )}
-                                </td>
-
-                                <td className="px-5 py-4">
+                                {/*
+                                  Balken statt nur Zahl - beim
+                                  Ueberfliegen erkennt man Ausreisser
+                                  schneller als beim Lesen.
+                                */}
+                                <span className="block h-1.5 w-16 overflow-hidden rounded-full bg-app-elevated">
                                   <span
-                                    className={`rounded-full px-3 py-1 text-xs ${getStatusStyle(
+                                    className={`block h-full rounded-full ${statusBar(
                                       athlete.status
                                     )}`}
-                                  >
-                                    {
-                                      athlete.status
-                                    }
-                                  </span>
-                                </td>
-
-                                <td className="px-5 py-4 text-sm text-slate-400">
-                                  {
-                                    athlete.lastEntry
-                                  }
-                                </td>
-                              </tr>
-                            )
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </section>
-
-                <div className="mt-6 grid gap-6 xl:grid-cols-2">
-                  <section className="rounded-2xl border border-slate-800 bg-slate-900">
-                    <div className="flex items-center justify-between border-b border-slate-800 p-5">
-                      <div>
-                        <h2 className="text-xl font-semibold">
-                          Meine Teams
-                        </h2>
-
-                        <p className="mt-1 text-sm text-slate-400">
-                          Gruppenübersicht
-                        </p>
-                      </div>
-
-                      <Link
-                        href="/coach/teams"
-                        className="text-sm text-slate-300 hover:text-white"
-                      >
-                        Alle Teams →
-                      </Link>
-                    </div>
-
-                    {dashboardTeams.length === 0 ? (
-                      <div className="p-8 text-center text-sm text-slate-500">
-                        Noch keine Teams vorhanden.
-                      </div>
-                    ) : (
-                      <div className="space-y-3 p-5">
-                        {dashboardTeams.map(
-                          (team) => (
-                            <div
-                              key={
-                                team.id
-                              }
-                              className="flex items-center justify-between gap-4 rounded-xl border border-slate-800 bg-slate-950 p-4"
-                            >
-                              <div>
-                                <p className="font-semibold">
-                                  {
-                                    team.name
-                                  }
-                                </p>
-
-                                <p className="mt-1 text-sm text-slate-500">
-                                  {
-                                    team.athleteCount
-                                  }{" "}
-                                  {team.athleteCount === 1
-                                    ? "Athlet"
-                                    : "Athleten"}
-                                </p>
+                                    style={{
+                                      width: `${Math.min(
+                                        100,
+                                        athlete.score * 10
+                                      )}%`,
+                                    }}
+                                  />
+                                </span>
                               </div>
+                            ) : (
+                              <span className="text-sm text-app-faint">
+                                —
+                              </span>
+                            )}
+                          </td>
 
-                              <div className="text-right">
-                                <p className="text-xs text-slate-500">
-                                  Nächstes Training
-                                </p>
+                          <td className="px-4 py-2.5">
+                            <span className="inline-flex items-center gap-2">
+                              <span
+                                className={`h-1.5 w-1.5 shrink-0 rounded-full ${statusBar(
+                                  athlete.status
+                                )}`}
+                              />
 
-                                <p className="mt-1 text-sm">
-                                  {
-                                    team.nextTraining
-                                  }
-                                </p>
-                              </div>
-                            </div>
-                          )
-                        )}
-                      </div>
+                              <span
+                                className={`text-sm ${statusText(
+                                  athlete.status
+                                )}`}
+                              >
+                                {athlete.status}
+                              </span>
+                            </span>
+                          </td>
+
+                          <td className="px-4 py-2.5 text-sm text-app-muted">
+                            {athlete.lastEntry}
+                          </td>
+                        </tr>
+                      )
                     )}
-                  </section>
-
-                  <section className="rounded-2xl border border-slate-800 bg-slate-900">
-                    <div className="flex items-center justify-between border-b border-slate-800 p-5">
-                      <div>
-                        <h2 className="text-xl font-semibold">
-                          Training heute
-                        </h2>
-
-                        <p className="mt-1 text-sm text-slate-400">
-                          Geplante Einheiten
-                        </p>
-                      </div>
-
-                      <Link
-                        href="/coach/training"
-                        className="text-sm text-slate-300 hover:text-white"
-                      >
-                        Trainingsplanung →
-                      </Link>
-                    </div>
-
-                    {todayTrainings.length === 0 ? (
-                      <div className="p-8 text-center text-sm text-slate-500">
-                        Für heute ist kein Training geplant.
-                      </div>
-                    ) : (
-                      <div className="space-y-3 p-5">
-                        {todayTrainings.map(
-                          (training) => (
-                            <Link
-                              key={
-                                training.id
-                              }
-                              href={`/coach/training/new?session=${training.id}`}
-                              className="block rounded-xl border border-slate-800 bg-slate-950 p-4 transition hover:border-slate-600"
-                            >
-                              <div className="flex items-start justify-between gap-4">
-                                <div>
-                                  <div className="flex flex-wrap items-center gap-2">
-                                    <span
-                                      className={`rounded-full px-2 py-1 text-[10px] font-medium ${
-                                        training.training_type === "water"
-                                          ? "bg-blue-950 text-blue-300"
-                                          : "bg-emerald-950 text-emerald-300"
-                                      }`}
-                                    >
-                                      {training.training_type === "water"
-                                        ? "Wasser"
-                                        : "Land"}
-                                    </span>
-
-                                    <span className="text-xs text-slate-500">
-                                      {training.start_time
-                                        ? training.start_time.slice(
-                                            0,
-                                            5
-                                          )
-                                        : "—"}{" "}
-                                      Uhr
-                                    </span>
-                                  </div>
-
-                                  <p className="mt-3 font-semibold">
-                                    {
-                                      training.title
-                                    }
-                                  </p>
-
-                                  <p className="mt-1 text-sm text-slate-500">
-                                    {getTeamName(
-                                      training.team_id
-                                    )}
-                                  </p>
-
-                                  {training.duration_minutes !== null && (
-                                    <p className="mt-1 text-xs text-slate-600">
-                                      {
-                                        training.duration_minutes
-                                      }{" "}
-                                      Minuten
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                            </Link>
-                          )
-                        )}
-                      </div>
-                    )}
-                  </section>
-                </div>
-              </>
+                  </tbody>
+                </table>
+              </div>
             )}
+          </section>
+
+          <div className="mt-5 grid gap-5 xl:grid-cols-2">
+            {/* Teams */}
+            <section className="overflow-hidden rounded-xl border border-app-border bg-app-surface">
+              <div className="flex items-center justify-between gap-4 border-b border-app-border px-4 py-3">
+                <h2 className="text-sm font-semibold text-white">
+                  Meine Teams
+                </h2>
+
+                <Link
+                  href="/coach/teams"
+                  className="text-xs text-app-muted transition hover:text-white"
+                >
+                  Alle Teams →
+                </Link>
+              </div>
+
+              {dashboardTeams.length === 0 ? (
+                <div className="px-4 py-10 text-center text-sm text-app-faint">
+                  Noch keine Teams vorhanden.
+                </div>
+              ) : (
+                <ul className="divide-y divide-app-border">
+                  {dashboardTeams.map(
+                    (team) => (
+                      <li
+                        key={team.id}
+                        className="flex items-center justify-between gap-4 px-4 py-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-white">
+                            {team.name}
+                          </p>
+
+                          <p className="mt-0.5 text-xs text-app-faint">
+                            {team.athleteCount}{" "}
+                            {team.athleteCount === 1
+                              ? "Athlet"
+                              : "Athleten"}
+                          </p>
+                        </div>
+
+                        <div className="shrink-0 text-right">
+                          <p className="text-[11px] uppercase tracking-wider text-app-faint">
+                            Nächstes Training
+                          </p>
+
+                          <p className="mt-0.5 text-sm text-app-text">
+                            {team.nextTraining}
+                          </p>
+                        </div>
+                      </li>
+                    )
+                  )}
+                </ul>
+              )}
+            </section>
+
+            {/* Training heute */}
+            <section className="overflow-hidden rounded-xl border border-app-border bg-app-surface">
+              <div className="flex items-center justify-between gap-4 border-b border-app-border px-4 py-3">
+                <h2 className="text-sm font-semibold text-white">
+                  Training heute
+                </h2>
+
+                <Link
+                  href="/coach/training"
+                  className="text-xs text-app-muted transition hover:text-white"
+                >
+                  Trainingsplanung →
+                </Link>
+              </div>
+
+              {todayTrainings.length === 0 ? (
+                <div className="px-4 py-10 text-center text-sm text-app-faint">
+                  Für heute ist kein Training geplant.
+                </div>
+              ) : (
+                <ul className="divide-y divide-app-border">
+                  {todayTrainings.map(
+                    (training) => (
+                      <li key={training.id}>
+                        <Link
+                          href={`/coach/training/new?session=${training.id}`}
+                          className="flex items-center gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
+                        >
+                          <span className="w-12 shrink-0 text-sm font-semibold text-white">
+                            {training.start_time
+                              ? training.start_time.slice(0, 5)
+                              : "—"}
+                          </span>
+
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm font-medium text-white">
+                              {training.title}
+                            </span>
+
+                            <span className="mt-0.5 block truncate text-xs text-app-faint">
+                              {getTeamName(training.team_id)}
+                              {training.duration_minutes !== null &&
+                                ` · ${training.duration_minutes} min`}
+                            </span>
+                          </span>
+
+                          <span
+                            className={`shrink-0 rounded px-2 py-0.5 text-[11px] font-medium ${
+                              training.training_type === "water"
+                                ? "bg-app-accent/15 text-app-accent"
+                                : "bg-app-good/15 text-app-good"
+                            }`}
+                          >
+                            {training.training_type === "water"
+                              ? "Wasser"
+                              : "Land"}
+                          </span>
+                        </Link>
+                      </li>
+                    )
+                  )}
+                </ul>
+              )}
+            </section>
           </div>
-        </div>
-      </div>
-    </main>
+        </>
+      )}
+    </div>
   );
 }

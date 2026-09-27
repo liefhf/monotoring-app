@@ -1,26 +1,77 @@
 @import "tailwindcss";
 
+/*
+ * Gestaltung der App an einer Stelle.
+ *
+ * Wer hier eine Farbe aendert, aendert sie ueberall.
+ * Bitte in den Seiten keine rohen Farbklassen wie
+ * bg-slate-900 mehr verwenden, sondern die Klassen
+ * aus diesem System: bg-app-surface, text-app-muted
+ * und so weiter.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Flaechen */
+  --app-bg: #020617;        /* Seitengrund                      */
+  --app-surface: #0f172a;   /* Karten, Leisten, Tabellen        */
+  --app-elevated: #1e293b;  /* Hover, hervorgehobene Zeilen     */
+  --app-border: #334155;    /* Kanten                           */
+
+  /* Schrift */
+  --app-heading: #ffffff;   /* Ueberschriften und Werte         */
+  --app-text: #e2e8f0;      /* Fliesstext                       */
+  --app-muted: #94a3b8;     /* Nebensaechliches                 */
+  --app-faint: #64748b;     /* Beschriftungen, Platzhalter      */
+
+  /* Akzent - nur fuer die wichtigste Aktion und den
+     aktiven Menuepunkt. Nie fuer Zustaende. */
+  --app-accent: #38bdf8;
+  --app-accent-ink: #04202e; /* Schrift auf Akzentflaechen      */
+
+  /* Signalfarben - stehen fuer einen Zustand, nie fuer Deko. */
+  --app-good: #34d399;
+  --app-warn: #fbbf24;
+  --app-bad: #f87171;
+
+  /* Landtraining. Frueher gruen - das kollidierte mit
+     "Befinden gut". */
+  --app-sand: #e0b263;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-app-bg: var(--app-bg);
+  --color-app-surface: var(--app-surface);
+  --color-app-elevated: var(--app-elevated);
+  --color-app-border: var(--app-border);
+  --color-app-heading: var(--app-heading);
+  --color-app-text: var(--app-text);
+  --color-app-muted: var(--app-muted);
+  --color-app-faint: var(--app-faint);
+  --color-app-accent: var(--app-accent);
+  --color-app-accent-ink: var(--app-accent-ink);
+  --color-app-good: var(--app-good);
+  --color-app-warn: var(--app-warn);
+  --color-app-bad: var(--app-bad);
+  --color-app-sand: var(--app-sand);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--app-bg);
+  color: var(--app-text);
+
+  /*
+   * Vorher stand hier Arial. Dadurch wurde die in
+   * app/layout.tsx geladene Schrift Geist nie benutzt.
+   */
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui,
+    "Segoe UI", Roboto, sans-serif;
+
+  /*
+   * Ziffern bekommen alle dieselbe Breite. Dadurch stehen
+   * Meter, Zeiten und Messwerte in Listen sauber
+   * untereinander.
+   */
+  font-variant-numeric: tabular-nums;
 }

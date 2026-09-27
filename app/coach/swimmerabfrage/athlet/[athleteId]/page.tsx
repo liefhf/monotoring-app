@@ -739,8 +739,8 @@ export default function AthleteDetailPage() {
       rounded-t-xl px-4 py-3 text-sm font-medium transition
       ${
         isActive
-          ? "border border-b-0 border-slate-700 bg-slate-900 text-white"
-          : "text-slate-400 hover:bg-slate-900 hover:text-white"
+          ? "border border-b-0 border-app-border bg-app-surface text-white"
+          : "text-app-muted hover:bg-app-surface hover:text-white"
       }
     `;
   }
@@ -1249,11 +1249,11 @@ export default function AthleteDetailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-white">
+    <main>
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-app-muted">
               Schwimmerabfrage
             </p>
 
@@ -1280,7 +1280,7 @@ export default function AthleteDetailPage() {
                       !current
                   );
                 }}
-                className="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
+                className="rounded-xl bg-app-accent px-4 py-3 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
               >
                 {showResultForm
                   ? "Eingabe schließen"
@@ -1296,15 +1296,15 @@ export default function AthleteDetailPage() {
         )}
 
         {resultMessage && (
-          <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-4 text-sm text-slate-200">
+          <div className="mt-6 rounded-xl border border-app-border bg-app-surface p-4 text-sm text-app-text">
             {resultMessage}
           </div>
         )}
 
         {showResultForm &&
           athlete && (
-            <section className="mt-6 overflow-hidden rounded-2xl border border-slate-700 bg-slate-900">
-              <div className="border-b border-slate-800 px-6 py-4">
+            <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+              <div className="border-b border-app-border px-6 py-4">
                 <h2 className="text-lg font-semibold">
                   Wettkampftag eintragen
                 </h2>
@@ -1316,7 +1316,7 @@ export default function AthleteDetailPage() {
                 }
                 className="p-6"
               >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-semibold uppercase tracking-wide text-app-muted">
                   Wettkampfdaten
                 </p>
 
@@ -1337,7 +1337,7 @@ export default function AthleteDetailPage() {
                         )
                       }
                       required
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                      className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                     />
                   </FormField>
 
@@ -1357,7 +1357,7 @@ export default function AthleteDetailPage() {
                         )
                       }
                       placeholder="z. B. Frankfurt"
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                      className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                     />
                   </FormField>
 
@@ -1377,7 +1377,7 @@ export default function AthleteDetailPage() {
                             | "50"
                         )
                       }
-                      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                      className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                     >
                       <option value="25">
                         25m-Bahn
@@ -1390,7 +1390,7 @@ export default function AthleteDetailPage() {
                   </FormField>
                 </div>
 
-                <div className="mt-8 flex items-center justify-between gap-4 border-t border-slate-800 pt-7">
+                <div className="mt-8 flex items-center justify-between gap-4 border-t border-app-border pt-7">
                   <h3 className="text-lg font-semibold">
                     Disziplinen
                   </h3>
@@ -1400,7 +1400,7 @@ export default function AthleteDetailPage() {
                     onClick={
                       addDiscipline
                     }
-                    className="rounded-xl border border-slate-700 px-4 py-2 text-sm transition hover:bg-slate-800"
+                    className="rounded-xl border border-app-border px-4 py-2 text-sm transition hover:bg-app-elevated"
                   >
                     + Disziplin hinzufügen
                   </button>
@@ -1416,10 +1416,10 @@ export default function AthleteDetailPage() {
                         key={
                           discipline.id
                         }
-                        className="rounded-xl border border-slate-800 bg-slate-950 p-4"
+                        className="rounded-xl border border-app-border bg-app-bg p-4"
                       >
                         <div className="mb-4 flex items-center justify-between">
-                          <p className="text-sm font-semibold text-slate-300">
+                          <p className="text-sm font-semibold text-app-text">
                             Disziplin{" "}
                             {index +
                               1}
@@ -1458,7 +1458,7 @@ export default function AthleteDetailPage() {
                                     .value
                                 )
                               }
-                              className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                              className="w-full rounded-xl border border-app-border bg-app-surface px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                             >
                               <option value="50">
                                 50 m
@@ -1502,7 +1502,7 @@ export default function AthleteDetailPage() {
                                     .value as Stroke
                                 )
                               }
-                              className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                              className="w-full rounded-xl border border-app-border bg-app-surface px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                             >
                               <option value="freestyle">
                                 Freistil
@@ -1545,7 +1545,7 @@ export default function AthleteDetailPage() {
                               }
                               placeholder="z. B. 58,43 oder 1:02,15"
                               required
-                              className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                              className="w-full rounded-xl border border-app-border bg-app-surface px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                             />
                           </FormField>
 
@@ -1568,7 +1568,7 @@ export default function AthleteDetailPage() {
                                 )
                               }
                               placeholder="optional"
-                              className="w-full rounded-xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                              className="w-full rounded-xl border border-app-border bg-app-surface px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                             />
                           </FormField>
                         </div>
@@ -1577,13 +1577,13 @@ export default function AthleteDetailPage() {
                   )}
                 </div>
 
-                <div className="mt-6 flex flex-wrap gap-3 border-t border-slate-800 pt-6">
+                <div className="mt-6 flex flex-wrap gap-3 border-t border-app-border pt-6">
                   <button
                     type="submit"
                     disabled={
                       savingResult
                     }
-                    className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-xl bg-app-accent px-5 py-3 text-sm font-semibold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {savingResult
                       ? "Speichert..."
@@ -1601,7 +1601,7 @@ export default function AthleteDetailPage() {
                         false
                       );
                     }}
-                    className="rounded-xl border border-slate-700 px-5 py-3 text-sm text-slate-300 transition hover:bg-slate-800"
+                    className="rounded-xl border border-app-border px-5 py-3 text-sm text-app-text transition hover:bg-app-elevated"
                   >
                     Abbrechen
                   </button>
@@ -1611,12 +1611,12 @@ export default function AthleteDetailPage() {
           )}
 
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center text-slate-400">
+          <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
             Athlet wird geladen...
           </div>
         ) : athlete ? (
           <>
-            <div className="mt-8 border-b border-slate-800">
+            <div className="mt-8 border-b border-app-border">
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
@@ -1678,14 +1678,14 @@ export default function AthleteDetailPage() {
 
             {activeTab ===
               "infos" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                <div className="border-b border-slate-800 px-6 py-4">
+              <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+                <div className="border-b border-app-border px-6 py-4">
                   <h2 className="text-lg font-semibold">
                     Athleteninformationen
                   </h2>
                 </div>
 
-                <div className="divide-y divide-slate-800">
+                <div className="divide-y divide-app-border">
                   <InfoRow
                     label="Voller Name"
                     value={getFullName(
@@ -1730,7 +1730,7 @@ export default function AthleteDetailPage() {
               "bestzeiten" && (
               <section className="mt-6">
                 {resultsLoading ? (
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-slate-400">
+                  <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-app-muted">
                     Bestzeiten werden geladen...
                   </div>
                 ) : (
@@ -1753,14 +1753,14 @@ export default function AthleteDetailPage() {
 
             {activeTab ===
               "jahresleistungen" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                <div className="border-b border-slate-800 px-6 py-5">
+              <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+                <div className="border-b border-app-border px-6 py-5">
                   <h2 className="text-lg font-semibold">
                     Jahresleistungen
                   </h2>
                 </div>
 
-                <div className="border-b border-slate-800 bg-slate-950/30 px-6 py-5">
+                <div className="border-b border-app-border bg-app-bg/30 px-6 py-5">
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <FilterField label="Jahr">
                       <select
@@ -1778,7 +1778,7 @@ export default function AthleteDetailPage() {
                             )
                           )
                         }
-                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                       >
                         {availableYears.map(
                           (year) => (
@@ -1811,7 +1811,7 @@ export default function AthleteDetailPage() {
                               .value as StrokeFilter
                           )
                         }
-                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                       >
                         <option value="all">
                           Alle
@@ -1852,7 +1852,7 @@ export default function AthleteDetailPage() {
                               .value
                           )
                         }
-                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                       >
                         <option value="all">
                           Alle
@@ -1898,7 +1898,7 @@ export default function AthleteDetailPage() {
                               .value as PoolFilter
                           )
                         }
-                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-slate-500"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition focus:border-app-accent"
                       >
                         <option value="all">
                           Alle
@@ -1916,7 +1916,7 @@ export default function AthleteDetailPage() {
                   </div>
 
                   <div className="mt-4 flex items-center justify-between gap-4">
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-app-muted">
                       {
                         filteredResults.length
                       }{" "}
@@ -1931,7 +1931,7 @@ export default function AthleteDetailPage() {
                       onClick={
                         resetFilters
                       }
-                      className="text-sm text-slate-400 transition hover:text-white"
+                      className="text-sm text-app-muted transition hover:text-white"
                     >
                       Filter zurücksetzen
                     </button>
@@ -1939,18 +1939,18 @@ export default function AthleteDetailPage() {
                 </div>
 
                 {resultsLoading ? (
-                  <div className="p-8 text-center text-slate-400">
+                  <div className="p-8 text-center text-app-muted">
                     Ergebnisse werden geladen...
                   </div>
                 ) : filteredResults.length ===
                   0 ? (
-                  <div className="p-8 text-sm text-slate-400">
+                  <div className="p-8 text-sm text-app-muted">
                     Für diese Auswahl sind keine Ergebnisse vorhanden.
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[850px] text-left text-sm">
-                      <thead className="border-b border-slate-800 bg-slate-950/60 text-slate-400">
+                      <thead className="border-b border-app-border bg-app-bg/60 text-app-muted">
                         <tr>
                           <th className="px-6 py-3 font-medium">
                             Datum
@@ -1987,9 +1987,9 @@ export default function AthleteDetailPage() {
                               key={
                                 result.id
                               }
-                              className="border-b border-slate-800 last:border-b-0 hover:bg-slate-800/40"
+                              className="border-b border-app-border last:border-b-0 hover:bg-app-elevated/40"
                             >
-                              <td className="px-6 py-3 text-slate-300">
+                              <td className="px-6 py-3 text-app-text">
                                 {formatResultDate(
                                   result.result_date
                                 )}
@@ -2011,19 +2011,19 @@ export default function AthleteDetailPage() {
                                 )}
                               </td>
 
-                              <td className="px-6 py-3 text-slate-300">
+                              <td className="px-6 py-3 text-app-text">
                                 {
                                   result.pool_length
                                 }{" "}
                                 m
                               </td>
 
-                              <td className="px-6 py-3 text-slate-300">
+                              <td className="px-6 py-3 text-app-text">
                                 {result.location ||
                                   "–"}
                               </td>
 
-                              <td className="px-6 py-3 text-slate-300">
+                              <td className="px-6 py-3 text-app-text">
                                 {result.points ??
                                   "–"}
                               </td>
@@ -2039,14 +2039,14 @@ export default function AthleteDetailPage() {
 
             {activeTab ===
               "entwicklung" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                <div className="border-b border-slate-800 px-6 py-5">
+              <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+                <div className="border-b border-app-border px-6 py-5">
                   <h2 className="text-lg font-semibold">
                     Entwicklung
                   </h2>
                 </div>
 
-                <div className="border-b border-slate-800 bg-slate-950/30 px-6 py-5">
+                <div className="border-b border-app-border bg-app-bg/30 px-6 py-5">
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <FilterField label="Schwimmart">
                       <select
@@ -2080,7 +2080,7 @@ export default function AthleteDetailPage() {
                             );
                           }
                         }}
-                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none"
                       >
                         <option value="freestyle">
                           Freistil
@@ -2120,7 +2120,7 @@ export default function AthleteDetailPage() {
                             )
                           )
                         }
-                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none"
                       >
                         {developmentDistances.map(
                           (
@@ -2158,7 +2158,7 @@ export default function AthleteDetailPage() {
                               .value as DevelopmentPeriod
                           )
                         }
-                        className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none"
                       >
                         <option value="all">
                           Gesamt
@@ -2192,7 +2192,7 @@ export default function AthleteDetailPage() {
                               )
                             )
                           }
-                          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none"
+                          className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none"
                         >
                           {availableYears.map(
                             (year) => (
@@ -2230,7 +2230,7 @@ export default function AthleteDetailPage() {
                               )
                             )
                           }
-                          className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none"
+                          className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none"
                         >
                           {availableSeasons.map(
                             (
@@ -2272,12 +2272,12 @@ export default function AthleteDetailPage() {
                         )}
                       </h3>
 
-                      <p className="mt-1 text-sm text-slate-400">
+                      <p className="mt-1 text-sm text-app-muted">
                         {getDevelopmentTitle()} · 25m- und 50m-Bahn
                       </p>
                     </div>
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-app-faint">
                       {
                         developmentResults.length
                       }{" "}
@@ -2289,12 +2289,12 @@ export default function AthleteDetailPage() {
                   </div>
 
                   {resultsLoading ? (
-                    <div className="flex h-[420px] items-center justify-center text-slate-400">
+                    <div className="flex h-[420px] items-center justify-center text-app-muted">
                       Entwicklung wird geladen...
                     </div>
                   ) : developmentChartData.length ===
                     0 ? (
-                    <div className="flex h-[420px] items-center justify-center rounded-xl border border-slate-800 bg-slate-950/40 text-sm text-slate-400">
+                    <div className="flex h-[420px] items-center justify-center rounded-xl border border-app-border bg-app-bg/40 text-sm text-app-muted">
                       Für diese Auswahl sind noch keine Ergebnisse vorhanden.
                     </div>
                   ) : (
@@ -2412,7 +2412,7 @@ export default function AthleteDetailPage() {
         <div className="mt-8">
           <Link
             href="/coach/swimmerabfrage"
-            className="inline-block rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="inline-block rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Zurück zur Schwimmerabfrage
           </Link>
@@ -2432,8 +2432,8 @@ function BestTimesTable({
   results: SwimResult[];
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-      <div className="border-b border-slate-800 px-5 py-4">
+    <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+      <div className="border-b border-app-border px-5 py-4">
         <h2 className="text-lg font-semibold">
           {title}
         </h2>
@@ -2441,7 +2441,7 @@ function BestTimesTable({
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[540px] text-left text-sm">
-          <thead className="border-b border-slate-800 bg-slate-950/50 text-slate-400">
+          <thead className="border-b border-app-border bg-app-bg/50 text-app-muted">
             <tr>
               <th className="px-4 py-3 font-medium">
                 Strecke
@@ -2485,7 +2485,7 @@ function BestTimesTable({
                 return (
                   <tr
                     key={`${poolLength}-${event.stroke}-${event.distance}`}
-                    className={`border-b border-slate-800 last:border-b-0 ${
+                    className={`border-b border-app-border last:border-b-0 ${
                       startsNewStroke
                         ? "border-t-2 border-t-slate-700"
                         : ""
@@ -2506,12 +2506,12 @@ function BestTimesTable({
                         : "–"}
                     </td>
 
-                    <td className="px-4 py-2.5 text-slate-300">
+                    <td className="px-4 py-2.5 text-app-text">
                       {bestResult?.location ||
                         "–"}
                     </td>
 
-                    <td className="px-4 py-2.5 text-slate-400">
+                    <td className="px-4 py-2.5 text-app-muted">
                       {bestResult
                         ? formatResultDate(
                             bestResult.result_date
@@ -2538,7 +2538,7 @@ function InfoRow({
 }) {
   return (
     <div className="grid gap-2 px-6 py-4 sm:grid-cols-[180px_1fr]">
-      <div className="text-sm font-semibold text-slate-300">
+      <div className="text-sm font-semibold text-app-text">
         {label}
       </div>
 
@@ -2558,7 +2558,7 @@ function FormField({
 }) {
   return (
     <label>
-      <span className="mb-2 block text-sm font-medium text-slate-300">
+      <span className="mb-2 block text-sm font-medium text-app-text">
         {label}
       </span>
 
@@ -2576,7 +2576,7 @@ function FilterField({
 }) {
   return (
     <label>
-      <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <span className="mb-2 block text-xs font-semibold uppercase tracking-wide text-app-faint">
         {label}
       </span>
 

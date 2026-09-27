@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import TrainingEffectCards from "@/components/TrainingEffectCards";
 
 type Profile = {
   id: string;
@@ -267,7 +268,7 @@ function RpeChart({
     points.length === 0
   ) {
     return (
-      <div className="flex min-h-[135px] items-center justify-center rounded-xl border border-slate-800 bg-slate-950/40 px-4 text-center text-sm text-slate-500">
+      <div className="flex min-h-[135px] items-center justify-center rounded-xl border border-app-border bg-app-bg/40 px-4 text-center text-sm text-app-faint">
         Noch keine RPE-Daten vorhanden.
       </div>
     );
@@ -365,7 +366,7 @@ function RpeChart({
                   }
                   y2={y}
                   stroke="currentColor"
-                  className="text-slate-800"
+                  className="text-app-faint"
                   strokeWidth="1"
                 />
 
@@ -393,7 +394,7 @@ function RpeChart({
             }
             fill="none"
             stroke="currentColor"
-            className="text-slate-300"
+            className="text-app-text"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -1173,12 +1174,12 @@ export default function AthletePage() {
     "Athlet";
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-5 text-white sm:px-6">
+    <main className="bg-app-bg px-4 py-5 text-white sm:px-6">
       <div className="mx-auto max-w-5xl">
         {/* HEADER */}
 
         <header>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-app-faint">
             Dein Dashboard
           </p>
 
@@ -1186,7 +1187,7 @@ export default function AthletePage() {
             Hallo {firstName}! 👋
           </h1>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-app-muted">
             Deine Trainings und Rückmeldungen im Überblick.
           </p>
         </header>
@@ -1198,7 +1199,7 @@ export default function AthletePage() {
         )}
 
         {loading ? (
-          <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-7 text-center text-sm text-slate-400">
+          <div className="mt-5 rounded-2xl border border-app-border bg-app-surface p-7 text-center text-sm text-app-muted">
             Deine Daten werden geladen...
           </div>
         ) : (
@@ -1210,7 +1211,7 @@ export default function AthletePage() {
                 className={`flex min-h-[72px] items-center justify-between gap-4 rounded-xl border px-4 py-3 ${
                   todayCheckIn
                     ? "border-emerald-900/70 bg-emerald-950/15"
-                    : "border-slate-800 bg-slate-900"
+                    : "border-app-border bg-app-surface"
                 }`}
               >
                 <div>
@@ -1222,7 +1223,7 @@ export default function AthletePage() {
 
                       {checkInStreak >
                         0 && (
-                        <p className="mt-0.5 text-xs text-slate-500">
+                        <p className="mt-0.5 text-xs text-app-faint">
                           {checkInStreak}{" "}
                           {checkInStreak ===
                           1
@@ -1239,7 +1240,7 @@ export default function AthletePage() {
 
                       {checkInStreak >
                         0 && (
-                        <p className="mt-0.5 text-xs text-slate-500">
+                        <p className="mt-0.5 text-xs text-app-faint">
                           {checkInStreak}{" "}
                           Tage in Folge
                         </p>
@@ -1251,7 +1252,7 @@ export default function AthletePage() {
                 {!todayCheckIn && (
                   <Link
                     href="/athlete/check-in"
-                    className="shrink-0 rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-amber-300"
+                    className="shrink-0 rounded-lg bg-amber-400 px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:bg-amber-300"
                   >
                     Check-in
                   </Link>
@@ -1260,10 +1261,10 @@ export default function AthletePage() {
 
               <Link
                 href="/athlete/pain"
-                className="flex min-h-[72px] items-center justify-between rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 transition hover:border-slate-700 hover:bg-slate-800/70"
+                className="flex min-h-[72px] items-center justify-between rounded-xl border border-app-border bg-app-surface px-4 py-3 transition hover:border-app-border hover:bg-app-elevated/70"
               >
                 <div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-app-faint">
                     Beschwerden
                   </p>
 
@@ -1272,7 +1273,7 @@ export default function AthletePage() {
                   </p>
                 </div>
 
-                <span className="text-slate-500">
+                <span className="text-app-faint">
                   →
                 </span>
               </Link>
@@ -1281,13 +1282,13 @@ export default function AthletePage() {
             {/* DEIN TRAINING */}
 
             <section className="mt-4">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-400">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-app-muted">
                 Dein Training
               </h2>
 
               <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
-                <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                  <p className="text-[11px] text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+                  <p className="text-[11px] text-app-faint">
                     Nächstes Training
                   </p>
 
@@ -1299,7 +1300,7 @@ export default function AthletePage() {
                         }
                       </p>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-app-faint">
                         {formatDate(
                           nextTraining.session_date
                         )}
@@ -1313,14 +1314,14 @@ export default function AthletePage() {
                       </p>
                     </>
                   ) : (
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-app-faint">
                       Kein Training geplant
                     </p>
                   )}
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                  <p className="text-[11px] text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+                  <p className="text-[11px] text-app-faint">
                     Letzte RPE
                   </p>
 
@@ -1333,25 +1334,25 @@ export default function AthletePage() {
                           }
                         </span>
 
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-app-faint">
                           / 10
                         </span>
                       </div>
 
-                      <p className="mt-0.5 truncate text-[11px] text-slate-500">
+                      <p className="mt-0.5 truncate text-[11px] text-app-faint">
                         {latestFeedback.training?.title ??
                           "Training"}
                       </p>
                     </>
                   ) : (
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-app-faint">
                       Keine Rückmeldung
                     </p>
                   )}
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                  <p className="text-[11px] text-slate-500">
+                <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+                  <p className="text-[11px] text-app-faint">
                     Rückmeldungen
                   </p>
 
@@ -1361,7 +1362,7 @@ export default function AthletePage() {
                     }
                   </p>
 
-                  <p className="mt-0.5 text-[11px] text-slate-500">
+                  <p className="mt-0.5 text-[11px] text-app-faint">
                     abgegeben
                   </p>
                 </div>
@@ -1377,7 +1378,7 @@ export default function AthletePage() {
 
               {todayTrainings.length ===
               0 ? (
-                <div className="mt-2 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-500">
+                <div className="mt-2 rounded-xl border border-app-border bg-app-surface px-4 py-3 text-sm text-app-faint">
                   Heute ist kein Training geplant.
                 </div>
               ) : (
@@ -1394,12 +1395,12 @@ export default function AthletePage() {
                           key={
                             training.id
                           }
-                          className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3"
+                          className="rounded-xl border border-app-border bg-app-surface px-4 py-3"
                         >
                           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="min-w-0">
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="rounded-full border border-slate-700 bg-slate-950 px-2 py-0.5 text-[10px] text-slate-400">
+                                <span className="rounded-full border border-app-border bg-app-bg px-2 py-0.5 text-[10px] text-app-muted">
                                   {training.training_type ===
                                   "water"
                                     ? "Wasser"
@@ -1425,7 +1426,7 @@ export default function AthletePage() {
                                 }
                               </h3>
 
-                              <div className="mt-1 flex flex-wrap gap-x-2 text-xs text-slate-500">
+                              <div className="mt-1 flex flex-wrap gap-x-2 text-xs text-app-faint">
                                 <span>
                                   {training.start_time
                                     ? training.start_time.slice(
@@ -1465,8 +1466,8 @@ export default function AthletePage() {
                               href={`/athlete/feedback/${training.id}`}
                               className={`shrink-0 rounded-lg px-4 py-2.5 text-center text-sm font-medium transition ${
                                 completed
-                                  ? "border border-slate-700 text-slate-300 hover:bg-slate-800"
-                                  : "bg-amber-400 text-slate-950 hover:bg-amber-300"
+                                  ? "border border-app-border text-app-text hover:bg-app-elevated"
+                                  : "bg-amber-400 text-app-accent-ink hover:bg-amber-300"
                               }`}
                             >
                               {completed
@@ -1484,14 +1485,14 @@ export default function AthletePage() {
 
             {/* DEINE WOCHE */}
 
-            <section className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-              <div className="flex items-center justify-between gap-3 border-b border-slate-800 px-4 py-3">
+            <section className="mt-4 overflow-hidden rounded-xl border border-app-border bg-app-surface">
+              <div className="flex items-center justify-between gap-3 border-b border-app-border px-4 py-3">
                 <div>
                   <h2 className="text-base font-semibold">
                     Deine Woche
                   </h2>
 
-                  <p className="mt-0.5 text-[11px] text-slate-500">
+                  <p className="mt-0.5 text-[11px] text-app-faint">
                     Trainingstage dieser Woche
                   </p>
                 </div>
@@ -1507,16 +1508,16 @@ export default function AthletePage() {
                     }
                   </p>
 
-                  <p className="text-[10px] text-slate-600">
+                  <p className="text-[10px] text-app-faint">
                     abgeschlossen
                   </p>
                 </div>
               </div>
 
               <div className="px-4 py-3">
-                <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+                <div className="h-1.5 overflow-hidden rounded-full bg-app-elevated">
                   <div
-                    className="h-full rounded-full bg-slate-300 transition-all"
+                    className="h-full rounded-full bg-app-muted transition-all"
                     style={{
                       width:
                         trainingDaysThisWeek ===
@@ -1553,13 +1554,13 @@ export default function AthletePage() {
 
             {/* RPE VERLAUF */}
 
-            <section className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-              <div className="border-b border-slate-800 px-4 py-3">
+            <section className="mt-4 overflow-hidden rounded-xl border border-app-border bg-app-surface">
+              <div className="border-b border-app-border px-4 py-3">
                 <h2 className="text-base font-semibold">
                   RPE im Verlauf
                 </h2>
 
-                <p className="mt-0.5 text-[11px] text-slate-500">
+                <p className="mt-0.5 text-[11px] text-app-faint">
                   Subjektive Anstrengung deiner letzten Trainingseinheiten
                 </p>
               </div>
@@ -1571,7 +1572,7 @@ export default function AthletePage() {
                   }
                 />
 
-                <p className="mt-0.5 text-[10px] leading-4 text-slate-600">
+                <p className="mt-0.5 text-[10px] leading-4 text-app-faint">
                   RPE zeigt, wie anstrengend du die jeweilige Einheit wahrgenommen hast.
                 </p>
               </div>
@@ -1579,20 +1580,20 @@ export default function AthletePage() {
 
             {/* LETZTE TRAININGS */}
 
-            <section className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
-              <div className="border-b border-slate-800 px-4 py-3">
+            <section className="mt-4 overflow-hidden rounded-xl border border-app-border bg-app-surface">
+              <div className="border-b border-app-border px-4 py-3">
                 <h2 className="text-base font-semibold">
                   Letzte Trainings
                 </h2>
 
-                <p className="mt-0.5 text-[11px] text-slate-500">
+                <p className="mt-0.5 text-[11px] text-app-faint">
                   Deine letzten Trainingsrückmeldungen
                 </p>
               </div>
 
               {recentFeedback.length ===
               0 ? (
-                <div className="px-4 py-5 text-sm text-slate-500">
+                <div className="px-4 py-5 text-sm text-app-faint">
                   Noch keine Trainingsrückmeldungen vorhanden.
                 </div>
               ) : (
@@ -1600,7 +1601,7 @@ export default function AthletePage() {
                   {/* DESKTOP */}
 
                   <div className="hidden sm:block">
-                    <div className="grid grid-cols-[85px_minmax(180px,1fr)_100px_80px_70px] gap-3 border-b border-slate-800 bg-slate-950/40 px-4 py-2 text-[10px] uppercase tracking-wide text-slate-600">
+                    <div className="grid grid-cols-[85px_minmax(180px,1fr)_100px_80px_70px] gap-3 border-b border-app-border bg-app-bg/40 px-4 py-2 text-[10px] uppercase tracking-wide text-app-faint">
                       <div>
                         Datum
                       </div>
@@ -1622,7 +1623,7 @@ export default function AthletePage() {
                       </div>
                     </div>
 
-                    <div className="divide-y divide-slate-800">
+                    <div className="divide-y divide-app-border">
                       {recentFeedback.map(
                         ({
                           feedback,
@@ -1632,9 +1633,9 @@ export default function AthletePage() {
                             key={
                               feedback.id
                             }
-                            className="grid grid-cols-[85px_minmax(180px,1fr)_100px_80px_70px] items-center gap-3 px-4 py-2.5 transition hover:bg-slate-800/30"
+                            className="grid grid-cols-[85px_minmax(180px,1fr)_100px_80px_70px] items-center gap-3 px-4 py-2.5 transition hover:bg-app-elevated/30"
                           >
-                            <div className="text-xs text-slate-500">
+                            <div className="text-xs text-app-faint">
                               {training
                                 ? formatCompactDate(
                                     training.session_date
@@ -1646,20 +1647,20 @@ export default function AthletePage() {
                               {training ? (
                                 <Link
                                   href={`/athlete/feedback/${training.id}`}
-                                  className="block truncate text-sm font-medium text-slate-200 transition hover:text-white"
+                                  className="block truncate text-sm font-medium text-app-text transition hover:text-white"
                                 >
                                   {
                                     training.title
                                   }
                                 </Link>
                               ) : (
-                                <p className="truncate text-sm text-slate-300">
+                                <p className="truncate text-sm text-app-text">
                                   Training
                                 </p>
                               )}
                             </div>
 
-                            <div className="text-xs text-slate-400">
+                            <div className="text-xs text-app-muted">
                               {training?.training_type ===
                                 "water" &&
                               training.total_meters !==
@@ -1673,7 +1674,7 @@ export default function AthletePage() {
                                 : "—"}
                             </div>
 
-                            <div className="text-xs text-slate-400">
+                            <div className="text-xs text-app-muted">
                               {training?.duration_minutes !==
                                 null &&
                               training?.duration_minutes !==
@@ -1689,7 +1690,7 @@ export default function AthletePage() {
                                 }
                               </span>
 
-                              <span className="text-[10px] text-slate-600">
+                              <span className="text-[10px] text-app-faint">
                                 / 10
                               </span>
                             </div>
@@ -1701,7 +1702,7 @@ export default function AthletePage() {
 
                   {/* MOBILE */}
 
-                  <div className="divide-y divide-slate-800 sm:hidden">
+                  <div className="divide-y divide-app-border sm:hidden">
                     {recentFeedback.map(
                       ({
                         feedback,
@@ -1716,11 +1717,11 @@ export default function AthletePage() {
                               ? `/athlete/feedback/${training.id}`
                               : "#"
                           }
-                          className="block px-4 py-3 transition hover:bg-slate-800/30"
+                          className="block px-4 py-3 transition hover:bg-app-elevated/30"
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="min-w-0">
-                              <p className="text-[10px] text-slate-500">
+                              <p className="text-[10px] text-app-faint">
                                 {training
                                   ? formatCompactDate(
                                       training.session_date
@@ -1741,13 +1742,13 @@ export default function AthletePage() {
                                 }
                               </span>
 
-                              <span className="ml-1 text-[10px] text-slate-600">
+                              <span className="ml-1 text-[10px] text-app-faint">
                                 / 10
                               </span>
                             </div>
                           </div>
 
-                          <div className="mt-1.5 flex gap-3 text-[11px] text-slate-500">
+                          <div className="mt-1.5 flex gap-3 text-[11px] text-app-faint">
                             <span>
                               {training?.training_type ===
                                 "water" &&
@@ -1778,6 +1779,9 @@ export default function AthletePage() {
                 </>
               )}
             </section>
+
+            {/* Kapitel 1.3 */}
+            <TrainingEffectCards />
           </>
         )}
       </div>
@@ -1811,7 +1815,7 @@ function DayCard({
     ) {
       return {
         card:
-          "border-amber-800/50 bg-slate-950",
+          "border-amber-800/50 bg-app-bg",
         circle:
           "bg-amber-400/15 text-amber-300",
         symbol:
@@ -1839,9 +1843,9 @@ function DayCard({
     ) {
       return {
         card:
-          "border-slate-700 bg-slate-950",
+          "border-app-border bg-app-bg",
         circle:
-          "border border-slate-600 text-slate-500",
+          "border border-app-border text-app-faint",
         symbol:
           "•",
       };
@@ -1849,9 +1853,9 @@ function DayCard({
 
     return {
       card:
-        "border-slate-800 bg-slate-950/40",
+        "border-app-border bg-app-bg/40",
       circle:
-        "bg-slate-800 text-slate-600",
+        "bg-app-elevated text-app-faint",
       symbol:
         "–",
     };
@@ -1865,12 +1869,12 @@ function DayCard({
       className={`relative flex min-w-0 flex-col items-center rounded-lg border px-1 py-2 text-center ${style.card}`}
     >
       {day.isToday && (
-        <span className="absolute -top-1.5 rounded-full bg-white px-1.5 py-0.5 text-[7px] font-bold text-slate-950">
+        <span className="absolute -top-1.5 rounded-full bg-app-accent px-1.5 py-0.5 text-[7px] font-bold text-app-accent-ink">
           HEUTE
         </span>
       )}
 
-      <p className="mt-0.5 text-[8px] uppercase tracking-wide text-slate-500">
+      <p className="mt-0.5 text-[8px] uppercase tracking-wide text-app-faint">
         {day.weekday.replace(
           ".",
           ""
@@ -1889,7 +1893,7 @@ function DayCard({
 
       {day.trainings.length >
         0 && (
-        <p className="mt-1 text-[8px] text-slate-500">
+        <p className="mt-1 text-[8px] text-app-faint">
           {day.trainings.length}x
         </p>
       )}

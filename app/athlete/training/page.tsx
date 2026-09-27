@@ -72,13 +72,6 @@ function getEndOfWeek(date: Date) {
 }
 
 export default function AthleteTrainingPage() {
-  const navigation = [
-    { name: "Dashboard", href: "/athlete" },
-    { name: "Befinden", href: "/athlete/befinden" },
-    { name: "Training", href: "/athlete/training" },
-    { name: "Auswertung", href: "/athlete/analytics" },
-  ];
-
   const [trainings, setTrainings] = useState<
     AthleteTraining[]
   >([]);
@@ -251,416 +244,380 @@ export default function AthleteTrainingPage() {
     status: DisplayTraining["status"]
   ) {
     if (status === "Heute") {
-      return "bg-blue-950 text-blue-300";
+      return "bg-sky-950 text-sky-300";
     }
 
     if (status === "Vergangen") {
-      return "bg-slate-800 text-slate-400";
+      return "bg-app-elevated text-app-muted";
     }
 
-    return "bg-slate-800 text-slate-300";
+    return "bg-app-elevated text-app-text";
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        {/* Seitenleiste */}
-        <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex lg:flex-col">
-          <div className="border-b border-slate-800 px-6 py-6">
-            <h2 className="text-xl font-bold">
-              Monitoring App
-            </h2>
+    <div className="mx-auto w-full max-w-[1600px]">
+      {/* Kopf */}
+      <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-sm text-app-muted">
+            Mein Training
+          </p>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Athlete Bereich
-            </p>
-          </div>
+          <h1 className="mt-1 text-3xl font-bold">
+            Trainingsplan
+          </h1>
 
-          <nav className="flex-1 space-y-2 p-4">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`block rounded-xl px-4 py-3 text-sm transition ${
-                  item.name === "Training"
-                    ? "bg-white font-medium text-slate-950"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-        </aside>
+          <p className="mt-2 text-app-muted">
+            Deine echten geplanten Einheiten
+            aus Supabase.
+          </p>
+        </div>
 
-        {/* Inhalt */}
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1600px] px-6 py-8">
-            {/* Kopf */}
-            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-sm text-slate-400">
-                  Mein Training
-                </p>
+        <Link
+          href="/athlete"
+          className="rounded-xl border border-app-border px-4 py-3 text-center text-sm hover:bg-app-elevated"
+        >
+          Zurück zum Dashboard
+        </Link>
+      </div>
 
-                <h1 className="mt-1 text-3xl font-bold">
-                  Trainingsplan
-                </h1>
+      {message && (
+        <div className="mt-6 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
+          {message}
+        </div>
+      )}
 
-                <p className="mt-2 text-slate-400">
-                  Deine echten geplanten Einheiten
-                  aus Supabase.
-                </p>
-              </div>
+      {loading ? (
+        <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-6 text-app-muted">
+          Trainings werden geladen...
+        </div>
+      ) : (
+        <>
+          {/* Kennzahlen */}
+          <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+              <p className="text-sm text-app-muted">
+                Einheiten
+              </p>
 
-              <Link
-                href="/athlete"
-                className="rounded-xl border border-slate-700 px-4 py-3 text-center text-sm hover:bg-slate-800"
-              >
-                Zurück zum Dashboard
-              </Link>
+              <p className="mt-2 text-3xl font-bold">
+                {displayTrainings.length}
+              </p>
+
+              <p className="mt-2 text-sm text-app-faint">
+                Diese Woche
+              </p>
             </div>
 
-            {message && (
-              <div className="mt-6 rounded-xl border border-red-900 bg-red-950/30 p-4 text-sm text-red-300">
-                {message}
-              </div>
-            )}
+            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+              <p className="text-sm text-app-muted">
+                Wasser
+              </p>
 
-            {loading ? (
-              <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6 text-slate-400">
-                Trainings werden geladen...
-              </div>
-            ) : (
-              <>
-                {/* Kennzahlen */}
-                <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Einheiten
-                    </p>
+              <p className="mt-2 text-3xl font-bold">
+                {waterSessions}
+              </p>
 
-                    <p className="mt-2 text-3xl font-bold">
-                      {displayTrainings.length}
-                    </p>
+              <p className="mt-2 text-sm text-app-faint">
+                Einheiten
+              </p>
+            </div>
 
-                    <p className="mt-2 text-sm text-slate-500">
-                      Diese Woche
-                    </p>
-                  </div>
+            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+              <p className="text-sm text-app-muted">
+                Land
+              </p>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Wasser
-                    </p>
+              <p className="mt-2 text-3xl font-bold">
+                {landSessions}
+              </p>
 
-                    <p className="mt-2 text-3xl font-bold">
-                      {waterSessions}
-                    </p>
+              <p className="mt-2 text-sm text-app-faint">
+                Einheiten
+              </p>
+            </div>
 
-                    <p className="mt-2 text-sm text-slate-500">
-                      Einheiten
-                    </p>
-                  </div>
+            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+              <p className="text-sm text-app-muted">
+                Wochenumfang
+              </p>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Land
-                    </p>
+              <p className="mt-2 text-3xl font-bold">
+                {(
+                  totalMeters / 1000
+                ).toLocaleString(
+                  "de-DE"
+                )}{" "}
+                km
+              </p>
 
-                    <p className="mt-2 text-3xl font-bold">
-                      {landSessions}
-                    </p>
+              <p className="mt-2 text-sm text-app-faint">
+                Wasser
+              </p>
+            </div>
+          </section>
 
-                    <p className="mt-2 text-sm text-slate-500">
-                      Einheiten
-                    </p>
-                  </div>
+          {/* Wochenplan */}
+          <section className="mt-6">
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold">
+                Diese Woche
+              </h2>
 
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                    <p className="text-sm text-slate-400">
-                      Wochenumfang
-                    </p>
+              <p className="mt-1 text-sm text-app-muted">
+                Montag bis Sonntag
+              </p>
+            </div>
 
-                    <p className="mt-2 text-3xl font-bold">
-                      {(
-                        totalMeters / 1000
-                      ).toLocaleString(
-                        "de-DE"
-                      )}{" "}
-                      km
-                    </p>
+            <div className="grid gap-4 xl:grid-cols-7">
+              {weekDays.map((day) => {
+                const dayTrainings =
+                  groupedTrainings[
+                    day
+                  ] ?? [];
 
-                    <p className="mt-2 text-sm text-slate-500">
-                      Wasser
-                    </p>
-                  </div>
-                </section>
+                return (
+                  <div
+                    key={day}
+                    className="min-h-[390px] rounded-2xl border border-app-border bg-app-surface"
+                  >
+                    <div className="border-b border-app-border p-4">
+                      <h3 className="font-semibold">
+                        {day}
+                      </h3>
 
-                {/* Wochenplan */}
-                <section className="mt-6">
-                  <div className="mb-4">
-                    <h2 className="text-xl font-semibold">
-                      Diese Woche
-                    </h2>
-
-                    <p className="mt-1 text-sm text-slate-400">
-                      Montag bis Sonntag
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4 xl:grid-cols-7">
-                    {weekDays.map((day) => {
-                      const dayTrainings =
-                        groupedTrainings[
-                          day
-                        ] ?? [];
-
-                      return (
-                        <div
-                          key={day}
-                          className="min-h-[390px] rounded-2xl border border-slate-800 bg-slate-900"
-                        >
-                          <div className="border-b border-slate-800 p-4">
-                            <h3 className="font-semibold">
-                              {day}
-                            </h3>
-
-                            {dayTrainings[0] && (
-                              <p className="mt-1 text-xs text-slate-500">
-                                {
-                                  dayTrainings[0]
-                                    .date
-                                }
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="space-y-3 p-3">
-                            {dayTrainings.length ===
-                            0 ? (
-                              <div className="rounded-xl border border-dashed border-slate-700 p-4 text-center">
-                                <p className="text-sm text-slate-500">
-                                  Ruhetag
-                                </p>
-                              </div>
-                            ) : (
-                              dayTrainings.map(
-                                (training) => (
-                                  <div
-                                    key={
-                                      training.id
-                                    }
-                                    className="rounded-xl border border-slate-800 bg-slate-950 p-3"
-                                  >
-                                    <div className="flex items-center justify-between gap-2">
-                                      <span
-                                        className={`rounded-full px-2 py-1 text-[10px] font-medium ${
-                                          training.type ===
-                                          "Wasser"
-                                            ? "bg-blue-950 text-blue-300"
-                                            : "bg-emerald-950 text-emerald-300"
-                                        }`}
-                                      >
-                                        {
-                                          training.type
-                                        }
-                                      </span>
-
-                                      <span className="text-xs text-slate-500">
-                                        {
-                                          training.time
-                                        }
-                                      </span>
-                                    </div>
-
-                                    <h4 className="mt-3 text-sm font-semibold">
-                                      {
-                                        training.title
-                                      }
-                                    </h4>
-
-                                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                                      {
-                                        training.focus
-                                      }
-                                    </p>
-
-                                    {training.meters !==
-                                      undefined && (
-                                      <p className="mt-3 text-sm font-medium">
-                                        {training.meters.toLocaleString(
-                                          "de-DE"
-                                        )}{" "}
-                                        m
-                                      </p>
-                                    )}
-
-                                    <div className="mt-3 flex items-center justify-between">
-                                      <span
-                                        className={`rounded-full px-2 py-1 text-[10px] ${getStatusStyle(
-                                          training.status
-                                        )}`}
-                                      >
-                                        {
-                                          training.status
-                                        }
-                                      </span>
-
-                                      <span className="text-xs text-slate-500">
-                                        {
-                                          training.duration
-                                        }{" "}
-                                        Min
-                                      </span>
-                                    </div>
-
-                                    <Link
-                                      href={`/athlete/training/${training.id}`}
-                                      className="mt-4 block rounded-lg border border-slate-700 px-3 py-2 text-center text-xs hover:bg-slate-800"
-                                    >
-                                      Training öffnen
-                                    </Link>
-                                  </div>
-                                )
-                              )
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-
-                {/* Heutige Einheiten */}
-                <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="border-b border-slate-800 p-5">
-                    <h2 className="text-xl font-semibold">
-                      Heute
-                    </h2>
-
-                    <p className="mt-1 text-sm text-slate-400">
-                      Deine heutigen Trainingseinheiten
-                    </p>
-                  </div>
-
-                  {todayTrainings.length ===
-                  0 ? (
-                    <div className="p-5">
-                      <div className="rounded-xl border border-dashed border-slate-700 p-6 text-center">
-                        <p className="text-sm text-slate-500">
-                          Heute ist keine
-                          Trainingseinheit
-                          eingetragen.
+                      {dayTrainings[0] && (
+                        <p className="mt-1 text-xs text-app-faint">
+                          {
+                            dayTrainings[0]
+                              .date
+                          }
                         </p>
-                      </div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="grid gap-4 p-5 md:grid-cols-2">
-                      {todayTrainings.map(
-                        (training) => (
-                          <div
-                            key={training.id}
-                            className="rounded-2xl border border-slate-800 bg-slate-950 p-5"
-                          >
-                            <div className="flex items-start justify-between gap-4">
-                              <div>
-                                <p className="text-sm text-slate-500">
+
+                    <div className="space-y-3 p-3">
+                      {dayTrainings.length ===
+                      0 ? (
+                        <div className="rounded-xl border border-dashed border-app-border p-4 text-center">
+                          <p className="text-sm text-app-faint">
+                            Ruhetag
+                          </p>
+                        </div>
+                      ) : (
+                        dayTrainings.map(
+                          (training) => (
+                            <div
+                              key={
+                                training.id
+                              }
+                              className="rounded-xl border border-app-border bg-app-bg p-3"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span
+                                  className={`rounded-full px-2 py-1 text-[10px] font-medium ${
+                                    training.type ===
+                                    "Wasser"
+                                      ? "bg-sky-950 text-sky-300"
+                                      : "bg-emerald-950 text-emerald-300"
+                                  }`}
+                                >
+                                  {
+                                    training.type
+                                  }
+                                </span>
+
+                                <span className="text-xs text-app-faint">
                                   {
                                     training.time
-                                  }{" "}
-                                  Uhr
-                                </p>
-
-                                <h3 className="mt-2 text-lg font-semibold">
-                                  {
-                                    training.title
                                   }
-                                </h3>
-
-                                <p className="mt-1 text-sm text-slate-400">
-                                  {
-                                    training.focus
-                                  }
-                                </p>
+                                </span>
                               </div>
 
-                              <span
-                                className={`rounded-full px-3 py-1 text-xs ${
-                                  training.type ===
-                                  "Wasser"
-                                    ? "bg-blue-950 text-blue-300"
-                                    : "bg-emerald-950 text-emerald-300"
-                                }`}
-                              >
+                              <h4 className="mt-3 text-sm font-semibold">
                                 {
-                                  training.type
+                                  training.title
                                 }
-                              </span>
-                            </div>
+                              </h4>
 
-                            <div className="mt-5 grid grid-cols-2 gap-3">
-                              <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-                                <p className="text-xs text-slate-500">
-                                  Dauer
+                              <p className="mt-1 text-xs leading-5 text-app-faint">
+                                {
+                                  training.focus
+                                }
+                              </p>
+
+                              {training.meters !==
+                                undefined && (
+                                <p className="mt-3 text-sm font-medium">
+                                  {training.meters.toLocaleString(
+                                    "de-DE"
+                                  )}{" "}
+                                  m
                                 </p>
+                              )}
 
-                                <p className="mt-1 font-semibold">
+                              <div className="mt-3 flex items-center justify-between">
+                                <span
+                                  className={`rounded-full px-2 py-1 text-[10px] ${getStatusStyle(
+                                    training.status
+                                  )}`}
+                                >
+                                  {
+                                    training.status
+                                  }
+                                </span>
+
+                                <span className="text-xs text-app-faint">
                                   {
                                     training.duration
                                   }{" "}
                                   Min
-                                </p>
+                                </span>
                               </div>
 
-                              <div className="rounded-xl border border-slate-800 bg-slate-900 p-3">
-                                <p className="text-xs text-slate-500">
-                                  Umfang
-                                </p>
-
-                                <p className="mt-1 font-semibold">
-                                  {training.meters !==
-                                  undefined
-                                    ? `${training.meters.toLocaleString(
-                                        "de-DE"
-                                      )} m`
-                                    : "Land"}
-                                </p>
-                              </div>
+                              <Link
+                                href={`/athlete/training/${training.id}`}
+                                className="mt-4 block rounded-lg border border-app-border px-3 py-2 text-center text-xs hover:bg-app-elevated"
+                              >
+                                Training öffnen
+                              </Link>
                             </div>
-
-                            <Link
-                              href={`/athlete/training/${training.id}`}
-                              className="mt-4 block rounded-xl bg-white px-4 py-3 text-center text-sm font-medium text-slate-950 hover:bg-slate-200"
-                            >
-                              Training ansehen
-                            </Link>
-                          </div>
+                          )
                         )
                       )}
                     </div>
-                  )}
-                </section>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
-                <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                  <h2 className="text-lg font-semibold">
-                    Nach dem Training
-                  </h2>
+          {/* Heutige Einheiten */}
+          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+            <div className="border-b border-app-border p-5">
+              <h2 className="text-xl font-semibold">
+                Heute
+              </h2>
 
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
-                    Nach einer Einheit kannst du
-                    später angeben, wie anstrengend
-                    das Training war und wie es für
-                    dich gelaufen ist. Diese
-                    Rückmeldung sieht anschließend
-                    dein Coach.
+              <p className="mt-1 text-sm text-app-muted">
+                Deine heutigen Trainingseinheiten
+              </p>
+            </div>
+
+            {todayTrainings.length ===
+            0 ? (
+              <div className="p-5">
+                <div className="rounded-xl border border-dashed border-app-border p-6 text-center">
+                  <p className="text-sm text-app-faint">
+                    Heute ist keine
+                    Trainingseinheit
+                    eingetragen.
                   </p>
-                </section>
-              </>
+                </div>
+              </div>
+            ) : (
+              <div className="grid gap-4 p-5 md:grid-cols-2">
+                {todayTrainings.map(
+                  (training) => (
+                    <div
+                      key={training.id}
+                      className="rounded-2xl border border-app-border bg-app-bg p-5"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm text-app-faint">
+                            {
+                              training.time
+                            }{" "}
+                            Uhr
+                          </p>
+
+                          <h3 className="mt-2 text-lg font-semibold">
+                            {
+                              training.title
+                            }
+                          </h3>
+
+                          <p className="mt-1 text-sm text-app-muted">
+                            {
+                              training.focus
+                            }
+                          </p>
+                        </div>
+
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs ${
+                            training.type ===
+                            "Wasser"
+                              ? "bg-sky-950 text-sky-300"
+                              : "bg-emerald-950 text-emerald-300"
+                          }`}
+                        >
+                          {
+                            training.type
+                          }
+                        </span>
+                      </div>
+
+                      <div className="mt-5 grid grid-cols-2 gap-3">
+                        <div className="rounded-xl border border-app-border bg-app-surface p-3">
+                          <p className="text-xs text-app-faint">
+                            Dauer
+                          </p>
+
+                          <p className="mt-1 font-semibold">
+                            {
+                              training.duration
+                            }{" "}
+                            Min
+                          </p>
+                        </div>
+
+                        <div className="rounded-xl border border-app-border bg-app-surface p-3">
+                          <p className="text-xs text-app-faint">
+                            Umfang
+                          </p>
+
+                          <p className="mt-1 font-semibold">
+                            {training.meters !==
+                            undefined
+                              ? `${training.meters.toLocaleString(
+                                  "de-DE"
+                                )} m`
+                              : "Land"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/athlete/training/${training.id}`}
+                        className="mt-4 block rounded-xl bg-app-accent px-4 py-3 text-center text-sm font-medium text-app-accent-ink hover:brightness-110"
+                      >
+                        Training ansehen
+                      </Link>
+                    </div>
+                  )
+                )}
+              </div>
             )}
-          </div>
-        </div>
-      </div>
-    </main>
+          </section>
+
+          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
+            <h2 className="text-lg font-semibold">
+              Nach dem Training
+            </h2>
+
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-app-muted">
+              Nach einer Einheit kannst du
+              später angeben, wie anstrengend
+              das Training war und wie es für
+              dich gelaufen ist. Diese
+              Rückmeldung sieht anschließend
+              dein Coach.
+            </p>
+          </section>
+        </>
+      )}
+    </div>
   );
 }

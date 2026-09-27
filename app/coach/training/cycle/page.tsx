@@ -368,13 +368,13 @@ export default function OlympicCyclePage() {
   }, [cycle]);
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-white">
+    <main>
       <div className="mx-auto max-w-7xl">
         {/* Kopf */}
 
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-app-muted">
               Langfristige Planung
             </p>
 
@@ -382,7 +382,7 @@ export default function OlympicCyclePage() {
               Olympiazyklus
             </h1>
 
-            <p className="mt-2 max-w-3xl text-slate-400">
+            <p className="mt-2 max-w-3xl text-app-muted">
               Vier Jahre als übergeordnete Ebene.
               Jedes Jahr besitzt später seine eigene Jahresplanung,
               Makrozyklen, Mikrozyklen und Trainingseinheiten.
@@ -390,8 +390,8 @@ export default function OlympicCyclePage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-              <p className="text-[10px] uppercase tracking-wide text-slate-500">
+            <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+              <p className="text-[10px] uppercase tracking-wide text-app-faint">
                 Team
               </p>
 
@@ -404,7 +404,7 @@ export default function OlympicCyclePage() {
               >
                 <option
                   value=""
-                  className="bg-slate-900"
+                  className="bg-app-surface"
                 >
                   Allgemein
                 </option>
@@ -413,7 +413,7 @@ export default function OlympicCyclePage() {
                   <option
                     key={team.id}
                     value={team.id}
-                    className="bg-slate-900"
+                    className="bg-app-surface"
                   >
                     {team.name}
                   </option>
@@ -424,13 +424,13 @@ export default function OlympicCyclePage() {
         </div>
 
         {message && (
-          <div className="mt-6 rounded-xl border border-slate-700 bg-slate-900 p-4 text-sm">
+          <div className="mt-6 rounded-xl border border-app-border bg-app-surface p-4 text-sm">
             {message}
           </div>
         )}
 
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center text-slate-400">
+          <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
             Wird geladen...
           </div>
         ) : !cycle ? (
@@ -438,8 +438,8 @@ export default function OlympicCyclePage() {
             Noch kein Olympiazyklus
           */
 
-          <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-            <p className="text-sm text-slate-400">
+          <section className="mt-8 rounded-2xl border border-app-border bg-app-surface p-6">
+            <p className="text-sm text-app-muted">
               {getTeamName()}
             </p>
 
@@ -447,14 +447,14 @@ export default function OlympicCyclePage() {
               Olympiazyklus anlegen
             </h2>
 
-            <p className="mt-2 max-w-2xl text-sm text-slate-400">
+            <p className="mt-2 max-w-2xl text-sm text-app-muted">
               Für diese Ansicht existiert noch kein Olympiazyklus.
               Lege zuerst den Start des Vierjahreszeitraums fest.
             </p>
 
             <div className="mt-6 flex flex-wrap items-end gap-4">
               <div>
-                <label className="mb-2 block text-sm text-slate-400">
+                <label className="mb-2 block text-sm text-app-muted">
                   Startjahr
                 </label>
 
@@ -466,12 +466,12 @@ export default function OlympicCyclePage() {
                       Number(event.target.value)
                     )
                   }
-                  className="w-40 rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none"
+                  className="w-40 rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none"
                 />
               </div>
 
-              <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3">
-                <p className="text-xs text-slate-500">
+              <div className="rounded-xl border border-app-border bg-app-bg px-4 py-3">
+                <p className="text-xs text-app-faint">
                   Zeitraum
                 </p>
 
@@ -484,7 +484,7 @@ export default function OlympicCyclePage() {
                 type="button"
                 disabled={saving}
                 onClick={createOlympicCycle}
-                className="rounded-xl bg-white px-5 py-3 font-semibold text-slate-950 disabled:opacity-50"
+                className="rounded-xl bg-app-accent px-5 py-3 font-semibold text-app-accent-ink disabled:opacity-50"
               >
                 {saving
                   ? "Wird erstellt..."
@@ -496,10 +496,10 @@ export default function OlympicCyclePage() {
           <>
             {/* Zyklus Info */}
 
-            <section className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-5">
+            <section className="mt-8 rounded-2xl border border-app-border bg-app-surface p-5">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-app-muted">
                     {getTeamName()}
                   </p>
 
@@ -507,12 +507,12 @@ export default function OlympicCyclePage() {
                     {cycle.name}
                   </h2>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-app-faint">
                     {cycle.start_year} – {cycle.end_year}
                   </p>
                 </div>
 
-                <div className="rounded-xl border border-slate-800 bg-slate-950 px-4 py-3 text-sm text-slate-400">
+                <div className="rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm text-app-muted">
                   {annualPlans.length} von 4 Jahresplanungen angelegt
                 </div>
               </div>
@@ -539,24 +539,24 @@ export default function OlympicCyclePage() {
                     key={definition.cycleYear}
                     className={`flex min-h-72 flex-col rounded-2xl border p-5 ${
                       isCurrent
-                        ? "border-white bg-slate-800"
-                        : "border-slate-800 bg-slate-900"
+                        ? "border-white bg-app-elevated"
+                        : "border-app-border bg-app-surface"
                     }`}
                   >
                     <div>
                       <div className="flex items-start justify-between gap-3">
-                        <p className="text-xs uppercase tracking-wide text-slate-500">
+                        <p className="text-xs uppercase tracking-wide text-app-faint">
                           {definition.label}
                         </p>
 
                         {isCurrent && (
-                          <span className="rounded-full bg-white px-2 py-1 text-[9px] font-bold text-slate-950">
+                          <span className="rounded-full bg-app-accent px-2 py-1 text-[9px] font-bold text-app-accent-ink">
                             AKTUELL
                           </span>
                         )}
                       </div>
 
-                      <p className="mt-2 text-sm text-slate-500">
+                      <p className="mt-2 text-sm text-app-faint">
                         Saison {seasonStartYear}/
                         {seasonStartYear + 1}
                       </p>
@@ -566,8 +566,8 @@ export default function OlympicCyclePage() {
                       </h3>
 
                       {plan ? (
-                        <div className="mt-5 rounded-xl border border-slate-700 bg-slate-950 p-4">
-                          <p className="text-xs text-slate-500">
+                        <div className="mt-5 rounded-xl border border-app-border bg-app-bg p-4">
+                          <p className="text-xs text-app-faint">
                             Jahresplanung
                           </p>
 
@@ -575,14 +575,14 @@ export default function OlympicCyclePage() {
                             {plan.title}
                           </p>
 
-                          <p className="mt-2 text-xs text-slate-500">
+                          <p className="mt-2 text-xs text-app-faint">
                             {plan.season_start} bis{" "}
                             {plan.season_end}
                           </p>
                         </div>
                       ) : (
-                        <div className="mt-5 rounded-xl border border-dashed border-slate-700 bg-slate-950/50 p-4">
-                          <p className="text-sm text-slate-500">
+                        <div className="mt-5 rounded-xl border border-dashed border-app-border bg-app-bg/50 p-4">
+                          <p className="text-sm text-app-faint">
                             Noch keine Jahresplanung angelegt.
                           </p>
                         </div>
@@ -593,7 +593,7 @@ export default function OlympicCyclePage() {
                       {plan ? (
                         <Link
                           href={`/coach/training/season?annualPlanId=${plan.id}`}
-                          className="block w-full rounded-xl bg-white px-4 py-3 text-center text-sm font-semibold text-slate-950"
+                          className="block w-full rounded-xl bg-app-accent px-4 py-3 text-center text-sm font-semibold text-app-accent-ink"
                         >
                           Jahresplanung öffnen
                         </Link>
@@ -607,7 +607,7 @@ export default function OlympicCyclePage() {
                               definition.competition
                             )
                           }
-                          className="w-full rounded-xl border border-slate-700 px-4 py-3 text-sm font-semibold hover:bg-slate-800 disabled:opacity-50"
+                          className="w-full rounded-xl border border-app-border px-4 py-3 text-sm font-semibold hover:bg-app-elevated disabled:opacity-50"
                         >
                           Jahresplanung anlegen
                         </button>
@@ -620,53 +620,53 @@ export default function OlympicCyclePage() {
 
             {/* Hierarchie */}
 
-            <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-5">
-              <p className="text-sm text-slate-400">
+            <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
+              <p className="text-sm text-app-muted">
                 Planungsstruktur
               </p>
 
               <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-                <span className="rounded-xl bg-white px-4 py-2 font-semibold text-slate-950">
+                <span className="rounded-xl bg-app-accent px-4 py-2 font-semibold text-app-accent-ink">
                   Olympiazyklus
                 </span>
 
-                <span className="text-slate-600">
+                <span className="text-app-faint">
                   →
                 </span>
 
-                <span className="rounded-xl border border-slate-700 px-4 py-2">
+                <span className="rounded-xl border border-app-border px-4 py-2">
                   Jahresplanung
                 </span>
 
-                <span className="text-slate-600">
+                <span className="text-app-faint">
                   →
                 </span>
 
-                <span className="rounded-xl border border-slate-700 px-4 py-2">
+                <span className="rounded-xl border border-app-border px-4 py-2">
                   Makrozyklus
                 </span>
 
-                <span className="text-slate-600">
+                <span className="text-app-faint">
                   →
                 </span>
 
-                <span className="rounded-xl border border-slate-700 px-4 py-2">
+                <span className="rounded-xl border border-app-border px-4 py-2">
                   Mikrozyklus
                 </span>
 
-                <span className="text-slate-600">
+                <span className="text-app-faint">
                   →
                 </span>
 
-                <span className="rounded-xl border border-slate-700 px-4 py-2">
+                <span className="rounded-xl border border-app-border px-4 py-2">
                   Woche
                 </span>
 
-                <span className="text-slate-600">
+                <span className="text-app-faint">
                   →
                 </span>
 
-                <span className="rounded-xl border border-slate-700 px-4 py-2">
+                <span className="rounded-xl border border-app-border px-4 py-2">
                   Trainingseinheit
                 </span>
               </div>
@@ -677,14 +677,14 @@ export default function OlympicCyclePage() {
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
             href="/coach/training/season"
-            className="rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             Bestehende Jahresplanung
           </Link>
 
           <Link
             href="/coach/training"
-            className="rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Zurück zu Training
           </Link>

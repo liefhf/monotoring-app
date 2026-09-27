@@ -24,15 +24,6 @@ export default function WeekPage() {
   const params = useParams();
   const weekId = Number(params.id);
 
-  const navigation = [
-    { name: "Dashboard", href: "/coach" },
-    { name: "Teams", href: "/coach/teams" },
-    { name: "Athleten", href: "/coach/athletes" },
-    { name: "Training", href: "/coach/training" },
-    { name: "Auswertungen", href: "/coach/analytics" },
-    { name: "Einstellungen", href: "/coach/settings" },
-  ];
-
   const weekData = {
     id: weekId,
     weekNumber: 36,
@@ -201,267 +192,235 @@ export default function WeekPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex lg:flex-col">
-          <div className="border-b border-slate-800 px-6 py-6">
-            <h2 className="text-xl font-bold">Monitoring App</h2>
+    <div className="mx-auto w-full max-w-[1700px]">
+      <div className="mb-8">
+        <Link
+          href={`/coach/training/meso/${weekData.mesoId}`}
+          className="text-sm text-app-muted hover:text-white"
+        >
+          ← Zurück zum Mesozyklus
+        </Link>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Coach Bereich
+        <div className="mt-4 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div>
+            <p className="text-sm text-app-muted">
+              {weekData.macro} · {weekData.meso}
+            </p>
+
+            <h1 className="mt-1 text-3xl font-bold">
+              KW {weekData.weekNumber}
+            </h1>
+
+            <p className="mt-2 text-app-muted">
+              {weekData.start} – {weekData.end}
             </p>
           </div>
 
-          <nav className="flex-1 space-y-2 p-4">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`block rounded-xl px-4 py-3 text-sm transition ${
-                  item.name === "Training"
-                    ? "bg-white font-medium text-slate-950"
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
-        </aside>
-
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1700px] px-6 py-8">
-            <div className="mb-8">
-              <Link
-                href={`/coach/training/meso/${weekData.mesoId}`}
-                className="text-sm text-slate-400 hover:text-white"
-              >
-                ← Zurück zum Mesozyklus
-              </Link>
-
-              <div className="mt-4 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-                <div>
-                  <p className="text-sm text-slate-400">
-                    {weekData.macro} · {weekData.meso}
-                  </p>
-
-                  <h1 className="mt-1 text-3xl font-bold">
-                    KW {weekData.weekNumber}
-                  </h1>
-
-                  <p className="mt-2 text-slate-400">
-                    {weekData.start} – {weekData.end}
-                  </p>
-                </div>
-
-                <Link
-                  href={`/coach/training/new?week=${weekId}&meso=${weekData.mesoId}`}
-                  className="rounded-xl bg-white px-5 py-3 text-center text-sm font-medium text-slate-950 hover:bg-slate-200"
-                >
-                  + Schnelltraining
-                </Link>
-              </div>
-            </div>
-
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5 xl:col-span-2">
-                <p className="text-sm text-slate-400">
-                  Wochenschwerpunkt
-                </p>
-
-                <p className="mt-2 text-lg font-semibold">
-                  {weekData.focus}
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                <p className="text-sm text-slate-400">
-                  Zielumfang
-                </p>
-
-                <p className="mt-2 text-2xl font-bold">
-                  {(weekData.targetMeters / 1000).toLocaleString("de-DE")} km
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                <p className="text-sm text-slate-400">
-                  Geplant
-                </p>
-
-                <p className="mt-2 text-2xl font-bold">
-                  {(totalMeters / 1000).toLocaleString("de-DE")} km
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
-                <p className="text-sm text-slate-400">
-                  Einheiten
-                </p>
-
-                <p className="mt-2 text-2xl font-bold">
-                  {waterSessions + landSessions}
-                </p>
-
-                <p className="mt-1 text-xs text-slate-500">
-                  {waterSessions} Wasser · {landSessions} Land
-                </p>
-              </div>
-            </section>
-
-            <section className="mt-6">
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold">
-                  Wochenplan
-                </h2>
-
-                <p className="mt-1 text-sm text-slate-400">
-                  Montag bis Sonntag mit allen geplanten
-                  Trainingseinheiten.
-                </p>
-              </div>
-
-              <div className="grid gap-4 xl:grid-cols-7">
-                {days.map((day) => (
-                  <div
-                    key={day.id}
-                    className="min-h-[420px] rounded-2xl border border-slate-800 bg-slate-900"
-                  >
-                    <div className="border-b border-slate-800 p-4">
-                      <p className="text-xs text-slate-500">
-                        {day.date}
-                      </p>
-
-                      <h3 className="mt-1 font-semibold">
-                        {day.name}
-                      </h3>
-                    </div>
-
-                    <div className="space-y-3 p-3">
-                      {day.sessions.length === 0 ? (
-                        <div className="rounded-xl border border-dashed border-slate-700 p-4 text-center">
-                          <p className="text-sm text-slate-500">
-                            Keine Einheit
-                          </p>
-
-                          <Link
-                            href={getNewTrainingLink(day)}
-                            className="mt-3 inline-block text-sm text-slate-300 hover:text-white"
-                          >
-                            + Training
-                          </Link>
-                        </div>
-                      ) : (
-                        day.sessions.map((session) => (
-                          <div
-                            key={session.id}
-                            className="rounded-xl border border-slate-800 bg-slate-950 p-3"
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span
-                                className={`rounded-full px-2 py-1 text-[10px] font-medium ${
-                                  session.type === "Wasser"
-                                    ? "bg-blue-950 text-blue-300"
-                                    : "bg-emerald-950 text-emerald-300"
-                                }`}
-                              >
-                                {session.type}
-                              </span>
-
-                              <span className="text-xs text-slate-500">
-                                {session.time}
-                              </span>
-                            </div>
-
-                            <h4 className="mt-3 text-sm font-semibold">
-                              {session.title}
-                            </h4>
-
-                            <p className="mt-1 text-xs leading-5 text-slate-500">
-                              {session.focus}
-                            </p>
-
-                            {session.type === "Wasser" &&
-                              session.meters && (
-                                <p className="mt-3 text-sm font-medium">
-                                  {session.meters.toLocaleString(
-                                    "de-DE"
-                                  )}{" "}
-                                  m
-                                </p>
-                              )}
-
-                            <Link
-                              href={getExistingTrainingLink(
-                                day,
-                                session
-                              )}
-                              className="mt-3 block rounded-lg border border-slate-700 px-3 py-2 text-center text-xs hover:bg-slate-800"
-                            >
-                              Einheit öffnen
-                            </Link>
-                          </div>
-                        ))
-                      )}
-
-                      {day.sessions.length > 0 && (
-                        <Link
-                          href={getNewTrainingLink(day)}
-                          className="block rounded-xl border border-dashed border-slate-700 px-3 py-3 text-center text-sm text-slate-400 hover:bg-slate-800 hover:text-white"
-                        >
-                          + weitere Einheit
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="mt-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
-              <h2 className="text-lg font-semibold">
-                Struktur
-              </h2>
-
-              <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
-                <Link
-                  href="/coach/training/season"
-                  className="rounded-xl border border-slate-700 px-4 py-3 hover:bg-slate-800"
-                >
-                  Jahresplanung
-                </Link>
-
-                <span className="text-slate-600">→</span>
-
-                <div className="rounded-xl border border-slate-700 px-4 py-3">
-                  {weekData.macro}
-                </div>
-
-                <span className="text-slate-600">→</span>
-
-                <Link
-                  href={`/coach/training/meso/${weekData.mesoId}`}
-                  className="rounded-xl border border-slate-700 px-4 py-3 hover:bg-slate-800"
-                >
-                  {weekData.meso}
-                </Link>
-
-                <span className="text-slate-600">→</span>
-
-                <div className="rounded-xl bg-white px-4 py-3 font-medium text-slate-950">
-                  KW {weekData.weekNumber}
-                </div>
-
-                <span className="text-slate-600">→</span>
-
-                <div className="rounded-xl border border-slate-700 px-4 py-3">
-                  Trainingseinheit
-                </div>
-              </div>
-            </section>
-          </div>
+          <Link
+            href={`/coach/training/new?week=${weekId}&meso=${weekData.mesoId}`}
+            className="rounded-xl bg-app-accent px-5 py-3 text-center text-sm font-medium text-app-accent-ink hover:brightness-110"
+          >
+            + Schnelltraining
+          </Link>
         </div>
       </div>
-    </main>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5 xl:col-span-2">
+          <p className="text-sm text-app-muted">
+            Wochenschwerpunkt
+          </p>
+
+          <p className="mt-2 text-lg font-semibold">
+            {weekData.focus}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm text-app-muted">
+            Zielumfang
+          </p>
+
+          <p className="mt-2 text-2xl font-bold">
+            {(weekData.targetMeters / 1000).toLocaleString("de-DE")} km
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm text-app-muted">
+            Geplant
+          </p>
+
+          <p className="mt-2 text-2xl font-bold">
+            {(totalMeters / 1000).toLocaleString("de-DE")} km
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+          <p className="text-sm text-app-muted">
+            Einheiten
+          </p>
+
+          <p className="mt-2 text-2xl font-bold">
+            {waterSessions + landSessions}
+          </p>
+
+          <p className="mt-1 text-xs text-app-faint">
+            {waterSessions} Wasser · {landSessions} Land
+          </p>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold">
+            Wochenplan
+          </h2>
+
+          <p className="mt-1 text-sm text-app-muted">
+            Montag bis Sonntag mit allen geplanten
+            Trainingseinheiten.
+          </p>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-7">
+          {days.map((day) => (
+            <div
+              key={day.id}
+              className="min-h-[420px] rounded-2xl border border-app-border bg-app-surface"
+            >
+              <div className="border-b border-app-border p-4">
+                <p className="text-xs text-app-faint">
+                  {day.date}
+                </p>
+
+                <h3 className="mt-1 font-semibold">
+                  {day.name}
+                </h3>
+              </div>
+
+              <div className="space-y-3 p-3">
+                {day.sessions.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-app-border p-4 text-center">
+                    <p className="text-sm text-app-faint">
+                      Keine Einheit
+                    </p>
+
+                    <Link
+                      href={getNewTrainingLink(day)}
+                      className="mt-3 inline-block text-sm text-app-text hover:text-white"
+                    >
+                      + Training
+                    </Link>
+                  </div>
+                ) : (
+                  day.sessions.map((session) => (
+                    <div
+                      key={session.id}
+                      className="rounded-xl border border-app-border bg-app-bg p-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span
+                          className={`rounded-full px-2 py-1 text-[10px] font-medium ${
+                            session.type === "Wasser"
+                              ? "bg-sky-950 text-sky-300"
+                              : "bg-emerald-950 text-emerald-300"
+                          }`}
+                        >
+                          {session.type}
+                        </span>
+
+                        <span className="text-xs text-app-faint">
+                          {session.time}
+                        </span>
+                      </div>
+
+                      <h4 className="mt-3 text-sm font-semibold">
+                        {session.title}
+                      </h4>
+
+                      <p className="mt-1 text-xs leading-5 text-app-faint">
+                        {session.focus}
+                      </p>
+
+                      {session.type === "Wasser" &&
+                        session.meters && (
+                          <p className="mt-3 text-sm font-medium">
+                            {session.meters.toLocaleString(
+                              "de-DE"
+                            )}{" "}
+                            m
+                          </p>
+                        )}
+
+                      <Link
+                        href={getExistingTrainingLink(
+                          day,
+                          session
+                        )}
+                        className="mt-3 block rounded-lg border border-app-border px-3 py-2 text-center text-xs hover:bg-app-elevated"
+                      >
+                        Einheit öffnen
+                      </Link>
+                    </div>
+                  ))
+                )}
+
+                {day.sessions.length > 0 && (
+                  <Link
+                    href={getNewTrainingLink(day)}
+                    className="block rounded-xl border border-dashed border-app-border px-3 py-3 text-center text-sm text-app-muted hover:bg-app-elevated hover:text-white"
+                  >
+                    + weitere Einheit
+                  </Link>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-6">
+        <h2 className="text-lg font-semibold">
+          Struktur
+        </h2>
+
+        <div className="mt-5 flex flex-wrap items-center gap-3 text-sm">
+          <Link
+            href="/coach/training/season"
+            className="rounded-xl border border-app-border px-4 py-3 hover:bg-app-elevated"
+          >
+            Jahresplanung
+          </Link>
+
+          <span className="text-app-faint">→</span>
+
+          <div className="rounded-xl border border-app-border px-4 py-3">
+            {weekData.macro}
+          </div>
+
+          <span className="text-app-faint">→</span>
+
+          <Link
+            href={`/coach/training/meso/${weekData.mesoId}`}
+            className="rounded-xl border border-app-border px-4 py-3 hover:bg-app-elevated"
+          >
+            {weekData.meso}
+          </Link>
+
+          <span className="text-app-faint">→</span>
+
+          <div className="rounded-xl bg-app-accent px-4 py-3 font-medium text-app-accent-ink">
+            KW {weekData.weekNumber}
+          </div>
+
+          <span className="text-app-faint">→</span>
+
+          <div className="rounded-xl border border-app-border px-4 py-3">
+            Trainingseinheit
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }

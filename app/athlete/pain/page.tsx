@@ -709,11 +709,11 @@ export default function PainReportPage() {
     bodySelections.length > 0;
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6">
+    <main className="bg-app-bg px-4 py-6 text-white sm:px-6">
       <div className="mx-auto max-w-3xl">
         <Link
           href="/athlete"
-          className="text-sm text-slate-400 transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-white"
         >
           ← Zurück
         </Link>
@@ -735,7 +735,7 @@ export default function PainReportPage() {
                     ? "scale-110 bg-amber-400"
                     : item < step
                     ? "bg-emerald-500"
-                    : "bg-slate-700"
+                    : "bg-app-elevated"
                 }`}
               />
             )
@@ -752,7 +752,7 @@ export default function PainReportPage() {
             SCHRITT 1
         ===================================================== */}
         {step === 1 && (
-          <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-4 sm:p-6">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface p-4 sm:p-6">
             <h2 className="text-center text-2xl font-bold">
               Wo tut es weh?
             </h2>
@@ -772,13 +772,13 @@ export default function PainReportPage() {
                           selection
                         )
                       }
-                      className="rounded-full border border-orange-400/40 bg-orange-500/10 px-3 py-1.5 text-xs font-semibold text-orange-200 transition hover:bg-orange-500/20"
+                      className="rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-200 transition hover:bg-amber-500/20"
                     >
                       {
                         selection.label
                       }
 
-                      <span className="ml-1.5 text-orange-400">
+                      <span className="ml-1.5 text-amber-400">
                         ×
                       </span>
                     </button>
@@ -787,7 +787,7 @@ export default function PainReportPage() {
               </div>
             )}
 
-            <div className="mt-5 overflow-hidden rounded-2xl border border-slate-700 bg-slate-800/70 p-2 sm:p-4">
+            <div className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-elevated/70 p-2 sm:p-4">
               <div className="relative mx-auto w-full max-w-[760px]">
                 <img
                   src="/pain-body-map.svg"
@@ -823,8 +823,8 @@ export default function PainReportPage() {
                         }
                         className={`absolute z-10 transition-all duration-150 ${
                           active
-                            ? "border border-orange-200/80 bg-orange-400/45 shadow-[0_0_10px_rgba(251,146,60,0.30)]"
-                            : "border border-transparent bg-transparent hover:border-orange-200/20 hover:bg-orange-300/10"
+                            ? "border border-amber-200/80 bg-amber-400/45 shadow-[0_0_10px_rgba(251,146,60,0.30)]"
+                            : "border border-transparent bg-transparent hover:border-amber-200/20 hover:bg-amber-300/10"
                         }`}
                         style={{
                           left: `${zone.left}%`,
@@ -842,7 +842,7 @@ export default function PainReportPage() {
               </div>
             </div>
 
-            <p className="mt-3 text-center text-xs text-slate-500">
+            <p className="mt-3 text-center text-xs text-app-faint">
               Du kannst mehrere Stellen auswählen.
             </p>
           </section>
@@ -852,7 +852,7 @@ export default function PainReportPage() {
             SCHRITT 2
         ===================================================== */}
         {step === 2 && (
-          <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5 sm:p-7">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-7">
             <h2 className="text-center text-2xl font-bold">
               Wie stark sind die Schmerzen?
             </h2>
@@ -868,9 +868,9 @@ export default function PainReportPage() {
                     number,
                     string
                   > = {
-                    1: "border-yellow-500/30 bg-yellow-500/5 text-yellow-200",
+                    1: "border-amber-500/30 bg-amber-500/5 text-amber-200",
                     2: "border-amber-500/30 bg-amber-500/5 text-amber-200",
-                    3: "border-orange-500/30 bg-orange-500/5 text-orange-200",
+                    3: "border-amber-500/30 bg-amber-500/5 text-amber-200",
                     4: "border-red-500/30 bg-red-500/5 text-red-200",
                     5: "border-red-600/40 bg-red-600/10 text-red-200",
                   };
@@ -879,9 +879,9 @@ export default function PainReportPage() {
                     number,
                     string
                   > = {
-                    1: "border-yellow-400 bg-yellow-400/90 text-slate-950 ring-2 ring-yellow-300/30",
-                    2: "border-amber-400 bg-amber-400/90 text-slate-950 ring-2 ring-amber-300/30",
-                    3: "border-orange-400 bg-orange-400/90 text-slate-950 ring-2 ring-orange-300/30",
+                    1: "border-amber-400 bg-amber-400/90 text-app-accent-ink ring-2 ring-amber-300/30",
+                    2: "border-amber-400 bg-amber-400/90 text-app-accent-ink ring-2 ring-amber-300/30",
+                    3: "border-amber-400 bg-amber-400/90 text-app-accent-ink ring-2 ring-amber-300/30",
                     4: "border-red-400 bg-red-400/90 text-white ring-2 ring-red-300/30",
                     5: "border-red-500 bg-red-500/90 text-white ring-2 ring-red-400/30",
                   };
@@ -911,7 +911,7 @@ export default function PainReportPage() {
               )}
             </div>
 
-            <div className="mt-3 flex items-center justify-between px-1 text-sm font-medium text-slate-400">
+            <div className="mt-3 flex items-center justify-between px-1 text-sm font-medium text-app-muted">
               <span>
                 leicht
               </span>
@@ -927,7 +927,7 @@ export default function PainReportPage() {
             SCHRITT 3
         ===================================================== */}
         {step === 3 && (
-          <section className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-5 sm:p-7">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-7">
             <h2 className="text-2xl font-bold">
               Möchtest du noch etwas sagen?
             </h2>
@@ -944,10 +944,10 @@ export default function PainReportPage() {
               rows={3}
               maxLength={500}
               placeholder="z. B. zieht beim Laufen"
-              className="mt-5 min-h-[96px] w-full resize-y rounded-2xl border border-slate-700 bg-slate-950 p-4 text-base text-white outline-none transition placeholder:text-slate-600 focus:border-amber-400"
+              className="mt-5 min-h-[96px] w-full resize-y rounded-2xl border border-app-border bg-app-bg p-4 text-base text-white outline-none transition placeholder:text-app-faint focus:border-amber-400"
             />
 
-            <p className="mt-2 text-right text-xs text-slate-600">
+            <p className="mt-2 text-right text-xs text-app-faint">
               {note.length}/500
             </p>
           </section>
@@ -965,7 +965,7 @@ export default function PainReportPage() {
             disabled={
               step === 1
             }
-            className="rounded-2xl border border-slate-700 px-5 py-4 font-semibold text-slate-300 transition hover:bg-slate-900 disabled:cursor-not-allowed disabled:opacity-30"
+            className="rounded-2xl border border-app-border px-5 py-4 font-semibold text-app-text transition hover:bg-app-surface disabled:cursor-not-allowed disabled:opacity-30"
           >
             Zurück
           </button>
@@ -982,7 +982,7 @@ export default function PainReportPage() {
                 (step === 2 &&
                   painLevel === null)
               }
-              className="rounded-2xl bg-amber-400 px-5 py-4 font-bold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-600"
+              className="rounded-2xl bg-amber-400 px-5 py-4 font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:bg-app-elevated disabled:text-app-faint"
             >
               Weiter →
             </button>
@@ -995,7 +995,7 @@ export default function PainReportPage() {
               disabled={
                 saving
               }
-              className="rounded-2xl bg-amber-400 px-4 py-4 font-bold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-2xl bg-amber-400 px-4 py-4 font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Wird gespeichert..."

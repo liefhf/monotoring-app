@@ -8,6 +8,8 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import LoadStrainPanel from "@/components/LoadStrainPanel";
+import GrowthPanel from "@/components/GrowthPanel";
 
 type AthleteProfile = {
   id: string;
@@ -228,7 +230,7 @@ function LineChart({
 
   if (points.length === 0) {
     return (
-      <div className="flex min-h-[190px] items-center justify-center rounded-xl border border-slate-800 bg-slate-950/40 px-4 text-center text-sm text-slate-500">
+      <div className="flex min-h-[190px] items-center justify-center rounded-xl border border-app-border bg-app-bg/40 px-4 text-center text-sm text-app-faint">
         Noch keine Daten für diesen Verlauf vorhanden.
       </div>
     );
@@ -343,7 +345,7 @@ function LineChart({
                   }
                   y2={y}
                   stroke="currentColor"
-                  className="text-slate-800"
+                  className="text-app-faint"
                   strokeWidth="1"
                 />
 
@@ -373,7 +375,7 @@ function LineChart({
             }
             fill="none"
             stroke="currentColor"
-            className="text-slate-300"
+            className="text-app-text"
             strokeWidth="2.25"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -415,7 +417,7 @@ function LineChart({
                   className={
                     highlight
                       ? "text-amber-300"
-                      : "text-slate-200"
+                      : "text-app-text"
                   }
                 />
 
@@ -533,33 +535,6 @@ export default function CoachAthleteProfilePage() {
     useState<BefindenChartMetric>(
       "overall"
     );
-
-  const navigation = [
-    {
-      name: "Dashboard",
-      href: "/coach",
-    },
-    {
-      name: "Teams",
-      href: "/coach/teams",
-    },
-    {
-      name: "Athleten",
-      href: "/coach/athletes",
-    },
-    {
-      name: "Training",
-      href: "/coach/training",
-    },
-    {
-      name: "Auswertungen",
-      href: "/coach/analytics",
-    },
-    {
-      name: "Einstellungen",
-      href: "/coach/settings",
-    },
-  ];
 
   useEffect(() => {
     loadAthlete();
@@ -1229,7 +1204,7 @@ export default function CoachAthleteProfilePage() {
         label:
           "Keine Daten",
         className:
-          "border-slate-700 bg-slate-900 text-slate-400",
+          "border-app-border bg-app-surface text-app-muted",
       };
     }
 
@@ -1268,7 +1243,7 @@ export default function CoachAthleteProfilePage() {
     if (
       rpe <= 4
     ) {
-      return "text-slate-300";
+      return "text-app-text";
     }
 
     if (
@@ -1286,1070 +1261,1031 @@ export default function CoachAthleteProfilePage() {
     );
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        {/* SIDEBAR */}
+    <div className="mx-auto w-full max-w-[1500px]">
+      <Link
+        href="/coach/athletes"
+        className="text-xs text-app-faint transition hover:text-white"
+      >
+        ← Zurück zu Athleten
+      </Link>
 
-        <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex lg:flex-col">
-          <div className="border-b border-slate-800 px-5 py-5">
-            <h2 className="text-lg font-bold">
-              Monitoring App
-            </h2>
+      {loading ? (
+        <div className="mt-4 rounded-xl border border-app-border bg-app-surface p-5 text-sm text-app-muted">
+          Athletenprofil wird geladen...
+        </div>
+      ) : message ? (
+        <div className="mt-4 rounded-xl border border-red-900 bg-red-950/40 p-5 text-sm text-red-300">
+          {
+            message
+          }
+        </div>
+      ) : athlete ? (
+        <>
+          {/* HEADER */}
 
-            <p className="mt-1 text-xs text-slate-500">
-              Coach Bereich
+          <header className="mt-4">
+            <p className="text-xs text-app-faint">
+              Athletenprofil
             </p>
-          </div>
 
-          <nav className="flex-1 space-y-1 p-3">
-            {navigation.map(
-              (
-                item
-              ) => (
-                <Link
-                  key={
-                    item.name
-                  }
-                  href={
-                    item.href
-                  }
-                  className={`block rounded-lg px-4 py-2.5 text-sm transition ${
-                    item.name ===
-                    "Athleten"
-                      ? "bg-white font-medium text-slate-950"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                  }`}
-                >
-                  {
-                    item.name
-                  }
-                </Link>
-              )
-            )}
-          </nav>
-        </aside>
-
-        {/* CONTENT */}
-
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6">
-            <Link
-              href="/coach/athletes"
-              className="text-xs text-slate-500 transition hover:text-white"
-            >
-              ← Zurück zu Athleten
-            </Link>
-
-            {loading ? (
-              <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900 p-5 text-sm text-slate-400">
-                Athletenprofil wird geladen...
-              </div>
-            ) : message ? (
-              <div className="mt-4 rounded-xl border border-red-900 bg-red-950/40 p-5 text-sm text-red-300">
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight">
                 {
-                  message
+                  fullName
                 }
+              </h1>
+
+              <span
+                className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${currentStatus.className}`}
+              >
+                {
+                  currentStatus.label
+                }
+              </span>
+            </div>
+
+            <p className="mt-1.5 text-sm text-app-muted">
+              Befinden und Trainingsdaten im Überblick.
+            </p>
+
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-app-faint">
+                Teams:
+              </span>
+
+              {teams.map(
+                (
+                  team
+                ) => (
+                  <span
+                    key={
+                      team.id
+                    }
+                    className="rounded-full border border-app-border bg-app-surface px-2.5 py-1 text-xs text-app-text"
+                  >
+                    {
+                      team.name
+                    }
+                  </span>
+                )
+              )}
+            </div>
+          </header>
+
+          {/* KPIS */}
+
+          <section className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+              <p className="text-xs text-app-faint">
+                Teams
+              </p>
+
+              <p className="mt-1 text-2xl font-bold">
+                {
+                  teams.length
+                }
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+              <p className="text-xs text-app-faint">
+                Aktuelles Befinden
+              </p>
+
+              <div className="mt-1 flex items-baseline gap-1">
+                <p className="text-2xl font-bold">
+                  {latestScore !==
+                  null
+                    ? latestScore.toLocaleString(
+                        "de-DE",
+                        {
+                          minimumFractionDigits:
+                            1,
+                          maximumFractionDigits:
+                            1,
+                        }
+                      )
+                    : "—"}
+                </p>
+
+                {latestScore !==
+                  null && (
+                  <span className="text-xs text-app-faint">
+                    / 10
+                  </span>
+                )}
               </div>
-            ) : athlete ? (
-              <>
-                {/* HEADER */}
+            </div>
 
-                <header className="mt-4">
-                  <p className="text-xs text-slate-500">
-                    Athletenprofil
-                  </p>
+            <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+              <p className="text-xs text-app-faint">
+                Ø RPE
+              </p>
 
-                  <div className="mt-1 flex flex-wrap items-center gap-3">
-                    <h1 className="text-3xl font-bold tracking-tight">
+              <div className="mt-1 flex items-baseline gap-1">
+                <p className="text-2xl font-bold text-amber-300">
+                  {averageRpe !==
+                  null
+                    ? averageRpe.toLocaleString(
+                        "de-DE",
+                        {
+                          minimumFractionDigits:
+                            1,
+                          maximumFractionDigits:
+                            1,
+                        }
+                      )
+                    : "—"}
+                </p>
+
+                {averageRpe !==
+                  null && (
+                  <span className="text-xs text-app-faint">
+                    / 10
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+              <p className="text-xs text-app-faint">
+                Trainingsfeedback
+              </p>
+
+              <p className="mt-1 text-2xl font-bold">
+                {
+                  trainingFeedback.length
+                }
+              </p>
+            </div>
+          </section>
+
+          {/* AKTUELLES BEFINDEN */}
+
+          <section className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <div className="flex flex-col gap-2 border-b border-app-border px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  Aktuelles Befinden
+                </h2>
+
+                <p className="mt-0.5 text-xs text-app-faint">
+                  Letzter gespeicherter Check-in
+                </p>
+              </div>
+
+              {latestEntry && (
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-app-faint">
+                    {formatDate(
+                      latestEntry.entry_date
+                    )}
+                  </span>
+
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[11px] ${currentStatus.className}`}
+                  >
+                    {
+                      currentStatus.label
+                    }
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {!latestEntry ? (
+              <div className="px-5 py-6 text-sm text-app-faint">
+                Noch kein Befinden eingetragen.
+              </div>
+            ) : (
+              <div className="p-4 sm:p-5">
+                <div className="grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
+                  <div>
+                    <p className="text-[11px] text-app-faint">
+                      Schlafqualität
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-semibold">
                       {
-                        fullName
-                      }
-                    </h1>
-
-                    <span
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${currentStatus.className}`}
-                    >
-                      {
-                        currentStatus.label
-                      }
-                    </span>
+                        latestEntry.sleep_quality
+                      }{" "}
+                      / 10
+                    </p>
                   </div>
 
-                  <p className="mt-1.5 text-sm text-slate-400">
-                    Befinden und Trainingsdaten im Überblick.
+                  <div>
+                    <p className="text-[11px] text-app-faint">
+                      Energie
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-semibold">
+                      {
+                        latestEntry.energy
+                      }{" "}
+                      / 10
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-[11px] text-app-faint">
+                      Muskelgefühl
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-semibold">
+                      {
+                        latestEntry.muscle_feeling
+                      }{" "}
+                      / 10
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-[11px] text-app-faint">
+                      Stress
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-semibold">
+                      {
+                        latestEntry.stress
+                      }{" "}
+                      / 10
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-[11px] text-app-faint">
+                      Stimmung
+                    </p>
+
+                    <p className="mt-0.5 text-sm font-semibold">
+                      {
+                        latestEntry.mood
+                      }{" "}
+                      / 10
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-2 border-t border-app-border pt-3 text-sm md:grid-cols-3">
+                  <p>
+                    <span className="text-app-faint">
+                      Schlafdauer:
+                    </span>{" "}
+                    <span className="text-app-text">
+                      {latestEntry.sleep_hours !==
+                      null
+                        ? `${latestEntry.sleep_hours.toLocaleString(
+                            "de-DE"
+                          )} Std.`
+                        : "Nicht angegeben"}
+                    </span>
                   </p>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-slate-500">
-                      Teams:
+                  <p>
+                    <span className="text-app-faint">
+                      Beschwerden:
+                    </span>{" "}
+                    <span className="text-app-text">
+                      {latestEntry.has_pain
+                        ? latestEntry.pain_area ||
+                          "Ja"
+                        : "Nein"}
                     </span>
+                  </p>
 
-                    {teams.map(
+                  <p className="min-w-0">
+                    <span className="text-app-faint">
+                      Kommentar:
+                    </span>{" "}
+                    <span className="text-app-text">
+                      {latestEntry.comment ||
+                        "Kein Kommentar"}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* BEFINDEN IM VERLAUF */}
+
+          <section className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3.5 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  Befinden im Verlauf
+                </h2>
+
+                <p className="mt-0.5 text-xs text-app-faint">
+                  {
+                    getBefindenMetricTitle(
+                      befindenChartMetric
+                    )
+                  }{" "}
+                  der letzten Einträge
+                </p>
+              </div>
+
+              <div className="flex max-w-full gap-1 overflow-x-auto rounded-lg border border-app-border bg-app-bg p-1">
+                {[
+                  {
+                    value:
+                      "overall" as const,
+                    label:
+                      "Gesamt",
+                  },
+                  {
+                    value:
+                      "sleep" as const,
+                    label:
+                      "Schlaf",
+                  },
+                  {
+                    value:
+                      "energy" as const,
+                    label:
+                      "Energie",
+                  },
+                  {
+                    value:
+                      "muscles" as const,
+                    label:
+                      "Muskeln",
+                  },
+                  {
+                    value:
+                      "stress" as const,
+                    label:
+                      "Stress",
+                  },
+                  {
+                    value:
+                      "mood" as const,
+                    label:
+                      "Stimmung",
+                  },
+                ].map(
+                  (
+                    option
+                  ) => (
+                    <button
+                      key={
+                        option.value
+                      }
+                      type="button"
+                      onClick={() =>
+                        setBefindenChartMetric(
+                          option.value
+                        )
+                      }
+                      className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs transition ${
+                        befindenChartMetric ===
+                        option.value
+                          ? "bg-app-accent font-medium text-app-accent-ink"
+                          : "text-app-muted hover:text-white"
+                      }`}
+                    >
+                      {
+                        option.label
+                      }
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-5">
+              <LineChart
+                points={
+                  befindenChartPoints
+                }
+                minValue={1}
+                maxValue={10}
+                ariaLabel={`${getBefindenMetricTitle(
+                  befindenChartMetric
+                )} im Verlauf`}
+              />
+            </div>
+
+            {befindenEntries.length >
+              0 && (
+              <div className="overflow-x-auto border-t border-app-border">
+                <table className="w-full min-w-[760px] text-left">
+                  <thead className="bg-app-bg/40 text-[11px] uppercase tracking-wide text-app-faint">
+                    <tr>
+                      <th className="px-4 py-2 font-medium">
+                        Datum
+                      </th>
+
+                      <th className="px-4 py-2 font-medium">
+                        Gesamt
+                      </th>
+
+                      <th className="px-4 py-2 font-medium">
+                        Schlaf
+                      </th>
+
+                      <th className="px-4 py-2 font-medium">
+                        Energie
+                      </th>
+
+                      <th className="px-4 py-2 font-medium">
+                        Muskeln
+                      </th>
+
+                      <th className="px-4 py-2 font-medium">
+                        Stress
+                      </th>
+
+                      <th className="px-4 py-2 font-medium">
+                        Stimmung
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-app-border">
+                    {befindenEntries.map(
                       (
-                        team
-                      ) => (
-                        <span
-                          key={
-                            team.id
-                          }
-                          className="rounded-full border border-slate-700 bg-slate-900 px-2.5 py-1 text-xs text-slate-300"
-                        >
+                        entry
+                      ) => {
+                        const score =
+                          (entry.sleep_quality +
+                            entry.energy +
+                            entry.muscle_feeling +
+                            entry.stress +
+                            entry.mood) /
+                          5;
+
+                        const status =
+                          getStatus(
+                            score
+                          );
+
+                        return (
+                          <tr
+                            key={
+                              entry.id
+                            }
+                            className="text-sm transition hover:bg-app-elevated/30"
+                          >
+                            <td className="px-4 py-2.5 text-app-muted">
+                              {formatCompactDate(
+                                entry.entry_date
+                              )}
+                            </td>
+
+                            <td className="px-4 py-2.5">
+                              <span className="font-medium">
+                                {score.toLocaleString(
+                                  "de-DE",
+                                  {
+                                    minimumFractionDigits:
+                                      1,
+                                    maximumFractionDigits:
+                                      1,
+                                  }
+                                )}
+                              </span>
+
+                              <span
+                                className={`ml-2 rounded-full border px-2 py-0.5 text-[10px] ${status.className}`}
+                              >
+                                {
+                                  status.label
+                                }
+                              </span>
+                            </td>
+
+                            <td className="px-4 py-2.5">
+                              {
+                                entry.sleep_quality
+                              }
+                            </td>
+
+                            <td className="px-4 py-2.5">
+                              {
+                                entry.energy
+                              }
+                            </td>
+
+                            <td className="px-4 py-2.5">
+                              {
+                                entry.muscle_feeling
+                              }
+                            </td>
+
+                            <td className="px-4 py-2.5">
+                              {
+                                entry.stress
+                              }
+                            </td>
+
+                            <td className="px-4 py-2.5">
+                              {
+                                entry.mood
+                              }
+                            </td>
+                          </tr>
+                        );
+                      }
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {/* TRAINING */}
+
+          <section className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3.5 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  Training: Belastung ↔ Beanspruchung
+                </h2>
+
+                <p className="mt-0.5 text-xs text-app-faint">
+                  Individueller Verlauf
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                <div className="rounded-lg border border-app-border bg-app-bg px-3 py-2">
+                  <p className="text-[10px] text-app-faint">
+                    Ø RPE
+                  </p>
+
+                  <p className="mt-0.5 text-sm font-semibold text-amber-300">
+                    {averageRpe !==
+                    null
+                      ? averageRpe.toLocaleString(
+                          "de-DE",
                           {
-                            team.name
+                            minimumFractionDigits:
+                              1,
+                            maximumFractionDigits:
+                              1,
                           }
-                        </span>
+                        )
+                      : "—"}
+                  </p>
+                </div>
+
+                <div className="rounded-lg border border-app-border bg-app-bg px-3 py-2">
+                  <p className="text-[10px] text-app-faint">
+                    Rückmeldungen
+                  </p>
+
+                  <p className="mt-0.5 text-sm font-semibold">
+                    {
+                      trainingFeedback.length
+                    }
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 sm:p-5">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <p className="text-xs text-app-faint">
+                  {getTrainingMetricTitle(
+                    trainingChartMetric
+                  )}{" "}
+                  im Verlauf
+                </p>
+
+                <div className="inline-flex w-full rounded-lg border border-app-border bg-app-bg p-1 md:w-auto">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTrainingChartMetric(
+                        "rpe"
+                      )
+                    }
+                    className={`flex-1 rounded-md px-3 py-1.5 text-xs transition md:flex-none ${
+                      trainingChartMetric ===
+                      "rpe"
+                        ? "bg-app-accent font-medium text-app-accent-ink"
+                        : "text-app-muted hover:text-white"
+                    }`}
+                  >
+                    RPE
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTrainingChartMetric(
+                        "meters"
+                      )
+                    }
+                    className={`flex-1 rounded-md px-3 py-1.5 text-xs transition md:flex-none ${
+                      trainingChartMetric ===
+                      "meters"
+                        ? "bg-app-accent font-medium text-app-accent-ink"
+                        : "text-app-muted hover:text-white"
+                    }`}
+                  >
+                    Umfang
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setTrainingChartMetric(
+                        "duration"
+                      )
+                    }
+                    className={`flex-1 rounded-md px-3 py-1.5 text-xs transition md:flex-none ${
+                      trainingChartMetric ===
+                      "duration"
+                        ? "bg-app-accent font-medium text-app-accent-ink"
+                        : "text-app-muted hover:text-white"
+                    }`}
+                  >
+                    Dauer
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <LineChart
+                  points={
+                    trainingChartPoints
+                  }
+                  minValue={
+                    trainingChartMetric ===
+                    "rpe"
+                      ? 1
+                      : 0
+                  }
+                  maxValue={
+                    trainingChartMax
+                  }
+                  ariaLabel={`${getTrainingMetricTitle(
+                    trainingChartMetric
+                  )} im Verlauf`}
+                  highlight={
+                    trainingChartMetric ===
+                    "rpe"
+                  }
+                />
+              </div>
+
+              <p className="mt-1 text-[11px] leading-4 text-app-faint">
+                RPE beschreibt die subjektiv wahrgenommene Anstrengung. Umfang und Dauer stammen aus der jeweiligen Trainingseinheit.
+              </p>
+            </div>
+          </section>
+
+          {/* TRAININGSRÜCKMELDUNGEN */}
+
+          <section className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <div className="flex items-center justify-between border-b border-app-border px-4 py-3.5 sm:px-5">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  Trainingsrückmeldungen
+                </h2>
+
+                <p className="mt-0.5 text-xs text-app-faint">
+                  Letzte Einheiten und persönliche RPE
+                </p>
+              </div>
+
+              <p className="text-xs text-app-faint">
+                {
+                  completedTrainings
+                }{" "}
+                /{" "}
+                {
+                  trainingFeedback.length
+                }{" "}
+                fertig
+              </p>
+            </div>
+
+            {feedbackWithTraining.length ===
+            0 ? (
+              <div className="px-5 py-6 text-sm text-app-faint">
+                Noch keine Trainingsrückmeldung vorhanden.
+              </div>
+            ) : (
+              <>
+                {/* DESKTOP */}
+
+                <div className="hidden md:block">
+                  <div className="grid grid-cols-[100px_minmax(220px,1fr)_110px_90px_90px_100px_30px] gap-3 border-b border-app-border bg-app-bg/40 px-5 py-2 text-[11px] uppercase tracking-wide text-app-faint">
+                    <div>
+                      Datum
+                    </div>
+
+                    <div>
+                      Training
+                    </div>
+
+                    <div>
+                      Umfang
+                    </div>
+
+                    <div>
+                      Dauer
+                    </div>
+
+                    <div>
+                      RPE
+                    </div>
+
+                    <div>
+                      Status
+                    </div>
+
+                    <div />
+                  </div>
+
+                  <div className="divide-y divide-app-border">
+                    {feedbackWithTraining.map(
+                      ({
+                        feedback,
+                        training,
+                      }) => (
+                        <details
+                          key={
+                            feedback.id
+                          }
+                          className="group"
+                        >
+                          <summary className="grid cursor-pointer list-none grid-cols-[100px_minmax(220px,1fr)_110px_90px_90px_100px_30px] items-center gap-3 px-5 py-2.5 transition hover:bg-app-elevated/35">
+                            <div className="text-xs text-app-muted">
+                              {training
+                                ? formatCompactDate(
+                                    training.session_date
+                                  )
+                                : "—"}
+                            </div>
+
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium text-white">
+                                {training?.title ??
+                                  "Training"}
+                              </p>
+                            </div>
+
+                            <div className="text-sm text-app-text">
+                              {training?.training_type ===
+                                "water" &&
+                              training.total_meters !==
+                                null
+                                ? `${training.total_meters.toLocaleString(
+                                    "de-DE"
+                                  )} m`
+                                : training?.training_type ===
+                                  "land"
+                                ? "Land"
+                                : "—"}
+                            </div>
+
+                            <div className="text-sm text-app-text">
+                              {training?.duration_minutes !==
+                                null &&
+                              training?.duration_minutes !==
+                                undefined
+                                ? `${training.duration_minutes} min`
+                                : "—"}
+                            </div>
+
+                            <div className="flex items-baseline gap-1">
+                              <span
+                                className={`text-sm font-semibold ${getRpeStyle(
+                                  feedback.rpe
+                                )}`}
+                              >
+                                {
+                                  feedback.rpe
+                                }
+                              </span>
+
+                              <span className="text-xs text-app-faint">
+                                / 10
+                              </span>
+                            </div>
+
+                            <div>
+                              <span className="text-xs text-app-muted">
+                                {feedback.completed
+                                  ? "✓ Fertig"
+                                  : "Offen"}
+                              </span>
+                            </div>
+
+                            <div className="text-center text-xs text-app-faint transition group-open:rotate-180">
+                              ↓
+                            </div>
+                          </summary>
+
+                          <div className="border-t border-app-border/70 bg-app-bg/35 px-5 py-3">
+                            <div className="grid gap-4 text-sm lg:grid-cols-3">
+                              <div>
+                                <p className="text-[11px] text-app-faint">
+                                  Trainingsart
+                                </p>
+
+                                <p className="mt-1 text-app-text">
+                                  {training
+                                    ? training.training_type ===
+                                      "water"
+                                      ? "Wasser"
+                                      : "Land"
+                                    : "—"}
+                                </p>
+                              </div>
+
+                              <div>
+                                <p className="text-[11px] text-app-faint">
+                                  Trainingsfokus
+                                </p>
+
+                                <p className="mt-1 text-app-text">
+                                  {training?.focus ||
+                                    "Kein Fokus angegeben"}
+                                </p>
+                              </div>
+
+                              <div>
+                                <p className="text-[11px] text-app-faint">
+                                  Kommentar des Athleten
+                                </p>
+
+                                <p className="mt-1 text-app-text">
+                                  {feedback.comment ||
+                                    "Kein Kommentar"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </details>
                       )
                     )}
                   </div>
-                </header>
+                </div>
 
-                {/* KPIS */}
+                {/* MOBILE */}
 
-                <section className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
-                  <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                    <p className="text-xs text-slate-500">
-                      Teams
-                    </p>
-
-                    <p className="mt-1 text-2xl font-bold">
-                      {
-                        teams.length
-                      }
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                    <p className="text-xs text-slate-500">
-                      Aktuelles Befinden
-                    </p>
-
-                    <div className="mt-1 flex items-baseline gap-1">
-                      <p className="text-2xl font-bold">
-                        {latestScore !==
-                        null
-                          ? latestScore.toLocaleString(
-                              "de-DE",
-                              {
-                                minimumFractionDigits:
-                                  1,
-                                maximumFractionDigits:
-                                  1,
-                              }
-                            )
-                          : "—"}
-                      </p>
-
-                      {latestScore !==
-                        null && (
-                        <span className="text-xs text-slate-500">
-                          / 10
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                    <p className="text-xs text-slate-500">
-                      Ø RPE
-                    </p>
-
-                    <div className="mt-1 flex items-baseline gap-1">
-                      <p className="text-2xl font-bold text-amber-300">
-                        {averageRpe !==
-                        null
-                          ? averageRpe.toLocaleString(
-                              "de-DE",
-                              {
-                                minimumFractionDigits:
-                                  1,
-                                maximumFractionDigits:
-                                  1,
-                              }
-                            )
-                          : "—"}
-                      </p>
-
-                      {averageRpe !==
-                        null && (
-                        <span className="text-xs text-slate-500">
-                          / 10
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                    <p className="text-xs text-slate-500">
-                      Trainingsfeedback
-                    </p>
-
-                    <p className="mt-1 text-2xl font-bold">
-                      {
-                        trainingFeedback.length
-                      }
-                    </p>
-                  </div>
-                </section>
-
-                {/* AKTUELLES BEFINDEN */}
-
-                <section className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="flex flex-col gap-2 border-b border-slate-800 px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                    <div>
-                      <h2 className="text-lg font-semibold">
-                        Aktuelles Befinden
-                      </h2>
-
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        Letzter gespeicherter Check-in
-                      </p>
-                    </div>
-
-                    {latestEntry && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="text-slate-500">
-                          {formatDate(
-                            latestEntry.entry_date
-                          )}
-                        </span>
-
-                        <span
-                          className={`rounded-full border px-2 py-0.5 text-[11px] ${currentStatus.className}`}
-                        >
-                          {
-                            currentStatus.label
-                          }
-                        </span>
-                      </div>
-                    )}
-                  </div>
-
-                  {!latestEntry ? (
-                    <div className="px-5 py-6 text-sm text-slate-500">
-                      Noch kein Befinden eingetragen.
-                    </div>
-                  ) : (
-                    <div className="p-4 sm:p-5">
-                      <div className="grid grid-cols-2 gap-x-5 gap-y-3 sm:grid-cols-3 lg:grid-cols-5">
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Schlafqualität
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold">
-                            {
-                              latestEntry.sleep_quality
-                            }{" "}
-                            / 10
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Energie
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold">
-                            {
-                              latestEntry.energy
-                            }{" "}
-                            / 10
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Muskelgefühl
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold">
-                            {
-                              latestEntry.muscle_feeling
-                            }{" "}
-                            / 10
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Stress
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold">
-                            {
-                              latestEntry.stress
-                            }{" "}
-                            / 10
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[11px] text-slate-600">
-                            Stimmung
-                          </p>
-
-                          <p className="mt-0.5 text-sm font-semibold">
-                            {
-                              latestEntry.mood
-                            }{" "}
-                            / 10
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="mt-4 grid gap-2 border-t border-slate-800 pt-3 text-sm md:grid-cols-3">
-                        <p>
-                          <span className="text-slate-500">
-                            Schlafdauer:
-                          </span>{" "}
-                          <span className="text-slate-300">
-                            {latestEntry.sleep_hours !==
-                            null
-                              ? `${latestEntry.sleep_hours.toLocaleString(
-                                  "de-DE"
-                                )} Std.`
-                              : "Nicht angegeben"}
-                          </span>
-                        </p>
-
-                        <p>
-                          <span className="text-slate-500">
-                            Beschwerden:
-                          </span>{" "}
-                          <span className="text-slate-300">
-                            {latestEntry.has_pain
-                              ? latestEntry.pain_area ||
-                                "Ja"
-                              : "Nein"}
-                          </span>
-                        </p>
-
-                        <p className="min-w-0">
-                          <span className="text-slate-500">
-                            Kommentar:
-                          </span>{" "}
-                          <span className="text-slate-300">
-                            {latestEntry.comment ||
-                              "Kein Kommentar"}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </section>
-
-                {/* BEFINDEN IM VERLAUF */}
-
-                <section className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="flex flex-col gap-3 border-b border-slate-800 px-4 py-3.5 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold">
-                        Befinden im Verlauf
-                      </h2>
-
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        {
-                          getBefindenMetricTitle(
-                            befindenChartMetric
-                          )
-                        }{" "}
-                        der letzten Einträge
-                      </p>
-                    </div>
-
-                    <div className="flex max-w-full gap-1 overflow-x-auto rounded-lg border border-slate-700 bg-slate-950 p-1">
-                      {[
-                        {
-                          value:
-                            "overall" as const,
-                          label:
-                            "Gesamt",
-                        },
-                        {
-                          value:
-                            "sleep" as const,
-                          label:
-                            "Schlaf",
-                        },
-                        {
-                          value:
-                            "energy" as const,
-                          label:
-                            "Energie",
-                        },
-                        {
-                          value:
-                            "muscles" as const,
-                          label:
-                            "Muskeln",
-                        },
-                        {
-                          value:
-                            "stress" as const,
-                          label:
-                            "Stress",
-                        },
-                        {
-                          value:
-                            "mood" as const,
-                          label:
-                            "Stimmung",
-                        },
-                      ].map(
-                        (
-                          option
-                        ) => (
-                          <button
-                            key={
-                              option.value
-                            }
-                            type="button"
-                            onClick={() =>
-                              setBefindenChartMetric(
-                                option.value
-                              )
-                            }
-                            className={`shrink-0 rounded-md px-2.5 py-1.5 text-xs transition ${
-                              befindenChartMetric ===
-                              option.value
-                                ? "bg-slate-200 font-medium text-slate-950"
-                                : "text-slate-400 hover:text-white"
-                            }`}
-                          >
-                            {
-                              option.label
-                            }
-                          </button>
-                        )
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-4 sm:p-5">
-                    <LineChart
-                      points={
-                        befindenChartPoints
-                      }
-                      minValue={1}
-                      maxValue={10}
-                      ariaLabel={`${getBefindenMetricTitle(
-                        befindenChartMetric
-                      )} im Verlauf`}
-                    />
-                  </div>
-
-                  {befindenEntries.length >
-                    0 && (
-                    <div className="overflow-x-auto border-t border-slate-800">
-                      <table className="w-full min-w-[760px] text-left">
-                        <thead className="bg-slate-950/40 text-[11px] uppercase tracking-wide text-slate-600">
-                          <tr>
-                            <th className="px-4 py-2 font-medium">
-                              Datum
-                            </th>
-
-                            <th className="px-4 py-2 font-medium">
-                              Gesamt
-                            </th>
-
-                            <th className="px-4 py-2 font-medium">
-                              Schlaf
-                            </th>
-
-                            <th className="px-4 py-2 font-medium">
-                              Energie
-                            </th>
-
-                            <th className="px-4 py-2 font-medium">
-                              Muskeln
-                            </th>
-
-                            <th className="px-4 py-2 font-medium">
-                              Stress
-                            </th>
-
-                            <th className="px-4 py-2 font-medium">
-                              Stimmung
-                            </th>
-                          </tr>
-                        </thead>
-
-                        <tbody className="divide-y divide-slate-800">
-                          {befindenEntries.map(
-                            (
-                              entry
-                            ) => {
-                              const score =
-                                (entry.sleep_quality +
-                                  entry.energy +
-                                  entry.muscle_feeling +
-                                  entry.stress +
-                                  entry.mood) /
-                                5;
-
-                              const status =
-                                getStatus(
-                                  score
-                                );
-
-                              return (
-                                <tr
-                                  key={
-                                    entry.id
-                                  }
-                                  className="text-sm transition hover:bg-slate-800/30"
-                                >
-                                  <td className="px-4 py-2.5 text-slate-400">
-                                    {formatCompactDate(
-                                      entry.entry_date
-                                    )}
-                                  </td>
-
-                                  <td className="px-4 py-2.5">
-                                    <span className="font-medium">
-                                      {score.toLocaleString(
-                                        "de-DE",
-                                        {
-                                          minimumFractionDigits:
-                                            1,
-                                          maximumFractionDigits:
-                                            1,
-                                        }
-                                      )}
-                                    </span>
-
-                                    <span
-                                      className={`ml-2 rounded-full border px-2 py-0.5 text-[10px] ${status.className}`}
-                                    >
-                                      {
-                                        status.label
-                                      }
-                                    </span>
-                                  </td>
-
-                                  <td className="px-4 py-2.5">
-                                    {
-                                      entry.sleep_quality
-                                    }
-                                  </td>
-
-                                  <td className="px-4 py-2.5">
-                                    {
-                                      entry.energy
-                                    }
-                                  </td>
-
-                                  <td className="px-4 py-2.5">
-                                    {
-                                      entry.muscle_feeling
-                                    }
-                                  </td>
-
-                                  <td className="px-4 py-2.5">
-                                    {
-                                      entry.stress
-                                    }
-                                  </td>
-
-                                  <td className="px-4 py-2.5">
-                                    {
-                                      entry.mood
-                                    }
-                                  </td>
-                                </tr>
-                              );
-                            }
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </section>
-
-                {/* TRAINING */}
-
-                <section className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="flex flex-col gap-3 border-b border-slate-800 px-4 py-3.5 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold">
-                        Training: Belastung ↔ Beanspruchung
-                      </h2>
-
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        Individueller Verlauf
-                      </p>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <div className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-2">
-                        <p className="text-[10px] text-slate-600">
-                          Ø RPE
-                        </p>
-
-                        <p className="mt-0.5 text-sm font-semibold text-amber-300">
-                          {averageRpe !==
-                          null
-                            ? averageRpe.toLocaleString(
-                                "de-DE",
-                                {
-                                  minimumFractionDigits:
-                                    1,
-                                  maximumFractionDigits:
-                                    1,
-                                }
-                              )
-                            : "—"}
-                        </p>
-                      </div>
-
-                      <div className="rounded-lg border border-slate-800 bg-slate-950 px-3 py-2">
-                        <p className="text-[10px] text-slate-600">
-                          Rückmeldungen
-                        </p>
-
-                        <p className="mt-0.5 text-sm font-semibold">
-                          {
-                            trainingFeedback.length
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="p-4 sm:p-5">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                      <p className="text-xs text-slate-500">
-                        {getTrainingMetricTitle(
-                          trainingChartMetric
-                        )}{" "}
-                        im Verlauf
-                      </p>
-
-                      <div className="inline-flex w-full rounded-lg border border-slate-700 bg-slate-950 p-1 md:w-auto">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setTrainingChartMetric(
-                              "rpe"
-                            )
-                          }
-                          className={`flex-1 rounded-md px-3 py-1.5 text-xs transition md:flex-none ${
-                            trainingChartMetric ===
-                            "rpe"
-                              ? "bg-slate-200 font-medium text-slate-950"
-                              : "text-slate-400 hover:text-white"
-                          }`}
-                        >
-                          RPE
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setTrainingChartMetric(
-                              "meters"
-                            )
-                          }
-                          className={`flex-1 rounded-md px-3 py-1.5 text-xs transition md:flex-none ${
-                            trainingChartMetric ===
-                            "meters"
-                              ? "bg-slate-200 font-medium text-slate-950"
-                              : "text-slate-400 hover:text-white"
-                          }`}
-                        >
-                          Umfang
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setTrainingChartMetric(
-                              "duration"
-                            )
-                          }
-                          className={`flex-1 rounded-md px-3 py-1.5 text-xs transition md:flex-none ${
-                            trainingChartMetric ===
-                            "duration"
-                              ? "bg-slate-200 font-medium text-slate-950"
-                              : "text-slate-400 hover:text-white"
-                          }`}
-                        >
-                          Dauer
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="mt-3">
-                      <LineChart
-                        points={
-                          trainingChartPoints
+                <div className="divide-y divide-app-border md:hidden">
+                  {feedbackWithTraining.map(
+                    ({
+                      feedback,
+                      training,
+                    }) => (
+                      <details
+                        key={
+                          feedback.id
                         }
-                        minValue={
-                          trainingChartMetric ===
-                          "rpe"
-                            ? 1
-                            : 0
-                        }
-                        maxValue={
-                          trainingChartMax
-                        }
-                        ariaLabel={`${getTrainingMetricTitle(
-                          trainingChartMetric
-                        )} im Verlauf`}
-                        highlight={
-                          trainingChartMetric ===
-                          "rpe"
-                        }
-                      />
-                    </div>
+                        className="group"
+                      >
+                        <summary className="cursor-pointer list-none px-4 py-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="text-xs text-app-faint">
+                                {training
+                                  ? formatCompactDate(
+                                      training.session_date
+                                    )
+                                  : "—"}
+                              </p>
 
-                    <p className="mt-1 text-[11px] leading-4 text-slate-600">
-                      RPE beschreibt die subjektiv wahrgenommene Anstrengung. Umfang und Dauer stammen aus der jeweiligen Trainingseinheit.
-                    </p>
-                  </div>
-                </section>
+                              <p className="mt-1 truncate text-sm font-semibold">
+                                {training?.title ??
+                                  "Training"}
+                              </p>
+                            </div>
 
-                {/* TRAININGSRÜCKMELDUNGEN */}
-
-                <section className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-                  <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3.5 sm:px-5">
-                    <div>
-                      <h2 className="text-lg font-semibold">
-                        Trainingsrückmeldungen
-                      </h2>
-
-                      <p className="mt-0.5 text-xs text-slate-500">
-                        Letzte Einheiten und persönliche RPE
-                      </p>
-                    </div>
-
-                    <p className="text-xs text-slate-500">
-                      {
-                        completedTrainings
-                      }{" "}
-                      /{" "}
-                      {
-                        trainingFeedback.length
-                      }{" "}
-                      fertig
-                    </p>
-                  </div>
-
-                  {feedbackWithTraining.length ===
-                  0 ? (
-                    <div className="px-5 py-6 text-sm text-slate-500">
-                      Noch keine Trainingsrückmeldung vorhanden.
-                    </div>
-                  ) : (
-                    <>
-                      {/* DESKTOP */}
-
-                      <div className="hidden md:block">
-                        <div className="grid grid-cols-[100px_minmax(220px,1fr)_110px_90px_90px_100px_30px] gap-3 border-b border-slate-800 bg-slate-950/40 px-5 py-2 text-[11px] uppercase tracking-wide text-slate-600">
-                          <div>
-                            Datum
-                          </div>
-
-                          <div>
-                            Training
-                          </div>
-
-                          <div>
-                            Umfang
-                          </div>
-
-                          <div>
-                            Dauer
-                          </div>
-
-                          <div>
-                            RPE
-                          </div>
-
-                          <div>
-                            Status
-                          </div>
-
-                          <div />
-                        </div>
-
-                        <div className="divide-y divide-slate-800">
-                          {feedbackWithTraining.map(
-                            ({
-                              feedback,
-                              training,
-                            }) => (
-                              <details
-                                key={
-                                  feedback.id
-                                }
-                                className="group"
+                            <div className="flex shrink-0 items-center gap-2">
+                              <span
+                                className={`text-sm font-semibold ${getRpeStyle(
+                                  feedback.rpe
+                                )}`}
                               >
-                                <summary className="grid cursor-pointer list-none grid-cols-[100px_minmax(220px,1fr)_110px_90px_90px_100px_30px] items-center gap-3 px-5 py-2.5 transition hover:bg-slate-800/35">
-                                  <div className="text-xs text-slate-400">
-                                    {training
-                                      ? formatCompactDate(
-                                          training.session_date
-                                        )
-                                      : "—"}
-                                  </div>
+                                RPE{" "}
+                                {
+                                  feedback.rpe
+                                }
+                              </span>
 
-                                  <div className="min-w-0">
-                                    <p className="truncate text-sm font-medium text-white">
-                                      {training?.title ??
-                                        "Training"}
-                                    </p>
-                                  </div>
+                              <span className="text-xs text-app-faint transition group-open:rotate-180">
+                                ↓
+                              </span>
+                            </div>
+                          </div>
 
-                                  <div className="text-sm text-slate-300">
-                                    {training?.training_type ===
-                                      "water" &&
-                                    training.total_meters !==
-                                      null
-                                      ? `${training.total_meters.toLocaleString(
-                                          "de-DE"
-                                        )} m`
-                                      : training?.training_type ===
-                                        "land"
-                                      ? "Land"
-                                      : "—"}
-                                  </div>
+                          <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
+                            <div>
+                              <p className="text-app-faint">
+                                Umfang
+                              </p>
 
-                                  <div className="text-sm text-slate-300">
-                                    {training?.duration_minutes !==
-                                      null &&
-                                    training?.duration_minutes !==
-                                      undefined
-                                      ? `${training.duration_minutes} min`
-                                      : "—"}
-                                  </div>
+                              <p className="mt-0.5 text-app-text">
+                                {training?.training_type ===
+                                  "water" &&
+                                training.total_meters !==
+                                  null
+                                  ? `${training.total_meters.toLocaleString(
+                                      "de-DE"
+                                    )} m`
+                                  : training?.training_type ===
+                                    "land"
+                                  ? "Land"
+                                  : "—"}
+                              </p>
+                            </div>
 
-                                  <div className="flex items-baseline gap-1">
-                                    <span
-                                      className={`text-sm font-semibold ${getRpeStyle(
-                                        feedback.rpe
-                                      )}`}
-                                    >
-                                      {
-                                        feedback.rpe
-                                      }
-                                    </span>
+                            <div>
+                              <p className="text-app-faint">
+                                Dauer
+                              </p>
 
-                                    <span className="text-xs text-slate-600">
-                                      / 10
-                                    </span>
-                                  </div>
+                              <p className="mt-0.5 text-app-text">
+                                {training?.duration_minutes !==
+                                  null &&
+                                training?.duration_minutes !==
+                                  undefined
+                                  ? `${training.duration_minutes} min`
+                                  : "—"}
+                              </p>
+                            </div>
 
-                                  <div>
-                                    <span className="text-xs text-slate-400">
-                                      {feedback.completed
-                                        ? "✓ Fertig"
-                                        : "Offen"}
-                                    </span>
-                                  </div>
+                            <div>
+                              <p className="text-app-faint">
+                                Status
+                              </p>
 
-                                  <div className="text-center text-xs text-slate-600 transition group-open:rotate-180">
-                                    ↓
-                                  </div>
-                                </summary>
+                              <p className="mt-0.5 text-app-text">
+                                {feedback.completed
+                                  ? "✓ Fertig"
+                                  : "Offen"}
+                              </p>
+                            </div>
+                          </div>
+                        </summary>
 
-                                <div className="border-t border-slate-800/70 bg-slate-950/35 px-5 py-3">
-                                  <div className="grid gap-4 text-sm lg:grid-cols-3">
-                                    <div>
-                                      <p className="text-[11px] text-slate-600">
-                                        Trainingsart
-                                      </p>
+                        <div className="border-t border-app-border/70 bg-app-bg/35 px-4 py-3 text-sm">
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-[11px] text-app-faint">
+                                Trainingsart
+                              </p>
 
-                                      <p className="mt-1 text-slate-300">
-                                        {training
-                                          ? training.training_type ===
-                                            "water"
-                                            ? "Wasser"
-                                            : "Land"
-                                          : "—"}
-                                      </p>
-                                    </div>
+                              <p className="mt-0.5 text-app-text">
+                                {training
+                                  ? training.training_type ===
+                                    "water"
+                                    ? "Wasser"
+                                    : "Land"
+                                  : "—"}
+                              </p>
+                            </div>
 
-                                    <div>
-                                      <p className="text-[11px] text-slate-600">
-                                        Trainingsfokus
-                                      </p>
+                            <div>
+                              <p className="text-[11px] text-app-faint">
+                                Trainingsfokus
+                              </p>
 
-                                      <p className="mt-1 text-slate-300">
-                                        {training?.focus ||
-                                          "Kein Fokus angegeben"}
-                                      </p>
-                                    </div>
+                              <p className="mt-0.5 text-app-text">
+                                {training?.focus ||
+                                  "Kein Fokus angegeben"}
+                              </p>
+                            </div>
 
-                                    <div>
-                                      <p className="text-[11px] text-slate-600">
-                                        Kommentar des Athleten
-                                      </p>
+                            <div>
+                              <p className="text-[11px] text-app-faint">
+                                Kommentar des Athleten
+                              </p>
 
-                                      <p className="mt-1 text-slate-300">
-                                        {feedback.comment ||
-                                          "Kein Kommentar"}
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                              </details>
-                            )
-                          )}
+                              <p className="mt-0.5 text-app-text">
+                                {feedback.comment ||
+                                  "Kein Kommentar"}
+                              </p>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-
-                      {/* MOBILE */}
-
-                      <div className="divide-y divide-slate-800 md:hidden">
-                        {feedbackWithTraining.map(
-                          ({
-                            feedback,
-                            training,
-                          }) => (
-                            <details
-                              key={
-                                feedback.id
-                              }
-                              className="group"
-                            >
-                              <summary className="cursor-pointer list-none px-4 py-3">
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="min-w-0">
-                                    <p className="text-xs text-slate-500">
-                                      {training
-                                        ? formatCompactDate(
-                                            training.session_date
-                                          )
-                                        : "—"}
-                                    </p>
-
-                                    <p className="mt-1 truncate text-sm font-semibold">
-                                      {training?.title ??
-                                        "Training"}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex shrink-0 items-center gap-2">
-                                    <span
-                                      className={`text-sm font-semibold ${getRpeStyle(
-                                        feedback.rpe
-                                      )}`}
-                                    >
-                                      RPE{" "}
-                                      {
-                                        feedback.rpe
-                                      }
-                                    </span>
-
-                                    <span className="text-xs text-slate-600 transition group-open:rotate-180">
-                                      ↓
-                                    </span>
-                                  </div>
-                                </div>
-
-                                <div className="mt-2 grid grid-cols-3 gap-3 text-xs">
-                                  <div>
-                                    <p className="text-slate-600">
-                                      Umfang
-                                    </p>
-
-                                    <p className="mt-0.5 text-slate-300">
-                                      {training?.training_type ===
-                                        "water" &&
-                                      training.total_meters !==
-                                        null
-                                        ? `${training.total_meters.toLocaleString(
-                                            "de-DE"
-                                          )} m`
-                                        : training?.training_type ===
-                                          "land"
-                                        ? "Land"
-                                        : "—"}
-                                    </p>
-                                  </div>
-
-                                  <div>
-                                    <p className="text-slate-600">
-                                      Dauer
-                                    </p>
-
-                                    <p className="mt-0.5 text-slate-300">
-                                      {training?.duration_minutes !==
-                                        null &&
-                                      training?.duration_minutes !==
-                                        undefined
-                                        ? `${training.duration_minutes} min`
-                                        : "—"}
-                                    </p>
-                                  </div>
-
-                                  <div>
-                                    <p className="text-slate-600">
-                                      Status
-                                    </p>
-
-                                    <p className="mt-0.5 text-slate-300">
-                                      {feedback.completed
-                                        ? "✓ Fertig"
-                                        : "Offen"}
-                                    </p>
-                                  </div>
-                                </div>
-                              </summary>
-
-                              <div className="border-t border-slate-800/70 bg-slate-950/35 px-4 py-3 text-sm">
-                                <div className="space-y-3">
-                                  <div>
-                                    <p className="text-[11px] text-slate-600">
-                                      Trainingsart
-                                    </p>
-
-                                    <p className="mt-0.5 text-slate-300">
-                                      {training
-                                        ? training.training_type ===
-                                          "water"
-                                          ? "Wasser"
-                                          : "Land"
-                                        : "—"}
-                                    </p>
-                                  </div>
-
-                                  <div>
-                                    <p className="text-[11px] text-slate-600">
-                                      Trainingsfokus
-                                    </p>
-
-                                    <p className="mt-0.5 text-slate-300">
-                                      {training?.focus ||
-                                        "Kein Fokus angegeben"}
-                                    </p>
-                                  </div>
-
-                                  <div>
-                                    <p className="text-[11px] text-slate-600">
-                                      Kommentar des Athleten
-                                    </p>
-
-                                    <p className="mt-0.5 text-slate-300">
-                                      {feedback.comment ||
-                                        "Kein Kommentar"}
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-                            </details>
-                          )
-                        )}
-                      </div>
-                    </>
+                      </details>
+                    )
                   )}
-                </section>
+                </div>
               </>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    </main>
+            )}
+          </section>
+
+          {/* Kapitel 1.1 */}
+          <LoadStrainPanel
+            athleteId={athleteId}
+          />
+
+          {/* Kapitel 1.6 */}
+          <GrowthPanel
+            athleteId={athleteId}
+          />
+        </>
+      ) : null}
+    </div>
   );
 }

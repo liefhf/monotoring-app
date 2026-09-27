@@ -1,45 +1,5 @@
-import Link from "next/link";
 import RoleGuard from "@/components/RoleGuard";
-import LogoutButton from "@/components/LogoutButton";
-
-const navigation = [
-  {
-    href: "/coach",
-    label: "Dashboard",
-  },
-  {
-    href: "/coach/teams",
-    label: "Teams",
-  },
-  {
-    href: "/coach/athletes",
-    label: "Athleten",
-  },
-  {
-    href: "/coach/training",
-    label: "Training",
-  },
-  {
-    href: "/coach/competitions",
-    label: "Wettkämpfe",
-  },
-  {
-    href: "/coach/swimmerabfrage",
-    label: "Schwimmerabfrage",
-  },
-  {
-    href: "/coach/analytics",
-    label: "Analysen",
-  },
-  {
-    href: "/coach/infoboard",
-    label: "Infoboard",
-  },
-  {
-    href: "/coach/settings",
-    label: "Einstellungen",
-  },
-];
+import CoachNav from "@/components/CoachNav";
 
 export default function CoachLayout({
   children,
@@ -48,39 +8,14 @@ export default function CoachLayout({
 }) {
   return (
     <RoleGuard allowedRole="coach">
-      <div className="min-h-screen bg-slate-950 text-white">
-        <header className="border-b border-slate-800 bg-slate-900">
-          <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between gap-3">
-                <Link
-                  href="/coach"
-                  className="text-xl font-bold text-white"
-                >
-                  Coach
-                </Link>
+      <div className="min-h-screen bg-app-bg text-app-text">
+        <div className="flex min-h-screen flex-col lg:flex-row">
+          <CoachNav />
 
-                <LogoutButton />
-              </div>
-
-              <nav className="flex gap-2 overflow-x-auto pb-1">
-                {navigation.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-            </div>
+          <div className="min-w-0 flex-1 px-4 py-6 sm:px-6">
+            {children}
           </div>
-        </header>
-
-        <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-          {children}
-        </main>
+        </div>
       </div>
     </RoleGuard>
   );

@@ -51,33 +51,6 @@ export default function CoachAthletesPage() {
   const [search, setSearch] =
     useState("");
 
-  const navigation = [
-    {
-      name: "Dashboard",
-      href: "/coach",
-    },
-    {
-      name: "Teams",
-      href: "/coach/teams",
-    },
-    {
-      name: "Athleten",
-      href: "/coach/athletes",
-    },
-    {
-      name: "Training",
-      href: "/coach/training",
-    },
-    {
-      name: "Auswertungen",
-      href: "/coach/analytics",
-    },
-    {
-      name: "Einstellungen",
-      href: "/coach/settings",
-    },
-  ];
-
   useEffect(() => {
     loadAthletes();
   }, []);
@@ -300,358 +273,173 @@ export default function CoachAthletesPage() {
     ]);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <div className="flex min-h-screen">
-        {/* SIDEBAR */}
+    <div className="mx-auto w-full max-w-[1400px]">
+      {/* Kopf */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-white">
+            Athleten
+          </h1>
 
-        <aside className="hidden w-64 shrink-0 border-r border-slate-800 bg-slate-900 lg:flex lg:flex-col">
-          <div className="border-b border-slate-800 px-5 py-5">
-            <h2 className="text-lg font-bold">
-              Monitoring App
-            </h2>
+          <p className="mt-0.5 text-sm text-app-muted">
+            Nur Athleten aus deinen Teams
+          </p>
+        </div>
 
-            <p className="mt-1 text-xs text-slate-500">
-              Coach Bereich
-            </p>
-          </div>
+        <Link
+          href="/coach/teams"
+          className="rounded-lg border border-app-border px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-white"
+        >
+          Teamzuordnung verwalten
+        </Link>
+      </div>
 
-          <nav className="flex-1 space-y-1 p-3">
-            {navigation.map(
-              (item) => (
-                <Link
-                  key={
-                    item.name
-                  }
-                  href={
-                    item.href
-                  }
-                  className={`block rounded-lg px-4 py-2.5 text-sm transition ${
-                    item.name ===
-                    "Athleten"
-                      ? "bg-white font-medium text-slate-950"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                  }`}
-                >
-                  {
-                    item.name
-                  }
-                </Link>
-              )
-            )}
-          </nav>
-        </aside>
+      {/* Kennzahlen */}
+      <section className="mt-6 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-app-border bg-app-border">
+        <div className="bg-app-surface px-4 py-3.5">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+            Athleten
+          </p>
 
-        {/* INHALT */}
+          <p className="mt-1.5 text-2xl font-semibold text-white">
+            {athleteRows.length}
+          </p>
+        </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6">
-            {/* HEADER */}
+        <div className="bg-app-surface px-4 py-3.5">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+            Teams
+          </p>
 
-            <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div>
-                <p className="text-sm text-slate-400">
-                  Coach Bereich
-                </p>
+          <p className="mt-1.5 text-2xl font-semibold text-white">
+            {teams.length}
+          </p>
+        </div>
 
-                <h1 className="mt-1 text-3xl font-bold tracking-tight">
-                  Athleten
-                </h1>
+        <div className="bg-app-surface px-4 py-3.5">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
+            Zuordnungen
+          </p>
 
-                <p className="mt-1.5 text-sm text-slate-400 sm:text-base">
-                  Hier siehst du nur
-                  Athleten, die deinen
-                  Teams zugeordnet sind.
-                </p>
-              </div>
+          <p className="mt-1.5 text-2xl font-semibold text-white">
+            {members.length}
+          </p>
+        </div>
+      </section>
 
-              <Link
-                href="/coach/teams"
-                className="w-fit rounded-xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-center text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white"
-              >
-                Teamzuordnung verwalten
-              </Link>
-            </header>
+      {message && (
+        <div className="mt-5 rounded-lg border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-bad">
+          {message}
+        </div>
+      )}
 
-            {/* KPI */}
+      {/*
+        Suche sitzt in der Kopfzeile der Liste, nicht in
+        einer eigenen Karte - sie gehoert zu dieser Liste.
+      */}
+      <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
+        <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-sm font-semibold text-white">
+            Meine Athleten
+          </h2>
 
-            <section className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                <p className="text-xs font-medium text-slate-500">
-                  Athleten
-                </p>
+          <div className="flex items-center gap-3">
+            <label
+              htmlFor="athlete-search"
+              className="sr-only"
+            >
+              Athlet oder Team suchen
+            </label>
 
-                <p className="mt-1 text-2xl font-bold text-white">
-                  {
-                    athleteRows.length
-                  }
-                </p>
-              </div>
+            <input
+              id="athlete-search"
+              type="text"
+              value={search}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
+              placeholder="Suchen…"
+              className="w-full rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-white outline-none transition placeholder:text-app-faint focus:border-app-accent sm:w-56"
+            />
 
-              <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                <p className="text-xs font-medium text-slate-500">
-                  Teams
-                </p>
-
-                <p className="mt-1 text-2xl font-bold text-white">
-                  {
-                    teams.length
-                  }
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-                <p className="text-xs font-medium text-slate-500">
-                  Zuordnungen
-                </p>
-
-                <p className="mt-1 text-2xl font-bold text-white">
-                  {
-                    members.length
-                  }
-                </p>
-              </div>
-            </section>
-
-            {/* SUCHE */}
-
-            <section className="mt-4 flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="w-full sm:max-w-[400px]">
-                <label
-                  htmlFor="athlete-search"
-                  className="sr-only"
-                >
-                  Athlet oder Team suchen
-                </label>
-
-                <input
-                  id="athlete-search"
-                  type="text"
-                  value={search}
-                  onChange={(
-                    event
-                  ) =>
-                    setSearch(
-                      event.target.value
-                    )
-                  }
-                  placeholder="Athlet oder Team suchen…"
-                  className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-slate-500"
-                />
-              </div>
-
-              <p className="text-xs text-slate-500">
-                {
-                  filteredAthletes.length
-                }{" "}
-                von{" "}
-                {
-                  athleteRows.length
-                }{" "}
-                Athleten
-              </p>
-            </section>
-
-            {/* FEHLERMELDUNG */}
-
-            {message && (
-              <div className="mt-4 rounded-xl border border-red-900 bg-red-950/40 p-4 text-sm text-red-300">
-                {
-                  message
-                }
-              </div>
-            )}
-
-            {/* ATHLETENLISTE */}
-
-            <section className="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-              <div className="border-b border-slate-800 px-4 py-3.5 sm:px-5">
-                <h2 className="text-lg font-semibold">
-                  Meine Athleten
-                </h2>
-
-                <p className="mt-0.5 text-xs text-slate-500">
-                  Athleten deiner
-                  zugeordneten Teams
-                </p>
-              </div>
-
-              {loading ? (
-                <div className="px-5 py-7 text-sm text-slate-400">
-                  Athleten werden geladen...
-                </div>
-              ) : filteredAthletes.length ===
-                0 ? (
-                <div className="px-5 py-8 text-center">
-                  <h3 className="font-semibold text-slate-300">
-                    Keine Athleten gefunden
-                  </h3>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    Prüfe deine Suche oder
-                    Teamzuordnung.
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {/* DESKTOP */}
-
-                  <div className="hidden md:block">
-                    <table className="w-full text-left">
-                      <thead className="border-b border-slate-800 bg-slate-950/40 text-[11px] uppercase tracking-wide text-slate-600">
-                        <tr>
-                          <th className="px-5 py-2.5 font-medium">
-                            Athlet
-                          </th>
-
-                          <th className="px-5 py-2.5 font-medium">
-                            Team
-                          </th>
-
-                          <th className="px-5 py-2.5 text-right font-medium">
-                            Aktion
-                          </th>
-                        </tr>
-                      </thead>
-
-                      <tbody className="divide-y divide-slate-800">
-                        {filteredAthletes.map(
-                          (
-                            athlete
-                          ) => (
-                            <tr
-                              key={
-                                athlete.id
-                              }
-                              className="transition hover:bg-slate-800/40"
-                            >
-                              <td className="px-5 py-3">
-                                <p className="font-semibold text-white">
-                                  {
-                                    athlete.fullName
-                                  }
-                                </p>
-
-                                <p className="mt-0.5 text-xs text-slate-600">
-                                  Athlet
-                                </p>
-                              </td>
-
-                              <td className="px-5 py-3">
-                                <div className="flex flex-wrap gap-1.5">
-                                  {athlete
-                                    .teams
-                                    .length >
-                                  0 ? (
-                                    athlete.teams.map(
-                                      (
-                                        team
-                                      ) => (
-                                        <span
-                                          key={
-                                            team
-                                          }
-                                          className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-300"
-                                        >
-                                          {
-                                            team
-                                          }
-                                        </span>
-                                      )
-                                    )
-                                  ) : (
-                                    <span className="text-xs text-slate-600">
-                                      Kein Team
-                                    </span>
-                                  )}
-                                </div>
-                              </td>
-
-                              <td className="px-5 py-3 text-right">
-                                <Link
-                                  href={`/coach/athletes/${athlete.id}`}
-                                  className="inline-flex items-center rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:border-slate-600 hover:bg-slate-800 hover:text-white"
-                                >
-                                  Öffnen
-                                </Link>
-                              </td>
-                            </tr>
-                          )
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* MOBILE */}
-
-                  <div className="divide-y divide-slate-800 md:hidden">
-                    {filteredAthletes.map(
-                      (
-                        athlete
-                      ) => (
-                        <div
-                          key={
-                            athlete.id
-                          }
-                          className="px-4 py-3.5"
-                        >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="min-w-0">
-                              <p className="truncate font-semibold text-white">
-                                {
-                                  athlete.fullName
-                                }
-                              </p>
-
-                              <p className="mt-0.5 text-xs text-slate-600">
-                                Athlet
-                              </p>
-                            </div>
-
-                            <Link
-                              href={`/coach/athletes/${athlete.id}`}
-                              className="shrink-0 rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
-                            >
-                              Öffnen
-                            </Link>
-                          </div>
-
-                          <div className="mt-2.5 flex flex-wrap gap-1.5">
-                            {athlete
-                              .teams
-                              .length >
-                            0 ? (
-                              athlete.teams.map(
-                                (
-                                  team
-                                ) => (
-                                  <span
-                                    key={
-                                      team
-                                    }
-                                    className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-300"
-                                  >
-                                    {
-                                      team
-                                    }
-                                  </span>
-                                )
-                              )
-                            ) : (
-                              <span className="text-xs text-slate-600">
-                                Kein Team
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </>
-              )}
-            </section>
+            <span className="shrink-0 whitespace-nowrap text-xs text-app-faint">
+              {filteredAthletes.length} / {athleteRows.length}
+            </span>
           </div>
         </div>
-      </div>
-    </main>
+
+        {loading ? (
+          <div className="px-4 py-10 text-center text-sm text-app-muted">
+            Athleten werden geladen...
+          </div>
+        ) : filteredAthletes.length === 0 ? (
+          <div className="px-4 py-10 text-center">
+            <p className="text-sm font-medium text-app-text">
+              Keine Athleten gefunden
+            </p>
+
+            <p className="mt-1 text-sm text-app-faint">
+              Prüfe deine Suche oder die Teamzuordnung.
+            </p>
+          </div>
+        ) : (
+          /*
+            Eine Liste fuer alle Bildschirmbreiten. Frueher
+            standen hier Tabelle und Kartenliste doppelt
+            nebeneinander - zwei Fassungen derselben Daten.
+          */
+          <ul className="divide-y divide-app-border">
+            {filteredAthletes.map(
+              (athlete) => (
+                <li key={athlete.id}>
+                  <Link
+                    href={`/coach/athletes/${athlete.id}`}
+                    className="flex items-center gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-white">
+                        {athlete.fullName}
+                      </span>
+
+                      <span className="mt-1 flex flex-wrap gap-1">
+                        {athlete.teams.length > 0 ? (
+                          athlete.teams.map(
+                            (team) => (
+                              <span
+                                key={team}
+                                className="rounded bg-app-elevated px-1.5 py-0.5 text-[11px] text-app-muted"
+                              >
+                                {team}
+                              </span>
+                            )
+                          )
+                        ) : (
+                          <span className="text-[11px] text-app-faint">
+                            Kein Team
+                          </span>
+                        )}
+                      </span>
+                    </span>
+
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="h-4 w-4 shrink-0 text-app-faint"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M7.5 4.5l6 5.5-6 5.5" />
+                    </svg>
+                  </Link>
+                </li>
+              )
+            )}
+          </ul>
+        )}
+      </section>
+    </div>
   );
 }

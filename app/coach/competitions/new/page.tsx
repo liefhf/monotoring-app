@@ -132,7 +132,7 @@ export default function NewCompetitionPage() {
     <div className="mx-auto max-w-2xl">
       <Link
         href="/coach/competitions"
-        className="text-sm text-slate-400 transition hover:text-white"
+        className="text-sm text-app-muted transition hover:text-white"
       >
         ← Zurück
       </Link>
@@ -147,12 +147,12 @@ export default function NewCompetitionPage() {
         onSubmit={
           handleSubmit
         }
-        className="mt-6 space-y-5 rounded-2xl border border-slate-800 bg-slate-900 p-5 sm:p-6"
+        className="mt-6 space-y-5 rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6"
       >
         <div>
           <label
             htmlFor="competition-name"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-app-text"
           >
             Name des Wettkampfs
           </label>
@@ -170,7 +170,7 @@ export default function NewCompetitionPage() {
             }
             required
             placeholder="z. B. Internationaler Hochtaunus-Cup"
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500"
+            className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition placeholder:text-app-faint focus:border-sky-500"
           />
         </div>
 
@@ -178,7 +178,7 @@ export default function NewCompetitionPage() {
           <div>
             <label
               htmlFor="start-date"
-              className="mb-2 block text-sm font-medium text-slate-300"
+              className="mb-2 block text-sm font-medium text-app-text"
             >
               Startdatum
             </label>
@@ -197,17 +197,17 @@ export default function NewCompetitionPage() {
                 )
               }
               required
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-500"
+              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition focus:border-sky-500"
             />
           </div>
 
           <div>
             <label
               htmlFor="end-date"
-              className="mb-2 block text-sm font-medium text-slate-300"
+              className="mb-2 block text-sm font-medium text-app-text"
             >
               Enddatum{" "}
-              <span className="text-slate-500">
+              <span className="text-app-faint">
                 optional
               </span>
             </label>
@@ -227,7 +227,7 @@ export default function NewCompetitionPage() {
                   event.target.value
                 )
               }
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-500"
+              className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition focus:border-sky-500"
             />
           </div>
         </div>
@@ -235,7 +235,7 @@ export default function NewCompetitionPage() {
         <div>
           <label
             htmlFor="competition-location"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-app-text"
           >
             Ort
           </label>
@@ -255,7 +255,7 @@ export default function NewCompetitionPage() {
             }
             required
             placeholder="z. B. Oberursel"
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500"
+            className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-white outline-none transition placeholder:text-app-faint focus:border-sky-500"
           />
         </div>
 

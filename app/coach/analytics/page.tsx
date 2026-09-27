@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import LandCoveragePanel from "@/components/LandCoveragePanel";
 
 type TrainingSession = {
   id: string;
@@ -181,7 +182,7 @@ function TrendChart({
 
   if (points.length === 0) {
     return (
-      <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-slate-800 bg-slate-950/50 px-4 text-center text-sm text-slate-500">
+      <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-app-border bg-app-bg/50 px-4 text-center text-sm text-app-faint">
         Für diese Auswahl sind noch keine Daten für den Verlauf vorhanden.
       </div>
     );
@@ -323,7 +324,7 @@ function TrendChart({
                   }
                   y2={y}
                   stroke="currentColor"
-                  className="text-slate-800"
+                  className="text-app-faint"
                   strokeWidth="1"
                 />
 
@@ -360,7 +361,7 @@ function TrendChart({
             }
             fill="none"
             stroke="currentColor"
-            className="text-slate-200"
+            className="text-app-text"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -407,7 +408,7 @@ function TrendChart({
                     metric ===
                     "rpe"
                       ? "text-amber-300"
-                      : "text-slate-200"
+                      : "text-app-text"
                   }
                 />
 
@@ -1077,9 +1078,9 @@ export default function CoachAnalyticsPage() {
     loading
   ) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6">
+      <main>
         <div className="mx-auto max-w-[1300px]">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 p-8 text-center text-sm text-slate-400">
+          <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-sm text-app-muted">
             Auswertungen werden geladen...
           </div>
         </div>
@@ -1088,13 +1089,13 @@ export default function CoachAnalyticsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
+    <main>
       <div className="mx-auto max-w-[1300px] px-4 py-6 sm:px-6 lg:px-8">
         {/* HEADER */}
 
         <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="text-sm text-slate-400">
+            <p className="text-sm text-app-muted">
               Monitoring & Analyse
             </p>
 
@@ -1102,11 +1103,11 @@ export default function CoachAnalyticsPage() {
               Auswertungen
             </h1>
 
-            <p className="mt-1.5 text-sm text-slate-400 sm:text-base">
+            <p className="mt-1.5 text-sm text-app-muted sm:text-base">
               Belastung und subjektive Beanspruchung deiner Trainingseinheiten im Verlauf.
             </p>
 
-            <p className="mt-2 max-w-3xl text-xs leading-5 text-slate-600">
+            <p className="mt-2 max-w-3xl text-xs leading-5 text-app-faint">
               Belastung beschreibt hier Dauer und Umfang der Einheit. Beanspruchung wird über die subjektiv wahrgenommene RPE der Athleten dargestellt.
             </p>
           </div>
@@ -1122,7 +1123,7 @@ export default function CoachAnalyticsPage() {
                 event.target.value
               )
             }
-            className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2.5 text-sm text-white outline-none transition focus:border-slate-500 md:w-auto"
+            className="w-full rounded-xl border border-app-border bg-app-surface px-3 py-2.5 text-sm text-white outline-none transition focus:border-app-accent md:w-auto"
           >
             <option value="all">
               Alle Teams
@@ -1160,8 +1161,8 @@ export default function CoachAnalyticsPage() {
         {/* KPIS */}
 
         <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-            <p className="text-xs text-slate-500">
+          <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+            <p className="text-xs text-app-faint">
               Trainingseinheiten
             </p>
 
@@ -1171,13 +1172,13 @@ export default function CoachAnalyticsPage() {
               }
             </p>
 
-            <p className="mt-0.5 text-[11px] text-slate-600">
+            <p className="mt-0.5 text-[11px] text-app-faint">
               im Verlauf
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-            <p className="text-xs text-slate-500">
+          <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+            <p className="text-xs text-app-faint">
               Mit RPE
             </p>
 
@@ -1187,13 +1188,13 @@ export default function CoachAnalyticsPage() {
               }
             </p>
 
-            <p className="mt-0.5 text-[11px] text-slate-600">
+            <p className="mt-0.5 text-[11px] text-app-faint">
               Einheiten bewertet
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-            <p className="text-xs text-slate-500">
+          <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+            <p className="text-xs text-app-faint">
               Ø RPE
             </p>
 
@@ -1215,19 +1216,19 @@ export default function CoachAnalyticsPage() {
 
               {overallAverageRpe !==
                 null && (
-                <span className="text-sm text-slate-500">
+                <span className="text-sm text-app-faint">
                   / 10
                 </span>
               )}
             </div>
 
-            <p className="mt-0.5 text-[11px] text-slate-600">
+            <p className="mt-0.5 text-[11px] text-app-faint">
               bewertete Einheiten
             </p>
           </div>
 
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-4 py-3">
-            <p className="text-xs text-slate-500">
+          <div className="rounded-xl border border-app-border bg-app-surface px-4 py-3">
+            <p className="text-xs text-app-faint">
               Rückmeldungen
             </p>
 
@@ -1241,7 +1242,7 @@ export default function CoachAnalyticsPage() {
               }
             </p>
 
-            <p className="mt-0.5 text-[11px] text-slate-600">
+            <p className="mt-0.5 text-[11px] text-app-faint">
               abgegeben
             </p>
           </div>
@@ -1249,14 +1250,14 @@ export default function CoachAnalyticsPage() {
 
         {/* VERLAUF */}
 
-        <section className="mt-5 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-          <div className="flex flex-col gap-3 border-b border-slate-800 px-4 py-4 sm:px-5 md:flex-row md:items-center md:justify-between">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+          <div className="flex flex-col gap-3 border-b border-app-border px-4 py-4 sm:px-5 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-lg font-semibold">
                 Beanspruchung im Verlauf
               </h2>
 
-              <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+              <p className="mt-1 text-xs text-app-faint sm:text-sm">
                 {getMetricTitle(
                   chartMetric
                 )}{" "}
@@ -1264,7 +1265,7 @@ export default function CoachAnalyticsPage() {
               </p>
             </div>
 
-            <div className="inline-flex w-full rounded-lg border border-slate-700 bg-slate-950 p-1 md:w-auto">
+            <div className="inline-flex w-full rounded-lg border border-app-border bg-app-bg p-1 md:w-auto">
               <button
                 type="button"
                 onClick={() =>
@@ -1275,8 +1276,8 @@ export default function CoachAnalyticsPage() {
                 className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition md:flex-none ${
                   chartMetric ===
                   "rpe"
-                    ? "bg-slate-200 text-slate-950"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-app-accent text-app-accent-ink"
+                    : "text-app-muted hover:text-white"
                 }`}
               >
                 RPE
@@ -1292,8 +1293,8 @@ export default function CoachAnalyticsPage() {
                 className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition md:flex-none ${
                   chartMetric ===
                   "meters"
-                    ? "bg-slate-200 text-slate-950"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-app-accent text-app-accent-ink"
+                    : "text-app-muted hover:text-white"
                 }`}
               >
                 Umfang
@@ -1309,8 +1310,8 @@ export default function CoachAnalyticsPage() {
                 className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition md:flex-none ${
                   chartMetric ===
                   "duration"
-                    ? "bg-slate-200 text-slate-950"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-app-accent text-app-accent-ink"
+                    : "text-app-muted hover:text-white"
                 }`}
               >
                 Dauer
@@ -1328,7 +1329,7 @@ export default function CoachAnalyticsPage() {
               }
             />
 
-            <p className="mt-2 text-xs leading-5 text-slate-600">
+            <p className="mt-2 text-xs leading-5 text-app-faint">
               Jede Markierung entspricht einer Trainingseinheit. Es wird jeweils nur die ausgewählte Kennzahl dargestellt.
             </p>
           </div>
@@ -1336,27 +1337,27 @@ export default function CoachAnalyticsPage() {
 
         {/* TRAININGSEINHEITEN */}
 
-        <section className="mt-5 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-          <div className="border-b border-slate-800 px-4 py-3.5 sm:px-5">
+        <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+          <div className="border-b border-app-border px-4 py-3.5 sm:px-5">
             <h2 className="text-lg font-semibold">
               Trainingseinheiten
             </h2>
 
-            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+            <p className="mt-1 text-xs text-app-faint sm:text-sm">
               Belastung und Beanspruchung im Detail
             </p>
           </div>
 
           {filteredSessions.length ===
           0 ? (
-            <div className="px-5 py-7 text-center text-sm text-slate-500">
+            <div className="px-5 py-7 text-center text-sm text-app-faint">
               Für diese Auswahl sind noch keine Trainingseinheiten vorhanden.
             </div>
           ) : (
             <>
               {/* DESKTOP HEADER */}
 
-              <div className="hidden grid-cols-[105px_minmax(220px,1.5fr)_130px_95px_125px_120px_145px] gap-3 border-b border-slate-800 bg-slate-950/50 px-5 py-2 text-[11px] font-medium uppercase tracking-wide text-slate-600 lg:grid">
+              <div className="hidden grid-cols-[105px_minmax(220px,1.5fr)_130px_95px_125px_120px_145px] gap-3 border-b border-app-border bg-app-bg/50 px-5 py-2 text-[11px] font-medium uppercase tracking-wide text-app-faint lg:grid">
                 <div>
                   Datum
                 </div>
@@ -1386,7 +1387,7 @@ export default function CoachAnalyticsPage() {
                 </div>
               </div>
 
-              <div className="divide-y divide-slate-800">
+              <div className="divide-y divide-app-border">
                 {filteredSessions.map(
                   (
                     session
@@ -1396,14 +1397,14 @@ export default function CoachAnalyticsPage() {
                         session.training.id
                       }
                       href={`/coach/training/session/${session.training.id}`}
-                      className="block px-4 py-3 transition hover:bg-slate-800/40 sm:px-5"
+                      className="block px-4 py-3 transition hover:bg-app-elevated/40 sm:px-5"
                     >
                       {/* MOBILE / TABLET */}
 
                       <div className="lg:hidden">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-app-faint">
                               {formatDate(
                                 session.training.session_date
                               )}
@@ -1415,7 +1416,7 @@ export default function CoachAnalyticsPage() {
                               }
                             </h3>
 
-                            <p className="mt-0.5 text-xs text-slate-600">
+                            <p className="mt-0.5 text-xs text-app-faint">
                               {
                                 session.teamName
                               }
@@ -1426,8 +1427,8 @@ export default function CoachAnalyticsPage() {
                             className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium ${
                               session.training.training_type ===
                               "water"
-                                ? "bg-blue-950 text-blue-300"
-                                : "bg-slate-800 text-slate-300"
+                                ? "bg-sky-950 text-sky-300"
+                                : "bg-app-elevated text-app-text"
                             }`}
                           >
                             {session.training.training_type ===
@@ -1439,11 +1440,11 @@ export default function CoachAnalyticsPage() {
 
                         <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-4">
                           <div>
-                            <p className="text-[11px] text-slate-600">
+                            <p className="text-[11px] text-app-faint">
                               Dauer
                             </p>
 
-                            <p className="mt-0.5 text-sm text-slate-300">
+                            <p className="mt-0.5 text-sm text-app-text">
                               {session.training.duration_minutes !==
                               null
                                 ? `${session.training.duration_minutes} min`
@@ -1452,11 +1453,11 @@ export default function CoachAnalyticsPage() {
                           </div>
 
                           <div>
-                            <p className="text-[11px] text-slate-600">
+                            <p className="text-[11px] text-app-faint">
                               Umfang
                             </p>
 
-                            <p className="mt-0.5 text-sm text-slate-300">
+                            <p className="mt-0.5 text-sm text-app-text">
                               {session.training.training_type ===
                                 "water" &&
                               session.training.total_meters !==
@@ -1469,7 +1470,7 @@ export default function CoachAnalyticsPage() {
                           </div>
 
                           <div>
-                            <p className="text-[11px] text-slate-600">
+                            <p className="text-[11px] text-app-faint">
                               Ø RPE
                             </p>
 
@@ -1489,30 +1490,30 @@ export default function CoachAnalyticsPage() {
                                     )}
                                   </span>
 
-                                  <span className="text-xs text-slate-500">
+                                  <span className="text-xs text-app-faint">
                                     / 10
                                   </span>
                                 </div>
 
-                                <p className="text-[11px] text-slate-600">
+                                <p className="text-[11px] text-app-faint">
                                   {getRpeText(
                                     session.averageRpe
                                   )}
                                 </p>
                               </>
                             ) : (
-                              <p className="mt-0.5 text-xs text-slate-500">
+                              <p className="mt-0.5 text-xs text-app-faint">
                                 Keine Daten
                               </p>
                             )}
                           </div>
 
                           <div>
-                            <p className="text-[11px] text-slate-600">
+                            <p className="text-[11px] text-app-faint">
                               Feedback
                             </p>
 
-                            <p className="mt-0.5 text-sm text-slate-300">
+                            <p className="mt-0.5 text-sm text-app-text">
                               {
                                 session.feedbackCount
                               }{" "}
@@ -1532,7 +1533,7 @@ export default function CoachAnalyticsPage() {
                       {/* DESKTOP */}
 
                       <div className="hidden grid-cols-[105px_minmax(220px,1.5fr)_130px_95px_125px_120px_145px] items-center gap-3 lg:grid">
-                        <div className="text-xs text-slate-400">
+                        <div className="text-xs text-app-muted">
                           {formatDate(
                             session.training.session_date
                           )}
@@ -1546,7 +1547,7 @@ export default function CoachAnalyticsPage() {
                           </p>
 
                           {session.training.focus && (
-                            <p className="mt-0.5 truncate text-[11px] text-slate-600">
+                            <p className="mt-0.5 truncate text-[11px] text-app-faint">
                               {
                                 session.training.focus
                               }
@@ -1554,20 +1555,20 @@ export default function CoachAnalyticsPage() {
                           )}
                         </div>
 
-                        <div className="truncate text-sm text-slate-400">
+                        <div className="truncate text-sm text-app-muted">
                           {
                             session.teamName
                           }
                         </div>
 
-                        <div className="text-sm text-slate-300">
+                        <div className="text-sm text-app-text">
                           {session.training.duration_minutes !==
                           null
                             ? `${session.training.duration_minutes} min`
                             : "—"}
                         </div>
 
-                        <div className="text-sm text-slate-300">
+                        <div className="text-sm text-app-text">
                           {session.training.training_type ===
                             "water" &&
                           session.training.total_meters !==
@@ -1595,25 +1596,25 @@ export default function CoachAnalyticsPage() {
                                   )}
                                 </span>
 
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-app-faint">
                                   / 10
                                 </span>
                               </div>
 
-                              <p className="mt-0.5 text-[11px] text-slate-600">
+                              <p className="mt-0.5 text-[11px] text-app-faint">
                                 {getRpeText(
                                   session.averageRpe
                                 )}
                               </p>
                             </>
                           ) : (
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-app-faint">
                               Keine Daten
                             </span>
                           )}
                         </div>
 
-                        <div className="text-sm text-slate-300">
+                        <div className="text-sm text-app-text">
                           {
                             session.feedbackCount
                           }{" "}
@@ -1621,7 +1622,7 @@ export default function CoachAnalyticsPage() {
                           {
                             session.athleteCount
                           }{" "}
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-app-faint">
                             abgegeben
                           </span>
                         </div>
@@ -1633,6 +1634,9 @@ export default function CoachAnalyticsPage() {
             </>
           )}
         </section>
+
+        {/* Kapitel 1.2 + 1.4 */}
+        <LandCoveragePanel />
       </div>
     </main>
   );

@@ -40,10 +40,10 @@ const sections = [
 
 export default function SportpaedagogikGesundheitspsychologiePage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-white">
+    <main>
       <div className="mx-auto max-w-6xl">
         <header>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-app-muted">
             Infoboard
           </p>
 
@@ -57,10 +57,10 @@ export default function SportpaedagogikGesundheitspsychologiePage() {
             <Link
               key={section.number}
               href={section.href}
-              className="group rounded-xl border border-slate-800 bg-slate-900 p-4 transition hover:border-slate-600 hover:bg-slate-800"
+              className="group rounded-xl border border-app-border bg-app-surface p-4 transition hover:border-app-border hover:bg-app-elevated"
             >
               <div className="flex items-start gap-3">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-700 bg-slate-950 text-sm font-bold text-slate-300">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-app-border bg-app-bg text-sm font-bold text-app-text">
                   {section.number}
                 </div>
 
@@ -70,11 +70,11 @@ export default function SportpaedagogikGesundheitspsychologiePage() {
                   </h2>
 
                   <div className="mt-2 flex items-center justify-between">
-                    <span className="text-xs font-medium text-slate-400 transition group-hover:text-white">
+                    <span className="text-xs font-medium text-app-muted transition group-hover:text-white">
                       Öffnen
                     </span>
 
-                    <span className="text-sm text-slate-500 transition group-hover:translate-x-1 group-hover:text-white">
+                    <span className="text-sm text-app-faint transition group-hover:translate-x-1 group-hover:text-white">
                       →
                     </span>
                   </div>
@@ -87,7 +87,7 @@ export default function SportpaedagogikGesundheitspsychologiePage() {
         <div className="mt-8">
           <Link
             href="/coach/infoboard"
-            className="inline-block rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="inline-block rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Zurück zum Infoboard
           </Link>

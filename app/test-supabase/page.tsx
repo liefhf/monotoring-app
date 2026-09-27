@@ -22,13 +22,13 @@ export default function TestSupabasePage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-950 p-10 text-white">
-      <div className="mx-auto max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 p-6">
+    <main className="min-h-screen bg-app-bg p-10 text-white">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-app-border bg-app-surface p-6">
         <h1 className="text-2xl font-bold">
           Supabase Verbindungstest
         </h1>
 
-        <p className="mt-4 text-slate-300">
+        <p className="mt-4 text-app-text">
           {status}
         </p>
       </div>

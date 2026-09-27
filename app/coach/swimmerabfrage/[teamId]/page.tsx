@@ -226,10 +226,10 @@ export default function TeamSchwimmerabfragePage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-8 text-white">
+    <main>
       <div className="mx-auto max-w-7xl">
         <header>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-app-muted">
             Schwimmerabfrage
           </p>
 
@@ -237,7 +237,7 @@ export default function TeamSchwimmerabfragePage() {
             {team?.name ?? "Team"}
           </h1>
 
-          <p className="mt-2 text-slate-400">
+          <p className="mt-2 text-app-muted">
             Athleten nach Geschlecht
           </p>
         </header>
@@ -249,15 +249,15 @@ export default function TeamSchwimmerabfragePage() {
         )}
 
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-900 p-10 text-center text-slate-400">
+          <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
             Athleten werden geladen...
           </div>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             {/* WEIBLICH */}
 
-            <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-              <div className="border-b border-slate-800 px-5 py-4">
+            <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+              <div className="border-b border-app-border px-5 py-4">
                 <h2 className="font-semibold">
                   weiblich ({femaleAthletes.length})
                 </h2>
@@ -268,8 +268,8 @@ export default function TeamSchwimmerabfragePage() {
 
             {/* MÄNNLICH */}
 
-            <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900">
-              <div className="border-b border-slate-800 px-5 py-4">
+            <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+              <div className="border-b border-app-border px-5 py-4">
                 <h2 className="font-semibold">
                   männlich ({maleAthletes.length})
                 </h2>
@@ -281,8 +281,8 @@ export default function TeamSchwimmerabfragePage() {
             {/* SONSTIGE / NOCH NICHT HINTERLEGT */}
 
             {otherAthletes.length > 0 && (
-              <section className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 lg:col-span-2">
-                <div className="border-b border-slate-800 px-5 py-4">
+              <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface lg:col-span-2">
+                <div className="border-b border-app-border px-5 py-4">
                   <h2 className="font-semibold">
                     Geschlecht noch nicht zugeordnet ({otherAthletes.length})
                   </h2>
@@ -297,7 +297,7 @@ export default function TeamSchwimmerabfragePage() {
         <div className="mt-8">
           <Link
             href="/coach/swimmerabfrage"
-            className="inline-block rounded-xl border border-slate-700 px-4 py-3 text-sm hover:bg-slate-800"
+            className="inline-block rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
           >
             ← Zurück zu den Mannschaften
           </Link>
@@ -314,7 +314,7 @@ function AthleteTable({
 }) {
   if (athletes.length === 0) {
     return (
-      <div className="p-6 text-sm text-slate-500">
+      <div className="p-6 text-sm text-app-faint">
         Keine Athleten vorhanden.
       </div>
     );
@@ -322,7 +322,7 @@ function AthleteTable({
 
   return (
     <div className="px-5 py-4">
-      <div className="grid grid-cols-[1fr_110px] border-b border-slate-700 pb-3 text-sm font-semibold text-slate-300">
+      <div className="grid grid-cols-[1fr_110px] border-b border-app-border pb-3 text-sm font-semibold text-app-text">
         <div>
           Name
         </div>
@@ -337,13 +337,13 @@ function AthleteTable({
           <Link
             key={athlete.id}
             href={`/coach/swimmerabfrage/athlet/${athlete.id}`}
-            className="grid grid-cols-[1fr_110px] items-center border-b border-slate-800 py-3 transition last:border-b-0 hover:bg-slate-800/60"
+            className="grid grid-cols-[1fr_110px] items-center border-b border-app-border py-3 transition last:border-b-0 hover:bg-app-elevated/60"
           >
-            <div className="font-medium text-blue-400 hover:text-blue-300">
+            <div className="font-medium text-sky-400 hover:text-sky-300">
               {getFullName(athlete)}
             </div>
 
-            <div className="text-slate-300">
+            <div className="text-app-text">
               {getBirthYear(athlete.birth_date)}
             </div>
           </Link>

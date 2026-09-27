@@ -661,9 +661,9 @@ export default function TrainingFeedbackPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white">
+      <main className="bg-app-bg px-4 py-8 text-white">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-slate-800 bg-slate-900 p-10 text-center text-slate-400">
+          <div className="rounded-3xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
             Training wird geladen...
           </div>
         </div>
@@ -673,7 +673,7 @@ export default function TrainingFeedbackPage() {
 
   if (!training) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white">
+      <main className="bg-app-bg px-4 py-8 text-white">
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl border border-red-900 bg-red-950/30 p-6 text-red-300">
             {message ||
@@ -682,7 +682,7 @@ export default function TrainingFeedbackPage() {
 
           <Link
             href="/athlete"
-            className="mt-6 inline-block text-sm text-slate-400 hover:text-white"
+            className="mt-6 inline-block text-sm text-app-muted hover:text-white"
           >
             ← Zurück
           </Link>
@@ -697,9 +697,9 @@ export default function TrainingFeedbackPage() {
   */
   if (success) {
     return (
-      <main className="min-h-screen bg-slate-950 px-4 py-8 text-white sm:px-6">
+      <main className="bg-app-bg px-4 py-8 text-white sm:px-6">
         <div className="mx-auto max-w-2xl">
-          <section className="overflow-hidden rounded-3xl border border-emerald-800 bg-slate-900">
+          <section className="overflow-hidden rounded-3xl border border-emerald-800 bg-app-surface">
             <div className="bg-emerald-950/40 px-6 py-8 text-center sm:px-8 sm:py-10">
               <div className="text-6xl">
                 🔥
@@ -709,13 +709,13 @@ export default function TrainingFeedbackPage() {
                 Stark! Training bewertet.
               </h1>
 
-              <p className="mt-2 text-slate-300">
+              <p className="mt-2 text-app-text">
                 Danke für dein Feedback!
               </p>
 
               {streak !== null && (
-                <div className="mx-auto mt-6 max-w-sm rounded-2xl border border-amber-400/30 bg-slate-950 p-5">
-                  <p className="text-sm font-medium text-slate-400">
+                <div className="mx-auto mt-6 max-w-sm rounded-2xl border border-amber-400/30 bg-app-bg p-5">
+                  <p className="text-sm font-medium text-app-muted">
                     Dein aktueller Streak
                   </p>
 
@@ -723,7 +723,7 @@ export default function TrainingFeedbackPage() {
                     {streak}
                   </p>
 
-                  <p className="mt-1 text-sm text-slate-300">
+                  <p className="mt-1 text-sm text-app-text">
                     {streak === 1
                       ? "Trainingstag in Folge"
                       : "Trainingstage in Folge"}
@@ -732,7 +732,7 @@ export default function TrainingFeedbackPage() {
               )}
 
               {streak === null && (
-                <p className="mt-6 rounded-2xl bg-slate-950 p-4 text-sm text-emerald-300">
+                <p className="mt-6 rounded-2xl bg-app-bg p-4 text-sm text-emerald-300">
                   ✓ Dein Feedback wurde erfolgreich gespeichert.
                 </p>
               )}
@@ -741,7 +741,7 @@ export default function TrainingFeedbackPage() {
             <div className="p-5">
               <Link
                 href="/athlete"
-                className="block w-full rounded-2xl bg-amber-400 px-6 py-4 text-center font-bold text-slate-950 transition hover:bg-amber-300"
+                className="block w-full rounded-2xl bg-amber-400 px-6 py-4 text-center font-bold text-app-accent-ink transition hover:bg-amber-300"
               >
                 Zurück zur Übersicht →
               </Link>
@@ -753,11 +753,11 @@ export default function TrainingFeedbackPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-5 text-white sm:px-6 sm:py-8">
+    <main className="bg-app-bg px-4 py-5 text-white sm:px-6 sm:py-8">
       <div className="mx-auto max-w-2xl">
         <Link
           href="/athlete"
-          className="text-sm text-slate-400 transition hover:text-white"
+          className="text-sm text-app-muted transition hover:text-white"
         >
           ← Zurück
         </Link>
@@ -771,19 +771,19 @@ export default function TrainingFeedbackPage() {
             Wie war dein Training?
           </h1>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-app-muted">
             Dauert nur ein paar Sekunden.
           </p>
         </header>
 
         {/* ÄUSSERE BELASTUNG */}
-        <section className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 px-4 py-4 sm:px-5">
+        <section className="mt-5 rounded-2xl border border-app-border bg-app-surface px-4 py-4 sm:px-5">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
                 training.training_type ===
                 "water"
-                  ? "bg-blue-950 text-blue-300"
+                  ? "bg-sky-950 text-sky-300"
                   : "bg-emerald-950 text-emerald-300"
               }`}
             >
@@ -793,7 +793,7 @@ export default function TrainingFeedbackPage() {
                 : "🏋️ Land"}
             </span>
 
-            <span className="rounded-full bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-400">
+            <span className="rounded-full bg-app-elevated px-2.5 py-1 text-[11px] font-semibold text-app-muted">
               Belastung
             </span>
           </div>
@@ -802,7 +802,7 @@ export default function TrainingFeedbackPage() {
             {training.title}
           </h2>
 
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400 sm:text-sm">
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-app-muted sm:text-sm">
             <span>
               📅{" "}
               {formatDate(
@@ -823,8 +823,8 @@ export default function TrainingFeedbackPage() {
           </div>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-3">
-              <p className="text-xs text-slate-500">
+            <div className="rounded-xl border border-app-border bg-app-bg px-3 py-3">
+              <p className="text-xs text-app-faint">
                 Dauer
               </p>
 
@@ -836,8 +836,8 @@ export default function TrainingFeedbackPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-slate-950 px-3 py-3">
-              <p className="text-xs text-slate-500">
+            <div className="rounded-xl border border-app-border bg-app-bg px-3 py-3">
+              <p className="text-xs text-app-faint">
                 Umfang
               </p>
 
@@ -862,7 +862,7 @@ export default function TrainingFeedbackPage() {
         )}
 
         {/* INNERE BEANSPRUCHUNG */}
-        <section className="mt-5 rounded-3xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-amber-300">
@@ -881,7 +881,7 @@ export default function TrainingFeedbackPage() {
             )}
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-slate-400">
+          <div className="mt-3 grid grid-cols-3 gap-2 text-xs text-app-muted">
             <div className="text-left">
               <span className="font-semibold text-white">
                 1
@@ -930,8 +930,8 @@ export default function TrainingFeedbackPage() {
                     }
                     className={`flex aspect-square items-center justify-center rounded-2xl text-lg font-bold transition ${
                       selected
-                        ? "scale-105 bg-amber-400 text-slate-950 shadow-lg shadow-amber-950/30"
-                        : "border border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500 hover:bg-slate-800"
+                        ? "scale-105 bg-amber-400 text-app-accent-ink shadow-lg shadow-amber-950/30"
+                        : "border border-app-border bg-app-bg text-app-text hover:border-app-border hover:bg-app-elevated"
                     }`}
                   >
                     {value}
@@ -942,7 +942,7 @@ export default function TrainingFeedbackPage() {
           </div>
 
           {selectedRpe && (
-            <div className="mt-5 flex items-center gap-4 rounded-2xl bg-slate-950 p-4">
+            <div className="mt-5 flex items-center gap-4 rounded-2xl bg-app-bg p-4">
               <div className="text-4xl">
                 {
                   selectedRpe.emoji
@@ -957,7 +957,7 @@ export default function TrainingFeedbackPage() {
                   }
                 </p>
 
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm text-app-muted">
                   {
                     selectedRpe.description
                   }
@@ -968,12 +968,12 @@ export default function TrainingFeedbackPage() {
         </section>
 
         {/* NOTIZ */}
-        <section className="mt-5 rounded-3xl border border-slate-800 bg-slate-900 p-5 sm:p-6">
+        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-6">
           <h2 className="text-xl font-bold">
             Notiz
           </h2>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-app-muted">
             Optional
           </p>
 
@@ -991,10 +991,10 @@ export default function TrainingFeedbackPage() {
             rows={3}
             maxLength={500}
             placeholder="Zum Beispiel: Heute sehr müde oder die letzten 10 Minuten waren besonders anstrengend."
-            className="mt-4 min-h-[82px] w-full resize-y rounded-2xl border border-slate-700 bg-slate-950 p-4 text-base text-white outline-none transition placeholder:text-slate-600 focus:border-amber-400"
+            className="mt-4 min-h-[82px] w-full resize-y rounded-2xl border border-app-border bg-app-bg p-4 text-base text-white outline-none transition placeholder:text-app-faint focus:border-amber-400"
           />
 
-          <p className="mt-1 text-right text-xs text-slate-600">
+          <p className="mt-1 text-right text-xs text-app-faint">
             {
               comment.length
             }
@@ -1003,7 +1003,7 @@ export default function TrainingFeedbackPage() {
         </section>
 
         {existingFeedback && (
-          <p className="mt-4 text-center text-xs text-slate-500">
+          <p className="mt-4 text-center text-xs text-app-faint">
             Du kannst dein bestehendes Feedback ändern und erneut speichern.
           </p>
         )}
@@ -1017,7 +1017,7 @@ export default function TrainingFeedbackPage() {
             saving ||
             rpe === null
           }
-          className="mt-5 w-full rounded-2xl bg-amber-400 px-6 py-4 text-lg font-bold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 w-full rounded-2xl bg-amber-400 px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving
             ? "Wird gespeichert..."
@@ -1026,7 +1026,7 @@ export default function TrainingFeedbackPage() {
             : "Feedback speichern"}
         </button>
 
-        <p className="mt-3 text-center text-xs text-slate-500">
+        <p className="mt-3 text-center text-xs text-app-faint">
           Dein Feedback hilft deinem Trainer, die Belastung und deine persönliche Beanspruchung besser einzuschätzen.
         </p>
       </div>
