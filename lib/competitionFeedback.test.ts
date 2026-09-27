@@ -10,6 +10,7 @@ import {
   previousBest,
   roundFromType,
   strokeFromText,
+  suggestTimes,
   summarize,
 } from "@/lib/competitionFeedback";
 
@@ -149,6 +150,22 @@ describe("summarize", () => {
     expect(summary.starts).toBe(0);
     expect(summary.averageImprovement).toBeNull();
     expect(summary.weakest).toEqual([]);
+  });
+});
+
+describe("suggestTimes", () => {
+  it("schlaegt Bestzeit als Meldezeit und 1 % schneller als Ziel vor", () => {
+    const suggestion = suggestTimes(results, start());
+    expect(suggestion?.entryMs).toBe(63190);
+    expect(suggestion?.goalMs).toBe(62560); // 63190 * 0,99 = 62558,1 -> 62,56
+  });
+
+  it("nimmt einen anderen Prozentwert", () => {
+    expect(suggestTimes(results, start(), 2)?.goalMs).toBe(61930);
+  });
+
+  it("gibt null ohne fruehere Zeit", () => {
+    expect(suggestTimes(results, start({ distance: 800 }))).toBeNull();
   });
 });
 

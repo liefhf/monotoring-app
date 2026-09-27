@@ -32,6 +32,7 @@ import {
   STATUS_LABELS,
   StartEvaluation,
   StartStatus,
+  suggestTimes,
   evaluateStart,
   formatPercent,
   lapTimes,
@@ -535,6 +536,29 @@ export default function WettkampfAuswertungPage() {
     await loadData();
   }
 
+  /* Fuer alle Starts ohne Zielzeit einen Vorschlag eintragen */
+  async function suggestAllGoals() {
+    const updates = starts
+      .filter((start) => !start.goal_time_ms)
+      .map((start) => ({ start, suggestion: suggestTimes(results, start) }))
+      .filter((item) => item.suggestion);
+
+    if (updates.length === 0) {
+      setMessage({ tone: "warn", text: "Kein Vorschlag möglich – entweder haben alle Starts schon eine Zielzeit oder es fehlen frühere Zeiten." });
+      return;
+    }
+
+    for (const { start, suggestion } of updates) {
+      await supabase
+        .from("competition_starts")
+        .update({ goal_time_ms: suggestion!.goalMs, entry_time_ms: start.entry_time_ms ?? suggestion!.entryMs })
+        .eq("id", start.id);
+    }
+
+    setMessage({ tone: "good", text: `${updates.length} Zielzeit${updates.length === 1 ? "" : "en"} vorgeschlagen (Bestzeit −1 %). Du kannst sie im Feedback anpassen.` });
+    await loadData();
+  }
+
   /* ---------- Fazit ---------- */
 
   function suggestSummary() {
@@ -633,6 +657,11 @@ export default function WettkampfAuswertungPage() {
         description={`${formatDate(competition.start_date)}${competition.end_date ? ` – ${formatDate(competition.end_date)}` : ""} · ${competition.location}`}
         actions={
           <div className="flex gap-2 print:hidden">
+            {starts.some((start) => !start.goal_time_ms) && (
+              <button type="button" onClick={suggestAllGoals} className={buttonSecondary} title="Bestzeit −1 % für alle Starts ohne Zielzeit">
+                Zielzeiten vorschlagen
+              </button>
+            )}
             <button type="button" onClick={() => window.print()} className={buttonSecondary}>
               Drucken / PDF
             </button>
@@ -1132,6 +1161,45 @@ export default function WettkampfAuswertungPage() {
 
             <section className="space-y-4 rounded-2xl border border-app-border p-4">
               <p className="font-semibold text-app-heading">Zeiten</p>
+              {(() => {
+                const suggestion = draft.swimmerId
+                  ? suggestTimes(results, {
+                      swimmer_id: draft.swimmerId,
+                      distance: Number(draft.distance),
+                      stroke: draft.stroke,
+                      pool_length: draft.poolLength,
+                      start_date: draft.date,
+                    })
+                  : null;
+
+                if (!suggestion) return null;
+
+                return (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-app-accent/8 px-3 py-2 text-sm">
+                    <span className="text-app-text">
+                      Vorschlag: Meldezeit <b>{formatTime(suggestion.entryMs)}</b> (Bestzeit vom {formatDate(suggestion.best.result_date)}) · Zielzeit{" "}
+                      <b>{formatTime(suggestion.goalMs)}</b> (−1 %)
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setDraft((current) =>
+                          current
+                            ? {
+                                ...current,
+                                entryTime: current.entryTime || formatTime(suggestion.entryMs),
+                                goalTime: formatTime(suggestion.goalMs),
+                              }
+                            : current
+                        )
+                      }
+                      className={`${buttonGhost} text-app-accent`}
+                    >
+                      Übernehmen
+                    </button>
+                  </div>
+                );
+              })()}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <FormField label="Meldezeit">
                   <input type="text" inputMode="decimal" value={draft.entryTime} onChange={(event) => updateDraft("entryTime", event.target.value)} placeholder="1:05,00" className={inputClass} />

@@ -123,6 +123,25 @@ export function previousBest(results: SwimmerResult[], start: CompetitionStart) 
   return best;
 }
 
+/*
+ * Vorschlag fuer Melde- und Zielzeit: Meldezeit = bisherige
+ * Bestzeit (vor dem Wettkampf, gleiche Bahn), Zielzeit =
+ * Bestzeit minus x % (Standard 1 %), auf Hundertstel gerundet.
+ */
+export function suggestTimes(
+  results: SwimmerResult[],
+  start: Pick<CompetitionStart, "swimmer_id" | "distance" | "stroke" | "pool_length" | "start_date">,
+  improvementPercent = 1
+) {
+  const best = previousBest(results, { ...start, result_id: null } as CompetitionStart);
+
+  if (!best) return null;
+
+  const goal = Math.round((best.time_ms * (1 - improvementPercent / 100)) / 10) * 10;
+
+  return { best, entryMs: best.time_ms, goalMs: goal };
+}
+
 /* Abstand in Prozent: negativ = schneller */
 export function percentDiff(timeMs: number, referenceMs: number) {
   return ((timeMs - referenceMs) / referenceMs) * 100;
