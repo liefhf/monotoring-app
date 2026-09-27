@@ -29,6 +29,19 @@ export type ParsedCompetitionEvent = {
   };
   
   function convertGermanDate(value: string) {
+    /*
+     * Zuerst das reine Zahlenformat "14.03.2026". Vorher
+     * passte es auf die erste Regel unten, scheiterte dann
+     * aber am fehlenden Monatsnamen - Ergebnis war null.
+     */
+    const numericFirst = value.match(
+      /^\s*(\d{1,2})\.(\d{1,2})\.(\d{4})/
+    );
+
+    if (numericFirst) {
+      return `${numericFirst[3]}-${numericFirst[2].padStart(2, "0")}-${numericFirst[1].padStart(2, "0")}`;
+    }
+
     const match = value.match(
       /(\d{1,2})\.\s*(?:Januar|Februar|März|Maerz|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember|\d{1,2}\.)\s*(\d{4})/i
     );
@@ -426,8 +439,12 @@ export type ParsedCompetitionEvent = {
         stroke,
         gender,
   
+        /*
+         * "Vorlauf"/"Finale" steht mal vor, mal hinter
+         * dem Geschlecht - darum den ganzen Block pruefen.
+         */
         roundType: getRoundType(
-          disciplinePart
+          `${disciplinePart} ${afterGender}`
         ),
   
         ageGroupText:
