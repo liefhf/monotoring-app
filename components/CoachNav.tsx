@@ -4,156 +4,161 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
+import ThemeToggle from "@/components/ThemeToggle";
+import Logo from "@/components/Logo";
+import { Icon, IconName } from "@/components/icons";
 
 /*
- * Die Navigation des Coach-Bereichs steht nur noch
- * hier. Frueher hatte fast jede Seite ihre eigene
- * Liste - mit unterschiedlich vielen Eintraegen.
+ * Die Navigation des Coach-Bereichs steht nur hier.
+ * Die Eintraege sind nach Aufgaben gruppiert, damit man
+ * bei vielen Seiten schnell findet, was man sucht.
  */
-const navigation = [
+type NavItem = { href: string; label: string; icon: IconName };
+
+export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
   {
-    href: "/coach",
-    label: "Dashboard",
+    title: null,
+    items: [{ href: "/coach", label: "Dashboard", icon: "home" }],
   },
   {
-    href: "/coach/teams",
-    label: "Teams",
+    title: "Team",
+    items: [
+      { href: "/coach/teams", label: "Teams", icon: "teams" },
+      { href: "/coach/athletes", label: "Athleten", icon: "athlete" },
+      { href: "/coach/schwimmer", label: "Meine Schwimmer", icon: "swimmer" },
+    ],
   },
   {
-    href: "/coach/athletes",
-    label: "Athleten",
+    title: "Planung",
+    items: [
+      { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
+      { href: "/coach/training", label: "Training", icon: "training" },
+      { href: "/coach/competitions", label: "Wettkämpfe", icon: "trophy" },
+    ],
   },
   {
-    href: "/coach/training",
-    label: "Training",
+    title: "Leistung",
+    items: [
+      { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
+      { href: "/coach/swimmerabfrage", label: "Schwimmerabfrage", icon: "search" },
+      { href: "/coach/analytics", label: "Analysen", icon: "chart" },
+    ],
   },
   {
-    href: "/coach/competitions",
-    label: "Wettkämpfe",
+    title: "Kommunikation",
+    items: [
+      { href: "/coach/news", label: "News-Wall", icon: "news" },
+      { href: "/coach/gruppen", label: "Gruppenräume", icon: "chat" },
+    ],
   },
   {
-    href: "/coach/schwimmer",
-    label: "Meine Schwimmer",
-  },
-  {
-    href: "/coach/pflichtzeiten",
-    label: "Pflichtzeiten",
-  },
-  {
-    href: "/coach/swimmerabfrage",
-    label: "Schwimmerabfrage",
-  },
-  {
-    href: "/coach/analytics",
-    label: "Analysen",
-  },
-  {
-    href: "/coach/infoboard",
-    label: "Infoboard",
-  },
-  {
-    href: "/coach/settings",
-    label: "Einstellungen",
+    title: "Wissen",
+    items: [
+      { href: "/coach/infoboard", label: "Infoboard", icon: "book" },
+      { href: "/coach/settings", label: "Einstellungen", icon: "settings" },
+    ],
   },
 ];
 
-function isActive(
-  pathname: string,
-  href: string
-) {
+function isActive(pathname: string, href: string) {
   /*
-   * "/coach" ist nur dann aktiv, wenn man wirklich
-   * auf dem Dashboard steht - sonst waere es auf
-   * jeder Unterseite mit hervorgehoben.
+   * "/coach" ist nur dann aktiv, wenn man wirklich auf
+   * dem Dashboard steht - sonst waere es auf jeder
+   * Unterseite mit hervorgehoben.
    */
   if (href === "/coach") {
     return pathname === "/coach";
   }
 
-  return (
-    pathname === href ||
-    pathname.startsWith(`${href}/`)
-  );
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function navClass(active: boolean) {
-  return `block rounded-xl px-4 py-3 text-sm transition ${
-    active
-      ? "bg-app-accent font-semibold text-app-accent-ink"
-      : "text-app-text hover:bg-app-elevated hover:text-app-heading"
-  }`;
+function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  return (
+    <nav className="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+      {coachNavigation.map((group) => (
+        <div key={group.title ?? "start"}>
+          {group.title && (
+            <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-app-faint">
+              {group.title}
+            </p>
+          )}
+          <div className="space-y-0.5">
+            {group.items.map((item) => {
+              const active = isActive(pathname, item.href);
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  aria-current={active ? "page" : undefined}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
+                    active
+                      ? "bg-app-accent/12 font-semibold text-app-accent"
+                      : "text-app-text hover:bg-app-elevated hover:text-app-heading"
+                  }`}
+                >
+                  <Icon name={item.icon} className="h-[18px] w-[18px] shrink-0" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </nav>
+  );
 }
 
 export default function CoachNav() {
   const pathname = usePathname();
-
-  const [menuOpen, setMenuOpen] =
-    useState(false);
-
-  /*
-   * Beim Seitenwechsel schliesst sich das
-   * mobile Menue von selbst.
-   */
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    function onKeyDown(
-      event: KeyboardEvent
-    ) {
+    if (!menuOpen) {
+      return;
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setMenuOpen(false);
       }
     }
 
-    window.addEventListener(
-      "keydown",
-      onKeyDown
-    );
+    window.addEventListener("keydown", onKeyDown);
 
-    return () =>
-      window.removeEventListener(
-        "keydown",
-        onKeyDown
-      );
-  }, []);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
 
   const currentLabel =
-    navigation.find((item) =>
-      isActive(pathname, item.href)
-    )?.label ?? "Coach";
+    coachNavigation
+      .flatMap((group) => group.items)
+      .find((item) => isActive(pathname, item.href))?.label ?? "Coach";
 
   return (
     <>
       {/* Mobil: Kopfzeile mit Menueknopf */}
-      <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-app-border bg-app-surface px-4 py-3 lg:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-app-border bg-app-surface/90 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={() => setMenuOpen(true)}
             aria-label="Menü öffnen"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated hover:text-app-heading"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated"
           >
-            <svg
-              viewBox="0 0 20 20"
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
+            <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
               <path d="M3 5.5h14M3 10h14M3 14.5h14" />
             </svg>
           </button>
 
-          <span className="truncate text-sm font-semibold text-app-heading">
-            {currentLabel}
-          </span>
+          <span className="truncate text-sm font-semibold text-app-heading">{currentLabel}</span>
         </div>
 
-        <LogoutButton />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LogoutButton />
+        </div>
       </div>
 
       {/* Mobil: ausgeklapptes Menue */}
@@ -163,86 +168,41 @@ export default function CoachNav() {
             type="button"
             aria-label="Menü schließen"
             onClick={() => setMenuOpen(false)}
-            className="absolute inset-0 h-full w-full bg-app-bg/70"
+            className="absolute inset-0 h-full w-full bg-app-bg/70 backdrop-blur-sm"
           />
 
-          <div className="absolute inset-y-0 left-0 flex w-64 max-w-[85%] flex-col border-r border-app-border bg-app-surface">
-            <div className="flex items-start justify-between gap-3 border-b border-app-border px-5 py-5">
-              <div className="min-w-0">
-                <h2 className="text-lg font-bold text-app-heading">
-                  Monitoring App
-                </h2>
-
-                <p className="mt-1 text-sm text-app-faint">
-                  Coach Bereich
-                </p>
-              </div>
+          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85%] flex-col border-r border-app-border bg-app-surface shadow-app">
+            <div className="flex items-center justify-between gap-3 border-b border-app-border px-4 py-4">
+              <Logo subtitle="Coach-Bereich" />
 
               <button
                 type="button"
                 onClick={() => setMenuOpen(false)}
                 aria-label="Menü schließen"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated hover:text-app-heading"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-text transition hover:bg-app-elevated"
               >
-                <svg
-                  viewBox="0 0 20 20"
-                  className="h-3.5 w-3.5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 20 20" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                   <path d="M5 5l10 10M15 5L5 15" />
                 </svg>
               </button>
             </div>
 
-            <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-              {navigation.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={navClass(
-                    isActive(pathname, item.href)
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </nav>
+            <NavLinks pathname={pathname} onNavigate={() => setMenuOpen(false)} />
           </div>
         </div>
       )}
 
       {/* Desktop: feste Seitenleiste */}
-      <aside className="hidden w-64 shrink-0 border-r border-app-border bg-app-surface lg:flex lg:flex-col">
-        <div className="border-b border-app-border px-6 py-6">
-          <h2 className="text-xl font-bold text-app-heading">
-            Monitoring App
-          </h2>
-
-          <p className="mt-1 text-sm text-app-faint">
-            Coach Bereich
-          </p>
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 border-r border-app-border bg-app-surface lg:flex lg:flex-col">
+        <div className="border-b border-app-border px-4 py-5">
+          <Logo subtitle="Coach-Bereich" />
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
-          {navigation.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={navClass(
-                isActive(pathname, item.href)
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <NavLinks pathname={pathname} />
 
-        <div className="border-t border-app-border p-3">
-          <LogoutButton className="w-full" />
+        <div className="flex items-center gap-2 border-t border-app-border p-3">
+          <LogoutButton className="flex-1" />
+          <ThemeToggle />
         </div>
       </aside>
     </>

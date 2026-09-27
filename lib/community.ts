@@ -218,11 +218,3 @@ export function isoToLocalParts(iso: string | null): [string, string] {
     `${`${date.getHours()}`.padStart(2, "0")}:${`${date.getMinutes()}`.padStart(2, "0")}`,
   ];
 }
-
-/* URLs in Texten klickbar machen (News und Chat) */
-export function splitLinks(text: string) {
-  return text.split(/(https?:\/\/[^\s]+)/g).map((part, index) => ({
-    text: part,
-    isLink: index % 2 === 1,
-  }));
-}

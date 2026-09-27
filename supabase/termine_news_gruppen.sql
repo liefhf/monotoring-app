@@ -451,3 +451,16 @@ create policy "Team room files delete"
       or public.is_team_coach(((storage.foldername(name))[1])::uuid)
     )
   );
+
+
+-- Live-Updates im Gruppenraum: neue Nachrichten erscheinen sofort.
+-- (Supabase Realtime beachtet dabei dieselben Zugriffsregeln.)
+do $$
+begin
+  if not exists (
+    select 1 from pg_publication_tables
+    where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'team_messages'
+  ) then
+    alter publication supabase_realtime add table public.team_messages;
+  end if;
+end $$;

@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { LogoMark } from "@/components/Logo";
 
 type RoleGuardProps = {
   allowedRole: "coach" | "athlete";
@@ -63,7 +64,8 @@ export default function RoleGuard({
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-app-bg text-app-heading">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-app-bg text-app-heading">
+        <LogoMark className="h-12 w-12 animate-pulse" />
         <p className="text-sm text-app-muted">
           Zugriff wird geprüft...
         </p>
