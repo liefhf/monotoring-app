@@ -120,10 +120,6 @@ export default function CoachPage() {
   const [message, setMessage] =
     useState("");
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
   async function loadDashboard() {
     setLoading(true);
     setMessage("");
@@ -385,6 +381,11 @@ export default function CoachPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadDashboard();
+  }, []);
 
   const today =
     getLocalDateString(

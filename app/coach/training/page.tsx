@@ -101,10 +101,6 @@ export default function TrainingPage() {
     setSelectedType,
   ] = useState<TypeFilter>("all");
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   async function loadData() {
     setLoading(true);
     setMessage("");
@@ -194,6 +190,11 @@ export default function TrainingPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadData();
+  }, []);
 
   const today =
     getLocalDateString(new Date());

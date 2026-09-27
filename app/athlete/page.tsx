@@ -522,10 +522,6 @@ export default function AthletePage() {
   ] =
     useState("");
 
-  useEffect(() => {
-    loadDashboard();
-  }, []);
-
   async function loadDashboard() {
     setLoading(true);
     setMessage("");
@@ -871,6 +867,11 @@ export default function AthletePage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadDashboard();
+  }, []);
 
   const feedbackTrainingIds =
     useMemo(() => {

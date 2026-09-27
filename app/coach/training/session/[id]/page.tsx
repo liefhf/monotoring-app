@@ -166,14 +166,6 @@ export default function CoachTrainingSessionPage() {
     setMessage,
   ] = useState("");
 
-  useEffect(() => {
-    if (!trainingId) {
-      return;
-    }
-
-    loadPage();
-  }, [trainingId]);
-
   async function loadPage() {
     setLoading(true);
     setMessage("");
@@ -391,6 +383,15 @@ export default function CoachTrainingSessionPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    if (!trainingId) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadPage();
+  }, [trainingId]);
 
   const athleteRows =
     useMemo<AthleteFeedbackRow[]>(

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import {
   CartesianGrid,
@@ -173,13 +173,7 @@ export default function SchwimmerDetailPage() {
   const [entryRows, setEntryRows] = useState<EntryRow[]>([createEntryRow(1)]);
   const [savingEntries, setSavingEntries] = useState(false);
 
-  useEffect(() => {
-    if (swimmerId) {
-      loadData();
-    }
-  }, [swimmerId]);
-
-  async function loadData() {
+  const loadData = useCallback(async () => {
     const [swimmerResponse, resultResponse, standardResponse, timeResponse] =
       await Promise.all([
         supabase.from("swimmers").select(SWIMMER_DETAIL_COLUMNS).eq("id", swimmerId).single(),
@@ -219,7 +213,12 @@ export default function SchwimmerDetailPage() {
     setStandards((standardResponse.data ?? []) as QualifyingStandard[]);
     setQualifyingTimes((timeResponse.data ?? []) as QualifyingTime[]);
     setLoading(false);
-  }
+  }, [swimmerId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    if (swimmerId) loadData();
+  }, [swimmerId, loadData]);
 
   const availableYears = useMemo(() => {
     const years = new Set(

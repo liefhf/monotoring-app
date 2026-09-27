@@ -509,10 +509,6 @@ export default function CoachAnalyticsPage() {
       "rpe"
     );
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
   async function loadData() {
     setLoading(
       true
@@ -798,6 +794,11 @@ export default function CoachAnalyticsPage() {
       false
     );
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadData();
+  }, []);
 
   /*
     Training + Team + Feedback

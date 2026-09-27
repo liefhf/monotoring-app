@@ -292,16 +292,6 @@ function TrainingEditor() {
     createLandRow(1),
   ]);
 
-  useEffect(() => {
-    loadTeams();
-  }, []);
-
-  useEffect(() => {
-    if (sessionFromUrl) {
-      loadExistingTraining(sessionFromUrl);
-    }
-  }, [sessionFromUrl]);
-
   async function loadTeams() {
     setLoadingTeams(true);
 
@@ -346,6 +336,11 @@ function TrainingEditor() {
 
     setLoadingTeams(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadTeams();
+  }, []);
 
   async function loadExistingTraining(
     sessionId: string
@@ -673,6 +668,13 @@ function TrainingEditor() {
     setLandRows([createLandRow(1)]);
     setLoadingTraining(false);
   }
+
+  useEffect(() => {
+    if (sessionFromUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+      loadExistingTraining(sessionFromUrl);
+    }
+  }, [sessionFromUrl]);
 
   const weekday = useMemo(() => {
     if (!date) return "";

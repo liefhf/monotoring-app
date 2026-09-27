@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
@@ -71,13 +71,7 @@ export default function PflichtzeitenDetailPage() {
   const [time, setTime] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    if (standardId) {
-      loadData(true);
-    }
-  }, [standardId]);
-
-  async function loadData(initial = false) {
+  const loadData = useCallback(async (initial = false) => {
     setLoading(true);
 
     const [standardResponse, timeResponse, swimmerResponse, resultResponse] =
@@ -116,7 +110,12 @@ export default function PflichtzeitenDetailPage() {
     }
 
     setLoading(false);
-  }
+  }, [standardId]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    if (standardId) loadData(true);
+  }, [standardId, loadData]);
 
   const sortedTimes = useMemo(() => {
     const eventOrder = new Map(SWIM_EVENTS.map((event, index) => [eventKey(event), index]));

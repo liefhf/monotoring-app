@@ -81,14 +81,6 @@ export default function TeamSchwimmerabfragePage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    if (!teamId) {
-      return;
-    }
-
-    loadTeam();
-  }, [teamId]);
-
   async function loadTeam() {
     setLoading(true);
     setMessage("");
@@ -197,6 +189,15 @@ export default function TeamSchwimmerabfragePage() {
     setAthletes(loadedAthletes);
     setLoading(false);
   }
+
+  useEffect(() => {
+    if (!teamId) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadTeam();
+  }, [teamId]);
 
   const femaleAthletes = useMemo(
     () =>

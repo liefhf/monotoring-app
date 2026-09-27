@@ -23,10 +23,6 @@ export default function SchwimmerabfragePage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    loadTeams();
-  }, []);
-
   async function loadTeams() {
     setLoading(true);
     setMessage("");
@@ -99,6 +95,11 @@ export default function SchwimmerabfragePage() {
     setTeams(teamsWithCount);
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadTeams();
+  }, []);
 
   return (
     <main>

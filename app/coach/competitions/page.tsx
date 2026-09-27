@@ -127,10 +127,6 @@ export default function CompetitionsPage() {
   const [error, setError] =
     useState("");
 
-  useEffect(() => {
-    loadCompetitions();
-  }, []);
-
   async function loadCompetitions() {
     setLoading(true);
     setError("");
@@ -177,6 +173,11 @@ export default function CompetitionsPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadCompetitions();
+  }, []);
 
   return (
     <div className="space-y-6">

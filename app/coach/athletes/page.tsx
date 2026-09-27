@@ -51,10 +51,6 @@ export default function CoachAthletesPage() {
   const [search, setSearch] =
     useState("");
 
-  useEffect(() => {
-    loadAthletes();
-  }, []);
-
   async function loadAthletes() {
     setLoading(true);
     setMessage("");
@@ -181,6 +177,11 @@ export default function CoachAthletesPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadAthletes();
+  }, []);
 
   const athleteRows =
     useMemo<

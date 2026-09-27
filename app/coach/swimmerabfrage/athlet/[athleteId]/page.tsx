@@ -19,6 +19,12 @@ import {
   YAxis,
 } from "recharts";
 import { supabase } from "@/lib/supabase";
+import {
+  formatStroke,
+  formatTime,
+  getDistancesForStroke,
+  parseSwimTimeToMs,
+} from "@/lib/swim";
 
 type AthleteProfile = {
   id: string;
@@ -258,113 +264,6 @@ function formatGender(
   return gender;
 }
 
-function formatStroke(
-  stroke: Stroke
-) {
-  switch (stroke) {
-    case "freestyle":
-      return "Freistil";
-
-    case "backstroke":
-      return "Rücken";
-
-    case "breaststroke":
-      return "Brust";
-
-    case "butterfly":
-      return "Schmetterling";
-
-    case "medley":
-      return "Lagen";
-  }
-}
-
-function formatTime(
-  timeMs: number
-) {
-  const totalSeconds =
-    timeMs / 1000;
-
-  const minutes =
-    Math.floor(
-      totalSeconds / 60
-    );
-
-  const seconds =
-    totalSeconds -
-    minutes * 60;
-
-  if (minutes === 0) {
-    return seconds
-      .toFixed(2)
-      .replace(".", ",");
-  }
-
-  return `${minutes}:${seconds
-    .toFixed(2)
-    .padStart(5, "0")
-    .replace(".", ",")}`;
-}
-
-function parseSwimTimeToMs(
-  value: string
-) {
-  const cleanValue =
-    value
-      .trim()
-      .replace(",", ".");
-
-  if (!cleanValue) {
-    return null;
-  }
-
-  if (
-    cleanValue.includes(":")
-  ) {
-    const parts =
-      cleanValue.split(":");
-
-    if (parts.length !== 2) {
-      return null;
-    }
-
-    const minutes =
-      Number(parts[0]);
-
-    const seconds =
-      Number(parts[1]);
-
-    if (
-      Number.isNaN(minutes) ||
-      Number.isNaN(seconds) ||
-      minutes < 0 ||
-      seconds < 0 ||
-      seconds >= 60
-    ) {
-      return null;
-    }
-
-    return Math.round(
-      (minutes * 60 + seconds) *
-        1000
-    );
-  }
-
-  const seconds =
-    Number(cleanValue);
-
-  if (
-    Number.isNaN(seconds) ||
-    seconds <= 0
-  ) {
-    return null;
-  }
-
-  return Math.round(
-    seconds * 1000
-  );
-}
-
 function findBestResult(
   results: SwimResult[],
   distance: number,
@@ -409,31 +308,6 @@ function findBestResult(
       return best;
     }
   );
-}
-
-function getDistancesForStroke(
-  stroke: Stroke
-) {
-  if (
-    stroke === "freestyle"
-  ) {
-    return [
-      50,
-      100,
-      200,
-      400,
-      800,
-      1500,
-    ];
-  }
-
-  if (
-    stroke === "medley"
-  ) {
-    return [100, 200, 400];
-  }
-
-  return [50, 100, 200];
 }
 
 function getResultYear(

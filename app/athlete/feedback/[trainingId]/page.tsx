@@ -162,14 +162,6 @@ export default function TrainingFeedbackPage() {
     setStreak,
   ] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!trainingId) {
-      return;
-    }
-
-    loadPage();
-  }, [trainingId]);
-
   async function loadPage() {
     setLoading(true);
     setMessage("");
@@ -284,6 +276,15 @@ export default function TrainingFeedbackPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    if (!trainingId) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadPage();
+  }, [trainingId]);
 
   async function calculateCurrentStreak(
     athleteId: string

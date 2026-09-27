@@ -98,10 +98,6 @@ export default function DailyCheckInPage() {
   const [checkInStreak, setCheckInStreak] =
     useState<number | null>(null);
 
-  useEffect(() => {
-    loadExistingCheckIn();
-  }, []);
-
   async function loadExistingCheckIn() {
     setLoading(true);
     setMessage("");
@@ -190,6 +186,11 @@ export default function DailyCheckInPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadExistingCheckIn();
+  }, []);
 
   function currentValue() {
     if (step === 1) {

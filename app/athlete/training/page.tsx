@@ -79,10 +79,6 @@ export default function AthleteTrainingPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    loadTrainings();
-  }, []);
-
   async function loadTrainings() {
     setLoading(true);
     setMessage("");
@@ -140,6 +136,11 @@ export default function AthleteTrainingPage() {
     setTrainings((data ?? []) as AthleteTraining[]);
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadTrainings();
+  }, []);
 
   const displayTrainings = useMemo<
     DisplayTraining[]

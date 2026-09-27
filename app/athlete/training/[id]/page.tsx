@@ -116,14 +116,6 @@ export default function AthleteTrainingDetailPage() {
   const [completed, setCompleted] =
     useState(false);
 
-  useEffect(() => {
-    if (!trainingId) {
-      return;
-    }
-
-    loadTraining();
-  }, [trainingId]);
-
   async function loadTraining() {
     setLoading(true);
     setMessage("");
@@ -359,6 +351,15 @@ export default function AthleteTrainingDetailPage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    if (!trainingId) {
+      return;
+    }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadTraining();
+  }, [trainingId]);
 
   async function handleSaveFeedback() {
     setFeedbackMessage("");

@@ -130,31 +130,6 @@ function formatCompactDate(
   );
 }
 
-function formatTrainingChartValue(
-  metric: TrainingChartMetric,
-  value: number
-) {
-  if (metric === "rpe") {
-    return `${value.toLocaleString(
-      "de-DE",
-      {
-        minimumFractionDigits: 1,
-        maximumFractionDigits: 1,
-      }
-    )} / 10`;
-  }
-
-  if (metric === "meters") {
-    return `${Math.round(
-      value
-    ).toLocaleString("de-DE")} m`;
-  }
-
-  return `${Math.round(
-    value
-  )} min`;
-}
-
 function getTrainingMetricTitle(
   metric: TrainingChartMetric
 ) {
@@ -536,10 +511,6 @@ export default function CoachAthleteProfilePage() {
       "overall"
     );
 
-  useEffect(() => {
-    loadAthlete();
-  }, [athleteId]);
-
   async function loadAthlete() {
     setLoading(true);
     setMessage("");
@@ -861,6 +832,11 @@ export default function CoachAthleteProfilePage() {
 
     setLoading(false);
   }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadAthlete();
+  }, [athleteId]);
 
   const fullName =
     athlete
