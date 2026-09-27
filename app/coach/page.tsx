@@ -18,7 +18,7 @@ import {
 const COACH_TILES: Tile[] = [
   { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
   { href: "/coach/training", label: "Training", icon: "training" },
-  { href: "/coach/schwimmer", label: "Schwimmer", icon: "swimmer" },
+  { href: "/coach/schwimmer", label: "Athleten", icon: "athlete" },
   { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
   { href: "/coach/news", label: "News-Wall", icon: "news" },
   { href: "/coach/gruppen", label: "Gruppenräume", icon: "chat" },
@@ -864,7 +864,7 @@ export default function CoachPage() {
               </h2>
 
               <Link
-                href="/coach/athletes"
+                href="/coach/schwimmer"
                 className="text-xs text-app-muted transition hover:text-app-heading"
               >
                 Alle Athleten →

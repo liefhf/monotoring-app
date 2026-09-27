@@ -692,9 +692,9 @@ export default function WettkampfAuswertungPage() {
 
       {swimmers.length === 0 && (
         <Notice tone="warn">
-          Du hast noch keine Schwimmer angelegt.{" "}
+          Du hast noch keine Athleten angelegt.{" "}
           <Link href="/coach/schwimmer" className="underline">
-            Zu „Meine Schwimmer“
+            Zu den Athleten
           </Link>
         </Notice>
       )}

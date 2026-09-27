@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { supabase } from "@/lib/supabase";
 import AthleteLinkCard from "@/components/AthleteLinkCard";
+import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import {
   Gender,
@@ -470,7 +471,7 @@ export default function SchwimmerDetailPage() {
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-app-muted">Meine Schwimmer</p>
+            <Link href="/coach/schwimmer" className="text-sm text-app-muted hover:text-app-accent">Athleten</Link>
             <h1 className="mt-1 text-3xl font-bold">{getSwimmerName(swimmer)}</h1>
             <p className="mt-2 text-app-muted">
               Jahrgang {swimmer.birth_year ?? "–"} · {formatGender(swimmer.gender)}
@@ -577,7 +578,10 @@ export default function SchwimmerDetailPage() {
               </Card>
 
               <div className="lg:col-span-2">
-                <AthleteLinkCard swimmerId={swimmerId} />
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <SwimmerTeams swimmerId={swimmerId} />
+                  <AthleteLinkCard swimmerId={swimmerId} />
+                </div>
               </div>
             </div>
           )
@@ -1407,7 +1411,7 @@ function BackLink() {
         href="/coach/schwimmer"
         className="inline-block rounded-xl border border-app-border px-4 py-3 text-sm hover:bg-app-elevated"
       >
-        ← Zurück zu Meine Schwimmer
+        ← Zurück zu den Athleten
       </Link>
     </div>
   );

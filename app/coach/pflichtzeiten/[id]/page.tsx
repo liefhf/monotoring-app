@@ -509,7 +509,7 @@ export default function PflichtzeitenDetailPage() {
                 <div className="p-6 text-sm text-app-faint">
                   {times.length === 0
                     ? "Trag zuerst Pflichtzeiten ein."
-                    : "Für keinen Schwimmer passt eine Pflichtzeit. Prüfe Jahrgang und Geschlecht unter Meine Schwimmer."}
+                    : "Für keinen Schwimmer passt eine Pflichtzeit. Prüfe Jahrgang und Geschlecht unter Athleten."}
                 </div>
               ) : (
                 <div className="overflow-x-auto">

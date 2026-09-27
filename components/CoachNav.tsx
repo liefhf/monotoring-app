@@ -24,9 +24,8 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
   {
     title: "Team",
     items: [
+      { href: "/coach/schwimmer", label: "Athleten", icon: "athlete" },
       { href: "/coach/teams", label: "Teams", icon: "teams" },
-      { href: "/coach/athletes", label: "Athleten", icon: "athlete" },
-      { href: "/coach/schwimmer", label: "Meine Schwimmer", icon: "swimmer" },
     ],
   },
   {
@@ -41,7 +40,6 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
     title: "Leistung",
     items: [
       { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
-      { href: "/coach/swimmerabfrage", label: "Schwimmerabfrage", icon: "search" },
       { href: "/coach/analytics", label: "Analysen", icon: "chart" },
     ],
   },

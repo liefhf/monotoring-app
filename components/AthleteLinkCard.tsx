@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, Notice, buttonSecondary, inputClass } from "@/components/ui";
 
 /*
- * Verknuepft einen Schwimmer aus "Meine Schwimmer" mit dem
+ * Verknuepft einen Schwimmer aus "Athleten" mit dem
  * Login eines Athleten aus den eigenen Teams. Danach sieht der
  * Athlet sein Wettkampf-Feedback und kann sich selbst einschaetzen.
  * Laedt seine Daten selbst und blendet sich aus, solange
@@ -33,21 +34,21 @@ export default function AthleteLinkCard({ swimmerId }: { swimmerId: string }) {
     setProfileId(current);
     setSelected(current ?? "");
 
-    /* Athleten aus den eigenen Teams */
-    const { data: teams } = await supabase.rpc("my_teams");
-    const teamIds = ((teams ?? []) as { id: string; is_coach: boolean }[]).filter((team) => team.is_coach).map((team) => team.id);
+    /*
+     * Alle Athleten-Logins, die noch mit keinem anderen eigenen
+     * Athleten verknuepft sind. Nach dem Verknuepfen uebernimmt
+     * der Login automatisch die Teams dieses Athleten.
+     */
+    const [{ data: profiles }, { data: linked }] = await Promise.all([
+      supabase.from("profiles").select("id, first_name, last_name").eq("role", "athlete"),
+      supabase.from("swimmers").select("profile_id").not("profile_id", "is", null),
+    ]);
 
-    if (teamIds.length === 0) return;
-
-    const { data: members } = await supabase.from("team_members").select("athlete_id").in("team_id", teamIds);
-    const ids = [...new Set((members ?? []).map((member) => member.athlete_id as string))];
-
-    if (ids.length === 0) return;
-
-    const { data: profiles } = await supabase.from("profiles").select("id, first_name, last_name").in("id", ids);
+    const taken = new Set((linked ?? []).map((row) => row.profile_id as string));
 
     setAthletes(
       ((profiles ?? []) as { id: string; first_name: string | null; last_name: string | null }[])
+        .filter((profile) => profile.id === current || !taken.has(profile.id))
         .map((profile) => ({ id: profile.id, name: `${profile.first_name ?? ""} ${profile.last_name ?? ""}`.trim() || "Athlet" }))
         .sort((a, b) => a.name.localeCompare(b.name, "de"))
     );
@@ -64,8 +65,8 @@ export default function AthleteLinkCard({ swimmerId }: { swimmerId: string }) {
     if (error) {
       setMessage({
         tone: "bad",
-        text: error.message.includes("swimmers_profile_unique")
-          ? "Dieser Login ist schon mit einem anderen Schwimmer verknüpft."
+        text: error.message.includes("profile_unique")
+          ? "Dieser Login ist schon mit einem anderen Athleten verknüpft."
           : `Verknüpfung konnte nicht gespeichert werden: ${error.message}`,
       });
       return;
@@ -80,10 +81,23 @@ export default function AthleteLinkCard({ swimmerId }: { swimmerId: string }) {
   }
 
   return (
-    <Card title="Athleten-Login" description="Verknüpft, sieht der Athlet sein Wettkampf-Feedback und kann sich selbst einschätzen.">
+    <Card
+      title="Eigener Login"
+      description="Mit Login nutzt der Athlet die App selbst: Check-in, Training, Termine, Feedback."
+      action={
+        profileId ? (
+          <Link href={`/coach/athletes/${profileId}`} className={buttonSecondary}>
+            Befinden & Training →
+          </Link>
+        ) : undefined
+      }
+    >
       <div className="space-y-3 p-5">
         {athletes.length === 0 ? (
-          <p className="text-sm text-app-muted">In deinen Teams gibt es noch keine Athleten mit eigenem Login.</p>
+          <p className="text-sm text-app-muted">
+            Es gibt noch keinen freien Athleten-Login. Der Athlet registriert sich selbst über die Login-Seite, danach
+            kannst du ihn hier verknüpfen.
+          </p>
         ) : (
           <div className="flex flex-wrap gap-2">
             <select value={selected} onChange={(event) => setSelected(event.target.value)} className={`${inputClass} w-auto min-w-56 flex-1`}>
