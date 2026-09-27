@@ -44,6 +44,7 @@ import {
 } from "@/lib/competitionFeedback";
 import { Icon } from "@/components/icons";
 import RelayPanel from "@/components/RelayPanel";
+import ProtocolImport from "@/components/ProtocolImport";
 import {
   Card,
   EmptyState,
@@ -78,6 +79,7 @@ type Competition = {
 
 type EventOption = {
   id: string;
+  number: number;
   label: string;
   distance: number;
   stroke: Stroke;
@@ -225,6 +227,7 @@ export default function WettkampfAuswertungPage() {
   const [saving, setSaving] = useState(false);
   const [lastPool, setLastPool] = useState<PoolLength>(50);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [showImport, setShowImport] = useState(false);
 
   const loadData = useCallback(async () => {
     const [competitionResponse, sectionResponse, swimmerResponse, startResponse, resultResponse, standardResponse, timeResponse, reviewResponse] =
@@ -289,6 +292,7 @@ export default function WettkampfAuswertungPage() {
 
         options.push({
           id: event.id,
+          number: event.event_number,
           label: `WK ${event.event_number} · ${event.distance_m} m ${event.stroke} (${gender})${round ? ` · ${round}` : ""}${
             event.age_group_text ? ` · ${event.age_group_text}` : ""
           }`,
@@ -344,6 +348,12 @@ export default function WettkampfAuswertungPage() {
   );
 
   const summary = useMemo(() => summarize(evaluations), [evaluations]);
+
+  /* Fuer den Protokoll-Import: Wettkampfnummer -> Wettkampf der Folge */
+  const eventsByNumber = useMemo(
+    () => Object.fromEntries(events.map((event) => [event.number, { id: event.id, date: event.date }])),
+    [events]
+  );
 
   const bySwimmer = useMemo(() => {
     const groups = new Map<string, StartEvaluation[]>();
@@ -658,7 +668,10 @@ export default function WettkampfAuswertungPage() {
         title={competition.name}
         description={`${formatDate(competition.start_date)}${competition.end_date ? ` – ${formatDate(competition.end_date)}` : ""} · ${competition.location}`}
         actions={
-          <div className="flex gap-2 print:hidden">
+          <div className="flex flex-wrap gap-2 print:hidden">
+            <button type="button" onClick={() => setShowImport(true)} className={buttonSecondary}>
+              Protokoll importieren
+            </button>
             {starts.some((start) => !start.goal_time_ms) && (
               <button type="button" onClick={suggestAllGoals} className={buttonSecondary} title="Bestzeit −1 % für alle Starts ohne Zielzeit">
                 Zielzeiten vorschlagen
@@ -1093,6 +1106,23 @@ export default function WettkampfAuswertungPage() {
           </form>
         </Card>
       )}
+
+      {/* ============ PROTOKOLL-IMPORT ============ */}
+      <ProtocolImport
+        open={showImport}
+        onClose={() => setShowImport(false)}
+        competitionId={competitionId}
+        defaultDate={competition.start_date}
+        swimmers={swimmers}
+        existingStarts={starts}
+        eventsByNumber={eventsByNumber}
+        onImported={async (count) => {
+          setShowImport(false);
+          setTab("starts");
+          setMessage({ tone: "good", text: `${count} Starts aus dem Protokoll übernommen ✅ – jetzt kannst du Feedback ergänzen.` });
+          await loadData();
+        }}
+      />
 
       {/* ============ START ERFASSEN / FEEDBACK ============ */}
       <Modal open={Boolean(draft)} title={draft?.id ? "Start & Feedback" : "Start erfassen"} onClose={() => setDraft(null)} wide>

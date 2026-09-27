@@ -10,6 +10,8 @@ import {
   import {
     parseCompetitionText,
   } from "@/lib/competitionPdfParser";
+
+  import { extractPdfText } from "@/lib/pdfText";
   
   export const runtime = "nodejs";
   
@@ -240,120 +242,19 @@ import {
       const arrayBuffer =
         await pdfBlob.arrayBuffer();
   
-      /*
-       * pdf-parse wird bewusst erst
-       * hier geladen. Dadurch bekommen
-       * wir auch bei einem Problem mit
-       * dem Paket eine verständliche
-       * Fehlermeldung zurück.
-       */
       let rawText = "";
-  
+
       try {
-        const pdfParseModule =
-          await import(
-            "pdf-parse"
-          );
-  
-        const moduleAny =
-          pdfParseModule as unknown as {
-            PDFParse?: new (
-              options: {
-                data: Uint8Array;
-              }
-            ) => {
-              getText: () => Promise<{
-                text: string;
-              }>;
-  
-              destroy?: () =>
-                Promise<void>;
-            };
-  
-            default?: (
-              data: Buffer
-            ) => Promise<{
-              text: string;
-            }>;
-          };
-  
-        /*
-         * Neuere pdf-parse-Versionen
-         */
-        if (
-          typeof moduleAny.PDFParse ===
-          "function"
-        ) {
-          const Parser =
-            moduleAny.PDFParse;
-  
-          const parser =
-            new Parser({
-              data:
-                new Uint8Array(
-                  arrayBuffer
-                ),
-            });
-  
-          try {
-            const result =
-              await parser.getText();
-  
-            rawText =
-              result.text ?? "";
-          } finally {
-            if (
-              parser.destroy
-            ) {
-              await parser.destroy();
-            }
-          }
-        }
-  
-        /*
-         * Ältere pdf-parse-Versionen
-         */
-        else if (
-          typeof moduleAny.default ===
-          "function"
-        ) {
-          const buffer =
-            Buffer.from(
-              arrayBuffer
-            );
-  
-          const result =
-            await moduleAny.default(
-              buffer
-            );
-  
-          rawText =
-            result.text ?? "";
-        } else {
-          throw new Error(
-            "Die installierte pdf-parse-Version stellt keine unterstützte PDF-Funktion bereit."
-          );
-        }
+        rawText = await extractPdfText(arrayBuffer);
       } catch (pdfError) {
-        console.error(
-          "PDF parsing error:",
-          pdfError
-        );
-  
+        console.error("PDF parsing error:", pdfError);
+
         const message =
-          pdfError instanceof
-          Error
-            ? pdfError.message
-            : "Unbekannter PDF-Fehler";
-  
+          pdfError instanceof Error ? pdfError.message : "Unbekannter PDF-Fehler";
+
         return NextResponse.json(
-          {
-            error:
-              `PDF konnte nicht gelesen werden: ${message}`,
-          },
-          {
-            status: 500,
-          }
+          { error: `PDF konnte nicht gelesen werden: ${message}` },
+          { status: 500 }
         );
       }
   
