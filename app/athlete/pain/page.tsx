@@ -1,1009 +1,386 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import {
+  BodySpot,
+  PAIN_COLUMNS,
+  PAIN_ONSETS,
+  PAIN_QUALITIES,
+  PAIN_TRIGGERS,
+  PainReport,
+  TRAINING_IMPACTS,
+  TrainingImpact,
+  getSpot,
+  labelFor,
+  painColor,
+  painWord,
+} from "@/lib/pain";
+import { formatRelative } from "@/lib/community";
+import BodyMap from "@/components/BodyMap";
+import { Card, EmptyState, FormField, Modal, Notice, PageHeader, buttonGhost, buttonPrimary, buttonSecondary, inputClass } from "@/components/ui";
 
-type Step = 1 | 2 | 3;
-type PainType = "muscle" | "joint";
-type BodySide = "left" | "right" | null;
+/*
+ * Schmerzen melden: Stelle am Koerpermodell antippen (Muskel oder
+ * Gelenk), Staerke und Details angeben, beliebig viele Stellen
+ * sammeln und zusammen absenden. Der Trainer sieht die Meldung;
+ * bei Staerke ab 7 oder "kann nicht trainieren" bekommt er einen
+ * Hinweis (supabase/schmerzen.sql).
+ */
 
-type BodySelection = {
-  painType: PainType;
-  region: string;
-  side: BodySide;
-  label: string;
+type SpotDraft = {
+  spotId: string;
+  level: number | null;
+  qualities: string[];
+  onset: string;
+  triggers: string[];
+  impact: TrainingImpact | "";
 };
 
-type BodyZone = {
-  id: string;
-  region: string;
-  side: BodySide;
-  label: string;
-  painType: PainType;
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-  radius?: string;
-};
+const emptyDraft = (spotId: string): SpotDraft => ({ spotId, level: null, qualities: [], onset: "", triggers: [], impact: "" });
 
-const BODY_ZONES: BodyZone[] = [
-  // =========================================================
-  // VORNE
-  // =========================================================
+function Chips({
+  options,
+  selected,
+  onToggle,
+}: {
+  options: { value: string; label: string }[];
+  selected: string[];
+  onToggle: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {options.map((option) => {
+        const active = selected.includes(option.value);
 
-  {
-    id: "front-head",
-    region: "head",
-    side: null,
-    label: "Kopf",
-    painType: "muscle",
-    left: 18.1,
-    top: 8.5,
-    width: 8.7,
-    height: 14.5,
-    radius: "50%",
-  },
-
-  {
-    id: "front-left-shoulder",
-    region: "shoulder",
-    side: "left",
-    label: "Linke Schulter",
-    painType: "joint",
-    left: 24.5,
-    top: 22,
-    width: 6.5,
-    height: 10,
-    radius: "50%",
-  },
-
-  {
-    id: "front-right-shoulder",
-    region: "shoulder",
-    side: "right",
-    label: "Rechte Schulter",
-    painType: "joint",
-    left: 14.2,
-    top: 22,
-    width: 6.5,
-    height: 10,
-    radius: "50%",
-  },
-
-  {
-    id: "front-chest",
-    region: "chest",
-    side: null,
-    label: "Brust",
-    painType: "muscle",
-    left: 18.6,
-    top: 24.5,
-    width: 8.2,
-    height: 13.5,
-    radius: "30%",
-  },
-
-  {
-    id: "front-abdomen",
-    region: "abdomen",
-    side: null,
-    label: "Bauch",
-    painType: "muscle",
-    left: 19.4,
-    top: 37.5,
-    width: 6.8,
-    height: 17.5,
-    radius: "30%",
-  },
-
-  {
-    id: "front-left-upper-arm",
-    region: "upper_arm",
-    side: "left",
-    label: "Linker Oberarm",
-    painType: "muscle",
-    left: 28.6,
-    top: 29,
-    width: 4.7,
-    height: 15,
-    radius: "45%",
-  },
-
-  {
-    id: "front-right-upper-arm",
-    region: "upper_arm",
-    side: "right",
-    label: "Rechter Oberarm",
-    painType: "muscle",
-    left: 11.7,
-    top: 29,
-    width: 4.7,
-    height: 15,
-    radius: "45%",
-  },
-
-  {
-    id: "front-left-forearm",
-    region: "forearm",
-    side: "left",
-    label: "Linker Unterarm",
-    painType: "muscle",
-    left: 31.7,
-    top: 43.5,
-    width: 4,
-    height: 16.5,
-    radius: "45%",
-  },
-
-  {
-    id: "front-right-forearm",
-    region: "forearm",
-    side: "right",
-    label: "Rechter Unterarm",
-    painType: "muscle",
-    left: 9.1,
-    top: 43.5,
-    width: 4,
-    height: 16.5,
-    radius: "45%",
-  },
-
-  {
-    id: "front-left-hip",
-    region: "hip",
-    side: "left",
-    label: "Linke Hüfte",
-    painType: "joint",
-    left: 23.1,
-    top: 53,
-    width: 5.2,
-    height: 9.5,
-    radius: "45%",
-  },
-
-  {
-    id: "front-right-hip",
-    region: "hip",
-    side: "right",
-    label: "Rechte Hüfte",
-    painType: "joint",
-    left: 16.5,
-    top: 53,
-    width: 5.2,
-    height: 9.5,
-    radius: "45%",
-  },
-
-  {
-    id: "front-left-thigh",
-    region: "front_thigh",
-    side: "left",
-    label: "Linker Oberschenkel",
-    painType: "muscle",
-    left: 22.3,
-    top: 60,
-    width: 6,
-    height: 20,
-    radius: "42%",
-  },
-
-  {
-    id: "front-right-thigh",
-    region: "front_thigh",
-    side: "right",
-    label: "Rechter Oberschenkel",
-    painType: "muscle",
-    left: 16.2,
-    top: 60,
-    width: 6,
-    height: 20,
-    radius: "42%",
-  },
-
-  {
-    id: "front-left-knee",
-    region: "knee",
-    side: "left",
-    label: "Linkes Knie",
-    painType: "joint",
-    left: 22.5,
-    top: 78,
-    width: 5,
-    height: 7.5,
-    radius: "50%",
-  },
-
-  {
-    id: "front-right-knee",
-    region: "knee",
-    side: "right",
-    label: "Rechtes Knie",
-    painType: "joint",
-    left: 17.1,
-    top: 78,
-    width: 5,
-    height: 7.5,
-    radius: "50%",
-  },
-
-  {
-    id: "front-left-lower-leg",
-    region: "lower_leg",
-    side: "left",
-    label: "Linker Unterschenkel",
-    painType: "muscle",
-    left: 22.6,
-    top: 85,
-    width: 4.3,
-    height: 12.5,
-    radius: "45%",
-  },
-
-  {
-    id: "front-right-lower-leg",
-    region: "lower_leg",
-    side: "right",
-    label: "Rechter Unterschenkel",
-    painType: "muscle",
-    left: 17.6,
-    top: 85,
-    width: 4.3,
-    height: 12.5,
-    radius: "45%",
-  },
-
-  // =========================================================
-  // HINTEN
-  // =========================================================
-
-  {
-    id: "back-head",
-    region: "back_head",
-    side: null,
-    label: "Hinterkopf",
-    painType: "muscle",
-    left: 72.5,
-    top: 8.5,
-    width: 8.7,
-    height: 14.5,
-    radius: "50%",
-  },
-
-  {
-    id: "back-left-shoulder",
-    region: "shoulder",
-    side: "left",
-    label: "Linke Schulter",
-    painType: "joint",
-    left: 79,
-    top: 22,
-    width: 6.5,
-    height: 10,
-    radius: "50%",
-  },
-
-  {
-    id: "back-right-shoulder",
-    region: "shoulder",
-    side: "right",
-    label: "Rechte Schulter",
-    painType: "joint",
-    left: 68.6,
-    top: 22,
-    width: 6.5,
-    height: 10,
-    radius: "50%",
-  },
-
-  {
-    id: "back-upper-back",
-    region: "upper_back",
-    side: null,
-    label: "Oberer Rücken",
-    painType: "muscle",
-    left: 73.1,
-    top: 24,
-    width: 8.8,
-    height: 18,
-    radius: "30%",
-  },
-
-  {
-    id: "back-lower-back",
-    region: "lower_back",
-    side: null,
-    label: "Unterer Rücken",
-    painType: "muscle",
-    left: 74.1,
-    top: 41.5,
-    width: 6.8,
-    height: 13.5,
-    radius: "30%",
-  },
-
-  {
-    id: "back-left-upper-arm",
-    region: "rear_upper_arm",
-    side: "left",
-    label: "Linker Oberarm hinten",
-    painType: "muscle",
-    left: 83.2,
-    top: 29,
-    width: 4.7,
-    height: 15,
-    radius: "45%",
-  },
-
-  {
-    id: "back-right-upper-arm",
-    region: "rear_upper_arm",
-    side: "right",
-    label: "Rechter Oberarm hinten",
-    painType: "muscle",
-    left: 66.2,
-    top: 29,
-    width: 4.7,
-    height: 15,
-    radius: "45%",
-  },
-
-  {
-    id: "back-left-forearm",
-    region: "rear_forearm",
-    side: "left",
-    label: "Linker Unterarm hinten",
-    painType: "muscle",
-    left: 86.3,
-    top: 43.5,
-    width: 4,
-    height: 16.5,
-    radius: "45%",
-  },
-
-  {
-    id: "back-right-forearm",
-    region: "rear_forearm",
-    side: "right",
-    label: "Rechter Unterarm hinten",
-    painType: "muscle",
-    left: 63.7,
-    top: 43.5,
-    width: 4,
-    height: 16.5,
-    radius: "45%",
-  },
-
-  {
-    id: "back-left-hip",
-    region: "rear_hip",
-    side: "left",
-    label: "Linke Hüfte",
-    painType: "joint",
-    left: 77.6,
-    top: 53,
-    width: 5.2,
-    height: 9.5,
-    radius: "45%",
-  },
-
-  {
-    id: "back-right-hip",
-    region: "rear_hip",
-    side: "right",
-    label: "Rechte Hüfte",
-    painType: "joint",
-    left: 71,
-    top: 53,
-    width: 5.2,
-    height: 9.5,
-    radius: "45%",
-  },
-
-  {
-    id: "back-left-thigh",
-    region: "rear_thigh",
-    side: "left",
-    label: "Linker Oberschenkel hinten",
-    painType: "muscle",
-    left: 76.8,
-    top: 60,
-    width: 6,
-    height: 20,
-    radius: "42%",
-  },
-
-  {
-    id: "back-right-thigh",
-    region: "rear_thigh",
-    side: "right",
-    label: "Rechter Oberschenkel hinten",
-    painType: "muscle",
-    left: 70.7,
-    top: 60,
-    width: 6,
-    height: 20,
-    radius: "42%",
-  },
-
-  {
-    id: "back-left-knee",
-    region: "knee_back",
-    side: "left",
-    label: "Linke Kniekehle",
-    painType: "joint",
-    left: 77,
-    top: 78,
-    width: 5,
-    height: 7.5,
-    radius: "50%",
-  },
-
-  {
-    id: "back-right-knee",
-    region: "knee_back",
-    side: "right",
-    label: "Rechte Kniekehle",
-    painType: "joint",
-    left: 71.6,
-    top: 78,
-    width: 5,
-    height: 7.5,
-    radius: "50%",
-  },
-
-  {
-    id: "back-left-calf",
-    region: "calf",
-    side: "left",
-    label: "Linke Wade",
-    painType: "muscle",
-    left: 77.1,
-    top: 85,
-    width: 4.3,
-    height: 12.5,
-    radius: "45%",
-  },
-
-  {
-    id: "back-right-calf",
-    region: "calf",
-    side: "right",
-    label: "Rechte Wade",
-    painType: "muscle",
-    left: 72.1,
-    top: 85,
-    width: 4.3,
-    height: 12.5,
-    radius: "45%",
-  },
-];
+        return (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onToggle(option.value)}
+            aria-pressed={active}
+            className={`rounded-full border px-3 py-1.5 text-sm transition ${
+              active ? "border-app-accent bg-app-accent font-semibold text-app-accent-ink" : "border-app-border text-app-text hover:bg-app-elevated"
+            }`}
+          >
+            {option.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 export default function PainReportPage() {
-  const router = useRouter();
+  const [drafts, setDrafts] = useState<SpotDraft[]>([]);
+  const [editing, setEditing] = useState<SpotDraft | null>(null);
+  const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ tone: "good" | "bad" | "warn"; text: string } | null>(null);
+  const [history, setHistory] = useState<PainReport[] | null>(null);
 
-  const [step, setStep] = useState<Step>(1);
+  const loadHistory = useCallback(async () => {
+    const since = new Date(Date.now() - 42 * 86400000).toISOString();
+    const { data } = await supabase
+      .from("pain_reports")
+      .select(PAIN_COLUMNS)
+      .gte("created_at", since)
+      .order("created_at", { ascending: false });
 
-  const [bodySelections, setBodySelections] =
-    useState<BodySelection[]>([]);
+    setHistory((data ?? []) as PainReport[]);
+  }, []);
 
-  const [painLevel, setPainLevel] =
-    useState<number | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
+    loadHistory();
+  }, [loadHistory]);
 
-  const [note, setNote] =
-    useState("");
+  const levels = useMemo(
+    () => Object.fromEntries(drafts.filter((draft) => draft.level).map((draft) => [draft.spotId, draft.level as number])),
+    [drafts]
+  );
 
-  const [saving, setSaving] =
-    useState(false);
-
-  const [message, setMessage] =
-    useState("");
-
-  function selectionExists(
-    zone: BodyZone
-  ) {
-    return bodySelections.some(
-      (selection) =>
-        selection.region ===
-          zone.region &&
-        selection.side ===
-          zone.side
-    );
+  function selectSpot(spot: BodySpot) {
+    setEditing(drafts.find((draft) => draft.spotId === spot.id) ?? emptyDraft(spot.id));
   }
 
-  function toggleBodyZone(
-    zone: BodyZone
-  ) {
-    setMessage("");
-
-    setBodySelections(
-      (current) => {
-        const exists =
-          current.some(
-            (selection) =>
-              selection.region ===
-                zone.region &&
-              selection.side ===
-                zone.side
-          );
-
-        if (exists) {
-          return current.filter(
-            (selection) =>
-              !(
-                selection.region ===
-                  zone.region &&
-                selection.side ===
-                  zone.side
-              )
-          );
-        }
-
-        return [
-          ...current,
-          {
-            painType:
-              zone.painType,
-            region:
-              zone.region,
-            side:
-              zone.side,
-            label:
-              zone.label,
-          },
-        ];
-      }
-    );
+  function toggle(list: string[], value: string) {
+    return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
   }
 
-  function removeSelection(
-    selectionToRemove: BodySelection
-  ) {
-    setBodySelections(
-      (current) =>
-        current.filter(
-          (selection) =>
-            !(
-              selection.region ===
-                selectionToRemove.region &&
-              selection.side ===
-                selectionToRemove.side
-            )
-        )
-    );
+  function applyEditing() {
+    if (!editing?.level) return;
+
+    setDrafts((current) => {
+      const others = current.filter((draft) => draft.spotId !== editing.spotId);
+      return [...others, editing];
+    });
+    setEditing(null);
   }
 
-  function nextStep() {
-    setMessage("");
-
-    if (
-      step === 1 &&
-      bodySelections.length === 0
-    ) {
-      setMessage(
-        "Bitte wähle mindestens eine Körperstelle aus."
-      );
-
-      return;
-    }
-
-    if (
-      step === 2 &&
-      painLevel === null
-    ) {
-      setMessage(
-        "Bitte wähle die Schmerzstärke aus."
-      );
-
-      return;
-    }
-
-    setStep(
-      (current) =>
-        Math.min(
-          3,
-          current + 1
-        ) as Step
-    );
+  function removeSpot(spotId: string) {
+    setDrafts((current) => current.filter((draft) => draft.spotId !== spotId));
+    setEditing(null);
   }
 
-  function previousStep() {
-    setMessage("");
-
-    setStep(
-      (current) =>
-        Math.max(
-          1,
-          current - 1
-        ) as Step
-    );
-  }
-
-  async function submitPainReport() {
-    if (
-      bodySelections.length === 0 ||
-      painLevel === null
-    ) {
-      setMessage(
-        "Bitte fülle die Angaben aus."
-      );
-
-      return;
-    }
+  async function submit() {
+    if (drafts.length === 0) return;
 
     setSaving(true);
-    setMessage("");
+    setMessage(null);
 
-    const {
-      data: { user },
-      error: userError,
-    } =
-      await supabase.auth.getUser();
+    const { data: userData } = await supabase.auth.getUser();
 
-    if (
-      userError ||
-      !user
-    ) {
-      setMessage(
-        "Athlet konnte nicht geladen werden."
-      );
-
+    if (!userData.user) {
       setSaving(false);
+      setMessage({ tone: "bad", text: "Bitte melde dich neu an." });
       return;
     }
 
-    const painReports =
-      bodySelections.map(
-        (selection) => ({
-          athlete_id:
-            user.id,
+    const group = crypto.randomUUID();
+    const rows = drafts.map((draft) => {
+      const spot = getSpot(draft.spotId)!;
 
-          pain_type:
-            selection.painType,
+      return {
+        athlete_id: userData.user.id,
+        pain_type: spot.type,
+        body_region: spot.region,
+        side: spot.side,
+        pain_level: draft.level,
+        note: note.trim() || null,
+        spot_id: spot.id,
+        spot_label: spot.label,
+        body_view: spot.view,
+        qualities: draft.qualities,
+        onset: draft.onset || null,
+        triggers: draft.triggers,
+        training_impact: draft.impact || null,
+        report_group: group,
+      };
+    });
 
-          body_region:
-            selection.region,
-
-          side:
-            selection.side,
-
-          pain_level:
-            painLevel,
-
-          note:
-            note.trim() ||
-            null,
-        })
-      );
-
-    const { error } =
-      await supabase
-        .from(
-          "pain_reports"
-        )
-        .insert(
-          painReports
-        );
-
-    if (error) {
-      setMessage(
-        `Schmerzmeldung konnte nicht gespeichert werden: ${error.message}`
-      );
-
-      setSaving(false);
-      return;
-    }
+    const { error } = await supabase.from("pain_reports").insert(rows);
 
     setSaving(false);
 
-    router.push(
-      "/athlete"
-    );
+    if (error) {
+      setMessage({
+        tone: "bad",
+        text: error.message.includes("column")
+          ? "Die Schmerzmeldung ist noch nicht eingerichtet. Dein Trainer muss supabase/schmerzen.sql ausführen."
+          : `Meldung konnte nicht gespeichert werden: ${error.message}`,
+      });
+      return;
+    }
 
-    router.refresh();
+    setDrafts([]);
+    setNote("");
+    setMessage({ tone: "good", text: "Danke! Deine Meldung ist bei deinem Trainer angekommen. Gute Besserung 💙" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    await loadHistory();
   }
 
-  const firstStepReady =
-    bodySelections.length > 0;
+  /* Verlauf nach Meldung gruppieren */
+  const groups = useMemo(() => {
+    const map = new Map<string, PainReport[]>();
+
+    for (const report of history ?? []) {
+      const key = report.report_group ?? report.id;
+      map.set(key, [...(map.get(key) ?? []), report]);
+    }
+
+    return [...map.values()];
+  }, [history]);
+
+  const editingSpot = editing ? getSpot(editing.spotId) : null;
+  const editingExists = editing ? drafts.some((draft) => draft.spotId === editing.spotId) : false;
 
   return (
-    <main className="bg-app-bg px-4 py-6 text-app-heading sm:px-6">
-      <div className="mx-auto max-w-3xl">
-        <Link
-          href="/athlete"
-          className="text-sm text-app-muted transition hover:text-app-heading"
-        >
-          ← Zurück
-        </Link>
+    <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
+      <PageHeader icon="heart" title="Schmerzen melden" description="Tippe auf die Stelle, die weh tut – Muskel oder Gelenk (Punkte). Du kannst mehrere Stellen angeben." />
 
-        <header className="mt-5">
-          <h1 className="text-3xl font-bold">
-            Schmerzen melden
-          </h1>
-        </header>
+      {message && <Notice tone={message.tone}>{message.text}</Notice>}
 
-        {/* FORTSCHRITT */}
-        <div className="mt-6 flex justify-center gap-2">
-          {[1, 2, 3].map(
-            (item) => (
-              <span
-                key={item}
-                className={`h-2.5 w-2.5 rounded-full transition-all ${
-                  item === step
-                    ? "scale-110 bg-app-warn"
-                    : item < step
-                    ? "bg-app-good"
-                    : "bg-app-elevated"
-                }`}
-              />
-            )
-          )}
+      <Card padded>
+        <BodyMap levels={levels} selectedId={editing?.spotId} onSelect={selectSpot} />
+
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-app-muted">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-sm border border-app-border bg-app-elevated" /> Muskel
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-3 w-3 rounded-full border border-app-muted bg-app-surface" /> Gelenk
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="h-3 w-16 rounded-full" style={{ background: `linear-gradient(90deg, ${painColor(1)}, ${painColor(5)}, ${painColor(10)})` }} />
+            leicht → stark
+          </span>
         </div>
+      </Card>
 
-        {message && (
-          <div className="mt-5 rounded-2xl border border-app-warn/40 bg-app-warn/20 p-4 text-center text-sm text-app-warn">
-            {message}
+      {drafts.length > 0 && (
+        <Card title={`Deine Meldung (${drafts.length} ${drafts.length === 1 ? "Stelle" : "Stellen"})`}>
+          <ul className="divide-y divide-app-border">
+            {drafts.map((draft) => {
+              const spot = getSpot(draft.spotId);
+
+              return (
+                <li key={draft.spotId} className="flex items-center gap-3 px-5 py-3">
+                  <span
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                    style={{ background: painColor(draft.level ?? 1) }}
+                  >
+                    {draft.level}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-medium text-app-heading">{spot?.label}</span>
+                    <span className="block truncate text-xs text-app-muted">
+                      {[painWord(draft.level ?? 1), ...draft.qualities.map((q) => labelFor(PAIN_QUALITIES, q)), labelFor(PAIN_ONSETS, draft.onset)]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  </span>
+                  <button type="button" onClick={() => setEditing(draft)} className={buttonGhost}>
+                    Ändern
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="space-y-4 border-t border-app-border p-5">
+            <FormField label="Möchtest du noch etwas dazu sagen? (optional)">
+              <textarea
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+                rows={2}
+                placeholder="z. B. „Seit dem Krafttraining am Montag“"
+                className={inputClass}
+              />
+            </FormField>
+            <button type="button" onClick={submit} disabled={saving} className={`${buttonPrimary} w-full py-3`}>
+              {saving ? "Wird gesendet..." : "Meldung an den Trainer senden"}
+            </button>
+          </div>
+        </Card>
+      )}
+
+      <Card title="Meine letzten Meldungen" description="Die letzten 6 Wochen">
+        {history === null ? (
+          <p className="p-5 text-sm text-app-muted">Wird geladen...</p>
+        ) : groups.length === 0 ? (
+          <EmptyState icon="heart" title="Keine Meldungen">
+            Schön – hoffentlich bleibt das so!
+          </EmptyState>
+        ) : (
+          <ul className="divide-y divide-app-border">
+            {groups.map((group) => (
+              <li key={group[0].report_group ?? group[0].id} className="space-y-2 px-5 py-3">
+                <p className="text-xs text-app-faint">{formatRelative(group[0].created_at)}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {group.map((report) => (
+                    <span
+                      key={report.id}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-app-border px-2.5 py-1 text-sm text-app-heading"
+                    >
+                      <span className="h-2.5 w-2.5 rounded-full" style={{ background: painColor(report.pain_level) }} />
+                      {report.spot_label ?? report.body_region} · {report.pain_level}
+                    </span>
+                  ))}
+                </div>
+                {group[0].note && <p className="text-sm text-app-muted">„{group[0].note}“</p>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      {/* Details zu einer Stelle */}
+      <Modal open={Boolean(editing)} title={editingSpot?.label ?? ""} onClose={() => setEditing(null)}>
+        {editing && (
+          <div className="space-y-5">
+            <div>
+              <p className="mb-2 text-sm font-medium text-app-text">
+                Wie stark? <span className="text-app-muted">(1 = kaum spürbar, 10 = unerträglich)</span>
+              </p>
+              <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-10">
+                {Array.from({ length: 10 }, (_, index) => index + 1).map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setEditing({ ...editing, level })}
+                    aria-pressed={editing.level === level}
+                    className={`h-11 rounded-xl border-2 text-base font-bold transition ${
+                      editing.level === level ? "scale-105 border-app-heading text-white" : "border-transparent text-white opacity-60 hover:opacity-100"
+                    }`}
+                    style={{ background: painColor(level) }}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+              {editing.level && <p className="mt-1.5 text-sm font-medium text-app-heading">{painWord(editing.level)}</p>}
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium text-app-text">Wie fühlt es sich an?</p>
+              <Chips options={PAIN_QUALITIES} selected={editing.qualities} onToggle={(value) => setEditing({ ...editing, qualities: toggle(editing.qualities, value) })} />
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium text-app-text">Seit wann?</p>
+              <Chips options={PAIN_ONSETS} selected={editing.onset ? [editing.onset] : []} onToggle={(value) => setEditing({ ...editing, onset: editing.onset === value ? "" : value })} />
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium text-app-text">Wann tut es weh?</p>
+              <Chips options={PAIN_TRIGGERS} selected={editing.triggers} onToggle={(value) => setEditing({ ...editing, triggers: toggle(editing.triggers, value) })} />
+            </div>
+
+            <div>
+              <p className="mb-2 text-sm font-medium text-app-text">Kannst du trainieren?</p>
+              <div className="grid gap-1.5 sm:grid-cols-3">
+                {TRAINING_IMPACTS.map((impact) => (
+                  <button
+                    key={impact.value}
+                    type="button"
+                    onClick={() => setEditing({ ...editing, impact: editing.impact === impact.value ? "" : impact.value })}
+                    aria-pressed={editing.impact === impact.value}
+                    className={`rounded-xl border px-3 py-2.5 text-sm transition ${
+                      editing.impact === impact.value
+                        ? impact.value === "none"
+                          ? "border-app-bad bg-app-bad/12 font-semibold text-app-bad"
+                          : impact.value === "limited"
+                            ? "border-app-warn bg-app-warn/12 font-semibold text-app-warn"
+                            : "border-app-good bg-app-good/12 font-semibold text-app-good"
+                        : "border-app-border text-app-text hover:bg-app-elevated"
+                    }`}
+                  >
+                    {impact.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap justify-between gap-2 border-t border-app-border pt-4">
+              {editingExists ? (
+                <button type="button" onClick={() => removeSpot(editing.spotId)} className={`${buttonGhost} text-app-bad`}>
+                  Stelle entfernen
+                </button>
+              ) : (
+                <span />
+              )}
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setEditing(null)} className={buttonSecondary}>
+                  Abbrechen
+                </button>
+                <button type="button" onClick={applyEditing} disabled={!editing.level} className={buttonPrimary}>
+                  {editing.level ? "Übernehmen" : "Stärke wählen"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
-
-        {/* =====================================================
-            SCHRITT 1
-        ===================================================== */}
-        {step === 1 && (
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface p-4 sm:p-6">
-            <h2 className="text-center text-2xl font-bold">
-              Wo tut es weh?
-            </h2>
-
-            {bodySelections.length >
-              0 && (
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                {bodySelections.map(
-                  (
-                    selection
-                  ) => (
-                    <button
-                      key={`${selection.region}-${selection.side ?? "center"}`}
-                      type="button"
-                      onClick={() =>
-                        removeSelection(
-                          selection
-                        )
-                      }
-                      className="rounded-full border border-app-warn/40 bg-app-warn/10 px-3 py-1.5 text-xs font-semibold text-app-warn transition hover:bg-app-warn/20"
-                    >
-                      {
-                        selection.label
-                      }
-
-                      <span className="ml-1.5 text-app-warn">
-                        ×
-                      </span>
-                    </button>
-                  )
-                )}
-              </div>
-            )}
-
-            <div className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-elevated/70 p-2 sm:p-4">
-              <div className="relative mx-auto w-full max-w-[760px]">
-                <img
-                  src="/pain-body-map.svg"
-                  alt="Körper Vorder- und Rückansicht"
-                  draggable={false}
-                  className="block h-auto w-full select-none opacity-90 invert brightness-150"
-                />
-
-                {BODY_ZONES.map(
-                  (zone) => {
-                    const active =
-                      selectionExists(
-                        zone
-                      );
-
-                    return (
-                      <button
-                        key={zone.id}
-                        type="button"
-                        onClick={() =>
-                          toggleBodyZone(
-                            zone
-                          )
-                        }
-                        aria-label={
-                          zone.label
-                        }
-                        aria-pressed={
-                          active
-                        }
-                        title={
-                          zone.label
-                        }
-                        className={`absolute z-10 transition-all duration-150 ${
-                          active
-                            ? "border border-app-warn/80 bg-app-warn/45 shadow-[0_0_10px_rgba(251,146,60,0.30)]"
-                            : "border border-transparent bg-transparent hover:border-app-warn/20 hover:bg-app-warn/10"
-                        }`}
-                        style={{
-                          left: `${zone.left}%`,
-                          top: `${zone.top}%`,
-                          width: `${zone.width}%`,
-                          height: `${zone.height}%`,
-                          borderRadius:
-                            zone.radius ??
-                            "35%",
-                        }}
-                      />
-                    );
-                  }
-                )}
-              </div>
-            </div>
-
-            <p className="mt-3 text-center text-xs text-app-faint">
-              Du kannst mehrere Stellen auswählen.
-            </p>
-          </section>
-        )}
-
-        {/* =====================================================
-            SCHRITT 2
-        ===================================================== */}
-        {step === 2 && (
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-7">
-            <h2 className="text-center text-2xl font-bold">
-              Wie stark sind die Schmerzen?
-            </h2>
-
-            <div className="mt-8 grid grid-cols-5 gap-2 sm:gap-3">
-              {[1, 2, 3, 4, 5].map(
-                (value) => {
-                  const active =
-                    painLevel ===
-                    value;
-
-                  const baseClasses: Record<
-                    number,
-                    string
-                  > = {
-                    1: "border-app-warn/30 bg-app-warn/5 text-app-warn",
-                    2: "border-app-warn/30 bg-app-warn/5 text-app-warn",
-                    3: "border-app-warn/30 bg-app-warn/5 text-app-warn",
-                    4: "border-app-bad/30 bg-app-bad/5 text-app-bad",
-                    5: "border-app-bad/40 bg-app-bad/10 text-app-bad",
-                  };
-
-                  const activeClasses: Record<
-                    number,
-                    string
-                  > = {
-                    1: "border-app-warn bg-app-warn/90 text-app-accent-ink ring-2 ring-app-warn/30",
-                    2: "border-app-warn bg-app-warn/90 text-app-accent-ink ring-2 ring-app-warn/30",
-                    3: "border-app-warn bg-app-warn/90 text-app-accent-ink ring-2 ring-app-warn/30",
-                    4: "border-app-bad bg-app-bad/90 text-white ring-2 ring-app-bad/30",
-                    5: "border-app-bad bg-app-bad/90 text-white ring-2 ring-app-bad/30",
-                  };
-
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      onClick={() =>
-                        setPainLevel(
-                          value
-                        )
-                      }
-                      aria-pressed={
-                        active
-                      }
-                      className={`flex min-h-[76px] items-center justify-center rounded-2xl border text-2xl font-bold transition sm:min-h-[88px] sm:text-3xl ${
-                        active
-                          ? `${activeClasses[value]} scale-[1.04]`
-                          : `${baseClasses[value]} hover:scale-[1.02]`
-                      }`}
-                    >
-                      {value}
-                    </button>
-                  );
-                }
-              )}
-            </div>
-
-            <div className="mt-3 flex items-center justify-between px-1 text-sm font-medium text-app-muted">
-              <span>
-                leicht
-              </span>
-
-              <span>
-                stark
-              </span>
-            </div>
-          </section>
-        )}
-
-        {/* =====================================================
-            SCHRITT 3
-        ===================================================== */}
-        {step === 3 && (
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-7">
-            <h2 className="text-2xl font-bold">
-              Möchtest du noch etwas sagen?
-            </h2>
-
-            <textarea
-              value={note}
-              onChange={(
-                event
-              ) =>
-                setNote(
-                  event.target.value
-                )
-              }
-              rows={3}
-              maxLength={500}
-              placeholder="z. B. zieht beim Laufen"
-              className="mt-5 min-h-[96px] w-full resize-y rounded-2xl border border-app-border bg-app-bg p-4 text-base text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-warn"
-            />
-
-            <p className="mt-2 text-right text-xs text-app-faint">
-              {note.length}/500
-            </p>
-          </section>
-        )}
-
-        {/* =====================================================
-            NAVIGATION
-        ===================================================== */}
-        <div className="mt-5 grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={
-              previousStep
-            }
-            disabled={
-              step === 1
-            }
-            className="rounded-2xl border border-app-border px-5 py-4 font-semibold text-app-text transition hover:bg-app-surface disabled:cursor-not-allowed disabled:opacity-30"
-          >
-            Zurück
-          </button>
-
-          {step < 3 ? (
-            <button
-              type="button"
-              onClick={
-                nextStep
-              }
-              disabled={
-                (step === 1 &&
-                  !firstStepReady) ||
-                (step === 2 &&
-                  painLevel === null)
-              }
-              className="rounded-2xl bg-app-warn px-5 py-4 font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:bg-app-elevated disabled:text-app-faint"
-            >
-              Weiter →
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={
-                submitPainReport
-              }
-              disabled={
-                saving
-              }
-              className="rounded-2xl bg-app-warn px-4 py-4 font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {saving
-                ? "Wird gespeichert..."
-                : "Schmerzen melden"}
-            </button>
-          )}
-        </div>
-      </div>
+      </Modal>
     </main>
   );
 }

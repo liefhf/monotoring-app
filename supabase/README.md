@@ -15,6 +15,7 @@ Die Reihenfolge ist wichtig, weil spätere Skripte auf früheren aufbauen.
 | 7 | `kalender_zusammenfuehren.sql` | alten Saisonkalender in den neuen Kalender übernehmen |
 | 8 | `hinweise.sql` | Hinweise in der App (Glocke) |
 | 9 | `athleten_zusammenfuehren.sql` | Eine Athletenliste: Teams enthalten alle Athleten, Login nur noch verknüpft |
+| 10 | `schmerzen.sql` | Schmerzmeldung mit Körpermodell, Coach sieht Meldungen, Hinweis bei starken Schmerzen |
 
 Optional: `demo_kapitel1_einfuegen.sql` / `demo_kapitel1_entfernen.sql` für Beispieldaten.
 

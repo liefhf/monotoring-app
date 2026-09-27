@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import {
   CartesianGrid,
   Legend,
@@ -18,6 +18,7 @@ import { supabase } from "@/lib/supabase";
 import AthleteLinkCard from "@/components/AthleteLinkCard";
 import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
+import PainPanel from "@/components/PainPanel";
 import {
   Gender,
   OtherResult,
@@ -61,7 +62,7 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "wettkaempfe";
+type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "wettkaempfe" | "schmerzen";
 
 const TABS: { value: Tab; label: string }[] = [
   { value: "infos", label: "Infos" },
@@ -71,6 +72,7 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "entwicklung", label: "Entwicklung" },
   { value: "pflichtzeiten", label: "Pflichtzeiten" },
   { value: "wettkaempfe", label: "Saison-Auswertung" },
+  { value: "schmerzen", label: "Schmerzen" },
 ];
 
 /* Felder, die im Tab "Infos" bearbeitet werden (alle als Text im Formular) */
@@ -158,7 +160,10 @@ export default function SchwimmerDetailPage() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  const [tab, setTab] = useState<Tab>("infos");
+  /* ?tab=schmerzen oeffnet direkt einen Tab (z. B. aus einem Hinweis) */
+  const searchParams = useSearchParams();
+  const initialTab = TABS.find((item) => item.value === searchParams.get("tab"))?.value ?? "infos";
+  const [tab, setTab] = useState<Tab>(initialTab);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [standardId, setStandardId] = useState("");
   const [chartEventKey, setChartEventKey] = useState("");
@@ -731,6 +736,8 @@ export default function SchwimmerDetailPage() {
         )}
 
         {tab === "wettkaempfe" && <SwimmerSeasonReport swimmerId={swimmerId} />}
+
+        {tab === "schmerzen" && <PainPanel swimmerId={swimmerId} />}
 
         {tab === "pflichtzeiten" && (
           <QualificationTable

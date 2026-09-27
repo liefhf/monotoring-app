@@ -17,7 +17,7 @@ import { Icon, IconName } from "@/components/icons";
 
 type Notification = {
   id: string;
-  kind: "news" | "termin" | "feedback" | "einschaetzung";
+  kind: "news" | "termin" | "feedback" | "einschaetzung" | "schmerz";
   title: string;
   body: string | null;
   link: string | null;
@@ -30,6 +30,7 @@ const KIND_ICONS: Record<Notification["kind"], IconName> = {
   termin: "calendar",
   feedback: "trophy",
   einschaetzung: "chat",
+  schmerz: "heart",
 };
 
 export default function NotificationBell({ align = "right" }: { align?: "left" | "right" }) {
