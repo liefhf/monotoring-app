@@ -3019,6 +3019,21 @@ function TrainingEditor() {
                 ? "Beim Speichern wird die bestehende Trainingseinheit aktualisiert."
                 : "Wasser- und Landtraining werden inklusive ihrer einzelnen Serien bzw. Übungen dauerhaft gespeichert."}
             </p>
+
+            {/* Meldung auch hier unten anzeigen - oben sieht man sie beim Speichern nicht */}
+            {message && (
+              <p
+                role="status"
+                className={`mt-3 rounded-lg px-3 py-2 text-sm font-semibold ${
+                  message.includes("✅") ? "bg-app-good/10 text-app-good" : "bg-app-bad/10 text-app-bad"
+                }`}
+              >
+                {message}
+              </p>
+            )}
+            {teams.length === 0 && !loadingTeams && (
+              <p className="mt-3 text-sm text-app-bad">Kein Team gefunden – Speichern ist erst mit einem Team möglich.</p>
+            )}
           </div>
 
           <div className="flex gap-3">
