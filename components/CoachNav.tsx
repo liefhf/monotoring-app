@@ -41,6 +41,7 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
     items: [
       { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
       { href: "/coach/analytics", label: "Analysen", icon: "chart" },
+      { href: "/coach/analytics/wettkampf", label: "Wettkampf-Auswertung", icon: "trophy" },
     ],
   },
   {
@@ -67,6 +68,11 @@ function isActive(pathname: string, href: string) {
    */
   if (href === "/coach") {
     return pathname === "/coach";
+  }
+
+  /* Die Wettkampf-Auswertung hat einen eigenen Menuepunkt */
+  if (href === "/coach/analytics") {
+    return pathname === href;
   }
 
   return pathname === href || pathname.startsWith(`${href}/`);
