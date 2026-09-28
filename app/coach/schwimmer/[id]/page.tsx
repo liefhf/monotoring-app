@@ -20,6 +20,9 @@ import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import PainPanel from "@/components/PainPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
+import FocusBadge, { FocusContext } from "@/components/FocusBadge";
+import { loadAthleteFocus } from "@/lib/nextCompetition";
+import { AthleteFocus } from "@/lib/trainingFocus";
 import {
   Gender,
   OtherResult,
@@ -161,6 +164,8 @@ export default function SchwimmerDetailPage() {
   const [qualifyingTimes, setQualifyingTimes] = useState<QualifyingTime[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [athleteFocus, setAthleteFocus] = useState<AthleteFocus>({ events: null, strokes: null, distances: null });
+  const [focusMissing, setFocusMissing] = useState(false);
 
   /* ?tab=schmerzen oeffnet direkt einen Tab (z. B. aus einem Hinweis) */
   const searchParams = useSearchParams();
@@ -220,6 +225,9 @@ export default function SchwimmerDetailPage() {
     setOtherResults(other);
     setStandards((standardResponse.data ?? []) as QualifyingStandard[]);
     setQualifyingTimes((timeResponse.data ?? []) as QualifyingTime[]);
+    const loadedFocus = await loadAthleteFocus(swimmerId);
+    setAthleteFocus(loadedFocus.focus);
+    setFocusMissing(loadedFocus.missingColumns);
     setLoading(false);
   }, [swimmerId]);
 
@@ -488,6 +496,7 @@ export default function SchwimmerDetailPage() {
     swimmer.birth_year ? ` (${year - swimmer.birth_year} Jahre)` : "";
 
   return (
+    <FocusContext.Provider value={athleteFocus}>
     <main>
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-end justify-between gap-4">
@@ -623,6 +632,7 @@ export default function SchwimmerDetailPage() {
                         <tr key={result.id} className="border-b border-app-border last:border-b-0 even:bg-app-bg/40">
                           <td className="px-4 py-2 font-medium">
                             {formatEventShort(result)}
+                            <FocusBadge event={result} />
                             {result.round && (
                               <span className="ml-2 text-xs font-normal text-app-muted">{result.round}</span>
                             )}
@@ -721,7 +731,10 @@ export default function SchwimmerDetailPage() {
 
                       return (
                         <tr key={eventKey(event)} className="border-b border-app-border last:border-b-0 even:bg-app-bg/40">
-                          <td className="px-4 py-2 font-medium">{formatEventShort(event).replace(" ", "")}</td>
+                          <td className="px-4 py-2 font-medium">
+                            {formatEventShort(event).replace(" ", "")}
+                            <FocusBadge event={event} />
+                          </td>
                           <td className="px-4 py-2 font-semibold text-app-heading">{best ? formatTime(best.time_ms) : ""}</td>
                           <td className="px-4 py-2">{best?.location ?? ""}</td>
                           <td className="px-4 py-2 text-right text-app-muted">
@@ -761,6 +774,9 @@ export default function SchwimmerDetailPage() {
             swimmer={swimmer}
             standards={standards}
             qualifyingTimes={qualifyingTimes}
+            focus={athleteFocus}
+            missingColumns={focusMissing}
+            onFocusSaved={setAthleteFocus}
           />
         )}
 
@@ -781,6 +797,7 @@ export default function SchwimmerDetailPage() {
         <BackLink />
       </div>
     </main>
+    </FocusContext.Provider>
   );
 }
 
@@ -1245,7 +1262,10 @@ function DevelopmentChart({
             >
               <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 px-2">
                 <div>
-                  <span className="text-lg font-semibold text-app-heading">{formatEvent(chartEvent)}</span>
+                  <span className="text-lg font-semibold text-app-heading">
+                    {formatEvent(chartEvent)}
+                    <FocusBadge event={chartEvent} />
+                  </span>
                   <span className="ml-3 text-sm text-app-muted">
                     {period === "all" ? "Alle Jahre" : period} · {bestLabel(chartEvent)}
                   </span>
@@ -1284,7 +1304,10 @@ function DevelopmentChart({
                   className="rounded-xl border border-app-border bg-app-bg p-3 text-left transition hover:border-app-accent"
                 >
                   <div className="flex items-baseline justify-between gap-2 px-1">
-                    <span className="font-semibold text-app-heading">{formatEvent(event)}</span>
+                    <span className="font-semibold text-app-heading">
+                      {formatEvent(event)}
+                      <FocusBadge event={event} />
+                    </span>
                     <span className="text-xs text-app-muted">{bestLabel(event)}</span>
                   </div>
                   <div className="mt-2 h-40 w-full">
@@ -1399,7 +1422,10 @@ function QualificationTable({
 
                 return (
                   <tr key={eventKey(event)} className="border-b border-app-border last:border-b-0 even:bg-app-bg/40">
-                    <td className="px-4 py-2 font-medium">{formatEvent(event)}</td>
+                    <td className="px-4 py-2 font-medium">
+                      {formatEvent(event)}
+                      <FocusBadge event={event} />
+                    </td>
                     <td className="px-4 py-2 font-semibold text-app-heading">{best ? formatTime(best.time_ms) : "–"}</td>
                     <td className="px-4 py-2 text-app-muted">
                       {best

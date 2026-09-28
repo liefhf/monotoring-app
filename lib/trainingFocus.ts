@@ -33,6 +33,10 @@ export type FocusItem = {
   score: number;
   /* nur bei Pflichtzeit-Empfehlungen */
   level?: "open" | "done" | "close" | "reach" | "mid" | "far";
+  event?: SwimEvent;
+  role?: FocusRole | null;
+  bestMs?: number | null;
+  requiredMs?: number;
 };
 
 export type StrokeProfile = {
@@ -81,13 +85,22 @@ export function qualiRecommendation(
   best: SwimmerResult | null,
   standardName: string
 ): FocusItem {
+  return { ...qualiRecommendationText(event, requiredMs, best, standardName), event, bestMs: best?.time_ms ?? null, requiredMs };
+}
+
+function qualiRecommendationText(
+  event: SwimEvent,
+  requiredMs: number,
+  best: SwimmerResult | null,
+  standardName: string
+): FocusItem {
   const target = `Pflichtzeit ${formatTime(requiredMs)} (${standardName})`;
   if (!best) {
     return {
       kind: "quali",
       title: `${formatEvent(event)}: noch keine Zeit im Qualifikationszeitraum`,
       detail: `${target}. Einen Start auf dieser Strecke einplanen, damit eine gültige Zeit vorliegt.`,
-      score: 70,
+      score: 45,
       level: "open",
     };
   }
@@ -185,10 +198,36 @@ export function distanceRange(distance: number): DistanceRange {
   return distance <= 50 ? "sprint" : distance < 200 ? "mittel" : "lang";
 }
 
+/*
+ * Fokus-Strecken: "100-backstroke" = Hauptstrecke, "100-backstroke:neben" = Nebenstrecke.
+ */
+export type FocusRole = "haupt" | "neben";
+
+export function parseFocusKey(key: string) {
+  const [eventPart, rolePart] = key.split(":");
+  const [distance, stroke] = eventPart.split("-");
+  return {
+    event: { distance: Number(distance), stroke: stroke as Stroke },
+    role: (rolePart === "neben" ? "neben" : "haupt") as FocusRole,
+  };
+}
+
+export function focusKey(event: SwimEvent, role: FocusRole) {
+  return `${event.distance}-${event.stroke}${role === "neben" ? ":neben" : ""}`;
+}
+
+export function focusRole(event: SwimEvent, focus: AthleteFocus | null | undefined): FocusRole | null {
+  for (const key of focus?.events ?? []) {
+    const parsed = parseFocusKey(key);
+    if (parsed.event.distance === event.distance && parsed.event.stroke === event.stroke) return parsed.role;
+  }
+  return null;
+}
+
 /* Liegt die Strecke im Fokus? Lagen braucht alle vier Lagen -> Lagen im Fokus zaehlt fuer jede Lage mit */
 export function inFocus(event: SwimEvent, focus: AthleteFocus | null | undefined) {
   if (focus?.events?.length) {
-    return focus.events.includes(`${event.distance}-${event.stroke}`);
+    return focusRole(event, focus) !== null;
   }
   const strokes = focus?.strokes?.length ? focus.strokes : null;
   const distances = focus?.distances?.length ? focus.distances : null;
@@ -224,7 +263,7 @@ export function trainingFocus({
   const focused = results.filter((result) => inFocus(result, focus));
   const recent = allRecent.filter((result) => inFocus(result, focus));
   const focusStrokes: Stroke[] | null = focus?.events?.length
-    ? [...new Set(focus.events.map((key) => key.split("-")[1] as Stroke))]
+    ? [...new Set(focus.events.map((key) => parseFocusKey(key).event.stroke))]
     : focus?.strokes?.length
       ? focus.strokes
       : null;
@@ -248,13 +287,16 @@ export function trainingFocus({
   /* 1. Empfehlung anhand der Pflichtzeiten fuer jede Fokus-Strecke */
   if (standard) {
     const events: SwimEvent[] = focus?.events?.length
-      ? focus.events.map((key) => ({ distance: Number(key.split("-")[0]), stroke: key.split("-")[1] as Stroke }))
+      ? focus.events.map((key) => parseFocusKey(key).event)
       : eventsOf(focused);
     for (const event of events) {
       const required = findQualifyingTime(standardTimes, swimmer, event);
       if (!required) continue;
       const best = findBestForStandard(results, event, standard);
-      items.push(qualiRecommendation(event, required.time_ms, best, standard.name));
+      const item = qualiRecommendation(event, required.time_ms, best, standard.name);
+      const role = focusRole(event, focus);
+      /* Nebenstrecken etwas nachrangig */
+      items.push({ ...item, role, score: role === "neben" ? item.score - 12 : item.score });
     }
   }
 
@@ -278,7 +320,7 @@ export function trainingFocus({
           kind: "missing",
           title: `${item.label}: keine aktuelle Wettkampfzeit`,
           detail: `In den letzten 12 Monaten keine gewertete ${item.label}-Zeit.${swimsMedley ? " Für die Lagenstrecken fehlt damit die Vergleichsbasis." : ""} Einen Start einplanen, um den Stand zu kennen.`,
-          score: swimsMedley ? 45 : 30,
+          score: swimsMedley ? 28 : 22,
         });
         continue;
       }
@@ -290,7 +332,8 @@ export function trainingFocus({
           detail: `${item.points} Punkte (${formatEvent(item.best!)} ${formatTime(item.best!.time_ms)}) gegenüber ${strongest.points} in ${strongest.label}. ${
             swimsMedley ? "Jede Verbesserung hier zahlt direkt auf die Lagenstrecken ein." : "Hier ist am meisten Luft nach oben."
           }`,
-          score: 60 + (1 - share) * 100,
+          /* nach den Pflichtzeiten: die naechsten Zeiten sind die Orientierung */
+          score: 30 + (1 - share) * 20,
         });
       }
     }
@@ -314,14 +357,14 @@ export function trainingFocus({
         kind: "distance",
         title: "Ausdauer: längere Strecken fallen ab",
         detail: `Ø ${Math.round(long)} Punkte auf 200 m und länger gegenüber Ø ${Math.round(sprint)} auf 50 m. Grundlagenausdauer und Tempohärte (z. B. Serien mit kurzen Pausen) bringen hier am meisten.`,
-        score: 50 + (1 - long / sprint) * 100,
+        score: 30 + (1 - long / sprint) * 20,
       });
     } else if (sprint < long * DISTANCE_GAP) {
       items.push({
         kind: "distance",
         title: "Schnelligkeit: Sprints fallen ab",
         detail: `Ø ${Math.round(sprint)} Punkte auf 50 m gegenüber Ø ${Math.round(long)} auf 200 m und länger. Start, Wende, Unterwasserphase und kurze maximale Sprints üben.`,
-        score: 50 + (1 - sprint / long) * 100,
+        score: 30 + (1 - sprint / long) * 20,
       });
     }
   }
@@ -338,7 +381,7 @@ export function trainingFocus({
         kind: "stagnation",
         title: `${formatEvent(event)}: Bestzeit stagniert`,
         detail: `Bestzeit ${formatTime(best.time_ms)} ist über ein halbes Jahr alt, seitdem ${recentStarts.length} Starts ohne Verbesserung. Technik oder Renneinteilung (Splits) genauer ansehen.`,
-        score: 40 + Math.min(recentStarts.length, 5),
+        score: 35 + Math.min(recentStarts.length, 5),
       });
     }
   }
