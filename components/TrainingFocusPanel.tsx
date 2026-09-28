@@ -6,7 +6,7 @@ import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "
 import AthleteFocusEditor from "@/components/AthleteFocusEditor";
 import { RoleBadge } from "@/components/FocusBadge";
 import { NonFinish, QualifyingStandard, QualifyingTime, Swimmer, SwimmerResult, formatEvent, formatEventShort, formatTime } from "@/lib/swim";
-import { AthleteFocus, FocusKind, focusRole, recentResults, strokeProfile, topFocus, trainingFocus } from "@/lib/trainingFocus";
+import { AthleteFocus, FocusKind, focusRole, recentResults, strokeProfile, suggestFocus, topFocus, trainingFocus } from "@/lib/trainingFocus";
 import { Card, inputClass } from "@/components/ui";
 
 const KIND_LABEL: Record<FocusKind, { label: string; className: string }> = {
@@ -69,6 +69,10 @@ export default function TrainingFocusPanel({
     () => trainingFocus({ results, swimmer, standard, standardTimes, today, nonFinishes, focus }),
     [results, swimmer, standard, standardTimes, today, nonFinishes, focus]
   );
+  const suggestion = useMemo(
+    () => suggestFocus({ results, swimmer, standard, standardTimes, today }),
+    [results, swimmer, standard, standardTimes, today]
+  );
   const profile = useMemo(() => strokeProfile(recentResults(results, today)), [results, today]);
   const hasFocus = Boolean(focus.events?.length || focus.strokes?.length || focus.distances?.length);
   /* Pflichtzeiten-Empfehlung fuer jede (Fokus-)Strecke, naechste Ziele zuerst */
@@ -85,6 +89,7 @@ export default function TrainingFocusPanel({
         focus={focus}
         missingColumns={missingColumns}
         onSaved={onFocusSaved}
+        suggestion={suggestion}
       >
         <div className="border-t border-app-border">
           <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5">

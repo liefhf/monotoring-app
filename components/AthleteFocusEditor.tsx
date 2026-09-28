@@ -15,8 +15,11 @@ export default function AthleteFocusEditor({
   focus,
   missingColumns,
   onSaved,
+  suggestion,
   children,
 }: {
+  /* Vorschlag aus den Ergebnissen; ist noch kein Fokus gespeichert, wird er vorausgefuellt */
+  suggestion?: { events: string[]; reasons: Record<string, string> };
   swimmerId: string;
   focus: AthleteFocus;
   missingColumns: boolean;
@@ -24,12 +27,15 @@ export default function AthleteFocusEditor({
   /* z. B. die Pflichtzeiten-Empfehlung direkt im Fokus-Block */
   children?: ReactNode;
 }) {
-  const [events, setEvents] = useState<string[]>(focus.events ?? []);
+  const savedEvents = focus.events ?? [];
+  const prefill = savedEvents.length === 0 && Boolean(suggestion?.events.length);
+  const [events, setEvents] = useState<string[]>(prefill ? suggestion!.events : savedEvents);
+  const [fromSuggestion, setFromSuggestion] = useState(prefill);
   const [note, setNote] = useState(focus.note ?? "");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
   const draft: AthleteFocus = { events, strokes: null, distances: null, note };
-  const dirty = JSON.stringify(events) !== JSON.stringify(focus.events ?? []) || note !== (focus.note ?? "");
+  const dirty = JSON.stringify(events) !== JSON.stringify(savedEvents) || note !== (focus.note ?? "");
 
   function cycle(event: (typeof SWIM_EVENTS)[number]) {
     const role = focusRole(event, draft);
@@ -50,6 +56,7 @@ export default function AthleteFocusEditor({
       return;
     }
     setMessage({ tone: "good", text: "Fokus gespeichert ✅" });
+    setFromSuggestion(false);
     onSaved(draft);
   }
 
@@ -76,6 +83,39 @@ export default function AthleteFocusEditor({
           </Notice>
         )}
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
+
+        {suggestion && suggestion.events.length > 0 && (
+          <div className="rounded-xl border border-app-accent/30 bg-app-accent/8 px-3 py-2 text-xs text-app-text">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-semibold">
+                {fromSuggestion ? "Mein Vorschlag – noch nicht gespeichert, bitte prüfen und ggf. anpassen:" : "Vorschlag aus den Ergebnissen:"}
+              </span>
+              {!fromSuggestion && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEvents(suggestion.events);
+                    setFromSuggestion(true);
+                    setMessage(null);
+                  }}
+                  className="font-semibold text-app-accent"
+                >
+                  Vorschlag übernehmen
+                </button>
+              )}
+            </div>
+            <p className="mt-1 text-app-muted">
+              {suggestion.events
+                .map((key) => {
+                  const [eventPart, role] = key.split(":");
+                  const [distance, stroke] = eventPart.split("-");
+                  const short = STROKES.find((item) => item.value === stroke)?.short ?? stroke;
+                  return `${distance} ${short} ${role === "neben" ? "Neben" : "Haupt"} (${suggestion.reasons[eventPart]})`;
+                })
+                .join(" · ")}
+            </p>
+          </div>
+        )}
 
         <div className="grid gap-x-6 gap-y-1.5 md:grid-cols-2">
           {STROKES.map((stroke) => (

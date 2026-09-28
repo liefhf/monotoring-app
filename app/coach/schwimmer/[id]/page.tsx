@@ -22,7 +22,7 @@ import PainPanel from "@/components/PainPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
 import FocusBadge, { FocusContext } from "@/components/FocusBadge";
 import { loadAthleteFocus } from "@/lib/nextCompetition";
-import { AthleteFocus } from "@/lib/trainingFocus";
+import { AthleteFocus, FocusRole, parseFocusKey } from "@/lib/trainingFocus";
 import {
   Gender,
   OtherResult,
@@ -105,6 +105,17 @@ type EntryRow = {
   label: string;
   placement: string;
 };
+
+/* "50 F, 100 F" - Fokus-Strecken einer Rolle, sortiert nach Lage und Strecke */
+function focusList(focus: AthleteFocus, role: FocusRole) {
+  const order = STROKES.map((stroke) => stroke.value);
+  const events = (focus.events ?? [])
+    .map(parseFocusKey)
+    .filter((item) => item.role === role)
+    .map((item) => item.event)
+    .sort((a, b) => order.indexOf(a.stroke) - order.indexOf(b.stroke) || a.distance - b.distance);
+  return events.length ? events.map((event) => formatEventShort(event)).join(", ") : null;
+}
 
 function todayIso() {
   const now = new Date();
@@ -605,6 +616,19 @@ export default function SchwimmerDetailPage() {
                 <InfoRow label="Vereinsname" value={swimmer.club_name} />
                 <InfoRow label="Vereins-ID" value={swimmer.club_id} />
                 <InfoRow label="Mitglied seit" value={swimmer.club_since ? formatDate(swimmer.club_since) : null} />
+              </Card>
+
+              <Card
+                title="Fokus-Strecken"
+                action={
+                  <button type="button" onClick={() => setTab("fokus")} className="text-sm text-app-accent hover:text-app-accent">
+                    bearbeiten
+                  </button>
+                }
+              >
+                <InfoRow label="Hauptstrecken" value={focusList(athleteFocus, "haupt")} />
+                <InfoRow label="Nebenstrecken" value={focusList(athleteFocus, "neben")} />
+                <InfoRow label="Notiz" value={athleteFocus.note ?? null} />
               </Card>
 
               <div className="lg:col-span-2">

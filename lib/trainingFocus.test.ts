@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { qualiRecommendation, topFocus, trainingFocus } from "@/lib/trainingFocus";
+import { qualiRecommendation, suggestFocus, topFocus, trainingFocus } from "@/lib/trainingFocus";
 import { NonFinish, SwimmerResult } from "@/lib/swim";
 
 const swimmer = { id: "s1", first_name: "Test", last_name: "A", birth_year: 2013, gender: "female" as const };
@@ -110,5 +110,20 @@ describe("qualiRecommendation", () => {
       focus: { events: ["100-backstroke", "200-backstroke"], strokes: null, distances: null },
     });
     expect(items.filter((item) => item.kind === "quali").map((item) => item.level)).toEqual(["far"]);
+  });
+});
+
+describe("suggestFocus", () => {
+  const r = (distance: number, stroke: SwimmerResult["stroke"], points: number, time_ms = 30000): SwimmerResult => ({
+    id: `${distance}${stroke}`, swimmer_id: "s1", result_date: "2026-09-01", location: "X", pool_length: 25,
+    distance, stroke, time_ms, points, round: null, is_split: false,
+  });
+
+  it("schlaegt die staerksten Strecken als Haupt, solide als Neben vor und laesst schwache weg", () => {
+    const { events } = suggestFocus({
+      results: [r(50, "freestyle", 400), r(100, "freestyle", 390), r(50, "backstroke", 350), r(50, "butterfly", 200)],
+      swimmer, standard: null, standardTimes: [], today: "2026-09-28",
+    });
+    expect(events).toEqual(["50-freestyle", "100-freestyle", "50-backstroke:neben"]);
   });
 });

@@ -390,3 +390,59 @@ export function trainingFocus({
 
   return items.sort((a, b) => b.score - a.score);
 }
+
+/*
+ * Vorschlag fuer Haupt- und Nebenstrecken aus den Ergebnissen der letzten 12 Monate:
+ * - Hauptstrecken: die staerksten Strecken (Punkte nahe am eigenen Bestwert)
+ *   und Strecken, bei denen die Pflichtzeit erfuellt oder hoechstens 5 % entfernt ist.
+ * - Nebenstrecken: solide Strecken (ab 85 % des Bestwerts) oder Pflichtzeit hoechstens 10 % entfernt.
+ * Nur Strecken, die tatsaechlich geschwommen wurden. Der Trainer kann alles aendern.
+ */
+export function suggestFocus({
+  results,
+  swimmer,
+  standard,
+  standardTimes,
+  today,
+}: {
+  results: SwimmerResult[];
+  swimmer: Swimmer;
+  standard: QualifyingStandard | null;
+  standardTimes: QualifyingTime[];
+  today: string;
+}): { events: string[]; reasons: Record<string, string> } {
+  const recent = recentResults(results, today);
+  const scored = eventsOf(recent)
+    .map((event) => {
+      const best = bestPointsFor(recent, (r) => r.distance === event.distance && r.stroke === event.stroke);
+      const required = standard ? findQualifyingTime(standardTimes, swimmer, event) : null;
+      const bestTime = standard && required ? findBestForStandard(results, event, standard) : null;
+      const gapShare = required && bestTime ? (bestTime.time_ms - required.time_ms) / required.time_ms : null;
+      return { event, points: best?.points ?? 0, starts: recent.filter((r) => r.distance === event.distance && r.stroke === event.stroke).length, gapShare };
+    })
+    .filter((item) => item.points > 0 || item.gapShare !== null);
+
+  const maxPoints = Math.max(1, ...scored.map((item) => item.points));
+  const haupt: string[] = [];
+  const neben: string[] = [];
+  const reasons: Record<string, string> = {};
+  const pct = (share: number) => `${(Math.abs(share) * 100).toFixed(1).replace(".", ",")} %`;
+
+  for (const item of scored.sort((a, b) => b.points - a.points)) {
+    const key = `${item.event.distance}-${item.event.stroke}`;
+    const share = item.points / maxPoints;
+    if (item.gapShare !== null && item.gapShare <= 0.05) {
+      haupt.push(key);
+      reasons[key] = item.gapShare <= 0 ? "Pflichtzeit erfüllt" : `nur ${pct(item.gapShare)} bis zur Pflichtzeit`;
+    } else if (share >= 0.95 && haupt.length < 4) {
+      haupt.push(key);
+      reasons[key] = `stärkste Strecke (${item.points} Pkt.)`;
+    } else if ((item.gapShare !== null && item.gapShare <= 0.1) || (share >= 0.85 && neben.length < 5)) {
+      neben.push(key);
+      reasons[key] =
+        item.gapShare !== null && item.gapShare <= 0.1 ? `${pct(item.gapShare)} bis zur Pflichtzeit` : `solide Strecke (${item.points} Pkt.)`;
+    }
+  }
+
+  return { events: [...haupt, ...neben.map((key) => `${key}:neben`)], reasons };
+}
