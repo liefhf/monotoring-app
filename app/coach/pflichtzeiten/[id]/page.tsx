@@ -71,6 +71,27 @@ export default function PflichtzeitenDetailPage() {
   const [time, setTime] = useState("");
   const [saving, setSaving] = useState(false);
 
+  async function handleCountBothPools(checked: boolean) {
+    if (!standard) {
+      return;
+    }
+
+    const { error } = await supabase
+      .from("qualifying_standards")
+      .update({ count_both_pools: checked })
+      .eq("id", standard.id);
+
+    if (error) {
+      setMessage(
+        `Einstellung konnte nicht gespeichert werden: ${error.message} – wurde pflichtzeiten_beide_bahnen.sql schon ausgeführt?`
+      );
+      return;
+    }
+
+    setStandard({ ...standard, count_both_pools: checked });
+    setMessage(checked ? "Ab jetzt zählen 25m- und 50m-Zeiten ✅" : `Ab jetzt zählen nur ${standard.pool_length}m-Zeiten.`);
+  }
+
   const loadData = useCallback(async (initial = false) => {
     setLoading(true);
 
@@ -320,6 +341,14 @@ export default function PflichtzeitenDetailPage() {
               ? ` · Qualifikationszeitraum ${formatDate(standard.valid_from)} – ${formatDate(standard.valid_to)}`
               : " · alle Zeiten zählen"}
           </p>
+          <label className="mt-3 flex items-center gap-2 text-sm text-app-text">
+            <input
+              type="checkbox"
+              checked={Boolean(standard.count_both_pools)}
+              onChange={(event) => handleCountBothPools(event.target.checked)}
+            />
+            Zeiten von der 25m- und der 50m-Bahn zählen
+          </label>
         </header>
 
         {message && (
