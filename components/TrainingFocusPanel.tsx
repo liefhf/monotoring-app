@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarEntry } from "@/lib/community";
 import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { NonFinish, QualifyingStandard, QualifyingTime, Swimmer, SwimmerResult, formatEvent, formatTime } from "@/lib/swim";
-import { FocusKind, recentResults, strokeProfile, trainingFocus } from "@/lib/trainingFocus";
+import { FocusKind, recentResults, strokeProfile, topFocus, trainingFocus } from "@/lib/trainingFocus";
 import { Card, FormField, inputClass } from "@/components/ui";
 
 const KIND_LABEL: Record<FocusKind, { label: string; className: string }> = {
@@ -86,8 +86,8 @@ export default function TrainingFocusPanel({
           </p>
         ) : (
           <ol className="divide-y divide-app-border">
-            {items.slice(0, 6).map((item, index) => (
-              <li key={`${item.kind}-${item.title}`} className="flex gap-4 px-5 py-4">
+            {topFocus(items, 5).map((item, index) => (
+              <li key={`${item.kind}-${item.title}`} className={`flex gap-4 px-5 py-4 ${item.kind === "dq" ? "bg-app-bad/8" : ""}`}>
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-app-elevated text-sm font-bold text-app-heading">
                   {index + 1}
                 </span>

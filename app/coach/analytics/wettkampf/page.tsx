@@ -22,7 +22,7 @@ import {
 import { MeetStart, evaluateMeet, listMeets } from "@/lib/meetReport";
 import { CalendarEntry } from "@/lib/community";
 import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
-import { trainingFocus } from "@/lib/trainingFocus";
+import { topFocus, trainingFocus } from "@/lib/trainingFocus";
 import NonFinishCard from "@/components/NonFinishCard";
 
 /*
@@ -141,14 +141,14 @@ export default function WettkampfAuswertungPage() {
     const swimmer = list[0].swimmer;
     return {
       swimmer,
-      items: trainingFocus({
+      items: topFocus(trainingFocus({
         results: results.filter((result) => result.swimmer_id === swimmer.id),
         swimmer,
         standard,
         standardTimes,
         today,
         nonFinishes: nonFinishes.filter((entry) => entry.swimmer_id === swimmer.id),
-      }).slice(0, 3),
+      }), 3),
     };
   });
 
@@ -270,8 +270,11 @@ export default function WettkampfAuswertungPage() {
                   ) : (
                     <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm">
                       {items.map((item) => (
-                        <li key={item.title}>
-                          <b>{item.title}</b>
+                        <li key={item.title} className={item.kind === "dq" ? "rounded-lg bg-app-bad/10 p-2 text-app-text" : ""}>
+                          <b className={item.kind === "dq" ? "text-app-bad" : ""}>
+                            {item.kind === "dq" && "⚠ "}
+                            {item.title}
+                          </b>
                           <span className="block text-app-muted">{item.detail}</span>
                         </li>
                       ))}

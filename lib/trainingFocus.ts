@@ -50,6 +50,29 @@ function daysBetween(a: string, b: string) {
   return (Date.parse(b) - Date.parse(a)) / 86_400_000;
 }
 
+/* Konkreter Trainingshinweis zu haeufigen Disqualifikationsgruenden */
+function dqHint(dq: NonFinish) {
+  const reason = (dq.reason ?? "").toLowerCase();
+  if (dq.stroke === "backstroke" && reason.includes("wende")) {
+    return "→ Rückenwende üben: nach dem Drehen in die Bauchlage und dem letzten Armzug sofort die Rolle einleiten – kein Gleiten, kein zusätzlicher Beinschlag. Bei jeder Rückenwende im Training darauf achten.";
+  }
+  if (reason.includes("wende") || reason.includes("anschlag")) {
+    return "→ Wende/Anschlag nach Regel gezielt im Training üben und vom Trainer beobachten lassen.";
+  }
+  if (reason.includes("start") || reason.includes("fehlstart")) {
+    return "→ Startablauf üben: ruhig in der Startposition bleiben bis zum Signal.";
+  }
+  if (reason.includes("beinschlag") || reason.includes("delfin")) {
+    return "→ Beinschlag-Technik der Lage regelkonform üben (Technikserien, Video).";
+  }
+  return "";
+}
+
+/* Alle Disqualifikationen + die wichtigsten weiteren Punkte */
+export function topFocus(items: FocusItem[], count: number) {
+  return [...items.filter((item) => item.kind === "dq"), ...items.filter((item) => item.kind !== "dq").slice(0, count)];
+}
+
 export function recentResults(results: SwimmerResult[], today: string) {
   return results.filter((result) => daysBetween(result.result_date, today) <= RECENT_DAYS);
 }
@@ -105,9 +128,10 @@ export function trainingFocus({
       kind: "dq",
       title: `${formatEvent(dq)}: Disqualifikation${dq.location ? ` in ${dq.location}` : ""}`,
       detail: dq.reason
-        ? `Grund: ${dq.reason}. Diesen Punkt gezielt im Training üben, damit es beim nächsten Start nicht wieder passiert.`
-        : "Grund noch nicht eingetragen – bitte ergänzen, damit gezielt daran gearbeitet werden kann.",
-      score: 110 - daysBetween(dq.result_date, today) / 10,
+        ? `Grund: ${dq.reason}${dqHint(dq) ? ` ${dqHint(dq)}` : ""} Muss vor dem nächsten Start behoben sein – hat Vorrang vor allem anderen.`
+        : "Grund noch nicht eingetragen – bitte ergänzen. Muss vor dem nächsten Start behoben sein.",
+      /* Disqualifikationen stehen immer ganz oben, unabhaengig von Punkten */
+      score: 1000 - daysBetween(dq.result_date, today) / 10,
     });
   }
 
