@@ -35,6 +35,7 @@ export type TrainingPlan = {
   total_meters: number | null;
   pool_length: number | null;
   focus: string | null;
+  notes?: string | null;
   teamName: string | null;
   sections: { name: string; rows: PlanRow[] }[];
   landRows: PlanLandRow[];
@@ -44,7 +45,7 @@ export type TrainingPlan = {
 export async function loadTrainingPlan(sessionId: string): Promise<TrainingPlan | string> {
   const { data: session, error } = await supabase
     .from("training_sessions")
-    .select("title, session_date, start_time, training_type, duration_minutes, total_meters, pool_length, focus, team_id")
+    .select("*")
     .eq("id", sessionId)
     .single();
   if (error || !session) return `Training konnte nicht geladen werden: ${error?.message ?? "nicht gefunden"}`;
@@ -157,6 +158,7 @@ td.note { border-left: 0.5px dashed #b8c0cc; }
 tr.h td { font-size: 8pt; color: #6b7686; }
 .notes { margin-top: 5mm; break-inside: avoid; }
 .notes .lines { height: 38mm; border: 0.5px solid #d9dee6; border-radius: 1.5mm; background: repeating-linear-gradient(transparent 0 7.3mm, #e3e7ed 7.3mm 7.6mm); }
+.notes .pre { white-space: pre-wrap; margin-bottom: 2mm; padding: 2mm 2.5mm; background: #fff8e6; border-left: 2px solid #e0a800; border-radius: 1mm; }
 .notes b { display: block; margin-bottom: 1mm; color: #12325c; }
 footer { margin-top: 3mm; font-size: 7.5pt; color: #8a93a1; display: flex; justify-content: space-between; }
 </style></head><body>
@@ -167,7 +169,7 @@ footer { margin-top: 3mm; font-size: 7.5pt; color: #8a93a1; display: flex; justi
 ${landTable("Warm Up an Land", plan.warmUpRows)}
 ${plan.training_type === "water" ? water : ""}
 ${plan.training_type === "land" ? landTable("Landtraining", plan.landRows) : ""}
-<div class="notes"><b>Notizen</b><div class="lines"></div></div>
+<div class="notes"><b>Notizen</b>${plan.notes ? `<div class="pre">${esc(plan.notes)}</div>` : ""}<div class="lines"></div></div>
 <footer><span>Monitoring App · Trainingsplan</span><span>${esc(formatDay(plan.session_date))}</span></footer>
 </body></html>`;
 }

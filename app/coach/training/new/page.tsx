@@ -81,6 +81,7 @@ type ExistingSession = {
   focus: string | null;
   planned_rpe: number | null;
   core_goals: string[] | null;
+  notes?: string | null;
 };
 
 type ExistingSection = {
@@ -269,6 +270,10 @@ function TrainingEditor() {
   /* Kapitel 1.4: Kernziele Land & Praevention */
   const [coreGoals, setCoreGoals] = useState<string[]>([]);
 
+  /* Notizen zur Einheit (Spalte notes, siehe supabase/training_notizen.sql) */
+  const [notes, setNotes] = useState("");
+  const [hadNotes, setHadNotes] = useState(false);
+
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState("");
 
@@ -323,6 +328,7 @@ function TrainingEditor() {
         if (d.poolLength) setPoolLength(d.poolLength);
         setPlannedRpe(d.plannedRpe ?? "");
         setCoreGoals(d.coreGoals ?? []);
+        setNotes(d.notes ?? "");
         if (d.warmUpLand?.length) setWarmUpLand(d.warmUpLand);
         if (d.waterSections?.length) setWaterSections(d.waterSections);
         if (d.landRows?.length) setLandRows(d.landRows);
@@ -341,14 +347,14 @@ function TrainingEditor() {
       try {
         localStorage.setItem(
           draftKey,
-          JSON.stringify({ title, focus, trainingType, date, time, duration, poolLength, plannedRpe, coreGoals, warmUpLand, waterSections, landRows, savedAt: Date.now() })
+          JSON.stringify({ title, focus, notes, trainingType, date, time, duration, poolLength, plannedRpe, coreGoals, warmUpLand, waterSections, landRows, savedAt: Date.now() })
         );
       } catch {
         /* ignorieren */
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [draftReady, isEditing, draftKey, title, focus, trainingType, date, time, duration, poolLength, plannedRpe, coreGoals, warmUpLand, waterSections, landRows]);
+  }, [draftReady, isEditing, draftKey, title, focus, notes, trainingType, date, time, duration, poolLength, plannedRpe, coreGoals, warmUpLand, waterSections, landRows]);
 
   /* Aenderungen merken -> Warnung beim Verlassen ohne Speichern */
   useEffect(() => {
@@ -461,7 +467,8 @@ function TrainingEditor() {
           pool_length,
           focus,
           planned_rpe,
-          core_goals
+          core_goals,
+          *
         `
       )
       .eq("id", sessionId)
@@ -503,6 +510,8 @@ function TrainingEditor() {
     );
 
     setCoreGoals(session.core_goals ?? []);
+    setNotes(session.notes ?? "");
+    setHadNotes(Boolean(session.notes));
 
     setPoolLength(
       session.pool_length === 50
@@ -1437,6 +1446,8 @@ function TrainingEditor() {
           ? null
           : Number(plannedRpe),
       core_goals: coreGoals,
+      /* nur mitschicken, wenn etwas drinsteht - so klappt Speichern auch ohne die neue Spalte */
+      ...(notes.trim() ? { notes: notes.trim() } : hadNotes ? { notes: null } : {}),
     };
 
     if (
@@ -2130,6 +2141,20 @@ function TrainingEditor() {
                   )
                 }
                 placeholder="z. B. Technik & Grundlagenausdauer"
+                className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none"
+              />
+            </div>
+
+            <div className="md:col-span-2 xl:col-span-5">
+              <label className="mb-2 block text-sm text-app-muted">
+                Notizen (erscheinen auch im Ausdruck)
+              </label>
+
+              <textarea
+                value={notes}
+                onChange={(event) => setNotes(event.target.value)}
+                rows={3}
+                placeholder="z. B. Hinweise für die Gruppe, Beobachtungen nach dem Training …"
                 className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none"
               />
             </div>
