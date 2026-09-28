@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { CALENDAR_COLUMNS, CalendarEntry, formatEntryWhen } from "@/lib/community";
-import { NON_FINISH_COLUMNS, NonFinish } from "@/lib/swim";
+import { NON_FINISH_COLUMNS, NonFinish, Stroke } from "@/lib/swim";
+import { AthleteFocus, DistanceRange } from "@/lib/trainingFocus";
 
 /* Naechster Wettkampf aus dem Kalender (Kategorie "wettkampf", ab heute) */
 export async function loadUpcomingCompetitions() {
@@ -41,4 +42,30 @@ export async function loadNonFinishes(swimmerId?: string) {
   if (swimmerId) query = query.eq("swimmer_id", swimmerId);
   const { data, error } = await query;
   return { rows: (data ?? []) as NonFinish[], missingTable: Boolean(error) };
+}
+
+/* Fokus aus einer swimmers-Zeile (select "*"); fehlen die Spalten, ist der Fokus leer */
+export function focusFromRow(row: Record<string, unknown> | null | undefined): AthleteFocus {
+  return {
+    strokes: (row?.focus_strokes as Stroke[] | null | undefined) ?? null,
+    distances: (row?.focus_distances as DistanceRange[] | null | undefined) ?? null,
+    note: (row?.focus_note as string | null | undefined) ?? null,
+  };
+}
+
+export async function loadAthleteFocus(swimmerId: string) {
+  const { data } = await supabase.from("swimmers").select("*").eq("id", swimmerId).maybeSingle();
+  return { focus: focusFromRow(data), missingColumns: !data || !("focus_strokes" in data) };
+}
+
+export async function saveAthleteFocus(swimmerId: string, focus: AthleteFocus) {
+  const { error } = await supabase
+    .from("swimmers")
+    .update({
+      focus_strokes: focus.strokes?.length ? focus.strokes : null,
+      focus_distances: focus.distances?.length ? focus.distances : null,
+      focus_note: focus.note?.trim() || null,
+    })
+    .eq("id", swimmerId);
+  return error?.message ?? null;
 }

@@ -19,6 +19,7 @@ Die Reihenfolge ist wichtig, weil spätere Skripte auf früheren aufbauen.
 | 11 | `datenregel_umsetzen.sql` | Automatisches Löschen alter Hinweise abschalten |
 | 12 | `pflichtzeiten_beide_bahnen.sql` | Pflichtzeiten-Listen: 25m- und 50m-Zeiten anerkennen (optional je Liste) |
 | 13 | `disqualifikationen.sql` | Starts ohne Zeit (DS/AB/NA) mit Grund erfassen |
+| 14 | `athleten_fokus.sql` | Trainingsfokus je Athlet (Hauptlagen, Streckenbereich, Notiz) |
 
 
 Dateien `daten_*.sql` enthalten echte Schwimmerdaten und werden nicht eingecheckt (`.gitignore`).

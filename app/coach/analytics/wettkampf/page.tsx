@@ -21,7 +21,7 @@ import {
 } from "@/lib/swim";
 import { MeetStart, evaluateMeet, listMeets } from "@/lib/meetReport";
 import { CalendarEntry } from "@/lib/community";
-import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
+import { describeCompetition, focusFromRow, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { topFocus, trainingFocus } from "@/lib/trainingFocus";
 import NonFinishCard from "@/components/NonFinishCard";
 
@@ -65,7 +65,7 @@ export default function WettkampfAuswertungPage() {
   useEffect(() => {
     async function load() {
       const [swimmerResponse, resultResponse, standardResponse, timeResponse] = await Promise.all([
-        supabase.from("swimmers").select("id, first_name, last_name, birth_year, gender"),
+        supabase.from("swimmers").select("*"),
         supabase.from("swimmer_results").select(RESULT_COLUMNS),
         supabase.from("qualifying_standards").select("*").order("created_at", { ascending: false }),
         supabase.from("qualifying_times").select("id, standard_id, gender, birth_year_from, birth_year_to, distance, stroke, time_ms"),
@@ -148,6 +148,7 @@ export default function WettkampfAuswertungPage() {
         standardTimes,
         today,
         nonFinishes: nonFinishes.filter((entry) => entry.swimmer_id === swimmer.id),
+        focus: focusFromRow(swimmer as unknown as Record<string, unknown>),
       }), 3),
     };
   });

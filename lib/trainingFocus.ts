@@ -97,6 +97,33 @@ function average(values: number[]) {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
 }
 
+/* Vom Trainer festgelegter Fokus des Athleten (leer = alles auswerten) */
+export type DistanceRange = "sprint" | "mittel" | "lang";
+
+export type AthleteFocus = {
+  strokes: Stroke[] | null;
+  distances: DistanceRange[] | null;
+  note?: string | null;
+};
+
+export const DISTANCE_RANGES: { value: DistanceRange; label: string; hint: string }[] = [
+  { value: "sprint", label: "Sprint", hint: "50 m" },
+  { value: "mittel", label: "Mittelstrecke", hint: "100 m" },
+  { value: "lang", label: "Langstrecke", hint: "200 m und länger" },
+];
+
+export function distanceRange(distance: number): DistanceRange {
+  return distance <= 50 ? "sprint" : distance < 200 ? "mittel" : "lang";
+}
+
+/* Liegt die Strecke im Fokus? Lagen braucht alle vier Lagen -> Lagen im Fokus zaehlt fuer jede Lage mit */
+export function inFocus(event: SwimEvent, focus: AthleteFocus | null | undefined) {
+  const strokes = focus?.strokes?.length ? focus.strokes : null;
+  const distances = focus?.distances?.length ? focus.distances : null;
+  const strokeOk = !strokes || strokes.includes(event.stroke) || (strokes.includes("medley") && event.distance <= 100);
+  return strokeOk && (!distances || distances.includes(distanceRange(event.distance)));
+}
+
 function eventsOf(results: SwimmerResult[]): SwimEvent[] {
   const map = new Map<string, SwimEvent>();
   for (const result of results) map.set(`${result.stroke}-${result.distance}`, { distance: result.distance, stroke: result.stroke });
@@ -110,7 +137,9 @@ export function trainingFocus({
   standardTimes,
   today,
   nonFinishes = [],
+  focus = null,
 }: {
+  focus?: AthleteFocus | null;
   nonFinishes?: NonFinish[];
   results: SwimmerResult[];
   swimmer: Swimmer;
@@ -118,7 +147,12 @@ export function trainingFocus({
   standardTimes: QualifyingTime[];
   today: string;
 }): FocusItem[] {
-  const recent = recentResults(results, today);
+  const allRecent = recentResults(results, today);
+  /* Nur Strecken im Fokus des Athleten auswerten (Disqualifikationen immer) */
+  const focused = results.filter((result) => inFocus(result, focus));
+  const recent = allRecent.filter((result) => inFocus(result, focus));
+  const focusStrokes = focus?.strokes?.length ? focus.strokes : null;
+  const medleyFocus = !focusStrokes || focusStrokes.includes("medley");
   const items: FocusItem[] = [];
 
   /* 0. Disqualifikationen der letzten 12 Monate: Regel/Technik klaeren hat Vorrang */
@@ -137,7 +171,7 @@ export function trainingFocus({
 
   /* 1. Pflichtzeiten in Reichweite */
   if (standard) {
-    for (const event of eventsOf(results)) {
+    for (const event of eventsOf(focused)) {
       const required = findQualifyingTime(standardTimes, swimmer, event);
       if (!required) continue;
       const best = findBestForStandard(results, event, standard);
@@ -156,12 +190,16 @@ export function trainingFocus({
   }
 
   /* 2. Lagen-Profil: schwache und fehlende Lagen */
-  const profile = strokeProfile(recent);
+  /* Mit Lagen im Fokus zaehlen alle vier Lagen, sonst nur die Fokus-Lagen */
+  const distanceOk = (result: SwimmerResult) => inFocus(result, focus && { strokes: null, distances: focus.distances });
+  const profile = strokeProfile(medleyFocus ? allRecent.filter(distanceOk) : recent).filter(
+    (item) => medleyFocus || focusStrokes!.includes(item.stroke)
+  );
   const strongest = profile.reduce<StrokeProfile | null>(
     (top, item) => (item.points !== null && (!top || item.points > top.points!) ? item : top),
     null
   );
-  const swimsMedley = recent.some((result) => result.stroke === "medley");
+  const swimsMedley = medleyFocus && allRecent.some((result) => result.stroke === "medley");
 
   if (strongest) {
     for (const item of profile) {
@@ -199,7 +237,8 @@ export function trainingFocus({
   const sprint = pointsOf((result) => result.distance <= 50);
   const long = pointsOf((result) => result.distance >= 200);
 
-  if (sprint && long) {
+  const distanceFocus = focus?.distances?.length ? focus.distances : null;
+  if (sprint && long && (!distanceFocus || (distanceFocus.includes("sprint") && distanceFocus.includes("lang")))) {
     if (long < sprint * DISTANCE_GAP) {
       items.push({
         kind: "distance",

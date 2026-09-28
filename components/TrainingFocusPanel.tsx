@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CalendarEntry } from "@/lib/community";
-import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
+import { describeCompetition, loadAthleteFocus, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
+import AthleteFocusEditor from "@/components/AthleteFocusEditor";
 import { NonFinish, QualifyingStandard, QualifyingTime, Swimmer, SwimmerResult, formatEvent, formatTime } from "@/lib/swim";
-import { FocusKind, recentResults, strokeProfile, topFocus, trainingFocus } from "@/lib/trainingFocus";
+import { AthleteFocus, FocusKind, recentResults, strokeProfile, topFocus, trainingFocus } from "@/lib/trainingFocus";
 import { Card, FormField, inputClass } from "@/components/ui";
 
 const KIND_LABEL: Record<FocusKind, { label: string; className: string }> = {
@@ -36,10 +37,16 @@ export default function TrainingFocusPanel({
   const [today] = useState(todayIso);
   const [nonFinishes, setNonFinishes] = useState<NonFinish[]>([]);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
+  const [focus, setFocus] = useState<AthleteFocus | null>(null);
+  const [missingColumns, setMissingColumns] = useState(false);
 
   useEffect(() => {
     loadNonFinishes(swimmer.id).then(({ rows }) => setNonFinishes(rows));
     loadUpcomingCompetitions().then(setUpcoming);
+    loadAthleteFocus(swimmer.id).then(({ focus: loaded, missingColumns: missing }) => {
+      setFocus(loaded);
+      setMissingColumns(missing);
+    });
   }, [swimmer.id]);
   const standard = standards.find((item) => item.id === standardId) ?? null;
   const standardTimes = useMemo(
@@ -48,17 +55,30 @@ export default function TrainingFocusPanel({
   );
 
   const items = useMemo(
-    () => trainingFocus({ results, swimmer, standard, standardTimes, today, nonFinishes }),
-    [results, swimmer, standard, standardTimes, today, nonFinishes]
+    () => trainingFocus({ results, swimmer, standard, standardTimes, today, nonFinishes, focus }),
+    [results, swimmer, standard, standardTimes, today, nonFinishes, focus]
   );
   const profile = useMemo(() => strokeProfile(recentResults(results, today)), [results, today]);
+  const focusLabel = focus && (focus.strokes?.length || focus.distances?.length)
+    ? "Ausgerichtet auf den festgelegten Fokus."
+    : "Kein Fokus festgelegt – alle Lagen und Strecken werden ausgewertet.";
   const maxPoints = Math.max(1, ...profile.map((item) => item.points ?? 0));
 
   return (
     <div className="mt-6 space-y-6">
+      {focus && (
+        <AthleteFocusEditor
+          key={swimmer.id}
+          swimmerId={swimmer.id}
+          focus={focus}
+          missingColumns={missingColumns}
+          onSaved={setFocus}
+        />
+      )}
+
       <Card
         title="Trainingsfokus bis zum nächsten Wettkampf"
-        description="Abgeleitet aus den Bestzeiten der letzten 12 Monate. Die Punkte machen Lagen und Strecken vergleichbar."
+        description={`Abgeleitet aus den Bestzeiten der letzten 12 Monate. ${focusLabel}`}
       >
         <div className="space-y-4 border-b border-app-border p-5">
           {upcoming[0] && (

@@ -48,6 +48,32 @@ describe("trainingFocus", () => {
     expect(items.some((item) => item.kind === "stroke")).toBe(true);
   });
 
+  it("nennt keine Lage ausserhalb des Fokus (z. B. Brust bei Freistil/Ruecken-Schwimmer)", () => {
+    const items = trainingFocus({
+      results,
+      swimmer,
+      standard: null,
+      standardTimes: [],
+      today: "2026-09-28",
+      focus: { strokes: ["freestyle", "backstroke"], distances: null },
+    });
+    expect(items.some((item) => item.title.includes("Brust"))).toBe(false);
+    expect(items.some((item) => item.title.includes("Schmetterling"))).toBe(false);
+  });
+
+  it("zeigt Disqualifikationen auch ausserhalb des Fokus", () => {
+    const items = trainingFocus({
+      results,
+      swimmer,
+      standard: null,
+      standardTimes: [],
+      today: "2026-09-28",
+      nonFinishes: [dq],
+      focus: { strokes: ["freestyle"], distances: null },
+    });
+    expect(items[0].kind).toBe("dq");
+  });
+
   it("schneidet Disqualifikationen beim Kuerzen nie ab", () => {
     const items = trainingFocus({ results, swimmer, standard: null, standardTimes: [], today: "2026-09-28", nonFinishes: [dq, { ...dq, id: "d2", distance: 200 }] });
     const top = topFocus(items, 1);
