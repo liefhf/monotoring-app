@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { topFocus, trainingFocus } from "@/lib/trainingFocus";
+import { qualiRecommendation, topFocus, trainingFocus } from "@/lib/trainingFocus";
 import { NonFinish, SwimmerResult } from "@/lib/swim";
 
 const swimmer = { id: "s1", first_name: "Test", last_name: "A", birth_year: 2013, gender: "female" as const };
@@ -79,5 +79,36 @@ describe("trainingFocus", () => {
     const top = topFocus(items, 1);
     expect(top.filter((item) => item.kind === "dq")).toHaveLength(2);
     expect(top).toHaveLength(3);
+  });
+});
+
+describe("qualiRecommendation", () => {
+  const event = { distance: 100, stroke: "backstroke" as const };
+  const best = (time_ms: number) => ({ ...dqlessResult, time_ms });
+  const dqlessResult = {
+    id: "r", swimmer_id: "s1", result_date: "2026-09-01", location: "Oberursel", pool_length: 25 as const,
+    distance: 100, stroke: "backstroke" as const, time_ms: 0, points: null, round: null, is_split: false,
+  };
+
+  it("stuft nach Abstand zur Pflichtzeit ein", () => {
+    expect(qualiRecommendation(event, 72800, best(73170), "HM").level).toBe("close");
+    expect(qualiRecommendation(event, 72800, best(75500), "HM").level).toBe("reach");
+    expect(qualiRecommendation(event, 72800, best(79000), "HM").level).toBe("mid");
+    expect(qualiRecommendation(event, 72800, best(90000), "HM").level).toBe("far");
+    expect(qualiRecommendation(event, 72800, best(72000), "HM").level).toBe("done");
+    expect(qualiRecommendation(event, 72800, null, "HM").level).toBe("open");
+  });
+
+  it("gibt fuer jede Fokus-Strecke eine Empfehlung – auch weit entfernte", () => {
+    const standard = { id: "s", name: "HM", pool_length: 25 as const, valid_from: null, valid_to: null, count_both_pools: true };
+    const times = [
+      { id: "t1", standard_id: "s", gender: "female" as const, birth_year_from: 2013, birth_year_to: 2013, distance: 100, stroke: "backstroke" as const, time_ms: 60000 },
+      { id: "t2", standard_id: "s", gender: "female" as const, birth_year_from: 2013, birth_year_to: 2013, distance: 200, stroke: "backstroke" as const, time_ms: 150000 },
+    ];
+    const items = trainingFocus({
+      results: [best(80000)], swimmer, standard, standardTimes: times, today: "2026-09-28",
+      focus: { events: ["100-backstroke", "200-backstroke"], strokes: null, distances: null },
+    });
+    expect(items.filter((item) => item.kind === "quali").map((item) => item.level).sort()).toEqual(["far", "open"]);
   });
 });

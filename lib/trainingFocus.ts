@@ -31,6 +31,8 @@ export type FocusItem = {
   detail: string;
   /* hoeher = wichtiger */
   score: number;
+  /* nur bei Pflichtzeit-Empfehlungen */
+  level?: "open" | "done" | "close" | "reach" | "mid" | "far";
 };
 
 export type StrokeProfile = {
@@ -42,7 +44,6 @@ export type StrokeProfile = {
 
 /* Nur Ergebnisse der letzten 12 Monate zaehlen als "aktuell" */
 export const RECENT_DAYS = 365;
-const QUALI_RANGE = 0.04; // bis 4 % ueber der Pflichtzeit = in Reichweite
 const STROKE_GAP = 0.85; // Lage unter 85 % der staerksten Lage = Schwaeche
 const DISTANCE_GAP = 0.9;
 
@@ -73,6 +74,72 @@ export function topFocus(items: FocusItem[], count: number) {
   return [...items.filter((item) => item.kind === "dq"), ...items.filter((item) => item.kind !== "dq").slice(0, count)];
 }
 
+/* Empfehlung je Strecke nach Abstand zur Pflichtzeit */
+export function qualiRecommendation(
+  event: SwimEvent,
+  requiredMs: number,
+  best: SwimmerResult | null,
+  standardName: string
+): FocusItem {
+  const target = `Pflichtzeit ${formatTime(requiredMs)} (${standardName})`;
+  if (!best) {
+    return {
+      kind: "quali",
+      title: `${formatEvent(event)}: noch keine Zeit im Qualifikationszeitraum`,
+      detail: `${target}. Einen Start auf dieser Strecke einplanen, damit eine gültige Zeit vorliegt.`,
+      score: 70,
+      level: "open",
+    };
+  }
+  const gap = best.time_ms - requiredMs;
+  const share = gap / requiredMs;
+  const pct = `${(Math.abs(share) * 100).toFixed(1).replace(".", ",")} %`;
+  const bestText = `Bestzeit ${formatTime(best.time_ms)} (${best.pool_length}m)`;
+  if (gap <= 0) {
+    return {
+      kind: "quali",
+      title: `${formatEvent(event)}: Pflichtzeit erfüllt ✓`,
+      detail: `${bestText}, ${formatTime(-gap)} unter der ${target}. Empfehlung: Niveau halten und die Meldezeit weiter verbessern.`,
+      score: 15,
+      level: "done",
+    };
+  }
+  if (share <= 0.02) {
+    return {
+      kind: "quali",
+      title: `${formatEvent(event)}: nur ${formatTime(gap)} bis zur Pflichtzeit`,
+      detail: `${bestText} – es fehlen ${pct}. Empfehlung: oberste Priorität, beim nächsten Start realistisch (Start, Wenden, Renneinteilung).`,
+      score: 95 - share * 100,
+      level: "close",
+    };
+  }
+  if (share <= 0.05) {
+    return {
+      kind: "quali",
+      title: `${formatEvent(event)}: Pflichtzeit in Reichweite (−${formatTime(gap)})`,
+      detail: `${bestText} – es fehlen ${pct}. Empfehlung: Schwerpunkt in den nächsten Wochen, in 1–2 Wettkämpfen erreichbar.`,
+      score: 80 - share * 100,
+      level: "reach",
+    };
+  }
+  if (share <= 0.1) {
+    return {
+      kind: "quali",
+      title: `${formatEvent(event)}: mittelfristiges Ziel (−${formatTime(gap)})`,
+      detail: `${bestText} – es fehlen ${pct}. Empfehlung: kontinuierlich aufbauen, eher Ziel für die zweite Saisonhälfte.`,
+      score: 50 - share * 100,
+      level: "mid",
+    };
+  }
+  return {
+    kind: "quali",
+    title: `${formatEvent(event)}: langfristiges Ziel (−${formatTime(gap)})`,
+    detail: `${bestText} – es fehlen ${pct}. Empfehlung: aktuell kein kurzfristiger Schwerpunkt, Grundlagen weiter entwickeln.`,
+    score: 20,
+    level: "far",
+  };
+}
+
 export function recentResults(results: SwimmerResult[], today: string) {
   return results.filter((result) => daysBetween(result.result_date, today) <= RECENT_DAYS);
 }
@@ -101,6 +168,8 @@ function average(values: number[]) {
 export type DistanceRange = "sprint" | "mittel" | "lang";
 
 export type AthleteFocus = {
+  /* einzelne Strecken im Format eventKey ("100-backstroke"); hat Vorrang vor strokes/distances */
+  events?: string[] | null;
   strokes: Stroke[] | null;
   distances: DistanceRange[] | null;
   note?: string | null;
@@ -118,6 +187,9 @@ export function distanceRange(distance: number): DistanceRange {
 
 /* Liegt die Strecke im Fokus? Lagen braucht alle vier Lagen -> Lagen im Fokus zaehlt fuer jede Lage mit */
 export function inFocus(event: SwimEvent, focus: AthleteFocus | null | undefined) {
+  if (focus?.events?.length) {
+    return focus.events.includes(`${event.distance}-${event.stroke}`);
+  }
   const strokes = focus?.strokes?.length ? focus.strokes : null;
   const distances = focus?.distances?.length ? focus.distances : null;
   const strokeOk = !strokes || strokes.includes(event.stroke) || (strokes.includes("medley") && event.distance <= 100);
@@ -151,7 +223,11 @@ export function trainingFocus({
   /* Nur Strecken im Fokus des Athleten auswerten (Disqualifikationen immer) */
   const focused = results.filter((result) => inFocus(result, focus));
   const recent = allRecent.filter((result) => inFocus(result, focus));
-  const focusStrokes = focus?.strokes?.length ? focus.strokes : null;
+  const focusStrokes: Stroke[] | null = focus?.events?.length
+    ? [...new Set(focus.events.map((key) => key.split("-")[1] as Stroke))]
+    : focus?.strokes?.length
+      ? focus.strokes
+      : null;
   const medleyFocus = !focusStrokes || focusStrokes.includes("medley");
   const items: FocusItem[] = [];
 
@@ -169,29 +245,23 @@ export function trainingFocus({
     });
   }
 
-  /* 1. Pflichtzeiten in Reichweite */
+  /* 1. Empfehlung anhand der Pflichtzeiten fuer jede Fokus-Strecke */
   if (standard) {
-    for (const event of eventsOf(focused)) {
+    const events: SwimEvent[] = focus?.events?.length
+      ? focus.events.map((key) => ({ distance: Number(key.split("-")[0]), stroke: key.split("-")[1] as Stroke }))
+      : eventsOf(focused);
+    for (const event of events) {
       const required = findQualifyingTime(standardTimes, swimmer, event);
       if (!required) continue;
       const best = findBestForStandard(results, event, standard);
-      if (!best) continue;
-      const gap = best.time_ms - required.time_ms;
-      const gapShare = gap / required.time_ms;
-      if (gap > 0 && gapShare <= QUALI_RANGE) {
-        items.push({
-          kind: "quali",
-          title: `${formatEvent(event)}: Pflichtzeit in Reichweite`,
-          detail: `Bestzeit ${formatTime(best.time_ms)} – es fehlen nur ${formatTime(gap)} (${(gapShare * 100).toFixed(1).replace(".", ",")} %) bis ${formatTime(required.time_ms)} (${standard.name}).`,
-          score: 100 - gapShare * 1000,
-        });
-      }
+      items.push(qualiRecommendation(event, required.time_ms, best, standard.name));
     }
   }
 
   /* 2. Lagen-Profil: schwache und fehlende Lagen */
   /* Mit Lagen im Fokus zaehlen alle vier Lagen, sonst nur die Fokus-Lagen */
-  const distanceOk = (result: SwimmerResult) => inFocus(result, focus && { strokes: null, distances: focus.distances });
+  const distanceOk = (result: SwimmerResult) =>
+    focus?.events?.length ? true : inFocus(result, focus && { strokes: null, distances: focus.distances });
   const profile = strokeProfile(medleyFocus ? allRecent.filter(distanceOk) : recent).filter(
     (item) => medleyFocus || focusStrokes!.includes(item.stroke)
   );

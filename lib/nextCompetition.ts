@@ -47,6 +47,7 @@ export async function loadNonFinishes(swimmerId?: string) {
 /* Fokus aus einer swimmers-Zeile (select "*"); fehlen die Spalten, ist der Fokus leer */
 export function focusFromRow(row: Record<string, unknown> | null | undefined): AthleteFocus {
   return {
+    events: (row?.focus_events as string[] | null | undefined) ?? null,
     strokes: (row?.focus_strokes as Stroke[] | null | undefined) ?? null,
     distances: (row?.focus_distances as DistanceRange[] | null | undefined) ?? null,
     note: (row?.focus_note as string | null | undefined) ?? null,
@@ -55,15 +56,17 @@ export function focusFromRow(row: Record<string, unknown> | null | undefined): A
 
 export async function loadAthleteFocus(swimmerId: string) {
   const { data } = await supabase.from("swimmers").select("*").eq("id", swimmerId).maybeSingle();
-  return { focus: focusFromRow(data), missingColumns: !data || !("focus_strokes" in data) };
+  return { focus: focusFromRow(data), missingColumns: !data || !("focus_events" in data) };
 }
 
 export async function saveAthleteFocus(swimmerId: string, focus: AthleteFocus) {
   const { error } = await supabase
     .from("swimmers")
     .update({
-      focus_strokes: focus.strokes?.length ? focus.strokes : null,
-      focus_distances: focus.distances?.length ? focus.distances : null,
+      focus_events: focus.events?.length ? focus.events : null,
+      /* alte grobe Auswahl (Lagen/Streckenbereiche) wird durch einzelne Strecken ersetzt */
+      focus_strokes: null,
+      focus_distances: null,
       focus_note: focus.note?.trim() || null,
     })
     .eq("id", swimmerId);

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { STROKES, Stroke } from "@/lib/swim";
-import { AthleteFocus, DISTANCE_RANGES, DistanceRange } from "@/lib/trainingFocus";
+import { STROKES, SWIM_EVENTS, eventKey } from "@/lib/swim";
+import { AthleteFocus } from "@/lib/trainingFocus";
 import { saveAthleteFocus } from "@/lib/nextCompetition";
 import { Card, Notice, buttonPrimary, inputClass } from "@/components/ui";
 
 /*
- * Trainer legt fest, worauf der Fokus des Athleten liegt.
- * Die Auswertung (Trainingsfokus, Wettkampf-Auswertung) richtet sich danach.
+ * Trainer legt fest, welche Strecken im Fokus des Athleten stehen
+ * (beliebig viele Lagen und Distanzen). Die Auswertung richtet sich danach.
  */
 export default function AthleteFocusEditor({
   swimmerId,
@@ -21,19 +21,19 @@ export default function AthleteFocusEditor({
   missingColumns: boolean;
   onSaved: (focus: AthleteFocus) => void;
 }) {
-  const [strokes, setStrokes] = useState<Stroke[]>(focus.strokes ?? []);
-  const [distances, setDistances] = useState<DistanceRange[]>(focus.distances ?? []);
+  const [events, setEvents] = useState<string[]>(focus.events ?? []);
   const [note, setNote] = useState(focus.note ?? "");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
 
-  function toggle<T>(list: T[], value: T) {
-    return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
+  function toggle(key: string) {
+    setEvents((current) => (current.includes(key) ? current.filter((item) => item !== key) : [...current, key]));
+    setMessage(null);
   }
 
   async function save() {
     setSaving(true);
-    const next = { strokes, distances, note };
+    const next: AthleteFocus = { events, strokes: null, distances: null, note };
     const error = await saveAthleteFocus(swimmerId, next);
     setSaving(false);
     if (error) {
@@ -45,57 +45,45 @@ export default function AthleteFocusEditor({
   }
 
   const chip = (active: boolean) =>
-    `rounded-full border px-3 py-1.5 text-sm transition ${
-      active ? "border-app-accent bg-app-accent text-app-accent-ink" : "border-app-border bg-app-bg text-app-text hover:border-app-accent"
+    `min-w-[64px] rounded-full border px-3 py-1.5 text-sm font-medium transition ${
+      active
+        ? "border-app-accent bg-app-accent text-app-accent-ink"
+        : "border-app-border bg-app-bg text-app-text hover:border-app-accent"
     }`;
 
   return (
     <Card
       title="Unser Fokus für diesen Athleten"
-      description="Nichts ausgewählt = alles wird ausgewertet. Disqualifikationen erscheinen immer."
+      description="Alle Strecken anklicken, auf die ihr hinarbeitet – beliebig viele Lagen und Distanzen. Nichts ausgewählt = alles wird ausgewertet. Disqualifikationen erscheinen immer."
     >
       <div className="space-y-4 p-5">
         {missingColumns && (
           <Notice tone="warn">
-            Bitte zuerst <b>athleten_fokus.sql</b> im Supabase SQL-Editor ausführen, dann die Seite neu laden.
+            Bitte zuerst <b>athleten_fokus.sql</b> und <b>athleten_fokus_strecken.sql</b> im Supabase SQL-Editor ausführen,
+            dann die Seite neu laden.
           </Notice>
         )}
         {message && <Notice tone={message.tone}>{message.text}</Notice>}
 
-        <div>
-          <p className="mb-2 text-sm font-medium">Lagen</p>
-          <div className="flex flex-wrap gap-2">
-            {STROKES.map((stroke) => (
-              <button
-                key={stroke.value}
-                type="button"
-                onClick={() => setStrokes(toggle(strokes, stroke.value))}
-                className={chip(strokes.includes(stroke.value))}
-              >
-                {stroke.label}
-              </button>
-            ))}
-          </div>
-          {strokes.includes("medley") && (
-            <p className="mt-1 text-xs text-app-faint">Mit Lagen im Fokus zählen alle vier Einzellagen für das Lagen-Profil mit.</p>
-          )}
+        <div className="space-y-2">
+          {STROKES.map((stroke) => (
+            <div key={stroke.value} className="flex flex-wrap items-center gap-2">
+              <span className="w-28 shrink-0 text-sm font-medium">{stroke.label}</span>
+              {SWIM_EVENTS.filter((event) => event.stroke === stroke.value).map((event) => {
+                const key = eventKey(event);
+                return (
+                  <button key={key} type="button" onClick={() => toggle(key)} className={chip(events.includes(key))}>
+                    {event.distance} m
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </div>
 
-        <div>
-          <p className="mb-2 text-sm font-medium">Strecken</p>
-          <div className="flex flex-wrap gap-2">
-            {DISTANCE_RANGES.map((range) => (
-              <button
-                key={range.value}
-                type="button"
-                onClick={() => setDistances(toggle(distances, range.value))}
-                className={chip(distances.includes(range.value))}
-              >
-                {range.label} <span className="opacity-70">({range.hint})</span>
-              </button>
-            ))}
-          </div>
-        </div>
+        <p className="text-sm text-app-muted">
+          {events.length === 0 ? "Keine Strecke ausgewählt." : `${events.length} Strecken im Fokus.`}
+        </p>
 
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium">Notiz (z. B. Saisonziel)</span>

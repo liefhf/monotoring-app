@@ -17,6 +17,15 @@ const KIND_LABEL: Record<FocusKind, { label: string; className: string }> = {
   stagnation: { label: "Stagnation", className: "bg-app-bad/10 text-app-bad" },
 };
 
+const LEVEL_LABEL = {
+  close: { label: "sehr knapp", className: "bg-app-warn/15 text-app-warn" },
+  reach: { label: "in Reichweite", className: "bg-app-accent/12 text-app-accent" },
+  open: { label: "Start fehlt", className: "bg-app-elevated text-app-muted" },
+  mid: { label: "mittelfristig", className: "bg-app-elevated text-app-text" },
+  far: { label: "langfristig", className: "bg-app-elevated text-app-faint" },
+  done: { label: "erfüllt ✓", className: "bg-app-good/10 text-app-good" },
+} as const;
+
 function todayIso() {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
@@ -59,9 +68,13 @@ export default function TrainingFocusPanel({
     [results, swimmer, standard, standardTimes, today, nonFinishes, focus]
   );
   const profile = useMemo(() => strokeProfile(recentResults(results, today)), [results, today]);
-  const focusLabel = focus && (focus.strokes?.length || focus.distances?.length)
+  const focusLabel = focus && (focus.events?.length || focus.strokes?.length || focus.distances?.length)
     ? "Ausgerichtet auf den festgelegten Fokus."
     : "Kein Fokus festgelegt – alle Lagen und Strecken werden ausgewertet.";
+  /* Pflichtzeiten-Empfehlung fuer jede (Fokus-)Strecke, naechste Ziele zuerst */
+  const qualiItems = items.filter((item) => item.kind === "quali");
+  /* In der To-do-Liste nur, woran jetzt gearbeitet werden muss */
+  const todo = items.filter((item) => item.level !== "done" && item.level !== "far");
   const maxPoints = Math.max(1, ...profile.map((item) => item.points ?? 0));
 
   return (
@@ -106,7 +119,7 @@ export default function TrainingFocusPanel({
           </p>
         ) : (
           <ol className="divide-y divide-app-border">
-            {topFocus(items, 5).map((item, index) => (
+            {topFocus(todo, 5).map((item, index) => (
               <li key={`${item.kind}-${item.title}`} className={`flex gap-4 px-5 py-4 ${item.kind === "dq" ? "bg-app-bad/8" : ""}`}>
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-app-elevated text-sm font-bold text-app-heading">
                   {index + 1}
@@ -125,6 +138,33 @@ export default function TrainingFocusPanel({
           </ol>
         )}
       </Card>
+
+      {standardId && (
+        <Card
+          title="Empfehlung anhand der Pflichtzeiten"
+          description={`Für jede ${focus?.events?.length ? "Fokus-Strecke" : "geschwommene Strecke"} mit Pflichtzeit – was als Nächstes realistisch ist.`}
+        >
+          {qualiItems.length === 0 ? (
+            <p className="p-5 text-sm text-app-muted">
+              Für die ausgewählten Strecken gibt es in dieser Liste keine Pflichtzeit für Jahrgang und Geschlecht.
+            </p>
+          ) : (
+            <ul className="divide-y divide-app-border">
+              {qualiItems.map((item) => (
+                <li key={item.title} className="flex gap-3 px-5 py-3">
+                  <span className={`mt-0.5 h-fit shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${LEVEL_LABEL[item.level ?? "open"].className}`}>
+                    {LEVEL_LABEL[item.level ?? "open"].label}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-app-heading">{item.title}</p>
+                    <p className="text-sm text-app-muted">{item.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Card>
+      )}
 
       <Card title="Lagen-Profil" description="Beste Punktzahl je Lage in den letzten 12 Monaten.">
         <div className="space-y-3 p-5">

@@ -149,7 +149,7 @@ export default function WettkampfAuswertungPage() {
         today,
         nonFinishes: nonFinishes.filter((entry) => entry.swimmer_id === swimmer.id),
         focus: focusFromRow(swimmer as unknown as Record<string, unknown>),
-      }), 3),
+      }).filter((item) => item.level !== "done" && item.level !== "far"), 3),
     };
   });
 
