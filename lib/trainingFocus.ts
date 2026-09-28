@@ -1,4 +1,5 @@
 import {
+  NonFinish,
   QualifyingStandard,
   QualifyingTime,
   STROKES,
@@ -22,7 +23,7 @@ import {
  * Dazu kommen Pflichtzeiten in Reichweite und Distanz-Profil.
  */
 
-export type FocusKind = "quali" | "stroke" | "missing" | "distance" | "stagnation";
+export type FocusKind = "dq" | "quali" | "stroke" | "missing" | "distance" | "stagnation";
 
 export type FocusItem = {
   kind: FocusKind;
@@ -85,7 +86,9 @@ export function trainingFocus({
   standard,
   standardTimes,
   today,
+  nonFinishes = [],
 }: {
+  nonFinishes?: NonFinish[];
   results: SwimmerResult[];
   swimmer: Swimmer;
   standard: QualifyingStandard | null;
@@ -94,6 +97,19 @@ export function trainingFocus({
 }): FocusItem[] {
   const recent = recentResults(results, today);
   const items: FocusItem[] = [];
+
+  /* 0. Disqualifikationen der letzten 12 Monate: Regel/Technik klaeren hat Vorrang */
+  for (const dq of nonFinishes) {
+    if (dq.status !== "DS" || daysBetween(dq.result_date, today) > RECENT_DAYS) continue;
+    items.push({
+      kind: "dq",
+      title: `${formatEvent(dq)}: Disqualifikation${dq.location ? ` in ${dq.location}` : ""}`,
+      detail: dq.reason
+        ? `Grund: ${dq.reason}. Diesen Punkt gezielt im Training üben, damit es beim nächsten Start nicht wieder passiert.`
+        : "Grund noch nicht eingetragen – bitte ergänzen, damit gezielt daran gearbeitet werden kann.",
+      score: 110 - daysBetween(dq.result_date, today) / 10,
+    });
+  }
 
   /* 1. Pflichtzeiten in Reichweite */
   if (standard) {

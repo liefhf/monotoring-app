@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { QualifyingStandard, QualifyingTime, Swimmer, SwimmerResult, formatEvent, formatTime } from "@/lib/swim";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarEntry } from "@/lib/community";
+import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
+import { NonFinish, QualifyingStandard, QualifyingTime, Swimmer, SwimmerResult, formatEvent, formatTime } from "@/lib/swim";
 import { FocusKind, recentResults, strokeProfile, trainingFocus } from "@/lib/trainingFocus";
 import { Card, FormField, inputClass } from "@/components/ui";
 
 const KIND_LABEL: Record<FocusKind, { label: string; className: string }> = {
+  dq: { label: "Disqualifikation", className: "bg-app-bad/10 text-app-bad" },
   quali: { label: "Pflichtzeit", className: "bg-app-warn/15 text-app-warn" },
   stroke: { label: "Lage", className: "bg-app-accent/12 text-app-accent" },
   missing: { label: "fehlt", className: "bg-app-elevated text-app-muted" },
@@ -31,6 +34,13 @@ export default function TrainingFocusPanel({
 }) {
   const [standardId, setStandardId] = useState(standards[0]?.id ?? "");
   const [today] = useState(todayIso);
+  const [nonFinishes, setNonFinishes] = useState<NonFinish[]>([]);
+  const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
+
+  useEffect(() => {
+    loadNonFinishes(swimmer.id).then(({ rows }) => setNonFinishes(rows));
+    loadUpcomingCompetitions().then(setUpcoming);
+  }, [swimmer.id]);
   const standard = standards.find((item) => item.id === standardId) ?? null;
   const standardTimes = useMemo(
     () => qualifyingTimes.filter((time) => time.standard_id === standardId),
@@ -38,8 +48,8 @@ export default function TrainingFocusPanel({
   );
 
   const items = useMemo(
-    () => trainingFocus({ results, swimmer, standard, standardTimes, today }),
-    [results, swimmer, standard, standardTimes, today]
+    () => trainingFocus({ results, swimmer, standard, standardTimes, today, nonFinishes }),
+    [results, swimmer, standard, standardTimes, today, nonFinishes]
   );
   const profile = useMemo(() => strokeProfile(recentResults(results, today)), [results, today]);
   const maxPoints = Math.max(1, ...profile.map((item) => item.points ?? 0));
@@ -50,7 +60,13 @@ export default function TrainingFocusPanel({
         title="Trainingsfokus bis zum nächsten Wettkampf"
         description="Abgeleitet aus den Bestzeiten der letzten 12 Monate. Die Punkte machen Lagen und Strecken vergleichbar."
       >
-        <div className="border-b border-app-border p-5">
+        <div className="space-y-4 border-b border-app-border p-5">
+          {upcoming[0] && (
+            <p className="rounded-xl bg-app-accent/8 px-4 py-3 text-sm text-app-text">
+              <b>Nächster Wettkampf:</b> {describeCompetition(upcoming[0])}
+              {upcoming[1] && <span className="block text-app-muted">danach: {describeCompetition(upcoming[1])}</span>}
+            </p>
+          )}
           <FormField label="Pflichtzeiten berücksichtigen" className="max-w-md">
             <select value={standardId} onChange={(e) => setStandardId(e.target.value)} className={inputClass}>
               <option value="">– keine –</option>

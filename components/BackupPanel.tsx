@@ -21,6 +21,7 @@ const TABLES = [
   "swimmers",
   "swimmer_results",
   "qualifying_standards",
+  "swimmer_non_finishes",
   "qualifying_times",
   "competitions",
   "competition_sections",

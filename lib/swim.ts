@@ -72,6 +72,29 @@ export type OtherResult = {
 export const RESULT_COLUMNS =
   "id, swimmer_id, kind, result_date, location, pool_length, distance, stroke, event_label, time_ms, points, round, is_split, placement";
 
+/* Start ohne Zeit: DS = disqualifiziert, AB = abgemeldet, NA = nicht angetreten */
+export type NonFinishStatus = "DS" | "AB" | "NA";
+
+export type NonFinish = {
+  id: string;
+  swimmer_id: string;
+  result_date: string;
+  location: string | null;
+  pool_length: PoolLength;
+  distance: number;
+  stroke: Stroke;
+  status: NonFinishStatus;
+  reason: string | null;
+};
+
+export const NON_FINISH_COLUMNS = "id, swimmer_id, result_date, location, pool_length, distance, stroke, status, reason";
+
+export const NON_FINISH_LABELS: Record<NonFinishStatus, string> = {
+  DS: "disqualifiziert",
+  AB: "abgemeldet",
+  NA: "nicht angetreten",
+};
+
 export const ROUNDS = ["Vorlauf", "Zwischenlauf", "Finale"];
 
 export type QualifyingStandard = {

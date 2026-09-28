@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, EmptyState, FormField, Notice, PageHeader, inputClass } from "@/components/ui";
 import {
+  NonFinish,
   QualifyingStandard,
   QualifyingTime,
   RESULT_COLUMNS,
@@ -19,6 +20,10 @@ import {
   splitResults,
 } from "@/lib/swim";
 import { MeetStart, evaluateMeet, listMeets } from "@/lib/meetReport";
+import { CalendarEntry } from "@/lib/community";
+import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
+import { trainingFocus } from "@/lib/trainingFocus";
+import NonFinishCard from "@/components/NonFinishCard";
 
 /*
  * Wettkampf-Auswertung aus den eingetragenen Ergebnissen
@@ -45,6 +50,17 @@ export default function WettkampfAuswertungPage() {
   const [message, setMessage] = useState("");
   const [meetKey, setMeetKey] = useState("");
   const [standardId, setStandardId] = useState("");
+  const [nonFinishes, setNonFinishes] = useState<NonFinish[]>([]);
+  const [missingTable, setMissingTable] = useState(false);
+  const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
+  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+
+  function reloadNonFinishes() {
+    loadNonFinishes().then(({ rows, missingTable: missing }) => {
+      setNonFinishes(rows);
+      setMissingTable(missing);
+    });
+  }
 
   useEffect(() => {
     async function load() {
@@ -68,6 +84,8 @@ export default function WettkampfAuswertungPage() {
     }
 
     load();
+    reloadNonFinishes();
+    loadUpcomingCompetitions().then(setUpcoming);
   }, []);
 
   const meets = useMemo(() => listMeets(results), [results]);
@@ -110,6 +128,29 @@ export default function WettkampfAuswertungPage() {
       )
       .sort((a, b) => (a[0].swimmer.last_name ?? "").localeCompare(b[0].swimmer.last_name ?? "", "de"));
   }, [starts]);
+
+  const meetNonFinishes = meet
+    ? nonFinishes.filter(
+        (entry) =>
+          entry.location === meet.location && entry.result_date.slice(0, 7) === meet.month && entry.pool_length === meet.pool
+      )
+    : [];
+
+  /* Pro Athlet des Wettkampfs die wichtigsten Schwerpunkte bis zum naechsten Wettkampf */
+  const focusBySwimmer = bySwimmer.map((list) => {
+    const swimmer = list[0].swimmer;
+    return {
+      swimmer,
+      items: trainingFocus({
+        results: results.filter((result) => result.swimmer_id === swimmer.id),
+        swimmer,
+        standard,
+        standardTimes,
+        today,
+        nonFinishes: nonFinishes.filter((entry) => entry.swimmer_id === swimmer.id),
+      }).slice(0, 3),
+    };
+  });
 
   const name = (start: MeetStart) => getSwimmerName(start.swimmer);
   const event = (start: MeetStart) => formatEvent(start.result);
@@ -214,6 +255,41 @@ export default function WettkampfAuswertungPage() {
             </ListCard>
           </div>
 
+          <Card
+            title="Bis zum nächsten Wettkampf: daran arbeiten"
+            description={upcoming[0] ? describeCompetition(upcoming[0]) : "Kein kommender Wettkampf im Kalender."}
+          >
+            <div className="grid gap-4 p-5 md:grid-cols-2">
+              {focusBySwimmer.map(({ swimmer, items }) => (
+                <div key={swimmer.id} className="rounded-xl border border-app-border p-4">
+                  <Link href={`/coach/schwimmer/${swimmer.id}?tab=fokus`} className="font-semibold text-app-heading hover:text-app-accent">
+                    {getSwimmerName(swimmer)}
+                  </Link>
+                  {items.length === 0 ? (
+                    <p className="mt-1 text-sm text-app-faint">Keine klaren Schwerpunkte – ausgeglichenes Bild.</p>
+                  ) : (
+                    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm">
+                      {items.map((item) => (
+                        <li key={item.title}>
+                          <b>{item.title}</b>
+                          <span className="block text-app-muted">{item.detail}</span>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <NonFinishCard
+            meet={meet}
+            swimmers={swimmers}
+            entries={meetNonFinishes}
+            missingTable={missingTable}
+            onChanged={reloadNonFinishes}
+          />
+
           {slower.length > 0 && (
             <Notice tone="warn">
               Langsamer als die bisherige Bestzeit:{" "}
@@ -293,8 +369,7 @@ export default function WettkampfAuswertungPage() {
 
           <p className="text-xs text-app-faint">
             „vorher“ = beste Zeit auf der {meet.pool}m-Bahn vor dem Monat dieses Wettkampfs. „neu erreicht“ = Pflichtzeit im
-            Qualifikationszeitraum der Liste vorher noch nicht geschafft. Starts ohne Zeit (DS/AB/NA) sind nicht eingetragen
-            und fehlen hier.
+            Qualifikationszeitraum der Liste vorher noch nicht geschafft. Starts ohne Zeit (DS/AB/NA) stehen im Block „Ohne Zeit“.
           </p>
         </>
       )}
