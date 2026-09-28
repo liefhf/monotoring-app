@@ -25,4 +25,3 @@ Dateien `daten_*.sql` enthalten echte Schwimmerdaten und werden nicht eingecheck
 
 Die App läuft mit echten Daten. Neue Skripte ändern, löschen oder ergänzen **keine** vorhandenen Daten – sie legen nur neue Tabellen, Spalten und Regeln an (siehe `CLAUDE.md`).
 
-`alles_zuruecksetzen.sql` ist nur für den einmaligen Neustart gedacht und wird danach entfernt.
