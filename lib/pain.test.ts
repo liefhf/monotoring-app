@@ -8,12 +8,14 @@ describe("Koerpermodell", () => {
   });
 
   it("ordnet die Seiten richtig zu", () => {
-    // Vorne: linke Bildhaelfte = rechte Koerperseite
-    expect(getSpot("front-knee-right")?.mirrored).toBe(false);
-    expect(getSpot("front-knee-left")?.mirrored).toBe(true);
+    // Vorne: linke Bildhaelfte (x < 50) = rechte Koerperseite
+    expect(getSpot("front-knee-right")!.anchor.x).toBeLessThan(50);
+    expect(getSpot("front-knee-left")!.anchor.x).toBeGreaterThan(50);
+    expect(getSpot("front-elbow-right")!.anchor.x).toBeLessThan(50);
     // Hinten: linke Bildhaelfte = linke Koerperseite
-    expect(getSpot("back-calf-left")?.mirrored).toBe(false);
-    expect(getSpot("back-calf-right")?.mirrored).toBe(true);
+    expect(getSpot("back-calf-left")!.anchor.x).toBeLessThan(50);
+    expect(getSpot("back-calf-right")!.anchor.x).toBeGreaterThan(50);
+    expect(getSpot("back-achilles-left")!.anchor.x).toBeLessThan(50);
   });
 
   it("beschriftet Stellen mit Seite", () => {
