@@ -247,6 +247,20 @@ export default function SchwimmerDetailPage() {
 
   /* ---------- Infos bearbeiten ---------- */
 
+  async function handleCountBothPools(standard: QualifyingStandard, checked: boolean) {
+    const { error } = await supabase
+      .from("qualifying_standards")
+      .update({ count_both_pools: checked })
+      .eq("id", standard.id);
+
+    if (error) {
+      setMessage(`Einstellung konnte nicht gespeichert werden: ${error.message} – wurde pflichtzeiten_beide_bahnen.sql schon ausgeführt?`);
+      return;
+    }
+
+    setStandards((current) => current.map((item) => (item.id === standard.id ? { ...item, count_both_pools: checked } : item)));
+  }
+
   function startEditingInfos() {
     if (swimmer) {
       setDraft(toDraft(swimmer));
@@ -749,6 +763,7 @@ export default function SchwimmerDetailPage() {
             standardTimes={standardTimes}
             selectedStandard={selectedStandard}
             onEditInfos={startEditingInfos}
+            onCountBothPools={handleCountBothPools}
           />
         )}
 
@@ -1292,7 +1307,11 @@ function QualificationTable({
   standardTimes,
   selectedStandard,
   onEditInfos,
-}: StandardProps & { onEditInfos: () => void }) {
+  onCountBothPools,
+}: StandardProps & {
+  onEditInfos: () => void;
+  onCountBothPools: (standard: QualifyingStandard, checked: boolean) => void;
+}) {
   const rows = selectedStandard
     ? getEventsForPool(selectedStandard.pool_length)
         .map((event) => ({
@@ -1332,6 +1351,17 @@ function QualificationTable({
                 Jetzt ergänzen
               </button>
             </p>
+          )}
+
+          {selectedStandard && (
+            <label className="flex items-center gap-2 text-sm text-app-text">
+              <input
+                type="checkbox"
+                checked={Boolean(selectedStandard.count_both_pools)}
+                onChange={(e) => onCountBothPools(selectedStandard, e.target.checked)}
+              />
+              Zeiten von der 25m- und der 50m-Bahn zählen
+            </label>
           )}
 
           {selectedStandard && (
