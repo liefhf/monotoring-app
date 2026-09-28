@@ -1,0 +1,6 @@
+# Nicht mit hochladen: Zugangsdaten, Schwimmerdaten, lokale Werkzeuge
+.env*
+supabase/daten_*.sql
+.claude/
+.next/
+node_modules/

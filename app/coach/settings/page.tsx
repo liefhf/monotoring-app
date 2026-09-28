@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BackupPanel from "@/components/BackupPanel";
 
 export default function CoachSettingsPage() {
   return (
@@ -107,18 +108,7 @@ export default function CoachSettingsPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
-        <h2 className="text-lg font-semibold">
-          Aktueller Entwicklungsstand
-        </h2>
-
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-app-muted">
-          Die Oberfläche ist jetzt grob aufgebaut. Im nächsten
-          Entwicklungsabschnitt verbinden wir die App mit Supabase,
-          damit Benutzer sich anmelden können und Daten tatsächlich
-          gespeichert werden.
-        </p>
-      </section>
+      <BackupPanel />
     </div>
   );
 }
