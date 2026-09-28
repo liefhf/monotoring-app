@@ -107,7 +107,12 @@ export default function AthletenPage() {
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
 
-    return athletes.filter((athlete) => {
+    /* Sortiert nach Nachname, dann Vorname (A-Z) */
+    const byLastName = (a: Athlete, b: Athlete) =>
+      (a.last_name ?? a.first_name).localeCompare(b.last_name ?? b.first_name, "de") ||
+      a.first_name.localeCompare(b.first_name, "de");
+
+    return [...athletes].sort(byLastName).filter((athlete) => {
       if (term && !getSwimmerName(athlete).toLowerCase().includes(term)) return false;
 
       const own = teamsOf.get(athlete.id) ?? [];
@@ -298,7 +303,8 @@ export default function AthletenPage() {
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="border-b border-app-border bg-app-bg/50 text-app-muted">
                 <tr>
-                  <th className="px-5 py-3 font-medium">Name</th>
+                  <th className="px-5 py-3 font-medium">Nachname</th>
+                  <th className="px-3 py-3 font-medium">Vorname</th>
                   <th className="px-3 py-3 font-medium">Jg.</th>
                   <th className="px-3 py-3 font-medium">Geschlecht</th>
                   <th className="px-3 py-3 font-medium">Teams</th>
@@ -312,7 +318,12 @@ export default function AthletenPage() {
                   <tr key={athlete.id} className="hover:bg-app-elevated/60">
                     <td className="px-5 py-3">
                       <Link href={`/coach/schwimmer/${athlete.id}`} className="font-medium text-app-accent hover:underline">
-                        {getSwimmerName(athlete)}
+                        {athlete.last_name || "–"}
+                      </Link>
+                    </td>
+                    <td className="px-3 py-3">
+                      <Link href={`/coach/schwimmer/${athlete.id}`} className="text-app-heading hover:underline">
+                        {athlete.first_name}
                       </Link>
                     </td>
                     <td className="px-3 py-3">{athlete.birth_year ?? "–"}</td>
