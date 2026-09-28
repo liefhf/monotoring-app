@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Card, EmptyState, FormField, Notice, PageHeader, inputClass } from "@/components/ui";
+import { Card, EmptyState, FormField, Notice, PageHeader, buttonSecondary, inputClass } from "@/components/ui";
 import {
   NonFinish,
   QualifyingStandard,
@@ -13,6 +13,7 @@ import {
   Swimmer,
   SwimmerResult,
   formatEvent,
+  formatEventShort,
   formatMonthShort,
   formatTime,
   formatTimeDifference,
@@ -22,7 +23,9 @@ import {
 import { MeetStart, evaluateMeet, listMeets } from "@/lib/meetReport";
 import { CalendarEntry } from "@/lib/community";
 import { describeCompetition, focusFromRow, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
-import { topFocus, trainingFocus } from "@/lib/trainingFocus";
+import { buildAthleteSheet, monthYearShort } from "@/lib/nextMeetSheet";
+import { openMeetPdf } from "@/lib/meetPdf";
+import { RoleBadge } from "@/components/FocusBadge";
 import NonFinishCard from "@/components/NonFinishCard";
 
 /*
@@ -106,10 +109,6 @@ export default function WettkampfAuswertungPage() {
     .filter((start) => start.requiredDiff !== null && start.requiredDiff > 0 && start.requiredDiff <= 1500)
     .sort((a, b) => a.requiredDiff! - b.requiredDiff!);
   const biggest = [...personalBests].sort((a, b) => percentFaster(b) - percentFaster(a)).slice(0, 5);
-  const topPoints = starts
-    .filter((start) => start.result.points !== null)
-    .sort((a, b) => b.result.points! - a.result.points!)
-    .slice(0, 5);
   const slower = withPrevious.filter((start) => start.previousDiff! >= 0);
 
   const bySwimmer = useMemo(() => {
@@ -136,22 +135,37 @@ export default function WettkampfAuswertungPage() {
       )
     : [];
 
-  /* Pro Athlet des Wettkampfs die wichtigsten Schwerpunkte bis zum naechsten Wettkampf */
-  const focusBySwimmer = bySwimmer.map((list) => {
+  /* Pro Athlet: Fokus-Strecken mit aktuellen Bestzeiten, Pflichtzeit und Disqualifikationen */
+  const sheets = bySwimmer.map((list) => {
     const swimmer = list[0].swimmer;
-    return {
+    const focus = focusFromRow(swimmer as unknown as Record<string, unknown>);
+    const swum = new Map(list.map((start) => [`${start.result.distance}-${start.result.stroke}`, { distance: start.result.distance, stroke: start.result.stroke }]));
+    return buildAthleteSheet({
       swimmer,
-      items: topFocus(trainingFocus({
-        results: results.filter((result) => result.swimmer_id === swimmer.id),
-        swimmer,
-        standard,
-        standardTimes,
-        today,
-        nonFinishes: nonFinishes.filter((entry) => entry.swimmer_id === swimmer.id),
-        focus: focusFromRow(swimmer as unknown as Record<string, unknown>),
-      }).filter((item) => item.level !== "done" && item.level !== "far"), 3),
-    };
+      results,
+      focus,
+      fallbackEvents: [...swum.values()],
+      standard,
+      standardTimes,
+      nonFinishes,
+      today,
+    });
   });
+
+  function downloadPdf(sections: ("meet" | "next")[]) {
+    if (!meet) return;
+    const ok = openMeetPdf({
+      title: `${meet.location} · ${monthLabel(meet.month)} · ${meet.pool}m`,
+      subtitle: `${bySwimmer.length} Athleten · ${starts.length} Starts · ${personalBests.length}/${withPrevious.length} Bestzeiten${standard ? ` · Pflichtzeiten: ${standard.name}` : ""}`,
+      meetStarts: starts,
+      meetNonFinishes,
+      sheets,
+      nextTitle: upcoming[0] ? describeCompetition(upcoming[0]) : "kein Termin im Kalender",
+      withStandard: Boolean(standard),
+      sections,
+    });
+    if (!ok) setMessage("Das PDF-Fenster wurde vom Browser blockiert – bitte Pop-ups für diese Seite erlauben.");
+  }
 
   const name = (start: MeetStart) => getSwimmerName(start.swimmer);
   const event = (start: MeetStart) => formatEvent(start.result);
@@ -164,9 +178,14 @@ export default function WettkampfAuswertungPage() {
         icon="trophy"
         description="Wähle einen Wettkampf aus den eingetragenen Ergebnissen. Ein Wettkampf = gleicher Ort, Monat und Bahn."
         actions={
-          <Link href="/coach/analytics" className="text-sm text-app-accent">
-            ← Trainings-Auswertungen
-          </Link>
+          <>
+            <button type="button" onClick={() => downloadPdf(["meet", "next"])} className={buttonSecondary} disabled={!meet}>
+              PDF: Wettkampf + nächster Wettkampf
+            </button>
+            <button type="button" onClick={() => downloadPdf(["meet"])} className={buttonSecondary} disabled={!meet}>
+              PDF: nur Wettkampf
+            </button>
+          </>
         }
       />
 
@@ -247,40 +266,82 @@ export default function WettkampfAuswertungPage() {
                 </li>
               ))}
             </ListCard>
-            <ListCard title="Höchste Punktzahlen">
-              {topPoints.map((start) => (
-                <li key={start.result.id}>
-                  <b>{name(start)}</b> – {event(start)} {formatTime(start.result.time_ms)} · {start.result.points} Pkt.
-                </li>
-              ))}
-            </ListCard>
           </div>
 
           <Card
-            title="Bis zum nächsten Wettkampf: daran arbeiten"
+            title="Bis zum nächsten Wettkampf"
             description={upcoming[0] ? describeCompetition(upcoming[0]) : "Kein kommender Wettkampf im Kalender."}
+            action={
+              <button type="button" onClick={() => downloadPdf(["next"])} className={buttonSecondary}>
+                PDF
+              </button>
+            }
           >
-            <div className="grid gap-4 p-5 md:grid-cols-2">
-              {focusBySwimmer.map(({ swimmer, items }) => (
-                <div key={swimmer.id} className="rounded-xl border border-app-border p-4">
-                  <Link href={`/coach/schwimmer/${swimmer.id}?tab=fokus`} className="font-semibold text-app-heading hover:text-app-accent">
-                    {getSwimmerName(swimmer)}
+            <p className="border-b border-app-border px-5 py-2 text-xs text-app-muted">
+              Fokus-Strecken (H = Haupt, N = Neben; ohne Fokus: die hier geschwommenen Strecken) · aktuelle Bestzeit je Bahn mit
+              Monat/Jahr · Abstand zur Pflichtzeit
+            </p>
+            <div className="grid gap-x-6 gap-y-4 p-5 lg:grid-cols-2">
+              {sheets.map((sheet) => (
+                <div key={sheet.swimmer.id}>
+                  <Link
+                    href={`/coach/schwimmer/${sheet.swimmer.id}?tab=fokus`}
+                    className="text-sm font-semibold text-app-heading hover:text-app-accent"
+                  >
+                    {getSwimmerName(sheet.swimmer)}
                   </Link>
-                  {items.length === 0 ? (
-                    <p className="mt-1 text-sm text-app-faint">Keine klaren Schwerpunkte – ausgeglichenes Bild.</p>
-                  ) : (
-                    <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-sm">
-                      {items.map((item) => (
-                        <li key={item.title} className={item.kind === "dq" ? "rounded-lg bg-app-bad/10 p-2 text-app-text" : ""}>
-                          <b className={item.kind === "dq" ? "text-app-bad" : ""}>
-                            {item.kind === "dq" && "⚠ "}
-                            {item.title}
-                          </b>
-                          <span className="block text-app-muted">{item.detail}</span>
-                        </li>
+                  {sheet.disqualifications.map((dq) => (
+                    <p key={dq.id} className="mt-1 rounded-md bg-app-bad/10 px-2 py-1 text-xs text-app-bad">
+                      ⚠ DS {formatEventShort(dq)}
+                      {dq.location ? ` (${dq.location})` : ""}: {dq.reason ?? "Grund fehlt"}
+                    </p>
+                  ))}
+                  <table className="mt-1 w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-app-border text-left text-app-muted">
+                        <th className="py-1 pr-2 font-normal">Strecke</th>
+                        <th className="py-1 pr-2 text-right font-normal">25m</th>
+                        <th className="py-1 pr-2 text-right font-normal">50m</th>
+                        {standard && <th className="py-1 pr-2 text-right font-normal">Pflicht</th>}
+                        {standard && <th className="py-1 text-right font-normal">Abstand</th>}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sheet.rows.map((row) => (
+                        <tr key={`${row.event.distance}-${row.event.stroke}`} className="border-b border-app-border/60 last:border-b-0">
+                          <td className="whitespace-nowrap py-1 pr-2 font-medium">
+                            {formatEventShort(row.event)}
+                            <RoleBadge role={row.role} />
+                          </td>
+                          {[row.best25, row.best50].map((best, index) => (
+                            <td key={index} className="whitespace-nowrap py-1 pr-2 text-right">
+                              {best ? (
+                                <>
+                                  {formatTime(best.time_ms)} <span className="text-app-faint">{monthYearShort(best.result_date)}</span>
+                                </>
+                              ) : (
+                                <span className="text-app-faint">–</span>
+                              )}
+                            </td>
+                          ))}
+                          {standard && (
+                            <td className="whitespace-nowrap py-1 pr-2 text-right text-app-muted">
+                              {row.requiredMs ? formatTime(row.requiredMs) : "–"}
+                            </td>
+                          )}
+                          {standard && (
+                            <td
+                              className={`whitespace-nowrap py-1 text-right font-semibold ${
+                                row.gapMs === null ? "text-app-faint" : row.gapMs <= 0 ? "text-app-good" : "text-app-heading"
+                              }`}
+                            >
+                              {row.gapMs === null ? "–" : row.gapMs <= 0 ? `✓ ${formatTimeDifference(row.gapMs)}` : formatTimeDifference(row.gapMs)}
+                            </td>
+                          )}
+                        </tr>
                       ))}
-                    </ol>
-                  )}
+                    </tbody>
+                  </table>
                 </div>
               ))}
             </div>
