@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { deleteTraining, printTraining } from "@/lib/trainingPlan";
 import LoadStrainPanel from "@/components/LoadStrainPanel";
 
 type TrainingSession = {
@@ -115,6 +116,7 @@ function getRpeText(rpe: number) {
 
 export default function CoachTrainingSessionPage() {
   const params = useParams();
+  const router = useRouter();
 
   const trainingId =
     typeof params.id === "string"
@@ -566,12 +568,39 @@ export default function CoachTrainingSessionPage() {
             </div>
           </div>
 
-          <Link
-            href={`/coach/training/new?session=${training.id}`}
-            className="w-full rounded-xl border border-app-border px-4 py-2.5 text-center text-sm font-medium transition hover:bg-app-surface md:w-auto"
-          >
-            Training bearbeiten
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={async () => {
+                const error = await printTraining(training.id);
+                if (error) setMessage(error);
+              }}
+              className="rounded-xl border border-app-border px-4 py-2.5 text-sm font-medium transition hover:bg-app-surface"
+            >
+              Drucken / PDF
+            </button>
+            <Link
+              href={`/coach/training/new?session=${training.id}`}
+              className="rounded-xl border border-app-border px-4 py-2.5 text-center text-sm font-medium transition hover:bg-app-surface"
+            >
+              Training bearbeiten
+            </Link>
+            <button
+              type="button"
+              onClick={async () => {
+                if (!window.confirm(`Training „${training.title}“ wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return;
+                const error = await deleteTraining(training.id);
+                if (error) {
+                  setMessage(error);
+                  return;
+                }
+                router.push("/coach/training");
+              }}
+              className="rounded-xl border border-app-bad/40 px-4 py-2.5 text-sm font-medium text-app-bad transition hover:bg-app-bad/10"
+            >
+              Löschen
+            </button>
+          </div>
         </header>
 
         {message && (

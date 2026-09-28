@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import { deleteTraining, printTraining } from "@/lib/trainingPlan";
 
 type TrainingSession = {
   id: string;
@@ -521,7 +522,7 @@ export default function TrainingPage() {
                     </th>
 
                     <th className="px-4 py-2.5 text-right font-medium">
-                      Bearbeiten
+                      Aktionen
                     </th>
                   </tr>
                 </thead>
@@ -608,13 +609,38 @@ export default function TrainingPage() {
                               : "—"}
                           </td>
 
-                          <td className="px-4 py-2.5 text-right">
+                          <td className="whitespace-nowrap px-4 py-2.5 text-right text-xs">
                             <Link
                               href={`/coach/training/new?session=${training.id}`}
-                              className="text-xs text-app-muted transition hover:text-app-heading"
+                              className="text-app-muted transition hover:text-app-heading"
                             >
                               Bearbeiten
                             </Link>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                const error = await printTraining(training.id);
+                                if (error) setMessage(error);
+                              }}
+                              className="ml-3 text-app-muted transition hover:text-app-heading"
+                            >
+                              Drucken
+                            </button>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!window.confirm(`Training „${training.title}“ vom ${formatDate(training.session_date)} wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return;
+                                const error = await deleteTraining(training.id);
+                                if (error) {
+                                  setMessage(error);
+                                  return;
+                                }
+                                setTrainings((current) => current.filter((item) => item.id !== training.id));
+                              }}
+                              className="ml-3 text-app-muted transition hover:text-app-bad"
+                            >
+                              Löschen
+                            </button>
                           </td>
                         </tr>
                       );
