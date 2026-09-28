@@ -3,16 +3,18 @@
 /*
  * Gestaltung der App an einer Stelle.
  *
- * Wer hier eine Farbe aendert, aendert sie ueberall.
- * Bitte in den Seiten keine rohen Farbklassen wie
- * bg-slate-900 oder text-white verwenden, sondern die
- * Klassen aus diesem System: bg-app-surface,
+ * Werte aus der Design-Uebergabe (Claude Design, "LaneMonitor
+ * Redesign"): ruhige Blaugrau-Toene in OKLCH, Hanken Grotesk fuer
+ * die Oberflaeche, IBM Plex Mono fuer Zeiten, Meter und Kicker.
+ * Karten haben einen Rahmen und keinen Schatten.
+ *
+ * Wer hier eine Farbe aendert, aendert sie ueberall. Bitte in den
+ * Seiten keine rohen Farbklassen (bg-slate-900, text-white ...)
+ * verwenden, sondern die Klassen aus diesem System: bg-app-surface,
  * text-app-heading, text-app-muted und so weiter.
  *
- * Es gibt ein helles und ein dunkles Design. Ohne
- * Auswahl folgt die App der Einstellung des Geraets;
- * der Schalter in der Navigation setzt data-theme auf
- * <html> (siehe components/ThemeToggle.tsx).
+ * Hell ist Standard; ohne Auswahl folgt die App dem Geraet. Der
+ * Schalter setzt data-theme auf <html> (components/ThemeToggle.tsx).
  */
 
 /* ---------- Hell (Standard) ---------- */
@@ -20,42 +22,61 @@
   color-scheme: light;
 
   /* Flaechen */
-  --app-bg: #f3f6fa;        /* Seitengrund                      */
-  --app-surface: #ffffff;   /* Karten, Leisten, Tabellen        */
-  --app-elevated: #eaf0f7;  /* Hover, hervorgehobene Zeilen     */
-  --app-border: #d7e0eb;    /* Kanten                           */
+  --app-bg: oklch(0.975 0.003 250);        /* Seitengrund                 */
+  --app-side: oklch(0.99 0.002 250);       /* Seitenleiste, Kopfzeile     */
+  --app-surface: oklch(0.995 0.002 250);   /* Karten, Panel               */
+  --app-input: #ffffff;                    /* Eingabefelder               */
+  --app-elevated: oklch(0.95 0.004 250);   /* neutrale Chips, Hover       */
+  --app-sel: oklch(0.94 0.012 245);        /* Auswahl, aktiver Menuepunkt */
+  --app-seg: oklch(0.94 0.005 250);        /* Segment-Container           */
+  --app-border: oklch(0.915 0.005 250);    /* Kartenrahmen, Trenner       */
+  --app-line-soft: oklch(0.94 0.004 250);  /* Listentrenner               */
+  --app-input-border: oklch(0.9 0.005 250);
+  --app-button-border: oklch(0.88 0.006 250);
 
   /* Schrift */
-  --app-heading: #0b1b33;   /* Ueberschriften und Werte         */
-  --app-text: #26364f;      /* Fliesstext                       */
-  --app-muted: #5b6b82;     /* Nebensaechliches                 */
-  --app-faint: #8494aa;     /* Beschriftungen, Platzhalter      */
+  --app-heading: oklch(0.24 0.02 250);     /* ink  - primaer              */
+  --app-text: oklch(0.4 0.015 250);        /* ink4 - Fliesstext           */
+  --app-muted: oklch(0.46 0.015 250);      /* ink2 - sekundaer            */
+  --app-faint: oklch(0.62 0.01 250);       /* ink3 - Labels, Achsen       */
 
-  /* Akzent - Beckenblau. Fuer die wichtigste Aktion,
-     Links und den aktiven Menuepunkt. Nie fuer Zustaende. */
-  --app-accent: #0b76c5;
-  --app-accent-ink: #ffffff; /* Schrift auf Akzentflaechen      */
+  /* Invertiert: "+ Erfassen", gewaehlte Chips, Toast */
+  --app-inv: oklch(0.24 0.02 250);
+  --app-on-inv: #ffffff;
 
-  /* Signalfarben - stehen fuer einen Zustand, nie fuer Deko. */
-  --app-good: #0d9467;
-  --app-warn: #b7700a;
-  --app-bad: #d23f47;
+  /* Akzent */
+  --app-accent: oklch(0.5 0.13 245);
+  --app-accent-ink: #ffffff;
+  --app-accent-fg: oklch(0.45 0.13 245);
+  --app-accent-tint: oklch(0.95 0.03 245);
 
-  /* Landtraining. Frueher gruen - das kollidierte mit
-     "Befinden gut". */
-  --app-sand: #b07a26;
+  /* Signalfarben */
+  --app-good: oklch(0.45 0.12 155);
+  --app-good-tint: oklch(0.95 0.035 155);
+  --app-warn: oklch(0.48 0.12 65);
+  --app-warn-tint: oklch(0.95 0.04 75);
+  --app-bad: oklch(0.5 0.15 25);
+  --app-bad-tint: oklch(0.95 0.03 25);
+
+  /* Landtraining */
+  --app-sand: oklch(0.55 0.1 75);
 
   /* Kalender-Kategorien */
-  --cat-training: #0e8f9c;
-  --cat-competition: #e0562a;
-  --cat-camp: #7a55d4;
-  --cat-meeting: #b7700a;
+  --cat-training: oklch(0.5 0.13 245);
+  --cat-competition: oklch(0.48 0.12 65);
+  --cat-camp: oklch(0.5 0.13 295);
+  --cat-meeting: oklch(0.5 0.08 190);
 
-  /* Diagramme: 25m- und 50m-Bahn */
-  --chart-25: #0b76c5;
-  --chart-50: #e0562a;
+  /* Diagramme: 25m-Bahn = Akzent, 50m-Bahn = Warm, Norm-Linie */
+  --chart-25: oklch(0.5 0.13 245);
+  --chart-50: oklch(0.6 0.12 65);
+  --chart-grid: oklch(0.93 0.004 250);
 
-  --app-shadow: 0 1px 2px rgb(15 35 70 / 0.06), 0 4px 16px rgb(15 35 70 / 0.06);
+  /* Schatten nur fuer Panel, Toast und aktives Segment */
+  --app-shadow: 0 0 0 0 transparent;
+  --app-shadow-panel: -20px 0 60px -20px rgb(20 30 50 / 0.3);
+  --app-shadow-toast: 0 10px 30px rgb(20 30 50 / 0.3);
+  --app-shadow-seg: 0 1px 2px rgb(20 30 50 / 0.12);
 }
 
 /* ---------- Dunkel ----------
@@ -64,83 +85,135 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --app-bg: #06101d;
-  --app-surface: #0c1a2c;
-  --app-elevated: #14263d;
-  --app-border: #213752;
+  --app-bg: oklch(0.19 0.012 250);
+  --app-side: oklch(0.215 0.013 250);
+  --app-surface: oklch(0.235 0.014 250);
+  --app-input: oklch(0.2 0.012 250);
+  --app-elevated: oklch(0.29 0.01 250);
+  --app-sel: oklch(0.3 0.03 245);
+  --app-seg: oklch(0.16 0.01 250);
+  --app-border: oklch(0.31 0.012 250);
+  --app-line-soft: oklch(0.285 0.012 250);
+  --app-input-border: oklch(0.36 0.012 250);
+  --app-button-border: oklch(0.4 0.012 250);
 
-  --app-heading: #f2f6fb;
-  --app-text: #d2ddea;
-  --app-muted: #8ea2bc;
-  --app-faint: #5f7392;
+  --app-heading: oklch(0.95 0.005 250);
+  --app-text: oklch(0.84 0.01 250);
+  --app-muted: oklch(0.76 0.012 250);
+  --app-faint: oklch(0.62 0.01 250);
 
-  --app-accent: #3cb4f0;
-  --app-accent-ink: #03192a;
+  --app-inv: oklch(0.95 0.005 250);
+  --app-on-inv: oklch(0.2 0.012 250);
 
-  --app-good: #34d399;
-  --app-warn: #fbbf24;
-  --app-bad: #f87171;
-  --app-sand: #e0b263;
+  --app-accent: oklch(0.6 0.13 245);
+  --app-accent-ink: #ffffff;
+  --app-accent-fg: oklch(0.8 0.1 245);
+  --app-accent-tint: oklch(0.3 0.05 245);
 
-  --cat-training: #2dd4bf;
-  --cat-competition: #fb8a5c;
-  --cat-camp: #a78bfa;
-  --cat-meeting: #fbbf24;
+  --app-good: oklch(0.8 0.12 155);
+  --app-good-tint: oklch(0.3 0.05 155);
+  --app-warn: oklch(0.82 0.12 75);
+  --app-warn-tint: oklch(0.32 0.05 70);
+  --app-bad: oklch(0.78 0.12 25);
+  --app-bad-tint: oklch(0.31 0.05 25);
+  --app-sand: oklch(0.8 0.1 75);
 
-  --chart-25: #3cb4f0;
-  --chart-50: #fb8a5c;
+  --cat-training: oklch(0.72 0.11 245);
+  --cat-competition: oklch(0.82 0.12 75);
+  --cat-camp: oklch(0.75 0.11 295);
+  --cat-meeting: oklch(0.78 0.08 190);
 
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  --chart-25: oklch(0.72 0.11 245);
+  --chart-50: oklch(0.78 0.12 75);
+  --chart-grid: oklch(0.29 0.01 250);
+
+  --app-shadow: 0 0 0 0 transparent;
+  --app-shadow-panel: -20px 0 60px -20px rgb(0 0 0 / 0.55);
+  --app-shadow-toast: 0 10px 30px rgb(0 0 0 / 0.5);
+  --app-shadow-seg: 0 1px 2px rgb(0 0 0 / 0.4);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --app-bg: #06101d;
-    --app-surface: #0c1a2c;
-    --app-elevated: #14263d;
-    --app-border: #213752;
+    --app-bg: oklch(0.19 0.012 250);
+    --app-side: oklch(0.215 0.013 250);
+    --app-surface: oklch(0.235 0.014 250);
+    --app-input: oklch(0.2 0.012 250);
+    --app-elevated: oklch(0.29 0.01 250);
+    --app-sel: oklch(0.3 0.03 245);
+    --app-seg: oklch(0.16 0.01 250);
+    --app-border: oklch(0.31 0.012 250);
+    --app-line-soft: oklch(0.285 0.012 250);
+    --app-input-border: oklch(0.36 0.012 250);
+    --app-button-border: oklch(0.4 0.012 250);
 
-    --app-heading: #f2f6fb;
-    --app-text: #d2ddea;
-    --app-muted: #8ea2bc;
-    --app-faint: #5f7392;
+    --app-heading: oklch(0.95 0.005 250);
+    --app-text: oklch(0.84 0.01 250);
+    --app-muted: oklch(0.76 0.012 250);
+    --app-faint: oklch(0.62 0.01 250);
 
-    --app-accent: #3cb4f0;
-    --app-accent-ink: #03192a;
+    --app-inv: oklch(0.95 0.005 250);
+    --app-on-inv: oklch(0.2 0.012 250);
 
-    --app-good: #34d399;
-    --app-warn: #fbbf24;
-    --app-bad: #f87171;
-    --app-sand: #e0b263;
+    --app-accent: oklch(0.6 0.13 245);
+    --app-accent-ink: #ffffff;
+    --app-accent-fg: oklch(0.8 0.1 245);
+    --app-accent-tint: oklch(0.3 0.05 245);
 
-    --cat-training: #2dd4bf;
-    --cat-competition: #fb8a5c;
-    --cat-camp: #a78bfa;
-    --cat-meeting: #fbbf24;
+    --app-good: oklch(0.8 0.12 155);
+    --app-good-tint: oklch(0.3 0.05 155);
+    --app-warn: oklch(0.82 0.12 75);
+    --app-warn-tint: oklch(0.32 0.05 70);
+    --app-bad: oklch(0.78 0.12 25);
+    --app-bad-tint: oklch(0.31 0.05 25);
+    --app-sand: oklch(0.8 0.1 75);
 
-    --chart-25: #3cb4f0;
-    --chart-50: #fb8a5c;
+    --cat-training: oklch(0.72 0.11 245);
+    --cat-competition: oklch(0.82 0.12 75);
+    --cat-camp: oklch(0.75 0.11 295);
+    --cat-meeting: oklch(0.78 0.08 190);
 
-    --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+    --chart-25: oklch(0.72 0.11 245);
+    --chart-50: oklch(0.78 0.12 75);
+    --chart-grid: oklch(0.29 0.01 250);
+
+    --app-shadow: 0 0 0 0 transparent;
+    --app-shadow-panel: -20px 0 60px -20px rgb(0 0 0 / 0.55);
+    --app-shadow-toast: 0 10px 30px rgb(0 0 0 / 0.5);
+    --app-shadow-seg: 0 1px 2px rgb(0 0 0 / 0.4);
   }
 }
 
 @theme inline {
   --color-app-bg: var(--app-bg);
+  --color-app-side: var(--app-side);
   --color-app-surface: var(--app-surface);
+  --color-app-input: var(--app-input);
   --color-app-elevated: var(--app-elevated);
+  --color-app-sel: var(--app-sel);
+  --color-app-seg: var(--app-seg);
   --color-app-border: var(--app-border);
+  --color-app-line-soft: var(--app-line-soft);
+  --color-app-input-border: var(--app-input-border);
+  --color-app-button-border: var(--app-button-border);
   --color-app-heading: var(--app-heading);
   --color-app-text: var(--app-text);
   --color-app-muted: var(--app-muted);
   --color-app-faint: var(--app-faint);
+  --color-app-inv: var(--app-inv);
+  --color-app-on-inv: var(--app-on-inv);
   --color-app-accent: var(--app-accent);
   --color-app-accent-ink: var(--app-accent-ink);
+  --color-app-accent-fg: var(--app-accent-fg);
+  --color-app-accent-tint: var(--app-accent-tint);
   --color-app-good: var(--app-good);
+  --color-app-good-tint: var(--app-good-tint);
   --color-app-warn: var(--app-warn);
+  --color-app-warn-tint: var(--app-warn-tint);
   --color-app-bad: var(--app-bad);
+  --color-app-bad-tint: var(--app-bad-tint);
   --color-app-sand: var(--app-sand);
 
   --color-cat-training: var(--cat-training);
@@ -149,9 +222,22 @@
   --color-cat-meeting: var(--cat-meeting);
 
   --shadow-app: var(--app-shadow);
+  --shadow-panel: var(--app-shadow-panel);
+  --shadow-toast: var(--app-shadow-toast);
+  --shadow-seg: var(--app-shadow-seg);
+
+  /*
+   * Radien aus dem Design: Buttons/Inputs 8, Karten 12,
+   * Fenster/Panel 14. Die bestehenden Seiten nutzen rounded-xl
+   * fuer Buttons und rounded-2xl fuer Karten - deshalb werden
+   * diese Stufen hier umgestellt, statt jede Seite anzufassen.
+   */
+  --radius-xl: 0.5rem;
+  --radius-2xl: 0.75rem;
+  --radius-3xl: 0.875rem;
 
   --font-sans: var(--font-app-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-app-mono);
 }
 
 /*
@@ -161,9 +247,11 @@
 @layer base {
   body {
     background: var(--app-bg);
-    color: var(--app-text);
+    color: var(--app-heading);
     font-family: var(--font-app-sans), ui-sans-serif, system-ui,
       "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
 
     /*
      * Ziffern bekommen alle dieselbe Breite. Dadurch stehen
@@ -177,25 +265,70 @@
   h2,
   h3 {
     color: var(--app-heading);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
-  /* Sanfter Wechsel zwischen hell und dunkel */
-  body,
-  main,
-  section,
-  aside,
-  nav {
-    transition: background-color 150ms ease, border-color 150ms ease;
+  h1 {
+    font-weight: 600;
+    line-height: 1.1;
+  }
+
+  h2,
+  h3 {
+    font-weight: 600;
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--app-accent) 25%, transparent);
+    background: color-mix(in oklch, var(--app-accent) 25%, transparent);
   }
 
-  /* Sichtbarer Fokus fuer Tastaturbedienung */
-  :where(a, button, input, select, textarea, summary):focus-visible {
-    outline: 2px solid var(--app-accent);
-    outline-offset: 2px;
+  /* Fokus wie im Design: weicher Akzent-Rahmen */
+  :where(a, button, input, select, textarea, summary, [role="button"]):focus-visible {
+    outline: 2px solid color-mix(in oklch, var(--app-accent) 35%, transparent);
+    outline-offset: 1px;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--app-faint);
+  }
+}
+
+/* Kleine Ergaenzungen fuer wiederkehrende Design-Elemente */
+@layer components {
+  /* Kicker ueber Titeln: Mono, 12 px, Grossbuchstaben */
+  .kicker {
+    font-family: var(--font-app-mono), ui-monospace, monospace;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--app-faint);
+  }
+
+  /* Zeiten, Meter, Deltas */
+  .num {
+    font-family: var(--font-app-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Panel von rechts und Toast */
+@keyframes panel-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

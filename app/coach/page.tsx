@@ -746,18 +746,16 @@ export default function CoachPage() {
       {/* Kopf */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-app-heading">
-            Dashboard
-          </h1>
+          <p className="kicker mb-1.5">{todayLabel}</p>
 
-          <p className="mt-0.5 text-sm text-app-muted">
-            {todayLabel}
-          </p>
+          <h1 className="text-[26px] sm:text-[30px]">
+            Heute
+          </h1>
         </div>
 
         <Link
           href="/coach/training/new"
-          className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
+          className="inline-flex h-9 items-center rounded-lg bg-app-accent px-3.5 text-[13px] font-semibold text-app-accent-ink transition hover:brightness-110"
         >
           + Training erstellen
         </Link>

@@ -60,11 +60,13 @@ export default function AthleteNav() {
   }, [moreOpen]);
 
   const itemClass = (active: boolean) =>
-    `flex min-h-12 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[11px] font-medium transition ${
-      active
-        ? "bg-app-accent/12 text-app-accent"
-        : "text-app-muted hover:bg-app-elevated hover:text-app-heading"
+    `relative flex min-h-14 flex-1 flex-col items-center justify-center gap-1 px-1 pb-2 pt-1.5 text-[11px] font-semibold transition ${
+      active ? "text-app-heading" : "text-app-faint hover:text-app-heading"
     }`;
+
+  /* Aktiver Tab: 5-px-Punkt in Akzentfarbe (wie im Design) */
+  const dot = (active: boolean) =>
+    active ? <span className="absolute bottom-1 h-[5px] w-[5px] rounded-full bg-app-accent" aria-hidden="true" /> : null;
 
   return (
     <>
@@ -109,7 +111,7 @@ export default function AthleteNav() {
       )}
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-app-border bg-app-surface/95 backdrop-blur"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-app-border bg-app-side"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
         <div className="mx-auto flex max-w-xl items-stretch justify-around gap-1 px-2 py-1.5">
@@ -126,6 +128,7 @@ export default function AthleteNav() {
               >
                 <Icon name={item.icon} />
                 <span className="leading-none">{item.label}</span>
+                {dot(active)}
               </Link>
             );
           })}
@@ -138,6 +141,7 @@ export default function AthleteNav() {
           >
             <Icon name="more" />
             <span className="leading-none">Mehr</span>
+            {dot(moreOpen || moreActive)}
           </button>
         </div>
       </nav>

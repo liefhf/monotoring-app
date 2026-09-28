@@ -16,18 +16,18 @@ export type Tile = { href: string; label: string; icon: IconName; hint?: string 
 
 export function QuickTiles({ tiles }: { tiles: Tile[] }) {
   return (
-    <div className="grid grid-cols-4 gap-1 sm:gap-3 lg:grid-cols-6 xl:grid-cols-8">
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
       {tiles.map((tile) => (
         <Link
           key={tile.href}
           href={tile.href}
           title={tile.hint}
-          className="group flex flex-col items-center gap-2 rounded-2xl p-2 text-center transition hover:bg-app-surface"
+          className="group flex items-center gap-2.5 rounded-xl border border-app-border bg-app-surface px-3 py-2.5 text-[13px] font-semibold text-app-heading transition hover:bg-app-sel"
         >
-          <span className="flex h-14 w-14 items-center justify-center rounded-[22px] border-2 border-app-border bg-app-surface text-app-accent shadow-app transition group-hover:-translate-y-0.5 group-hover:border-app-accent/60 sm:h-[72px] sm:w-[72px]">
-            <Icon name={tile.icon} className="h-7 w-7 sm:h-8 sm:w-8" />
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-app-accent-tint text-app-accent-fg">
+            <Icon name={tile.icon} className="h-4 w-4" />
           </span>
-          <span className="text-[11px] font-medium leading-tight text-app-heading sm:text-sm">{tile.label}</span>
+          <span className="truncate">{tile.label}</span>
         </Link>
       ))}
     </div>
@@ -46,10 +46,10 @@ function WidgetCard({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface shadow-app">
-      <div className="flex items-center justify-between gap-3 border-b border-app-border px-4 py-3">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        <Link href={href} className="text-xs font-medium text-app-accent hover:underline">
+    <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+      <div className="flex items-center justify-between gap-3 px-5 pb-2 pt-[18px]">
+        <h3 className="text-[15px]">{title}</h3>
+        <Link href={href} className="text-xs font-semibold text-app-accent-fg hover:underline">
           {linkLabel} →
         </Link>
       </div>
