@@ -141,49 +141,6 @@ create trigger swimmers_profile_sync
   for each row execute function public.swimmers_profile_sync();
 
 
--- ---------------------------------------------------------------------
--- Einmalige Uebernahme der bestehenden Daten
--- ---------------------------------------------------------------------
-
--- 1) Schwimmer fuer Athleten mit Login anlegen (pro Coach, falls fehlend)
-insert into public.swimmers (coach_id, first_name, last_name, birth_year, gender, profile_id)
-select distinct on (t.coach_id, p.id)
-  t.coach_id,
-  coalesce(nullif(trim(p.first_name), ''), 'Athlet'),
-  nullif(trim(p.last_name), ''),
-  extract(year from p.birth_date)::smallint,
-  case when p.gender::text in ('female', 'male') then p.gender::text end,
-  p.id
-from public.team_members tm
-join public.teams t on t.id = tm.team_id
-join public.profiles p on p.id = tm.athlete_id
-where not exists (
-  select 1 from public.swimmers s
-  where s.coach_id = t.coach_id and s.profile_id = p.id
-);
-
--- 2) Team-Zugehoerigkeit uebernehmen
-insert into public.team_swimmers (team_id, swimmer_id)
-select tm.team_id, s.id
-from public.team_members tm
-join public.teams t on t.id = tm.team_id
-join public.swimmers s on s.profile_id = tm.athlete_id and s.coach_id = t.coach_id
-on conflict (team_id, swimmer_id) do nothing;
-
--- 3) Zeiten aus der alten Schwimmerabfrage kopieren (ohne Doppelte)
-insert into public.swimmer_results
-  (swimmer_id, kind, result_date, location, pool_length, distance, stroke, time_ms, points, is_split)
-select s.id, 'einzel', r.result_date, r.location, r.pool_length, r.distance, r.stroke, r.time_ms, r.points, false
-from public.swim_results r
-join public.swimmers s on s.profile_id = r.athlete_id
-where r.pool_length in (25, 50)
-  and r.stroke in ('freestyle', 'backstroke', 'breaststroke', 'butterfly', 'medley')
-  and not exists (
-    select 1 from public.swimmer_results x
-    where x.swimmer_id = s.id
-      and x.result_date = r.result_date
-      and x.pool_length = r.pool_length
-      and x.distance = r.distance
-      and x.stroke = r.stroke
-      and x.time_ms = r.time_ms
-  );
+-- HINWEIS (Datenregel): Die einmalige Datenuebernahme ist bereits gelaufen
+-- und wurde aus diesem Skript entfernt (steht in der Git-Historie).
+-- Dieses Skript aendert oder ergaenzt keine vorhandenen Daten mehr.

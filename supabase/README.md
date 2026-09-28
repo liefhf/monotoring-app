@@ -16,7 +16,13 @@ Die Reihenfolge ist wichtig, weil spätere Skripte auf früheren aufbauen.
 | 8 | `hinweise.sql` | Hinweise in der App (Glocke) |
 | 9 | `athleten_zusammenfuehren.sql` | Eine Athletenliste: Teams enthalten alle Athleten, Login nur noch verknüpft |
 | 10 | `schmerzen.sql` | Schmerzmeldung mit Körpermodell, Coach sieht Meldungen, Hinweis bei starken Schmerzen |
+| 11 | `datenregel_umsetzen.sql` | Automatisches Löschen alter Hinweise abschalten |
 
-Optional: `demo_kapitel1_einfuegen.sql` / `demo_kapitel1_entfernen.sql` für Beispieldaten.
 
 Dateien `daten_*.sql` enthalten echte Schwimmerdaten und werden nicht eingecheckt (`.gitignore`).
+
+## Datenregel (seit 28.09.2026)
+
+Die App läuft mit echten Daten. Neue Skripte ändern, löschen oder ergänzen **keine** vorhandenen Daten – sie legen nur neue Tabellen, Spalten und Regeln an (siehe `CLAUDE.md`).
+
+`alles_zuruecksetzen.sql` ist nur für den einmaligen Neustart gedacht und wird danach entfernt.

@@ -206,21 +206,7 @@ begin
   end if;
 end $$;
 
--- Alte, gelesene Hinweise nach 60 Tagen aufraeumen (bei jedem neuen Hinweis)
-create or replace function public.cleanup_notifications()
-returns trigger
-language plpgsql security definer set search_path = ''
-as $$
-begin
-  delete from public.notifications
-  where recipient_id = new.recipient_id
-    and read_at is not null
-    and created_at < now() - interval '60 days';
-  return null;
-end;
-$$;
-
+-- Hinweise werden NICHT automatisch geloescht (Datenregel).
+-- Ein frueher angelegtes automatisches Loeschen wird hier entfernt:
 drop trigger if exists notifications_cleanup on public.notifications;
-create trigger notifications_cleanup
-  after insert on public.notifications
-  for each row execute function public.cleanup_notifications();
+drop function if exists public.cleanup_notifications();

@@ -26,34 +26,9 @@ alter table public.calendar_entries add constraint calendar_entries_category_che
   check (category in ('training', 'wettkampf', 'trainingslager', 'besprechung', 'leistungstest', 'sonstiges'));
 
 
--- Termine kopieren (gleiche id, damit verknuepfte Fristen passen).
--- Ganztaegig: 06:00 bzw. 20:00 UTC liegen in Deutschland sicher
--- am selben Kalendertag.
-insert into public.calendar_entries
-  (id, coach_id, team_id, title, description, location, category, visibility,
-   starts_at, ends_at, all_day, color, created_at)
-select
-  e.id,
-  e.coach_id,
-  e.team_id,
-  e.title,
-  e.description,
-  e.location,
-  case e.event_type
-    when 'competition'   then 'wettkampf'
-    when 'training_camp' then 'trainingslager'
-    when 'testing'       then 'leistungstest'
-    when 'meeting'       then 'besprechung'
-    else 'sonstiges'
-  end,
-  'coach',
-  (e.start_date::timestamp + interval '6 hours') at time zone 'UTC',
-  (coalesce(e.end_date, e.start_date)::timestamp + interval '20 hours') at time zone 'UTC',
-  true,
-  e.color,
-  e.created_at
-from public.calendar_events e
-on conflict (id) do nothing;
+-- HINWEIS (Datenregel): Die einmalige Datenuebernahme ist bereits gelaufen
+-- und wurde aus diesem Skript entfernt (steht in der Git-Historie).
+-- Dieses Skript aendert oder ergaenzt keine vorhandenen Daten mehr.
 
 
 -- Fristen (calendar_tasks.event_id) auf den neuen Kalender umhaengen
@@ -70,12 +45,6 @@ begin
   if v_constraint is not null then
     execute format('alter table public.calendar_tasks drop constraint %I', v_constraint);
   end if;
-
-  -- Verweise auf Termine, die es nicht (mehr) gibt, loesen
-  update public.calendar_tasks t
-     set event_id = null
-   where t.event_id is not null
-     and not exists (select 1 from public.calendar_entries e where e.id = t.event_id);
 
   if not exists (
     select 1 from pg_constraint
