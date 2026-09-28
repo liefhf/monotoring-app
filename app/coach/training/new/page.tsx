@@ -9,6 +9,8 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import WeekFocusPanel from "@/components/WeekFocusPanel";
+import { SuggestedBlock } from "@/lib/weekFocus";
 import {
   CORE_GOALS,
   PRACTICE_MODE_CLASS,
@@ -807,6 +809,32 @@ function TrainingEditor() {
         };
       })
     );
+  }
+
+  /* Baustein aus dem Wochenfokus in die Einheit uebernehmen (leere Startzeile wird ersetzt) */
+  function insertSuggestedBlock(block: SuggestedBlock) {
+    setTrainingType("Wasser");
+    setWaterSections((current) => {
+      let nextId = Math.max(0, ...current.flatMap((section) => section.rows.map((row) => row.id))) + 1;
+      return current.map((section) => {
+        const additions = block.rows
+          .filter((row) => row.section === section.id)
+          .map((row) => ({
+            ...createWaterRow(nextId++),
+            repetitions: row.repetitions,
+            distance: row.distance,
+            exercise: row.exercise,
+            style: row.style,
+            zone: row.zone,
+            intervalType: row.intervalType,
+            intervalTime: row.intervalTime,
+          }));
+        if (additions.length === 0) return section;
+        const kept = section.rows.filter((row) => row.exercise.trim() !== "" || row.intervalTime !== "");
+        return { ...section, rows: [...kept, ...additions] };
+      });
+    });
+    if (!focus.trim()) setFocus(block.title);
   }
 
   function addWaterRow(
@@ -1816,6 +1844,10 @@ function TrainingEditor() {
             </div>
           </section>
         )}
+
+        <div className="mt-6">
+          <WeekFocusPanel onInsert={insertSuggestedBlock} />
+        </div>
 
         <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
           <div className="border-b border-app-border p-5">

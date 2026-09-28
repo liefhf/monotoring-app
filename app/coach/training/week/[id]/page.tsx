@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import WeekFocusPanel from "@/components/WeekFocusPanel";
 
 type TrainingSession = {
   id: number;
@@ -223,6 +224,10 @@ export default function WeekPage() {
             + Schnelltraining
           </Link>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <WeekFocusPanel />
       </div>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
