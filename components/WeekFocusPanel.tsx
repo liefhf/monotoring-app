@@ -17,6 +17,14 @@ import {
 import { daysUntil, describeCompetition, focusFromRow, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { AthleteFocus } from "@/lib/trainingFocus";
 import { PHASES, SuggestedBlock, buildWeekFocus } from "@/lib/weekFocus";
+import { Suggestion, suggestExercises } from "@/lib/exerciseSuggest";
+
+const SECTION_LABEL: Record<string, string> = {
+  einschwimmen: "Einschwimmen",
+  technik: "Technik",
+  hauptblock: "Hauptblock",
+  ausschwimmen: "Ausschwimmen",
+};
 
 /*
  * Wochenfokus in der Trainingsplanung: fasst den aktuellen Stand aller
@@ -33,6 +41,9 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
   const [open, setOpen] = useState(true);
   const [inserted, setInserted] = useState<string[]>([]);
   const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [request, setRequest] = useState("");
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  const [picked, setPicked] = useState<number[]>([]);
 
   useEffect(() => {
     async function load() {
@@ -71,6 +82,23 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
     [swimmers, results, focusBySwimmer, standard, times, nonFinishes, next, today]
   );
 
+  function makeSuggestion() {
+    const result = suggestExercises(request, week);
+    setSuggestion(result);
+    setPicked(result.rows.map((_, index) => index));
+  }
+
+  function insertPicked() {
+    if (!suggestion || !onInsert) return;
+    onInsert({
+      id: `eingabe-${Date.now()}`,
+      title: request.trim() || "Vorschlag",
+      why: "aus der Eingabe",
+      rows: suggestion.rows.filter((_, index) => picked.includes(index)),
+    });
+    setSuggestion(null);
+  }
+
   if (swimmers.length === 0) return null;
   const phase = PHASES[week.phase];
 
@@ -86,6 +114,63 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
 
       {open && (
         <div className="space-y-3 border-t border-app-accent/20 px-4 py-3">
+          <div className="rounded-lg border border-app-border bg-app-surface p-3">
+            <label className="mb-1 block text-xs font-semibold text-app-heading">Was soll heute gemacht werden?</label>
+            <div className="flex flex-wrap gap-2">
+              <input
+                value={request}
+                onChange={(e) => setRequest(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    makeSuggestion();
+                  }
+                }}
+                placeholder="z. B. Sprint Kraul + Rückenwende, 90 min"
+                className="min-w-[240px] flex-1 rounded-lg border border-app-border bg-app-bg px-3 py-2 text-sm outline-none focus:border-app-accent"
+              />
+              <button type="button" onClick={makeSuggestion} className="rounded-lg bg-app-accent px-3 py-2 text-sm font-semibold text-app-accent-ink">
+                Übungen vorschlagen
+              </button>
+            </div>
+
+            {suggestion && (
+              <div className="mt-3 space-y-2">
+                {suggestion.notes.map((note) => (
+                  <p key={note} className="text-xs text-app-muted">ℹ {note}</p>
+                ))}
+                {["einschwimmen", "technik", "hauptblock", "ausschwimmen"].map((section) => {
+                  const entries = suggestion.rows.map((entry, index) => ({ entry, index })).filter(({ entry }) => entry.section === section);
+                  if (entries.length === 0) return null;
+                  return (
+                    <div key={section}>
+                      <p className="text-xs font-semibold text-app-muted">{SECTION_LABEL[section]}</p>
+                      {entries.map(({ entry, index }) => (
+                        <label key={index} className="flex items-start gap-2 py-0.5 text-xs">
+                          <input
+                            type="checkbox"
+                            checked={picked.includes(index)}
+                            onChange={() => setPicked((current) => (current.includes(index) ? current.filter((i) => i !== index) : [...current, index]))}
+                            className="mt-0.5"
+                          />
+                          <span>
+                            <b>{entry.repetitions}×{entry.distance}</b> {entry.style} · {entry.exercise}{" "}
+                            <span className="text-app-faint">({entry.zone}{entry.intervalTime ? `, ${entry.intervalType} ${entry.intervalTime}s` : ""})</span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  );
+                })}
+                {onInsert && (
+                  <button type="button" onClick={insertPicked} disabled={picked.length === 0} className="rounded-lg border border-app-accent px-3 py-1.5 text-xs font-semibold text-app-accent disabled:opacity-50">
+                    {picked.length} Übungen in die Einheit übernehmen
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
           <p className="text-app-muted">
             <b className="text-app-text">Schwerpunkt der Phase:</b> {phase.hint}
           </p>

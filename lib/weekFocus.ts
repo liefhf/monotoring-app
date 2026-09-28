@@ -42,7 +42,7 @@ export function phaseFor(daysUntil: number | null): Phase {
 export type LaneGroup = { stroke: Stroke; label: string; athletes: string[] };
 
 export type SuggestedRow = {
-  section: "technik" | "hauptblock";
+  section: "einschwimmen" | "technik" | "hauptblock" | "ausschwimmen";
   repetitions: number;
   distance: number;
   exercise: string;
