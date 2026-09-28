@@ -35,6 +35,7 @@ import {
   SwimmerDetails,
   SwimmerResult,
   eventKey,
+  findBestForStandard,
   findBestResult,
   findQualifyingTime,
   formatDate,
@@ -189,7 +190,7 @@ export default function SchwimmerDetailPage() {
           .order("result_date"),
         supabase
           .from("qualifying_standards")
-          .select("id, name, pool_length, valid_from, valid_to")
+          .select("*")
           .order("created_at", { ascending: false }),
         supabase
           .from("qualifying_times")
@@ -1297,10 +1298,7 @@ function QualificationTable({
         .map((event) => ({
           event,
           required: findQualifyingTime(standardTimes, swimmer, event),
-          best: findBestResult(results, event, selectedStandard.pool_length, {
-            from: selectedStandard.valid_from,
-            to: selectedStandard.valid_to,
-          }),
+          best: findBestForStandard(results, event, selectedStandard),
         }))
         .filter((row) => row.required)
     : [];
@@ -1339,6 +1337,7 @@ function QualificationTable({
           {selectedStandard && (
             <p className="text-sm text-app-muted">
               {selectedStandard.pool_length}m-Bahn
+              {selectedStandard.count_both_pools ? " · es zählen 25m- und 50m-Zeiten" : ""}
               {selectedStandard.valid_from || selectedStandard.valid_to
                 ? ` · es zählen Zeiten von ${formatDate(selectedStandard.valid_from)} bis ${formatDate(selectedStandard.valid_to)}`
                 : ""}
@@ -1362,7 +1361,9 @@ function QualificationTable({
                     <td className="px-4 py-2 font-medium">{formatEvent(event)}</td>
                     <td className="px-4 py-2 font-semibold text-app-heading">{best ? formatTime(best.time_ms) : "–"}</td>
                     <td className="px-4 py-2 text-app-muted">
-                      {best ? `${formatDate(best.result_date)}${best.location ? ` · ${best.location}` : ""}` : "–"}
+                      {best
+                        ? `${formatDate(best.result_date)}${best.location ? ` · ${best.location}` : ""} · ${best.pool_length}m`
+                        : "–"}
                     </td>
                     <td className="px-4 py-2">{required ? formatTime(required.time_ms) : "–"}</td>
                     <td className="px-4 py-2">

@@ -80,6 +80,8 @@ export type QualifyingStandard = {
   pool_length: PoolLength;
   valid_from: string | null;
   valid_to: string | null;
+  /* true = Zeiten von der 25m- und der 50m-Bahn zaehlen (fehlt/null = nur pool_length) */
+  count_both_pools?: boolean | null;
 };
 
 export type QualifyingTime = {
@@ -298,13 +300,28 @@ export function getYear(date: string) {
 }
 
 /*
- * Schnellste Zeit fuer eine Strecke. Optional nur
- * innerhalb eines Zeitraums (fuer Qualifikationszeitraeume).
+ * Bestzeit, die fuer eine Pflichtzeiten-Liste zaehlt: Qualifikationszeitraum
+ * beachten und - falls die Liste es erlaubt - beide Bahnlaengen.
+ */
+export function findBestForStandard(
+  results: SwimmerResult[],
+  event: SwimEvent,
+  standard: QualifyingStandard
+) {
+  return findBestResult(results, event, standard.count_both_pools ? null : standard.pool_length, {
+    from: standard.valid_from,
+    to: standard.valid_to,
+  });
+}
+
+/*
+ * Schnellste Zeit fuer eine Strecke. poolLength null = beide Bahnen.
+ * Optional nur innerhalb eines Zeitraums (fuer Qualifikationszeitraeume).
  */
 export function findBestResult(
   results: SwimmerResult[],
   event: SwimEvent,
-  poolLength: PoolLength,
+  poolLength: PoolLength | null,
   period?: { from: string | null; to: string | null }
 ) {
   let best: SwimmerResult | null = null;
@@ -313,7 +330,7 @@ export function findBestResult(
     if (
       result.distance !== event.distance ||
       result.stroke !== event.stroke ||
-      result.pool_length !== poolLength
+      (poolLength !== null && result.pool_length !== poolLength)
     ) {
       continue;
     }

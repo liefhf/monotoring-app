@@ -3,6 +3,7 @@ import {
   Swimmer,
   SwimmerResult,
   QualifyingTime,
+  findBestForStandard,
   findBestResult,
   findQualifyingTime,
   formatBirthYearRange,
@@ -105,6 +106,15 @@ describe("findBestResult", () => {
 
   it("liefert null ohne passende Zeit", () => {
     expect(findBestResult(results, { distance: 200, stroke: "medley" }, 50)).toBeNull();
+  });
+
+  it("zaehlt bei count_both_pools beide Bahnen, sonst nur die Bahn der Liste", () => {
+    const event = { distance: 100, stroke: "freestyle" as const };
+    const standard = { id: "s", name: "HM", pool_length: 25 as const, valid_from: "2026-01-01", valid_to: "2026-12-31" };
+
+    expect(findBestForStandard(results, event, standard)?.id).toBe("c");
+    expect(findBestForStandard([results[0], results[1]], event, standard)).toBeNull();
+    expect(findBestForStandard([results[0], results[1]], event, { ...standard, count_both_pools: true })?.id).toBe("b");
   });
 });
 

@@ -15,7 +15,7 @@ import {
   Swimmer,
   SwimmerResult,
   eventKey,
-  findBestResult,
+  findBestForStandard,
   findQualifyingTime,
   formatBirthYearRange,
   formatDate,
@@ -78,7 +78,7 @@ export default function PflichtzeitenDetailPage() {
       await Promise.all([
         supabase
           .from("qualifying_standards")
-          .select("id, name, pool_length, valid_from, valid_to")
+          .select("*")
           .eq("id", standardId)
           .single(),
         supabase
@@ -133,8 +133,6 @@ export default function PflichtzeitenDetailPage() {
       return [];
     }
 
-    const period = { from: standard.valid_from, to: standard.valid_to };
-
     return swimmers
       .map((swimmer) => {
         const ownResults = results.filter((result) => result.swimmer_id === swimmer.id);
@@ -146,7 +144,7 @@ export default function PflichtzeitenDetailPage() {
             return null;
           }
 
-          const best = findBestResult(ownResults, event, standard.pool_length, period);
+          const best = findBestForStandard(ownResults, event, standard);
           const diff = best ? best.time_ms - required.time_ms : null;
 
           return { event, required, best, diff };
@@ -499,7 +497,7 @@ export default function PflichtzeitenDetailPage() {
               <div className="border-b border-app-border px-6 py-4">
                 <h2 className="text-lg font-semibold">Aktueller Stand</h2>
                 <p className="mt-1 text-sm text-app-muted">
-                  Bestzeit auf der {standard.pool_length}m-Bahn
+                  Bestzeit auf der {standard.count_both_pools ? "25m- oder 50m" : `${standard.pool_length}m`}-Bahn
                   {standard.valid_from || standard.valid_to ? " im Qualifikationszeitraum" : ""} im
                   Vergleich zur Pflichtzeit.
                 </p>

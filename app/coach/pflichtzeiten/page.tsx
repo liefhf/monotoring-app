@@ -21,6 +21,7 @@ export default function PflichtzeitenPage() {
   const [poolLength, setPoolLength] = useState<PoolLength>(50);
   const [validFrom, setValidFrom] = useState("");
   const [validTo, setValidTo] = useState("");
+  const [countBothPools, setCountBothPools] = useState(false);
 
   useEffect(() => {
     loadStandards();
@@ -31,7 +32,7 @@ export default function PflichtzeitenPage() {
 
     const { data, error } = await supabase
       .from("qualifying_standards")
-      .select("id, name, pool_length, valid_from, valid_to")
+      .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -77,6 +78,7 @@ export default function PflichtzeitenPage() {
       pool_length: poolLength,
       valid_from: validFrom || null,
       valid_to: validTo || null,
+      ...(countBothPools ? { count_both_pools: true } : {}),
     });
 
     setSaving(false);
@@ -186,6 +188,15 @@ export default function PflichtzeitenPage() {
               />
             </FormField>
 
+            <label className="flex items-center gap-2 text-sm text-app-text">
+              <input
+                type="checkbox"
+                checked={countBothPools}
+                onChange={(event) => setCountBothPools(event.target.checked)}
+              />
+              25m- und 50m-Zeiten zählen
+            </label>
+
             <button
               type="submit"
               disabled={saving}
@@ -217,7 +228,7 @@ export default function PflichtzeitenPage() {
                       {standard.name}
                     </span>
                     <span className="mt-1 block text-sm text-app-muted">
-                      {standard.pool_length}m-Bahn · {timeCounts[standard.id] ?? 0} Zeiten
+                      {standard.count_both_pools ? "25m- und 50m-Zeiten" : `${standard.pool_length}m-Bahn`} · {timeCounts[standard.id] ?? 0} Zeiten
                       {standard.valid_from || standard.valid_to
                         ? ` · Zeitraum ${formatDate(standard.valid_from)} – ${formatDate(standard.valid_to)}`
                         : ""}
