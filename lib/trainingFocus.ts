@@ -293,6 +293,8 @@ export function trainingFocus({
       const required = findQualifyingTime(standardTimes, swimmer, event);
       if (!required) continue;
       const best = findBestForStandard(results, event, standard);
+      /* Ohne Zeit im Qualifikationszeitraum gibt es keine Orientierung -> weglassen */
+      if (!best) continue;
       const item = qualiRecommendation(event, required.time_ms, best, standard.name);
       const role = focusRole(event, focus);
       /* Nebenstrecken etwas nachrangig */

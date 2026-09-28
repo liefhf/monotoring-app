@@ -99,7 +99,7 @@ describe("qualiRecommendation", () => {
     expect(qualiRecommendation(event, 72800, null, "HM").level).toBe("open");
   });
 
-  it("gibt fuer jede Fokus-Strecke eine Empfehlung – auch weit entfernte", () => {
+  it("gibt fuer Fokus-Strecken mit Zeit eine Empfehlung – auch weit entfernte, ohne Zeit keine", () => {
     const standard = { id: "s", name: "HM", pool_length: 25 as const, valid_from: null, valid_to: null, count_both_pools: true };
     const times = [
       { id: "t1", standard_id: "s", gender: "female" as const, birth_year_from: 2013, birth_year_to: 2013, distance: 100, stroke: "backstroke" as const, time_ms: 60000 },
@@ -109,6 +109,6 @@ describe("qualiRecommendation", () => {
       results: [best(80000)], swimmer, standard, standardTimes: times, today: "2026-09-28",
       focus: { events: ["100-backstroke", "200-backstroke"], strokes: null, distances: null },
     });
-    expect(items.filter((item) => item.kind === "quali").map((item) => item.level).sort()).toEqual(["far", "open"]);
+    expect(items.filter((item) => item.kind === "quali").map((item) => item.level)).toEqual(["far"]);
   });
 });

@@ -133,6 +133,11 @@ export default function TrainingFocusPanel({
                           <td className="whitespace-nowrap px-3 py-1.5 text-right text-app-muted">{formatTime(item.requiredMs!)}</td>
                           <td className={`whitespace-nowrap px-3 py-1.5 text-right font-semibold ${gap === null ? "text-app-faint" : gap <= 0 ? "text-app-good" : "text-app-heading"}`}>
                             {gap === null ? "–" : gap <= 0 ? `−${formatTime(-gap)}` : `+${formatTime(gap)}`}
+                            {gap !== null && gap > 0 && (
+                              <span className="ml-1 text-xs font-normal text-app-muted">
+                                ({((gap / item.requiredMs!) * 100).toFixed(1).replace(".", ",")} %)
+                              </span>
+                            )}
                           </td>
                           <td className="whitespace-nowrap px-3 py-1.5">
                             <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${level.className}`}>{level.label}</span>
