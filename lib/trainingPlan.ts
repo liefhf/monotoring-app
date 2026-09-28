@@ -86,64 +86,89 @@ function formatDay(date: string) {
 
 export function trainingPlanHtml(plan: TrainingPlan) {
   const sectionMeters = (rows: PlanRow[]) => rows.reduce((sum, row) => sum + row.repetitions * row.distance, 0);
+  const totalMeters = plan.sections.reduce((sum, section) => sum + sectionMeters(section.rows), 0);
 
+  /* Jede Serie mit leerer Notizspalte zum Mitschreiben am Beckenrand */
   const water = plan.sections
     .map(
-      (section) => `<h2>${esc(section.name)} <span class="m">${sectionMeters(section.rows)} m</span></h2>
-      <table>${section.rows
-        .map(
-          (row) => `<tr><td class="s"><b>${row.repetitions > 1 ? `${row.repetitions}×` : ""}${row.distance}</b></td>
-            <td>${esc(row.style ?? "")}</td>
-            <td class="w">${esc(row.exercise ?? "")}${row.materials?.length ? ` <span class="m">(${esc(row.materials.join(", "))})</span>` : ""}</td>
-            <td>${esc(row.zone ?? "")}</td>
-            <td>${row.interval_time ? `${esc(row.interval_type ?? "P")} ${esc(row.interval_time)}` : ""}</td></tr>`
-        )
-        .join("")}</table>`
+      (section) => `<section>
+      <div class="sec"><span>${esc(section.name)}</span><span>${sectionMeters(section.rows).toLocaleString("de-DE")} m</span></div>
+      <table>
+        <colgroup><col class="c-serie"><col class="c-lage"><col><col class="c-zone"><col class="c-int"><col class="c-note"></colgroup>
+        ${section.rows
+          .map(
+            (row) => `<tr>
+            <td class="serie">${row.repetitions > 1 ? `${row.repetitions}<span class="x">×</span>` : ""}${row.distance}</td>
+            <td class="lage">${esc(row.style ?? "")}</td>
+            <td>${esc(row.exercise ?? "")}${row.materials?.length ? `<div class="mat">${esc(row.materials.join(" · "))}</div>` : ""}</td>
+            <td>${row.zone ? `<span class="zone">${esc(row.zone)}</span>` : ""}</td>
+            <td class="int">${row.interval_time ? `${row.interval_type === "@" ? "@" : "P"} ${esc(row.interval_time)}${row.interval_type === "@" ? "" : " s"}` : ""}</td>
+            <td class="note"></td></tr>`
+          )
+          .join("")}
+      </table></section>`
     )
     .join("");
 
   const landTable = (title: string, rows: PlanLandRow[]) =>
     rows.length
-      ? `<h2>${title}</h2><table><tr class="h"><td>Übung</td><td>Sätze</td><td>Wdh.</td><td>Gewicht</td><td>Material</td><td>Intensität</td></tr>${rows
-          .map(
-            (row) =>
-              `<tr><td class="w">${esc(row.exercise)}</td><td>${esc(row.sets)}</td><td>${esc(row.repetitions)}</td><td>${esc(row.weight ?? "")}</td><td>${esc(row.material)}</td><td>${esc(row.intensity)}</td></tr>`
-          )
-          .join("")}</table>`
+      ? `<section><div class="sec"><span>${title}</span><span>${rows.length} Übungen</span></div>
+         <table><colgroup><col><col class="c-zone"><col class="c-zone"><col class="c-zone"><col class="c-zone"><col class="c-note"></colgroup>
+         <tr class="h"><td>Übung</td><td>Sätze × Wdh.</td><td>Gewicht</td><td>Material</td><td>Intensität</td><td>Notiz</td></tr>${rows
+           .map(
+             (row) =>
+               `<tr><td>${esc(row.exercise)}</td><td>${esc([row.sets, row.repetitions].filter(Boolean).join(" × "))}</td><td>${esc(row.weight ?? "")}</td><td>${esc(row.material)}</td><td>${esc(row.intensity)}</td><td class="note"></td></tr>`
+           )
+           .join("")}</table></section>`
       : "";
 
-  const meta = [
-    formatDay(plan.session_date),
-    plan.start_time ? `${plan.start_time.slice(0, 5)} Uhr` : null,
-    plan.duration_minutes ? `${plan.duration_minutes} min` : null,
-    plan.training_type === "water" && plan.total_meters ? `${plan.total_meters} m` : null,
-    plan.pool_length ? `${plan.pool_length}m-Bahn` : null,
-    plan.teamName,
-  ]
-    .filter(Boolean)
-    .join(" · ");
+  const facts = [
+    ["Datum", formatDay(plan.session_date)],
+    ["Uhrzeit", plan.start_time ? `${plan.start_time.slice(0, 5)} Uhr` : null],
+    ["Dauer", plan.duration_minutes ? `${plan.duration_minutes} min` : null],
+    ["Umfang", plan.training_type === "water" ? `${(plan.total_meters ?? totalMeters).toLocaleString("de-DE")} m` : null],
+    ["Bahn", plan.pool_length ? `${plan.pool_length} m` : null],
+    ["Gruppe", plan.teamName],
+  ].filter(([, value]) => value);
 
   return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${esc(plan.title)} – ${esc(plan.session_date)}</title>
 <style>
-@page { size: A4; margin: 12mm; }
-body { font: 10pt/1.35 Arial, Helvetica, sans-serif; color: #111; margin: 0; }
-h1 { font-size: 15pt; margin: 0; }
-.meta { color: #444; margin: 1mm 0 1mm; }
-.focus { margin: 0 0 3mm; }
-h2 { font-size: 11pt; margin: 4mm 0 1mm; border-bottom: 1px solid #888; }
-table { width: 100%; border-collapse: collapse; }
-td { padding: 1mm 1.5mm; border-bottom: 0.5px solid #ddd; vertical-align: top; }
-td.s { width: 14mm; white-space: nowrap; }
-td.w { width: 55%; }
-tr.h td { font-size: 8pt; color: #555; }
-.m { font-weight: normal; color: #666; font-size: 8.5pt; }
+/* margin 0 blendet die Kopf-/Fusszeile des Browsers (Datum, URL) aus */
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+body { font: 10pt/1.35 "Segoe UI", Arial, Helvetica, sans-serif; color: #1b2330; margin: 0; padding: 12mm 13mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+header { display: flex; justify-content: space-between; align-items: flex-start; gap: 6mm; border-bottom: 2px solid #1f5fa8; padding-bottom: 3mm; }
+h1 { font-size: 17pt; margin: 0; color: #12325c; }
+.focus { margin-top: 1mm; color: #334; }
+.facts { display: grid; grid-template-columns: auto auto; gap: 0.5mm 3mm; font-size: 8.5pt; white-space: nowrap; }
+.facts dt { color: #6b7686; } .facts dd { margin: 0; font-weight: 600; }
+section { break-inside: avoid; margin-top: 4mm; }
+.sec { display: flex; justify-content: space-between; background: #eaf1fb; color: #12325c; font-weight: 700; padding: 1.2mm 2.5mm; border-radius: 1.5mm; }
+.sec span:last-child { font-weight: 600; color: #1f5fa8; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+td { padding: 1.4mm 2mm; border-bottom: 0.5px solid #d9dee6; vertical-align: top; }
+col.c-serie { width: 17mm; } col.c-lage { width: 23mm; } col.c-zone { width: 24mm; } col.c-int { width: 14mm; } col.c-note { width: 38mm; }
+td.serie { font-weight: 700; font-size: 10.5pt; white-space: nowrap; } .x { font-weight: 400; color: #6b7686; margin: 0 0.3mm; }
+td.lage { color: #445; }
+td.int { white-space: nowrap; font-weight: 600; }
+td.note { border-left: 0.5px dashed #b8c0cc; }
+.zone { display: inline-block; font-size: 8pt; padding: 0.2mm 1.5mm; border-radius: 1mm; background: #f1f3f6; white-space: nowrap; }
+.mat { font-size: 8pt; color: #6b7686; margin-top: 0.3mm; }
+tr.h td { font-size: 8pt; color: #6b7686; }
+.notes { margin-top: 5mm; break-inside: avoid; }
+.notes .lines { height: 38mm; border: 0.5px solid #d9dee6; border-radius: 1.5mm; background: repeating-linear-gradient(transparent 0 7.3mm, #e3e7ed 7.3mm 7.6mm); }
+.notes b { display: block; margin-bottom: 1mm; color: #12325c; }
+footer { margin-top: 3mm; font-size: 7.5pt; color: #8a93a1; display: flex; justify-content: space-between; }
 </style></head><body>
-<h1>${esc(plan.title)}</h1>
-<div class="meta">${esc(meta)}</div>
-${plan.focus ? `<div class="focus"><b>Fokus:</b> ${esc(plan.focus)}</div>` : ""}
+<header>
+  <div><h1>${esc(plan.title)}</h1>${plan.focus ? `<div class="focus"><b>Fokus:</b> ${esc(plan.focus)}</div>` : ""}</div>
+  <dl class="facts">${facts.map(([label, value]) => `<dt>${label}</dt><dd>${esc(value)}</dd>`).join("")}</dl>
+</header>
 ${landTable("Warm Up an Land", plan.warmUpRows)}
 ${plan.training_type === "water" ? water : ""}
 ${plan.training_type === "land" ? landTable("Landtraining", plan.landRows) : ""}
+<div class="notes"><b>Notizen</b><div class="lines"></div></div>
+<footer><span>Monitoring App · Trainingsplan</span><span>${esc(formatDay(plan.session_date))}</span></footer>
 </body></html>`;
 }
 
