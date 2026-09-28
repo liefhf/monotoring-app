@@ -1,19 +1,16 @@
 import type { Metadata } from "next";
-import { Hanken_Grotesk, IBM_Plex_Mono } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
-/* Schriften aus der Design-Uebergabe: UI und Zahlen/Kicker */
-const appSans = Hanken_Grotesk({
+const appSans = Plus_Jakarta_Sans({
   variable: "--font-app-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
-const appMono = IBM_Plex_Mono({
-  variable: "--font-app-mono",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -36,9 +33,9 @@ export default function RootLayout({
     <html
       lang="de"
       suppressHydrationWarning
-      className={`${appSans.variable} ${appMono.variable} h-full antialiased`}
+      className={`${appSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-app-bg text-app-heading">
+      <body className="flex min-h-full flex-col bg-app-bg text-app-text">
         {children}
         {/* beforeInteractive: laeuft vor dem ersten Zeichnen, landet im <head> */}
         <Script id="theme-init" strategy="beforeInteractive">

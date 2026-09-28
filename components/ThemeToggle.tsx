@@ -80,26 +80,3 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
     </button>
   );
 }
-
-/* Segment "Hell | Dunkel" wie in der Seitenleiste des Designs */
-export function ThemeSegment({ className = "" }: { className?: string }) {
-  const theme = useSyncExternalStore<Theme | null>(subscribe, readTheme, () => null);
-
-  return (
-    <div className={`flex rounded-[9px] bg-app-seg p-[3px] ${className}`} role="group" aria-label="Darstellung">
-      {(["light", "dark"] as Theme[]).map((value) => (
-        <button
-          key={value}
-          type="button"
-          onClick={() => setTheme(value)}
-          aria-pressed={theme === value}
-          className={`flex-1 rounded-md px-2 py-1 text-xs font-semibold transition ${
-            theme === value ? "bg-app-surface text-app-heading shadow-seg" : "text-app-muted hover:text-app-heading"
-          }`}
-        >
-          {value === "light" ? "Hell" : "Dunkel"}
-        </button>
-      ))}
-    </div>
-  );
-}
