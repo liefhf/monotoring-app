@@ -294,6 +294,99 @@ function TrainingEditor() {
     createLandRow(1),
   ]);
 
+  /*
+   * Entwurf: Neue Einheiten werden laufend im Browser zwischengespeichert,
+   * damit beim Neuladen oder Seitenwechsel nichts verloren geht.
+   * Nach erfolgreichem Speichern wird der Entwurf geloescht.
+   */
+  const draftKey = `training-entwurf:${dayFromUrl ?? ""}:${weekFromUrl ?? ""}`;
+  const [draftReady, setDraftReady] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (isEditing) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Entwurf aus dem Browser-Speicher laden
+      setDraftReady(true);
+      return;
+    }
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (raw) {
+        const d = JSON.parse(raw);
+        setTitle(d.title ?? "");
+        setFocus(d.focus ?? "");
+        if (d.trainingType) setTrainingType(d.trainingType);
+        if (d.date) setDate(d.date);
+        if (d.time) setTime(d.time);
+        if (d.duration) setDuration(d.duration);
+        if (d.poolLength) setPoolLength(d.poolLength);
+        setPlannedRpe(d.plannedRpe ?? "");
+        setCoreGoals(d.coreGoals ?? []);
+        if (d.warmUpLand?.length) setWarmUpLand(d.warmUpLand);
+        if (d.waterSections?.length) setWaterSections(d.waterSections);
+        if (d.landRows?.length) setLandRows(d.landRows);
+        setDraftRestored(true);
+      }
+    } catch {
+      /* kein Zugriff auf den Browser-Speicher - dann ohne Entwurf */
+    }
+    setDraftReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- nur beim Oeffnen
+  }, []);
+
+  useEffect(() => {
+    if (!draftReady || isEditing) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(
+          draftKey,
+          JSON.stringify({ title, focus, trainingType, date, time, duration, poolLength, plannedRpe, coreGoals, warmUpLand, waterSections, landRows, savedAt: Date.now() })
+        );
+      } catch {
+        /* ignorieren */
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [draftReady, isEditing, draftKey, title, focus, trainingType, date, time, duration, poolLength, plannedRpe, coreGoals, warmUpLand, waterSections, landRows]);
+
+  /* Aenderungen merken -> Warnung beim Verlassen ohne Speichern */
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Aenderung am Formular merken
+    if (draftReady) setDirty(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- reagiert nur auf Inhalte
+  }, [title, focus, warmUpLand, waterSections, landRows]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem(draftKey);
+    } catch {
+      /* ignorieren */
+    }
+    setDirty(false);
+    setDraftRestored(false);
+  }
+
+  function discardDraft() {
+    clearDraft();
+    setTitle("");
+    setFocus("");
+    setPlannedRpe("");
+    setCoreGoals([]);
+    setWarmUpLand([createLandRow(1)]);
+    setWaterSections(createDefaultWaterSections());
+    setLandRows([createLandRow(1)]);
+  }
+
   async function loadTeams() {
     setLoadingTeams(true);
 
@@ -1534,6 +1627,7 @@ function TrainingEditor() {
       setMessage(
         "Landtraining inklusive aller Übungen wurde gespeichert ✅"
       );
+      clearDraft();
 
       setSaving(false);
       return;
@@ -1580,6 +1674,7 @@ function TrainingEditor() {
     setMessage(
       "Training inklusive Wasser-Serien und Warm Up am Land wurde gespeichert ✅"
     );
+    clearDraft();
 
     setSaving(false);
   }
@@ -1843,6 +1938,21 @@ function TrainingEditor() {
               )}
             </div>
           </section>
+        )}
+
+        {draftRestored && (
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
+            <span>
+              <b>Nicht gespeicherter Entwurf wiederhergestellt.</b> Zum Sichern unten auf „Training speichern“ klicken.
+            </span>
+            <button type="button" onClick={discardDraft} className="text-xs font-semibold text-app-warn">
+              Entwurf verwerfen
+            </button>
+          </div>
+        )}
+
+        {!isEditing && draftReady && (
+          <p className="mt-3 text-xs text-app-faint">Entwurf wird automatisch im Browser zwischengespeichert – gespeichert ist die Einheit erst mit „Training speichern“.</p>
         )}
 
         <div className="mt-6">
