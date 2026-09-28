@@ -30,7 +30,6 @@ import {
   ResultKind,
   STROKES,
   SWIMMER_DETAIL_COLUMNS,
-  SWIM_EVENTS,
   SwimEvent,
   Stroke,
   SwimmerDetails,
@@ -1121,7 +1120,7 @@ function EventChart({
 }
 
 function DevelopmentChart({
-  results,
+  results: allResults,
   swimmer,
   standards,
   standardId,
@@ -1131,9 +1130,28 @@ function DevelopmentChart({
   chartEventKey,
   onEventChange,
 }: StandardProps & { chartEventKey: string; onEventChange: (key: string) => void }) {
-  const eventsWithResults = SWIM_EVENTS.filter((event) =>
-    results.some((result) => result.distance === event.distance && result.stroke === event.stroke)
+  const [period, setPeriod] = useState("all");
+
+  const years = useMemo(
+    () => [...new Set(allResults.map((result) => result.result_date.slice(0, 4)))].sort().reverse(),
+    [allResults]
   );
+
+  const results = period === "all" ? allResults : allResults.filter((result) => result.result_date.startsWith(period));
+
+  /* Alle geschwommenen Strecken, auch solche ausserhalb der Standardliste (z. B. 25 m) */
+  const strokeOrder = ["freestyle", "breaststroke", "backstroke", "butterfly", "medley"];
+  const eventsWithResults: SwimEvent[] = [
+    ...new Map(
+      results.map((result) => [`${result.stroke}-${result.distance}`, { distance: result.distance, stroke: result.stroke }])
+    ).values(),
+  ].sort((a, b) => strokeOrder.indexOf(a.stroke) - strokeOrder.indexOf(b.stroke) || a.distance - b.distance);
+
+  useEffect(() => {
+    const close = (e: KeyboardEvent) => e.key === "Escape" && onEventChange("all");
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [onEventChange]);
 
   /* Leer oder "all" = Uebersicht ueber alle Strecken */
   const chartEvent = eventsWithResults.find((event) => eventKey(event) === chartEventKey) ?? null;
@@ -1153,7 +1171,18 @@ function DevelopmentChart({
   return (
     <div className="mt-6">
       <Card title="Entwicklung">
-        <div className="grid gap-4 border-b border-app-border p-6 md:grid-cols-2">
+        <div className="grid gap-4 border-b border-app-border p-6 md:grid-cols-3">
+          <FormField label="Zeitraum">
+            <select value={period} onChange={(e) => setPeriod(e.target.value)} className={inputClass}>
+              <option value="all">Alle Jahre</option>
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
           <FormField label="Strecke">
             <select
               value={chartEvent ? eventKey(chartEvent) : "all"}
@@ -1178,26 +1207,42 @@ function DevelopmentChart({
           />
         </div>
 
-        {eventsWithResults.length === 0 ? (
-          <Empty>Noch keine Ergebnisse eingetragen.</Empty>
-        ) : chartEvent ? (
-          <div className="p-4">
-            <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 px-2">
-              <p className="text-xs text-app-faint">Oben = schneller. Jeder Punkt ist ein Start.</p>
-              <button type="button" onClick={() => onEventChange("all")} className="text-sm text-app-accent hover:text-app-accent">
-                ← Alle Strecken
-              </button>
-            </div>
-            <div className="h-80 w-full">
-              <EventChart
-                results={results}
-                event={chartEvent}
-                required={requiredFor(chartEvent)}
-                requiredPool={selectedStandard?.pool_length ?? null}
-                compact={false}
-              />
+        {chartEvent && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            onClick={() => onEventChange("all")}
+          >
+            <div
+              className="flex h-[85vh] w-full max-w-6xl flex-col rounded-2xl border border-app-border bg-app-surface p-4 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 px-2">
+                <div>
+                  <span className="text-lg font-semibold text-app-heading">{formatEvent(chartEvent)}</span>
+                  <span className="ml-3 text-sm text-app-muted">
+                    {period === "all" ? "Alle Jahre" : period} · {bestLabel(chartEvent)}
+                  </span>
+                </div>
+                <button type="button" onClick={() => onEventChange("all")} className="text-sm text-app-accent">
+                  Schließen ✕
+                </button>
+              </div>
+              <p className="mb-2 px-2 text-xs text-app-faint">Oben = schneller. Jeder Punkt ist ein Start.</p>
+              <div className="min-h-0 w-full flex-1">
+                <EventChart
+                  results={results}
+                  event={chartEvent}
+                  required={requiredFor(chartEvent)}
+                  requiredPool={selectedStandard?.pool_length ?? null}
+                  compact={false}
+                />
+              </div>
             </div>
           </div>
+        )}
+
+        {eventsWithResults.length === 0 ? (
+          <Empty>{period === "all" ? "Noch keine Ergebnisse eingetragen." : `Keine Ergebnisse in ${period}.`}</Empty>
         ) : (
           <div className="p-4">
             <p className="mb-3 px-2 text-xs text-app-faint">
