@@ -35,6 +35,7 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
       { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
       { href: "/coach/training", label: "Training", icon: "training" },
       { href: "/coach/competitions", label: "Wettkämpfe", icon: "trophy" },
+      { href: "/coach/meldehilfe", label: "Meldehilfe", icon: "stopwatch" },
     ],
   },
   {
