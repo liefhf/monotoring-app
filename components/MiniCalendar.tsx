@@ -8,8 +8,8 @@ import { localDateOf, CALENDAR_COLUMNS, CalendarEntry } from "@/lib/community";
 /*
  * Kompakter Kalender fuer das Dashboard: zwei Monate nebeneinander,
  * Wochen ab Montag. Heute hell hervorgehoben, Wettkaempfe als farbiges
- * Band (mehrtaegig durchgehend), Trainingstage mit kleinem Punkt.
- * Klick auf einen Tag plant ein Training fuer diesen Tag.
+ * Band (mehrtaegig durchgehend), Trainingslager ebenso.
+ * Klick auf einen Tag oeffnet den Kalender.
  */
 
 /* Als durchgehendes Band: Wettkaempfe (pink) und Trainingslager (lila) */
@@ -32,7 +32,6 @@ function monthGrid(year: number, month: number) {
 export default function MiniCalendar({ teamId, today }: { teamId: string | null; today: string }) {
   const [start, setStart] = useState(() => ({ year: Number(today.slice(0, 4)), month: Number(today.slice(5, 7)) - 1 }));
   const [entries, setEntries] = useState<CalendarEntry[]>([]);
-  const [trainingDays, setTrainingDays] = useState<Set<string>>(new Set());
 
   const months = [0, 1].map((i) => {
     const date = new Date(Date.UTC(start.year, start.month + i, 1));
@@ -49,10 +48,8 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
         .select(CALENDAR_COLUMNS)
         .lte("starts_at", `${lastDay}T23:59:59`)
         .gte("starts_at", new Date(Date.parse(rangeFrom) - 14 * 86_400_000).toISOString()),
-      supabase.from("training_sessions").select("session_date").eq("team_id", teamId).gte("session_date", rangeFrom).lte("session_date", lastDay),
-    ]).then(([entryRes, sessionRes]) => {
+    ]).then(([entryRes]) => {
       setEntries(((entryRes.data ?? []) as CalendarEntry[]).filter((entry) => !entry.team_id || entry.team_id === teamId));
-      setTrainingDays(new Set(((sessionRes.data ?? []) as { session_date: string }[]).map((row) => row.session_date)));
     });
   }, [teamId, rangeFrom, lastDay]);
 
@@ -61,7 +58,6 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
     entries.find(
       (entry) => BAND_CATEGORIES.includes(entry.category) && localDateOf(entry.starts_at) <= date && localDateOf(entry.ends_at ?? entry.starts_at) >= date
     ) ?? null;
-  const otherOn = (date: string) => entries.some((entry) => !BAND_CATEGORIES.includes(entry.category) && localDateOf(entry.starts_at) === date);
 
   const shift = (count: number) => {
     const date = new Date(Date.UTC(start.year, start.month + count, 1));
@@ -110,8 +106,8 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
                   return (
                     <Link
                       key={date}
-                      href={`/coach/training/new?day=${date}`}
-                      title={competition?.title ?? (trainingDays.has(date) ? "Training" : undefined)}
+                      href="/coach/kalender"
+                      title={competition?.title}
                       className={`relative flex h-8 items-center justify-center text-sm tabular-nums transition ${
                         competition ? `${competition.category === "trainingslager" ? "bg-[color:var(--app-accent-2)]/25" : "bg-app-accent/20"} text-app-heading` : "text-app-text hover:bg-app-elevated"
                       } ${competition && !prevSame ? "rounded-l-lg" : ""} ${competition && !nextSame ? "rounded-r-lg" : ""} ${!competition ? "rounded-lg" : ""}`}
@@ -123,9 +119,6 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
                       >
                         {Number(date.slice(8))}
                       </span>
-                      {(trainingDays.has(date) || otherOn(date)) && (
-                        <span className={`absolute bottom-0.5 h-1 w-1 rounded-full ${trainingDays.has(date) ? "bg-app-accent" : "bg-app-faint"}`} />
-                      )}
                     </Link>
                   );
                 })}
@@ -140,9 +133,6 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
         </span>
         <span className="flex items-center gap-1.5">
           <i className="inline-block h-2.5 w-4 rounded bg-[color:var(--app-accent-2)]/50" /> Trainingslager
-        </span>
-        <span className="flex items-center gap-1.5">
-          <i className="inline-block h-1.5 w-1.5 rounded-full bg-app-accent" /> Training
         </span>
       </div>
     </section>
