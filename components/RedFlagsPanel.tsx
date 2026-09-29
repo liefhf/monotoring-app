@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ACWR_ZONES, Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, wellnessScore } from "@/lib/monitoring";
+import { Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, wellnessScore } from "@/lib/monitoring";
 import { attendanceStats, AttendanceStatus } from "@/lib/attendance";
 
 /*
@@ -17,6 +17,10 @@ type Row = {
   acwr: Acwr;
   flags: Flag[];
   estimated: boolean;
+  /* Werte fuer die Tabelle */
+  readiness: number | null;
+  painMax: number | null;
+  attendanceRate: number | null;
 };
 
 const DAY = 86_400_000;
@@ -78,42 +82,29 @@ async function loadRows(today: string, teamId: string | null): Promise<Row[]> {
     const ownAttendance = attendance.filter(
       (item) => item.swimmer_id === swimmer.id && (sessionById.get(item.training_session_id)?.session_date ?? "") >= since28
     );
-    const flags = buildFlags({
-      acwr: load,
-      painReports: pain.filter((item) => item.athlete_id === swimmer.profile_id),
-      wellness: (() => {
-        const own = wellness.filter((item) => item.athlete_id === swimmer.profile_id).sort((a, b) => b.entry_date.localeCompare(a.entry_date));
-        /* eigener Durchschnitt der Vortage als Vergleich */
-        const earlier = own.slice(1);
-        const baseline = earlier.length >= 3 ? earlier.reduce((sum, item) => sum + wellnessScore(item), 0) / earlier.length : null;
-        return own.map((item, index) => ({ entry_date: item.entry_date, score: readinessScore(item, index === 0 ? baseline : null).score }));
-      })(),
-      attendanceRate: ownAttendance.length >= 3 ? attendanceStats(ownAttendance).rate : null,
-      today,
-    });
+    const ownPain = pain.filter((item) => item.athlete_id === swimmer.profile_id);
+    const readinessList = (() => {
+      const own = wellness.filter((item) => item.athlete_id === swimmer.profile_id).sort((a, b) => b.entry_date.localeCompare(a.entry_date));
+      /* eigener Durchschnitt der Vortage als Vergleich */
+      const earlier = own.slice(1);
+      const baseline = earlier.length >= 3 ? earlier.reduce((sum, item) => sum + wellnessScore(item), 0) / earlier.length : null;
+      return own.map((item, index) => ({ entry_date: item.entry_date, score: readinessScore(item, index === 0 ? baseline : null).score }));
+    })();
+    const attendanceRate = ownAttendance.length >= 3 ? attendanceStats(ownAttendance).rate : null;
+    const flags = buildFlags({ acwr: load, painReports: ownPain, wellness: readinessList, attendanceRate, today });
+    const latestReadiness = readinessList.find((item) => (Date.parse(today) - Date.parse(item.entry_date)) / DAY <= 2);
     return {
       id: swimmer.id,
       name: `${swimmer.first_name} ${swimmer.last_name ?? ""}`.trim(),
       acwr: load,
       flags,
       estimated: loads.some((entry) => entry.estimated),
+      readiness: latestReadiness?.score ?? null,
+      painMax: ownPain.length ? Math.max(...ownPain.map((item) => item.pain_level)) : null,
+      attendanceRate,
     };
   });
 }
-
-const CHECKS: { kind: Flag["kind"]; label: string; icon: string }[] = [
-  { kind: "acwr", label: "Belastung", icon: "📈" },
-  { kind: "schmerz", label: "Schmerzen", icon: "🩹" },
-  { kind: "befinden", label: "Readiness", icon: "🔋" },
-  { kind: "anwesenheit", label: "Anwesenheit", icon: "🗓" },
-];
-
-const TONE: Record<string, string> = {
-  good: "text-app-good",
-  warn: "text-app-warn",
-  bad: "text-app-bad",
-  muted: "text-app-faint",
-};
 
 export default function RedFlagsPanel({ teamId = null }: { teamId?: string | null }) {
   const [rows, setRows] = useState<Row[] | null>(null);
@@ -125,93 +116,79 @@ export default function RedFlagsPanel({ teamId = null }: { teamId?: string | nul
   }, [today, teamId]);
 
   if (rows === null) return null;
-  const flagged = rows
-    .filter((row) => row.flags.length)
-    .sort((a, b) => b.flags.filter((f) => f.level === "rot").length - a.flags.filter((f) => f.level === "rot").length);
+
+  const sorted = [...rows].sort(
+    (x, y) =>
+      y.flags.filter((flag) => flag.level === "rot").length - x.flags.filter((flag) => flag.level === "rot").length ||
+      y.flags.length - x.flags.length ||
+      x.name.localeCompare(y.name, "de")
+  );
+  const shown = showAll ? sorted : sorted.slice(0, 5);
+
+  const cell = (row: Row, kind: Flag["kind"]) => {
+    const flag = row.flags.find((item) => item.kind === kind);
+    const tone = flag ? (flag.level === "rot" ? "text-app-bad font-semibold" : "text-app-warn font-semibold") : "text-app-muted";
+    const value =
+      kind === "acwr"
+        ? row.acwr.ratio === null ? "–" : row.acwr.ratio.toFixed(2).replace(".", ",")
+        : kind === "schmerz"
+          ? row.painMax === null ? "–" : `${row.painMax}/10`
+          : kind === "befinden"
+            ? row.readiness === null ? "–" : String(row.readiness)
+            : row.attendanceRate === null ? "–" : `${row.attendanceRate} %`;
+    return (
+      <td key={kind} className={`px-3 py-3 ${tone}`} title={flag?.text}>
+        {value}
+      </td>
+    );
+  };
+
+  const flaggedCount = rows.filter((row) => row.flags.length).length;
 
   return (
     <section className="h-full overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="flex items-center justify-between gap-2 px-5 pt-5">
-        <p className="text-sm text-app-muted">Athleten-Check</p>
-        <button type="button" onClick={() => setShowAll(!showAll)} className="text-xs font-semibold text-app-accent">
-          {showAll ? "weniger" : "ACWR-Tabelle"}
-        </button>
+        <p className="text-sm text-app-muted">
+          Athleten-Check <span className={flaggedCount ? "text-app-bad" : "text-app-good"}>· {flaggedCount ? `${flaggedCount} auffällig` : "alle im grünen Bereich"}</span>
+        </p>
+        {rows.length > 5 && (
+          <button type="button" onClick={() => setShowAll(!showAll)} className="text-xs font-semibold text-app-accent">
+            {showAll ? "weniger" : `alle ${rows.length}`}
+          </button>
+        )}
       </div>
-
-      {/* Vier Bereiche auf einen Blick: Anzahl auffaelliger Athleten je Bereich */}
-      <div className="grid grid-cols-4 gap-2 px-5 pt-3">
-        {CHECKS.map((check) => {
-          const affected = rows.filter((row) => row.flags.some((flag) => flag.kind === check.kind));
-          const red = affected.some((row) => row.flags.some((flag) => flag.kind === check.kind && flag.level === "rot"));
-          return (
-            <div
-              key={check.kind}
-              className={`rounded-2xl px-2 py-3 text-center ${
-                affected.length === 0 ? "bg-app-good/10" : red ? "bg-app-bad/10" : "bg-app-warn/15"
-              }`}
-            >
-              <span className="block text-xl">{check.icon}</span>
-              <span className={`block text-lg font-bold ${affected.length === 0 ? "text-app-good" : red ? "text-app-bad" : "text-app-warn"}`}>
-                {affected.length === 0 ? "✓" : affected.length}
-              </span>
-              <span className="block text-[11px] text-app-muted">{check.label}</span>
-            </div>
-          );
-        })}
-      </div>
-
-      {flagged.length === 0 ? (
-        <p className="px-5 pb-5 pt-3 text-sm text-app-muted">Alle {rows.length} Athleten im grünen Bereich.</p>
-      ) : (
-        <ul className="space-y-1.5 px-3 pb-3 pt-3">
-          {flagged.map((row) => (
-            <li key={row.id}>
-              <Link href={`/coach/schwimmer/${row.id}`} className="flex items-center gap-3 rounded-2xl bg-app-bg px-3 py-2 transition hover:ring-1 hover:ring-app-accent">
-                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${row.flags.some((flag) => flag.level === "rot") ? "bg-app-bad" : "bg-app-warn"}`} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold text-app-heading">{row.name}</span>
-                  <span className="block truncate text-xs text-app-muted">{row.flags.map((flag) => flag.text).join(" · ")}</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {showAll && (
-        <div className="overflow-x-auto border-t border-app-border">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs text-app-muted">
-                <th className="px-4 py-2 font-medium">Athlet</th>
-                <th className="px-3 py-2 text-right font-medium">akut (7 T.)</th>
-                <th className="px-3 py-2 text-right font-medium">chronisch (Ø Woche)</th>
-                <th className="px-3 py-2 text-right font-medium">ACWR</th>
-                <th className="px-4 py-2 font-medium">Bereich</th>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-app-border text-left text-xs text-app-muted">
+              <th className="px-5 py-2.5 font-medium">Athlet</th>
+              <th className="px-3 py-2.5 font-medium" title="ACWR: Belastung 7 zu 28 Tage">Belastung</th>
+              <th className="px-3 py-2.5 font-medium">Schmerz</th>
+              <th className="px-3 py-2.5 font-medium">Readiness</th>
+              <th className="px-3 py-2.5 font-medium">Anwesenheit</th>
+              <th className="px-5 py-2.5" />
+            </tr>
+          </thead>
+          <tbody>
+            {shown.map((row) => (
+              <tr key={row.id} className="border-b border-app-border last:border-b-0">
+                <td className="whitespace-nowrap px-5 py-3 font-semibold text-app-heading">
+                  {row.flags.length > 0 && (
+                    <span className={`mr-2 inline-block h-2 w-2 rounded-full ${row.flags.some((flag) => flag.level === "rot") ? "bg-app-bad" : "bg-app-warn"}`} />
+                  )}
+                  {row.name}
+                </td>
+                {(["acwr", "schmerz", "befinden", "anwesenheit"] as Flag["kind"][]).map((kind) => cell(row, kind))}
+                <td className="px-5 py-3 text-right">
+                  <Link href={`/coach/schwimmer/${row.id}`} className="text-sm font-semibold text-app-accent">
+                    Öffnen
+                  </Link>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {[...rows]
-                .sort((a, b) => (b.acwr.ratio ?? -1) - (a.acwr.ratio ?? -1))
-                .map((row) => (
-                  <tr key={row.id} className="border-t border-app-border">
-                    <td className="px-4 py-1.5">
-                      {row.name}
-                      {row.estimated && <span className="ml-1 text-xs text-app-faint" title="teilweise aus geplanter Belastung (kein Feedback)">*</span>}
-                    </td>
-                    <td className="px-3 py-1.5 text-right">{Math.round(row.acwr.acute)}</td>
-                    <td className="px-3 py-1.5 text-right">{Math.round(row.acwr.chronicWeekly)}</td>
-                    <td className="px-3 py-1.5 text-right font-semibold">{row.acwr.ratio === null ? "–" : row.acwr.ratio.toFixed(2).replace(".", ",")}</td>
-                    <td className={`px-4 py-1.5 text-xs font-semibold ${TONE[ACWR_ZONES[row.acwr.zone].tone]}`}>{ACWR_ZONES[row.acwr.zone].label}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-          <p className="px-4 py-2 text-xs text-app-faint">
-            Belastung = RPE × Minuten aus dem Athleten-Feedback; * = teilweise aus der geplanten Belastung (anwesend, aber kein Feedback). ACWR erst ab 3 Wochen Daten. Optimal 0,8–1,3 · erhöht bis 1,5 · darüber Gefahrenzone.
-          </p>
-        </div>
-      )}
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
