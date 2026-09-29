@@ -1194,6 +1194,18 @@ export default function AthletePage() {
           </p>
         </header>
 
+        {/* Wettkampf-Tag: Starts, Routine, Essen & Trinken */}
+        <Link
+          href="/athlete/wettkampftag"
+          className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-app-accent/40 bg-app-accent/8 px-4 py-3 transition hover:border-app-accent"
+        >
+          <span>
+            <span className="block font-semibold text-app-heading">🏁 Mein Wettkampf-Tag</span>
+            <span className="text-sm text-app-muted">Starts, Routine, Essen & Trinken</span>
+          </span>
+          <span className="text-app-accent">→</span>
+        </Link>
+
         {/* Termine und Neuigkeiten vom Trainer */}
         <div className="mt-4 grid gap-3 md:grid-cols-2">
           <UpcomingEntries href="/athlete/termine" limit={3} />
