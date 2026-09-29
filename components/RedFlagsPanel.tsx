@@ -22,17 +22,22 @@ type Row = {
 const DAY = 86_400_000;
 const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
-async function loadRows(today: string): Promise<Row[]> {
+async function loadRows(today: string, teamId: string | null): Promise<Row[]> {
   const since35 = isoDay(Date.parse(today) - 35 * DAY);
   const since28 = isoDay(Date.parse(today) - 28 * DAY);
   const since3 = new Date(Date.parse(today) - 3 * DAY).toISOString();
   const since21 = isoDay(Date.parse(today) - 21 * DAY);
 
+  /* Optional nur eine Mannschaft: ihre Athleten und ihre Einheiten */
+  const memberIds = teamId
+    ? new Set((((await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId)).data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id))
+    : null;
+  const sessionQuery = supabase.from("training_sessions").select("*").gte("session_date", since35).lte("session_date", today);
   const [swimmerRes, sessionRes] = await Promise.all([
     supabase.from("swimmers").select("*"),
-    supabase.from("training_sessions").select("*").gte("session_date", since35).lte("session_date", today),
+    teamId ? sessionQuery.eq("team_id", teamId) : sessionQuery,
   ]);
-  const swimmers = (swimmerRes.data ?? []) as { id: string; first_name: string; last_name: string | null; profile_id?: string | null }[];
+  const swimmers = ((swimmerRes.data ?? []) as { id: string }[]).filter((swimmer) => !memberIds || memberIds.has(swimmer.id)) as { id: string; first_name: string; last_name: string | null; profile_id?: string | null }[];
   const sessions = (sessionRes.data ?? []) as { id: string; session_date: string; duration_minutes: number | null; planned_rpe?: number | null }[];
   const sessionIds = sessions.map((session) => session.id);
   const profileIds = swimmers.map((swimmer) => swimmer.profile_id).filter(Boolean) as string[];
@@ -103,14 +108,14 @@ const TONE: Record<string, string> = {
   muted: "text-app-faint",
 };
 
-export default function RedFlagsPanel() {
+export default function RedFlagsPanel({ teamId = null }: { teamId?: string | null }) {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [today] = useState(() => isoDay(Date.now()));
 
   useEffect(() => {
-    loadRows(today).then(setRows);
-  }, [today]);
+    loadRows(today, teamId).then(setRows);
+  }, [today, teamId]);
 
   if (rows === null) return null;
   const flagged = rows

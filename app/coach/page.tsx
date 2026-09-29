@@ -50,19 +50,51 @@ export default function CoachPage() {
   const [attendance, setAttendance] = useState<{ status: AttendanceStatus }[]>([]);
   const [athleteCount, setAthleteCount] = useState<number | null>(null);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
+  /* Das Dashboard zeigt eine Mannschaft - die Wahl bleibt im Browser gespeichert */
+  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
+  const [teamId, setTeamId] = useState<string | null>(null);
 
   useEffect(() => {
+    supabase
+      .from("teams")
+      .select("id, name")
+      .order("name")
+      .then(({ data }) => {
+        const list = (data ?? []) as { id: string; name: string }[];
+        setTeams(list);
+        let saved: string | null = null;
+        try {
+          saved = localStorage.getItem("dashboard-team");
+        } catch {
+          /* ohne Browser-Speicher */
+        }
+        setTeamId(list.find((team) => team.id === saved)?.id ?? list[0]?.id ?? null);
+      });
+  }, []);
+
+  function chooseTeam(id: string) {
+    setTeamId(id);
+    try {
+      localStorage.setItem("dashboard-team", id);
+    } catch {
+      /* ignorieren */
+    }
+  }
+
+  useEffect(() => {
+    if (!teamId) return;
     async function load() {
       const since = iso(Date.parse(today) - 8 * 7 * DAY);
       const until = iso(Date.parse(today) + 7 * DAY);
       const [swimmerRes, sessionRes] = await Promise.all([
-        supabase.from("swimmers").select("id", { count: "exact", head: true }),
+        supabase.from("team_swimmers").select("id", { count: "exact", head: true }).eq("team_id", teamId!),
         fetchAll(() =>
           supabase
             .from("training_sessions")
             .select("id, title, session_date, start_time, total_meters, duration_minutes, team_id")
             .gte("session_date", since)
             .lte("session_date", until)
+            .eq("team_id", teamId!)
             .order("session_date")
         ),
       ]);
@@ -74,11 +106,13 @@ export default function CoachPage() {
       if (recentIds.length) {
         const { data } = await supabase.from("training_attendance").select("status").in("training_session_id", recentIds);
         setAttendance((data ?? []) as { status: AttendanceStatus }[]);
+      } else {
+        setAttendance([]);
       }
-      setUpcoming(await loadUpcomingCompetitions());
+      setUpcoming((await loadUpcomingCompetitions()).filter((entry) => !entry.team_id || entry.team_id === teamId));
     }
     load();
-  }, [today]);
+  }, [today, teamId]);
 
   const weeks = useMemo(() => weeklyVolume(sessions.filter((s) => s.session_date <= today), today, 8), [sessions, today]);
   const thisWeek = weeks[weeks.length - 1];
@@ -107,7 +141,20 @@ export default function CoachPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm text-app-muted">{todayLabel}</p>
-          <h1 className="text-3xl font-bold text-app-heading">Dashboard</h1>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-bold text-app-heading">Dashboard</h1>
+            {teams.length > 1 ? (
+              <select value={teamId ?? ""} onChange={(e) => chooseTeam(e.target.value)} className="rounded-full border border-app-border bg-app-surface px-3 py-1.5 text-sm font-semibold">
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              teams[0] && <span className="rounded-full bg-app-elevated px-3 py-1 text-sm font-semibold">{teams[0].name}</span>
+            )}
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {QUICK.map((item) => (
@@ -251,7 +298,7 @@ export default function CoachPage() {
 
         {/* Rote Flaggen */}
         <div className="lg:col-span-7 [&>section]:mt-0 [&>section]:rounded-3xl [&>section]:shadow-app">
-          <RedFlagsPanel />
+          {teamId && <RedFlagsPanel teamId={teamId} />}
         </div>
 
         {/* Heute & naechste Einheiten */}
@@ -282,7 +329,12 @@ export default function CoachPage() {
                       {session.duration_minutes ? ` · ${session.duration_minutes} min` : ""}
                     </span>
                   </span>
-                  {session.total_meters ? <span className="shrink-0 text-sm font-semibold tabular-nums">{session.total_meters.toLocaleString("de-DE")} m</span> : null}
+                  <span className="flex shrink-0 items-center gap-2">
+                    {session.total_meters ? <span className="text-sm font-semibold tabular-nums">{session.total_meters.toLocaleString("de-DE")} m</span> : null}
+                    {session.session_date <= today && (
+                      <span className="rounded-full bg-app-accent px-2.5 py-1 text-xs font-semibold text-app-accent-ink">Anwesenheit</span>
+                    )}
+                  </span>
                 </Link>
               </li>
             ))}
