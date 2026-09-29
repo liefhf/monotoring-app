@@ -1194,6 +1194,18 @@ export default function AthletePage() {
           </p>
         </header>
 
+        {/* Mein Fortschritt: Bestzeiten, Pflichtzeit, Zonen */}
+        <Link
+          href="/athlete/fortschritt"
+          className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-app-border bg-app-surface px-4 py-3 transition hover:border-app-accent"
+        >
+          <span>
+            <span className="block font-semibold text-app-heading">📈 Mein Fortschritt</span>
+            <span className="text-sm text-app-muted">Bestzeiten, Pflichtzeiten, meine Tempo-Zonen</span>
+          </span>
+          <span className="text-app-accent">→</span>
+        </Link>
+
         {/* Wettkampf-Tag: Starts, Routine, Essen & Trinken */}
         <Link
           href="/athlete/wettkampftag"

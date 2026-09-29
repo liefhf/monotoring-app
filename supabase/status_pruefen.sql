@@ -28,7 +28,8 @@ with checks(nr, skript, ok) as (
     (18, 'wettkampf_fehler.sql',            exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'competition_starts' and column_name = 'faults')),
     (19, 'laktattests.sql',                 to_regclass('public.lactate_tests') is not null),
     (20, 'wettkampftag.sql',                to_regclass('public.athlete_routines') is not null),
-    (21, 'testbatterie.sql',                to_regclass('public.fitness_tests') is not null)
+    (21, 'testbatterie.sql',                to_regclass('public.fitness_tests') is not null),
+    (22, 'mein_fortschritt.sql',            to_regprocedure('public.my_results()') is not null)
 )
 select nr, skript, case when ok then '✓ eingespielt' else '✗ fehlt' end as status
 from checks
