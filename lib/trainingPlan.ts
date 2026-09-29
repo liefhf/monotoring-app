@@ -164,42 +164,43 @@ export function trainingPlanHtml(plan: TrainingPlan) {
 
   return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${esc(plan.title)} – ${esc(plan.session_date)}</title>
 <style>
-/* margin 0 blendet die Kopf-/Fusszeile des Browsers (Datum, URL) aus */
+/* margin 0 blendet die Kopf-/Fusszeile des Browsers (Datum, URL) aus; Farben wie in der App */
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
-body { font: 10pt/1.35 "Segoe UI", Arial, Helvetica, sans-serif; color: #1b2330; margin: 0; padding: 12mm 13mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 6mm; border-bottom: 2px solid #1f5fa8; padding-bottom: 3mm; }
-h1 { font-size: 17pt; margin: 0; color: #12325c; }
-.focus { margin-top: 1mm; color: #334; }
-.facts { display: grid; grid-template-columns: auto auto; gap: 0.5mm 3mm; font-size: 8.5pt; white-space: nowrap; }
-.facts dt { color: #6b7686; } .facts dd { margin: 0; font-weight: 600; }
-section { break-inside: avoid; margin-top: 4mm; }
-.sec { display: flex; justify-content: space-between; background: #eaf1fb; color: #12325c; font-weight: 700; padding: 1.2mm 2.5mm; border-radius: 1.5mm; }
-.sec span:last-child { font-weight: 600; color: #1f5fa8; }
+body { font: 8.8pt/1.25 "Segoe UI", Arial, Helvetica, sans-serif; color: #2a2640; margin: 0; padding: 9mm 11mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 5mm; padding: 3.5mm 5mm; border-radius: 4mm; color: #fff; background: linear-gradient(135deg, #7c4dde, #c83fae); }
+h1 { font-size: 15pt; margin: 0; }
+.focus { margin-top: 0.5mm; opacity: 0.9; }
+.facts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1.2mm; margin: 0; max-width: 95mm; }
+.facts div { background: rgba(255,255,255,0.18); border-radius: 10mm; padding: 0.6mm 2.4mm; font-size: 7.8pt; white-space: nowrap; }
+.facts dt { display: inline; opacity: 0.8; } .facts dd { display: inline; margin: 0 0 0 1mm; font-weight: 700; }
+section { break-inside: avoid; margin-top: 2.5mm; }
+.sec { display: flex; justify-content: space-between; background: #f4f2fb; color: #7c4dde; font-weight: 700; padding: 0.9mm 2.5mm; border-radius: 10mm; }
+.sec span:last-child { color: #c83fae; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-td { padding: 1.4mm 2mm; border-bottom: 0.5px solid #d9dee6; vertical-align: top; }
-col.c-serie { width: 17mm; } col.c-lage { width: 23mm; } col.c-zone { width: 24mm; } col.c-int { width: 14mm; } col.c-note { width: 38mm; }
-td.serie { font-weight: 700; font-size: 10.5pt; white-space: nowrap; } .x { font-weight: 400; color: #6b7686; margin: 0 0.3mm; }
-td.lage { color: #445; }
+td { padding: 0.8mm 1.6mm; border-bottom: 0.5px solid #e6e2f3; vertical-align: top; }
+col.c-serie { width: 15mm; } col.c-lage { width: 23mm; } col.c-zone { width: 20mm; } col.c-int { width: 13mm; } col.c-note { width: 32mm; }
+td.serie { font-weight: 700; font-size: 9.5pt; white-space: nowrap; color: #2a2640; } .x { font-weight: 400; color: #8a84a3; margin: 0 0.3mm; }
+td.lage { color: #6b6585; }
 td.int { white-space: nowrap; font-weight: 600; }
-td.note { border-left: 0.5px dashed #b8c0cc; }
-.zone { display: inline-block; font-size: 8pt; padding: 0.2mm 1.5mm; border-radius: 1mm; background: #f1f3f6; white-space: nowrap; }
-.mat { font-size: 8pt; color: #6b7686; margin-top: 0.3mm; }
-tr.h td { font-size: 8pt; color: #6b7686; }
-.notes { margin-top: 5mm; break-inside: avoid; }
-.notes .lines { height: 38mm; border: 0.5px solid #d9dee6; border-radius: 1.5mm; background: repeating-linear-gradient(transparent 0 7.3mm, #e3e7ed 7.3mm 7.6mm); }
-.notes .pre { white-space: pre-wrap; margin-bottom: 2mm; padding: 2mm 2.5mm; background: #fff8e6; border-left: 2px solid #e0a800; border-radius: 1mm; }
-.att { margin-top: 5mm; break-inside: avoid; }
-.att b { display: block; margin-bottom: 1mm; color: #12325c; }
-.att-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2mm 4mm; font-size: 9pt; }
-.att-grid span { display: flex; align-items: center; gap: 1.5mm; }
-.att-grid i { width: 3.5mm; height: 3.5mm; border: 0.8px solid #555; border-radius: 0.6mm; flex: none; }
-.notes b { display: block; margin-bottom: 1mm; color: #12325c; }
-footer { margin-top: 3mm; font-size: 7.5pt; color: #8a93a1; display: flex; justify-content: space-between; }
+td.note { border-left: 0.5px dashed #cfc8e6; }
+.zone { display: inline-block; font-size: 7.3pt; padding: 0.1mm 1.6mm; border-radius: 10mm; background: #f3e6f7; color: #a0338b; white-space: nowrap; }
+.mat { font-size: 7.3pt; color: #8a84a3; }
+tr.h td { font-size: 7.5pt; color: #8a84a3; }
+.bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 4mm; margin-top: 3mm; break-inside: avoid; }
+.notes .lines { height: 22mm; border: 0.5px solid #e6e2f3; border-radius: 2.5mm; background: repeating-linear-gradient(transparent 0 5.3mm, #ece8f6 5.3mm 5.6mm); }
+.notes .pre { white-space: pre-wrap; margin-bottom: 1.5mm; padding: 1.5mm 2.5mm; background: #f4f2fb; border-left: 2px solid #c83fae; border-radius: 1mm; }
+.att { margin-top: 3mm; break-inside: avoid; }
+.bottom .att { margin-top: 0; }
+.att b, .notes b { display: block; margin-bottom: 1mm; color: #7c4dde; }
+.att-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8mm 3mm; font-size: 8pt; }
+.att-grid span { display: flex; align-items: center; gap: 1.4mm; }
+.att-grid i { width: 3mm; height: 3mm; border: 0.8px solid #7c4dde; border-radius: 50%; flex: none; }
+footer { margin-top: 2mm; font-size: 7pt; color: #a09bb8; display: flex; justify-content: space-between; }
 </style></head><body>
 <header>
   <div><h1>${esc(plan.title)}</h1>${plan.focus ? `<div class="focus"><b>Fokus:</b> ${esc(plan.focus)}</div>` : ""}</div>
-  <dl class="facts">${facts.map(([label, value]) => `<dt>${label}</dt><dd>${esc(value)}</dd>`).join("")}</dl>
+  <dl class="facts">${facts.map(([label, value]) => `<div><dt>${label}</dt><dd>${esc(value)}</dd></div>`).join("")}</dl>
 </header>
 ${landTable("Warm Up an Land", plan.warmUpRows)}
 ${plan.training_type === "water" ? water : ""}
@@ -209,9 +210,15 @@ ${(() => {
   if (!plan.paces?.length || !used.length) return "";
   return `<div class="att"><b>Tempo je Zone (/100 m Kraul, aus dem letzten Laktattest)</b><table><tr class="h"><td>Athlet</td>${used.map((z) => `<td>${esc(z)}</td>`).join("")}</tr>${plan.paces.map((p) => `<tr><td>${esc(p.name)}</td>${used.map((z) => `<td>${esc(p.zones[z] ?? "–")}</td>`).join("")}</tr>`).join("")}</table></div>`;
 })()}
-${plan.athletes?.length ? `<div class="att"><b>Anwesenheit</b><div class="att-grid">${plan.athletes.map((name) => `<span><i></i>${esc(name)}</span>`).join("")}</div></div>` : ""}
-<div class="notes"><b>Notizen</b>${plan.notes ? `<div class="pre">${esc(plan.notes)}</div>` : ""}<div class="lines"></div></div>
+<div class="bottom">${plan.athletes?.length ? `<div class="att"><b>Anwesenheit</b><div class="att-grid">${plan.athletes.map((name) => `<span><i></i>${esc(name)}</span>`).join("")}</div></div>` : ""}
+<div class="notes"><b>Notizen</b>${plan.notes ? `<div class="pre">${esc(plan.notes)}</div>` : ""}<div class="lines"></div></div></div>
 <footer><span>Monitoring App · Trainingsplan</span><span>${esc(formatDay(plan.session_date))}</span></footer>
+<script>
+(function () {
+  var page = 297 * 96 / 25.4, h = document.documentElement.scrollHeight;
+  if (h > page) document.body.style.zoom = String(Math.max(0.6, (page - 4) / h));
+})();
+</script>
 </body></html>`;
 }
 
