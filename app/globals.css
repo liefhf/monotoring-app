@@ -20,26 +20,27 @@
   color-scheme: light;
 
   /* Flaechen */
-  --app-bg: #f3f6fa;        /* Seitengrund                      */
+  --app-bg: #f4f2fb;        /* Seitengrund                      */
   --app-surface: #ffffff;   /* Karten, Leisten, Tabellen        */
-  --app-elevated: #eaf0f7;  /* Hover, hervorgehobene Zeilen     */
-  --app-border: #d7e0eb;    /* Kanten                           */
+  --app-elevated: #eeebf8;  /* Hover, hervorgehobene Zeilen     */
+  --app-border: #e0dcef;    /* Kanten                           */
 
   /* Schrift */
-  --app-heading: #0b1b33;   /* Ueberschriften und Werte         */
-  --app-text: #26364f;      /* Fliesstext                       */
-  --app-muted: #5b6b82;     /* Nebensaechliches                 */
-  --app-faint: #8494aa;     /* Beschriftungen, Platzhalter      */
+  --app-heading: #1e1a3a;   /* Ueberschriften und Werte         */
+  --app-text: #3b3659;      /* Fliesstext                       */
+  --app-muted: #6f6a90;     /* Nebensaechliches                 */
+  --app-faint: #9b97b6;     /* Beschriftungen, Platzhalter      */
 
   /* Akzent - Beckenblau. Fuer die wichtigste Aktion,
      Links und den aktiven Menuepunkt. Nie fuer Zustaende. */
-  --app-accent: #0b76c5;
+  --app-accent: #c83fae;
   --app-accent-ink: #ffffff; /* Schrift auf Akzentflaechen      */
+  --app-accent-2: #7c4dde; /* zweiter Akzent fuer Verlaeufe */
 
   /* Signalfarben - stehen fuer einen Zustand, nie fuer Deko. */
-  --app-good: #0d9467;
+  --app-good: #0f9d6a;
   --app-warn: #b7700a;
-  --app-bad: #d23f47;
+  --app-bad: #d9364a;
 
   /* Landtraining. Frueher gruen - das kollidierte mit
      "Befinden gut". */
@@ -47,15 +48,15 @@
 
   /* Kalender-Kategorien */
   --cat-training: #0e8f9c;
-  --cat-competition: #e0562a;
-  --cat-camp: #7a55d4;
+  --cat-competition: #c83fae;
+  --cat-camp: #7c4dde;
   --cat-meeting: #b7700a;
 
   /* Diagramme: 25m- und 50m-Bahn */
-  --chart-25: #0b76c5;
-  --chart-50: #e0562a;
+  --chart-25: #c83fae;
+  --chart-50: #7c4dde;
 
-  --app-shadow: 0 1px 2px rgb(15 35 70 / 0.06), 0 4px 16px rgb(15 35 70 / 0.06);
+  --app-shadow: 0 1px 2px rgb(40 20 90 / 0.06), 0 8px 24px rgb(40 20 90 / 0.08);
 }
 
 /* ---------- Dunkel ----------
@@ -64,66 +65,68 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --app-bg: #06101d;
-  --app-surface: #0c1a2c;
-  --app-elevated: #14263d;
-  --app-border: #213752;
+  --app-bg: #1b1a2e;
+  --app-surface: #25243d;
+  --app-elevated: #302e4c;
+  --app-border: #3a3858;
 
-  --app-heading: #f2f6fb;
-  --app-text: #d2ddea;
-  --app-muted: #8ea2bc;
-  --app-faint: #5f7392;
+  --app-heading: #f6f4ff;
+  --app-text: #dcd8f0;
+  --app-muted: #a19cc4;
+  --app-faint: #716c96;
 
-  --app-accent: #3cb4f0;
-  --app-accent-ink: #03192a;
+  --app-accent: #e25bc6;
+  --app-accent-ink: #ffffff;
+  --app-accent-2: #8b5cf6;
 
-  --app-good: #34d399;
+  --app-good: #3ddc97;
   --app-warn: #fbbf24;
-  --app-bad: #f87171;
+  --app-bad: #ff6b6b;
   --app-sand: #e0b263;
 
   --cat-training: #2dd4bf;
-  --cat-competition: #fb8a5c;
+  --cat-competition: #e25bc6;
   --cat-camp: #a78bfa;
   --cat-meeting: #fbbf24;
 
-  --chart-25: #3cb4f0;
-  --chart-50: #fb8a5c;
+  --chart-25: #e25bc6;
+  --chart-50: #9b6bff;
 
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px rgb(10 5 30 / 0.35);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --app-bg: #06101d;
-    --app-surface: #0c1a2c;
-    --app-elevated: #14263d;
-    --app-border: #213752;
+    --app-bg: #1b1a2e;
+    --app-surface: #25243d;
+    --app-elevated: #302e4c;
+    --app-border: #3a3858;
 
-    --app-heading: #f2f6fb;
-    --app-text: #d2ddea;
-    --app-muted: #8ea2bc;
-    --app-faint: #5f7392;
+    --app-heading: #f6f4ff;
+    --app-text: #dcd8f0;
+    --app-muted: #a19cc4;
+    --app-faint: #716c96;
 
-    --app-accent: #3cb4f0;
-    --app-accent-ink: #03192a;
+    --app-accent: #e25bc6;
+    --app-accent-ink: #ffffff;
+  --app-accent-2: #8b5cf6;
 
-    --app-good: #34d399;
+    --app-good: #3ddc97;
     --app-warn: #fbbf24;
-    --app-bad: #f87171;
+    --app-bad: #ff6b6b;
     --app-sand: #e0b263;
 
     --cat-training: #2dd4bf;
-    --cat-competition: #fb8a5c;
+    --cat-competition: #e25bc6;
     --cat-camp: #a78bfa;
     --cat-meeting: #fbbf24;
 
-    --chart-25: #3cb4f0;
-    --chart-50: #fb8a5c;
+    --chart-25: #e25bc6;
+    --chart-50: #9b6bff;
 
-    --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.25);
+    --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px rgb(10 5 30 / 0.35);
   }
 }
 

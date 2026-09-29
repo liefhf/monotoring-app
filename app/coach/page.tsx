@@ -190,7 +190,8 @@ export default function CoachPage() {
 
       <div className="grid gap-5 lg:grid-cols-12">
         {/* Hauptkarte: Countdown */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0b3a6e] via-[#0b5aa0] to-[#1a8fd6] p-6 text-white shadow-app lg:col-span-4">
+        <section className="relative overflow-hidden rounded-3xl p-6 text-white shadow-app lg:col-span-4"
+          style={{ background: "linear-gradient(135deg, var(--app-accent-2), var(--app-accent))" }}>
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10" />
           <div className="absolute -bottom-16 right-10 h-40 w-40 rounded-full bg-white/5" />
           <p className="text-sm font-medium text-white/75">Nächster Höhepunkt</p>
@@ -209,7 +210,7 @@ export default function CoachPage() {
                 )}
               </div>
               <div className="relative mt-5 flex gap-2">
-                <Link href="/coach/meldehilfe" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0b3a6e]">
+                <Link href="/coach/meldehilfe" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[color:var(--app-accent-2)]">
                   Meldehilfe
                 </Link>
                 <Link href="/coach/dms" className="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold">
