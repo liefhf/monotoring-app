@@ -149,7 +149,7 @@ export default function BackupPanel() {
   const overdue = daysSince === null || daysSince >= REMIND_AFTER_DAYS;
 
   return (
-    <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
+    <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
       <h2 className="text-lg font-semibold">Datensicherung</h2>
 
       <p className="mt-2 max-w-3xl text-sm leading-6 text-app-muted">

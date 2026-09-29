@@ -250,14 +250,14 @@ export default function TeamSchwimmerabfragePage() {
         )}
 
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+          <div className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
             Athleten werden geladen...
           </div>
         ) : (
           <div className="mt-8 grid gap-6 lg:grid-cols-2">
             {/* WEIBLICH */}
 
-            <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <section className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border px-5 py-4">
                 <h2 className="font-semibold">
                   weiblich ({femaleAthletes.length})
@@ -269,7 +269,7 @@ export default function TeamSchwimmerabfragePage() {
 
             {/* MÄNNLICH */}
 
-            <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <section className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border px-5 py-4">
                 <h2 className="font-semibold">
                   männlich ({maleAthletes.length})
@@ -282,7 +282,7 @@ export default function TeamSchwimmerabfragePage() {
             {/* SONSTIGE / NOCH NICHT HINTERLEGT */}
 
             {otherAthletes.length > 0 && (
-              <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface lg:col-span-2">
+              <section className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app lg:col-span-2">
                 <div className="border-b border-app-border px-5 py-4">
                   <h2 className="font-semibold">
                     Geschlecht noch nicht zugeordnet ({otherAthletes.length})

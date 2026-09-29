@@ -312,7 +312,7 @@ export default function PflichtzeitenDetailPage() {
   if (loading && !standard) {
     return (
       <main className="mx-auto max-w-6xl">
-        <div className="rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Wird geladen...
         </div>
       </main>
@@ -369,7 +369,7 @@ export default function PflichtzeitenDetailPage() {
 
         {tab === "zeiten" && (
           <>
-            <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border px-6 py-4">
                 <h2 className="text-lg font-semibold">Pflichtzeit hinzufügen</h2>
                 <p className="mt-1 text-sm text-app-muted">
@@ -467,7 +467,7 @@ export default function PflichtzeitenDetailPage() {
               </form>
             </section>
 
-            <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
               {sortedTimes.length === 0 ? (
                 <div className="p-6 text-sm text-app-faint">Noch keine Pflichtzeiten eingetragen.</div>
               ) : (
@@ -523,7 +523,7 @@ export default function PflichtzeitenDetailPage() {
 
         {tab === "auswertung" && (
           <>
-            <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border px-6 py-4">
                 <h2 className="text-lg font-semibold">Aktueller Stand</h2>
                 <p className="mt-1 text-sm text-app-muted">
@@ -585,7 +585,7 @@ export default function PflichtzeitenDetailPage() {
             {swimmersWithTimes.map(({ swimmer, rows, fulfilled }) => (
               <section
                 key={swimmer.id}
-                className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface"
+                className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-app-border px-6 py-4">
                   <h3 className="font-semibold">

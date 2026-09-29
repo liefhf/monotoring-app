@@ -495,7 +495,7 @@ export default function CoachTrainingSessionPage() {
     return (
       <main>
         <div className="mx-auto max-w-[1200px]">
-          <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-sm text-app-muted">
+          <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
             Training wird geladen...
           </div>
         </div>
@@ -628,7 +628,7 @@ export default function CoachTrainingSessionPage() {
           </div>
 
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
-            <div className="rounded-2xl border border-app-border bg-app-surface p-4">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-app-faint">
@@ -708,7 +708,7 @@ export default function CoachTrainingSessionPage() {
               </span>
             </div>
 
-            <div className="rounded-2xl border border-app-border bg-app-surface p-4">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
               <div>
                 <p className="text-xs uppercase tracking-wide text-app-faint">
                   Innere Beanspruchung
@@ -793,7 +793,7 @@ export default function CoachTrainingSessionPage() {
           />
         )}
 
-        <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+        <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
           <div className="flex flex-col gap-1 border-b border-app-border px-4 py-3 sm:px-5">
             <h2 className="font-semibold">
               Athleten-Rückmeldungen

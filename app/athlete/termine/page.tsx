@@ -121,7 +121,7 @@ export default function AthleteTerminePage() {
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
 
       {loading ? (
-        <div className="rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Termine werden geladen...
         </div>
       ) : (

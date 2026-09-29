@@ -1599,7 +1599,7 @@ export default function SeasonPlanningPage() {
       {/* TERMIN FORMULAR */}
 
       {showEventForm && (
-        <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
           <div className="flex items-start justify-between border-b border-app-border p-5">
             <div>
               <p className="text-sm text-app-muted">
@@ -1850,7 +1850,7 @@ export default function SeasonPlanningPage() {
       {/* AUFGABEN FORMULAR */}
 
       {showTaskForm && (
-        <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
           <div className="flex items-start justify-between border-b border-app-border p-5">
             <div>
               <p className="text-sm text-app-muted">
@@ -2065,7 +2065,7 @@ export default function SeasonPlanningPage() {
       )}
 
       {loading ? (
-        <div className="mt-6 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+        <div className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Wird geladen...
         </div>
       ) : (
@@ -2075,7 +2075,7 @@ export default function SeasonPlanningPage() {
           <section className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_0.7fr]">
             {/* MONAT */}
 
-            <div className="rounded-2xl border border-app-border bg-app-surface">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="flex flex-col gap-4 border-b border-app-border p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-app-muted">
@@ -2335,7 +2335,7 @@ export default function SeasonPlanningPage() {
 
             {/* FRISTEN & TO-DOS */}
 
-            <div className="rounded-2xl border border-app-border bg-app-surface">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -2546,7 +2546,7 @@ export default function SeasonPlanningPage() {
 
           {/* JAHRESZEITSTRAHL */}
 
-          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
             <div className="flex flex-col gap-4 border-b border-app-border p-5 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-sm text-app-muted">
@@ -2980,7 +2980,7 @@ export default function SeasonPlanningPage() {
 
           {/* NÄCHSTE TERMINE */}
 
-          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
             <div className="flex items-center justify-between border-b border-app-border p-5">
               <div>
                 <h2 className="text-xl font-semibold">

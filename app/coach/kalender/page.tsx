@@ -377,7 +377,7 @@ export default function CoachKalenderPage() {
       </div>
 
       {loading ? (
-        <div className="rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Kalender wird geladen...
         </div>
       ) : (

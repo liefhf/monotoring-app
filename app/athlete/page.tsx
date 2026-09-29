@@ -1197,7 +1197,7 @@ export default function AthletePage() {
         {/* Mein Fortschritt: Bestzeiten, Pflichtzeit, Zonen */}
         <Link
           href="/athlete/fortschritt"
-          className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-app-border bg-app-surface px-4 py-3 transition hover:border-app-accent"
+          className="mt-4 flex items-center justify-between gap-3 rounded-3xl border border-app-border bg-app-surface shadow-app px-4 py-3 transition hover:border-app-accent"
         >
           <span>
             <span className="block font-semibold text-app-heading">📈 Mein Fortschritt</span>
@@ -1231,7 +1231,7 @@ export default function AthletePage() {
         )}
 
         {loading ? (
-          <div className="mt-5 rounded-2xl border border-app-border bg-app-surface p-7 text-center text-sm text-app-muted">
+          <div className="mt-5 rounded-3xl border border-app-border bg-app-surface shadow-app p-7 text-center text-sm text-app-muted">
             Deine Daten werden geladen...
           </div>
         ) : (

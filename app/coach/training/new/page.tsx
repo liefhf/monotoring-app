@@ -1700,7 +1700,7 @@ function TrainingEditor() {
       {materialPicker &&
         selectedMaterialRow && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-app-bg/80 p-4">
-            <div className="w-full max-w-xl rounded-2xl border border-app-border bg-app-surface shadow-2xl">
+            <div className="w-full max-w-xl rounded-3xl border border-app-border bg-app-surface shadow-app shadow-2xl">
               <div className="flex items-start justify-between border-b border-app-border p-5">
                 <div>
                   <h2 className="text-xl font-semibold">
@@ -1970,7 +1970,7 @@ function TrainingEditor() {
           <WeekFocusPanel onInsert={insertSuggestedBlock} />
         </div>
 
-        <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border p-5">
             <h2 className="text-xl font-semibold">
               Trainingsdaten
@@ -2161,7 +2161,7 @@ function TrainingEditor() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
+        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm text-app-muted">
@@ -2252,7 +2252,7 @@ function TrainingEditor() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
+        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
             <p className="text-sm text-app-muted">
               Kernziele Land & Prävention
@@ -2295,7 +2295,7 @@ function TrainingEditor() {
         {trainingType ===
         "Wasser" ? (
           <>
-            <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+            <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="flex items-center justify-between border-b border-app-border p-5">
                 <div>
                   <h2 className="text-lg font-semibold">
@@ -2456,7 +2456,7 @@ function TrainingEditor() {
               (section) => (
                 <section
                   key={section.id}
-                  className="mt-6 rounded-2xl border border-app-border bg-app-surface"
+                  className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app"
                 >
                   <div className="flex flex-col gap-3 border-b border-app-border p-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -2831,7 +2831,7 @@ function TrainingEditor() {
               )
             )}
 
-            <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-app-border bg-app-surface p-6 md:flex-row md:items-center md:justify-between">
+            <section className="mt-6 flex flex-col gap-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm text-app-muted">
                   Gesamtumfang Wassertraining
@@ -2857,7 +2857,7 @@ function TrainingEditor() {
             </section>
           </>
         ) : (
-          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
             <div className="flex items-center justify-between border-b border-app-border p-5">
               <div>
                 <h2 className="text-xl font-semibold">
@@ -3031,7 +3031,7 @@ function TrainingEditor() {
           </section>
         )}
 
-        <section className="mt-8 flex flex-col gap-4 rounded-2xl border border-app-border bg-app-surface p-5 md:flex-row md:items-center md:justify-between">
+        <section className="mt-8 flex flex-col gap-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="font-semibold">
               {isEditing

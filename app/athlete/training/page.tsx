@@ -289,14 +289,14 @@ export default function AthleteTrainingPage() {
       )}
 
       {loading ? (
-        <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-6 text-app-muted">
+        <div className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-6 text-app-muted">
           Trainings werden geladen...
         </div>
       ) : (
         <>
           {/* Kennzahlen */}
           <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
               <p className="text-sm text-app-muted">
                 Einheiten
               </p>
@@ -310,7 +310,7 @@ export default function AthleteTrainingPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
               <p className="text-sm text-app-muted">
                 Wasser
               </p>
@@ -324,7 +324,7 @@ export default function AthleteTrainingPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
               <p className="text-sm text-app-muted">
                 Land
               </p>
@@ -338,7 +338,7 @@ export default function AthleteTrainingPage() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
               <p className="text-sm text-app-muted">
                 Wochenumfang
               </p>
@@ -380,7 +380,7 @@ export default function AthleteTrainingPage() {
                 return (
                   <div
                     key={day}
-                    className="min-h-[390px] rounded-2xl border border-app-border bg-app-surface"
+                    className="min-h-[390px] rounded-3xl border border-app-border bg-app-surface shadow-app"
                   >
                     <div className="border-b border-app-border p-4">
                       <h3 className="font-semibold">
@@ -494,7 +494,7 @@ export default function AthleteTrainingPage() {
           </section>
 
           {/* Heutige Einheiten */}
-          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
             <div className="border-b border-app-border p-5">
               <h2 className="text-xl font-semibold">
                 Heute
@@ -603,7 +603,7 @@ export default function AthleteTrainingPage() {
             )}
           </section>
 
-          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
+          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
             <h2 className="text-lg font-semibold">
               Nach dem Training
             </h2>

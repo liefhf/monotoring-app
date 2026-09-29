@@ -105,7 +105,7 @@ export default function MesoPage() {
       </div>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Schwerpunkt
           </p>
@@ -115,7 +115,7 @@ export default function MesoPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Mikrozyklen
           </p>
@@ -125,7 +125,7 @@ export default function MesoPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Geplanter Gesamtumfang
           </p>
@@ -142,7 +142,7 @@ export default function MesoPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-2xl border border-app-border bg-app-surface">
+      <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
         <div className="border-b border-app-border p-5">
           <h2 className="text-xl font-semibold">
             Mikrozyklen / Wochen
@@ -241,7 +241,7 @@ export default function MesoPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-6">
+      <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-6">
         <h2 className="text-lg font-semibold">
           Periodisierungsstruktur
         </h2>

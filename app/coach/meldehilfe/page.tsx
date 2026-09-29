@@ -170,15 +170,15 @@ export default function MeldehilfePage() {
       </Card>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl border border-app-border bg-app-surface p-4">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
           <p className="text-2xl font-bold">{perSwimmer.filter((item) => item.entries.some((entry) => chosen(item.swimmer.id, entry))).length}</p>
           <p className="text-xs text-app-muted">Athleten mit Meldung</p>
         </div>
-        <div className="rounded-2xl border border-app-border bg-app-surface p-4">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
           <p className="text-2xl font-bold">{totalStarts}</p>
           <p className="text-xs text-app-muted">Einzelstarts</p>
         </div>
-        <div className="rounded-2xl border border-app-border bg-app-surface p-4">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
           <p className="text-2xl font-bold">{(totalStarts * (Number(fee.replace(",", ".")) || 0)).toFixed(2).replace(".", ",")} €</p>
           <p className="text-xs text-app-muted">Meldegeld Einzelstarts</p>
         </div>

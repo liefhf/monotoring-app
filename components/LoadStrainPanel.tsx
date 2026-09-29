@@ -263,7 +263,7 @@ export default function LoadStrainPanel(props: Props) {
   }, [rows]);
 
   return (
-    <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+    <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="flex flex-col gap-1 border-b border-app-border px-4 py-3 sm:px-5">
         <h2 className="font-semibold text-app-heading">
           Belastung vs. Beanspruchung

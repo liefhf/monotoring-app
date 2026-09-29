@@ -481,7 +481,7 @@ export default function DailyCheckInPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-sm text-app-muted">
+          <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
             Check-in wird geladen...
           </div>
         </div>
@@ -585,7 +585,7 @@ export default function DailyCheckInPage() {
           </div>
         )}
 
-        <section className="mt-4 rounded-2xl border border-app-border bg-app-surface p-4 sm:p-5">
+        <section className="mt-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-4 sm:p-5">
           {step === 1 && (
             <>
               <QuestionHeader

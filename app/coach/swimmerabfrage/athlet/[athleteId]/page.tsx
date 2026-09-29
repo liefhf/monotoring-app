@@ -1177,7 +1177,7 @@ export default function AthleteDetailPage() {
 
         {showResultForm &&
           athlete && (
-            <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+            <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border px-6 py-4">
                 <h2 className="text-lg font-semibold">
                   Wettkampftag eintragen
@@ -1485,7 +1485,7 @@ export default function AthleteDetailPage() {
           )}
 
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+          <div className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
             Athlet wird geladen...
           </div>
         ) : athlete ? (
@@ -1552,7 +1552,7 @@ export default function AthleteDetailPage() {
 
             {activeTab ===
               "infos" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+              <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
                 <div className="border-b border-app-border px-6 py-4">
                   <h2 className="text-lg font-semibold">
                     Athleteninformationen
@@ -1604,7 +1604,7 @@ export default function AthleteDetailPage() {
               "bestzeiten" && (
               <section className="mt-6">
                 {resultsLoading ? (
-                  <div className="rounded-2xl border border-app-border bg-app-surface p-8 text-center text-app-muted">
+                  <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center text-app-muted">
                     Bestzeiten werden geladen...
                   </div>
                 ) : (
@@ -1627,7 +1627,7 @@ export default function AthleteDetailPage() {
 
             {activeTab ===
               "jahresleistungen" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+              <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
                 <div className="border-b border-app-border px-6 py-5">
                   <h2 className="text-lg font-semibold">
                     Jahresleistungen
@@ -1913,7 +1913,7 @@ export default function AthleteDetailPage() {
 
             {activeTab ===
               "entwicklung" && (
-              <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+              <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
                 <div className="border-b border-app-border px-6 py-5">
                   <h2 className="text-lg font-semibold">
                     Entwicklung
@@ -2306,7 +2306,7 @@ function BestTimesTable({
   results: SwimResult[];
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+    <section className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="border-b border-app-border px-5 py-4">
         <h2 className="text-lg font-semibold">
           {title}

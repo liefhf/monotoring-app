@@ -94,7 +94,6 @@ function WochenplanView() {
 
   const meters = sessions.reduce((sum, session) => sum + (session.total_meters ?? 0), 0);
   const minutes = sessions.reduce((sum, session) => sum + (session.duration_minutes ?? 0), 0);
-  const load = sessions.reduce((sum, session) => sum + (session.planned_rpe ?? 0) * (session.duration_minutes ?? 0), 0);
 
   const zones = useMemo(() => {
     const map = new Map<string, number>();
@@ -134,12 +133,11 @@ function WochenplanView() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-3 sm:grid-cols-3">
         {[
           { value: `${(meters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`, label: "Umfang" },
           { value: sessions.length, label: "Einheiten" },
           { value: `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")} h`, label: "Trainingszeit" },
-          { value: load ? load.toLocaleString("de-DE") : "–", label: "geplante Belastung (RPE × min)" },
         ].map((kpi) => (
           <div key={kpi.label} className="rounded-3xl border border-app-border bg-app-surface p-4 shadow-app">
             <p className="text-2xl font-bold text-app-heading">{kpi.value}</p>
@@ -150,23 +148,20 @@ function WochenplanView() {
 
       {zoneTotal > 0 && (
         <section className="rounded-3xl border border-app-border bg-app-surface p-5 shadow-app">
-          <p className="text-sm text-app-muted">Meter je Belastungszone</p>
-          <div className="mt-3 flex h-3 overflow-hidden rounded-full bg-app-elevated">
-            {zones.map(([zone, value], index) => (
-              <span
-                key={zone}
-                title={`${zone}: ${value.toLocaleString("de-DE")} m`}
-                style={{ width: `${(value / zoneTotal) * 100}%`, background: `color-mix(in srgb, var(--app-accent) ${100 - index * 12}%, var(--app-accent-2))` }}
-              />
-            ))}
-          </div>
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-app-muted">
+          <p className="text-sm font-semibold text-app-heading">Meter je Zone</p>
+          <ul className="mt-3 space-y-2">
             {zones.map(([zone, value]) => (
-              <span key={zone}>
-                <b className="text-app-text">{zone}</b> {value.toLocaleString("de-DE")} m ({Math.round((value / zoneTotal) * 100)} %)
-              </span>
+              <li key={zone} className="grid grid-cols-[7rem_1fr_5.5rem] items-center gap-3 text-xs">
+                <span className="font-semibold text-app-text">{zone}</span>
+                <span className="h-2.5 overflow-hidden rounded-full bg-app-elevated">
+                  <span className="block h-full rounded-full bg-app-accent" style={{ width: `${(value / Math.max(...zones.map(([, v]) => v))) * 100}%` }} />
+                </span>
+                <span className="text-right tabular-nums text-app-muted">
+                  {value.toLocaleString("de-DE")} m · {Math.round((value / zoneTotal) * 100)} %
+                </span>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
       )}
 

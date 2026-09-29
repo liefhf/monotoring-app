@@ -21,7 +21,7 @@ export default function CoachSettingsPage() {
       </div>
 
       <section className="mt-8 grid gap-5 md:grid-cols-2">
-        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-faint">
             Konto
           </p>
@@ -42,7 +42,7 @@ export default function CoachSettingsPage() {
           </button>
         </div>
 
-        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-faint">
             Organisation
           </p>
@@ -63,7 +63,7 @@ export default function CoachSettingsPage() {
           </Link>
         </div>
 
-        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-faint">
             Datenschutz
           </p>
@@ -85,7 +85,7 @@ export default function CoachSettingsPage() {
           </button>
         </div>
 
-        <div className="rounded-2xl border border-app-border bg-app-surface p-5">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-faint">
             System
           </p>

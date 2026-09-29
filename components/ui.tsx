@@ -12,10 +12,10 @@ export const inputClass =
   "w-full rounded-xl border border-app-border bg-app-bg px-3.5 py-2.5 text-sm text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-accent";
 
 export const buttonPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-xl bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink shadow-app transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full bg-app-accent px-5 py-2.5 text-sm font-semibold text-app-accent-ink shadow-app transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-xl border border-app-border bg-app-surface px-4 py-2.5 text-sm font-medium text-app-heading transition hover:bg-app-elevated disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex items-center justify-center gap-2 rounded-full border border-app-border bg-app-surface px-5 py-2.5 text-sm font-medium text-app-heading transition hover:bg-app-elevated disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonGhost =
   "inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-app-muted transition hover:bg-app-elevated hover:text-app-heading";
@@ -68,11 +68,11 @@ export function Card({
   padded?: boolean;
 }) {
   return (
-    <section className={`overflow-hidden rounded-2xl border border-app-border bg-app-surface shadow-app ${className}`}>
+    <section className={`overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app ${className}`}>
       {(title || action) && (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-app-border px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 pb-2 pt-5">
           <div className="min-w-0">
-            {title && <h2 className="text-base font-semibold">{title}</h2>}
+            {title && <h2 className="text-base font-semibold text-app-heading">{title}</h2>}
             {description && <p className="mt-0.5 text-sm text-app-muted">{description}</p>}
           </div>
           {action}

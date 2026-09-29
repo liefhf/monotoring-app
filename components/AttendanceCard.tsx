@@ -60,7 +60,7 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
   const stats = attendanceStats(Object.values(status).map((value) => ({ status: value })));
 
   return (
-    <section className="mt-5 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+    <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-app-border px-4 py-3">
         <div>
           <h2 className="text-lg font-semibold">Anwesenheit</h2>

@@ -304,7 +304,7 @@ export default function GrowthPanel({
   const missingBasics = !basics.birth_date || !sex;
 
   return (
-    <section className="mt-4 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+    <section className="mt-4 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="flex flex-col gap-2 border-b border-app-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
         <div>
           <h2 className="font-semibold text-app-heading">

@@ -246,7 +246,7 @@ export default function CompetitionImportPreview({
   }
 
   return (
-    <section className="rounded-2xl border border-app-border bg-app-surface p-5 sm:p-6">
+    <section className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 sm:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-semibold text-app-heading">

@@ -778,7 +778,7 @@ export default function TrainingFeedbackPage() {
         </header>
 
         {/* ÄUSSERE BELASTUNG */}
-        <section className="mt-5 rounded-2xl border border-app-border bg-app-surface px-4 py-4 sm:px-5">
+        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface shadow-app px-4 py-4 sm:px-5">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${

@@ -430,7 +430,7 @@ export default function OlympicCyclePage() {
         )}
 
         {loading ? (
-          <div className="mt-8 rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+          <div className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
             Wird geladen...
           </div>
         ) : !cycle ? (
@@ -438,7 +438,7 @@ export default function OlympicCyclePage() {
             Noch kein Olympiazyklus
           */
 
-          <section className="mt-8 rounded-2xl border border-app-border bg-app-surface p-6">
+          <section className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-6">
             <p className="text-sm text-app-muted">
               {getTeamName()}
             </p>
@@ -496,7 +496,7 @@ export default function OlympicCyclePage() {
           <>
             {/* Zyklus Info */}
 
-            <section className="mt-8 rounded-2xl border border-app-border bg-app-surface p-5">
+            <section className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
               <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-sm text-app-muted">
@@ -620,7 +620,7 @@ export default function OlympicCyclePage() {
 
             {/* Hierarchie */}
 
-            <section className="mt-6 rounded-2xl border border-app-border bg-app-surface p-5">
+            <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
               <p className="text-sm text-app-muted">
                 Planungsstruktur
               </p>

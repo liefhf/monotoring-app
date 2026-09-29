@@ -46,7 +46,7 @@ export function GroupRoomList({ basePath }: { basePath: string }) {
       )}
 
       {teams === null ? (
-        <div className="rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">Wird geladen...</div>
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">Wird geladen...</div>
       ) : teams.length === 0 ? (
         <div className="rounded-2xl border border-app-border bg-app-surface shadow-app">
           <EmptyState icon="teams" title="Noch kein Team">
@@ -59,7 +59,7 @@ export function GroupRoomList({ basePath }: { basePath: string }) {
             <Link
               key={team.id}
               href={`${basePath}/${team.id}`}
-              className="group flex items-center gap-4 rounded-2xl border border-app-border bg-app-surface p-5 shadow-app transition hover:-translate-y-0.5 hover:border-app-accent/50"
+              className="group flex items-center gap-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-5 shadow-app transition hover:-translate-y-0.5 hover:border-app-accent/50"
             >
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-app-accent/12 text-app-accent">
                 <Icon name="teams" className="h-6 w-6" />

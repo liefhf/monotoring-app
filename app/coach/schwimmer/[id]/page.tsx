@@ -499,7 +499,7 @@ export default function SchwimmerDetailPage() {
   if (loading) {
     return (
       <main className="mx-auto max-w-6xl">
-        <div className="rounded-2xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Schwimmer wird geladen...
         </div>
       </main>
@@ -902,7 +902,7 @@ function EntryForm({
   ];
 
   return (
-    <section className="mt-6 overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+    <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="border-b border-app-border px-6 py-4">
         <h2 className="text-lg font-semibold">Ergebnisse eintragen</h2>
         <p className="mt-1 text-sm text-app-muted">
@@ -1318,7 +1318,7 @@ function DevelopmentChart({
             onClick={() => onEventChange("all")}
           >
             <div
-              className="flex h-[85vh] w-full max-w-6xl flex-col rounded-2xl border border-app-border bg-app-surface p-4 shadow-xl"
+              className="flex h-[85vh] w-full max-w-6xl flex-col rounded-3xl border border-app-border bg-app-surface shadow-app p-4 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 px-2">
@@ -1529,7 +1529,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-app-border bg-app-surface">
+    <section className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="flex items-center justify-between gap-3 border-b border-app-border px-5 py-4">
         <h2 className="font-semibold">{title}</h2>
         {action}

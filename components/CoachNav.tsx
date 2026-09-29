@@ -26,15 +26,24 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
     title: "Team",
     items: [
       { href: "/coach/schwimmer", label: "Athleten", icon: "athlete" },
+      { href: "/coach/anwesenheit", label: "Anwesenheit", icon: "check" },
+      { href: "/coach/athleten-check", label: "Athleten-Check", icon: "heart" },
       { href: "/coach/teams", label: "Teams", icon: "teams" },
     ],
   },
   {
     title: "Planung",
     items: [
-      { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
+      { href: "/coach/wochenplan", label: "Wochenplan", icon: "calendar" },
       { href: "/coach/training", label: "Training", icon: "training" },
+      { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
+    ],
+  },
+  {
+    title: "Wettkampf",
+    items: [
       { href: "/coach/competitions", label: "Wettkämpfe", icon: "trophy" },
+      { href: "/coach/analytics/wettkampf", label: "Auswertung", icon: "chart" },
       { href: "/coach/meldehilfe", label: "Meldehilfe", icon: "stopwatch" },
       { href: "/coach/dms", label: "DMS-Aufstellung", icon: "teams" },
     ],
@@ -43,21 +52,13 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
     title: "Leistung",
     items: [
       { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
-      { href: "/coach/analytics", label: "Analysen", icon: "chart" },
-      { href: "/coach/analytics/wettkampf", label: "Wettkampf-Auswertung", icon: "trophy" },
       { href: "/coach/tests", label: "Testbatterie", icon: "chart" },
     ],
   },
   {
-    title: "Kommunikation",
+    title: "Weiteres",
     items: [
-      { href: "/coach/news", label: "News-Wall", icon: "news" },
       { href: "/coach/gruppen", label: "Gruppenräume", icon: "chat" },
-    ],
-  },
-  {
-    title: "Wissen",
-    items: [
       { href: "/coach/infoboard", label: "Infoboard", icon: "book" },
       { href: "/coach/settings", label: "Einstellungen", icon: "settings" },
     ],
