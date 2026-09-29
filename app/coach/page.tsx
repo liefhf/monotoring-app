@@ -33,11 +33,12 @@ const QUICK: { href: string; label: string; icon: IconName }[] = [
   { href: "/coach/tests", label: "Tests", icon: "chart" },
 ];
 
+/* Farben passend zur Palette (Pink/Lila), "fehlt" gedaempft statt Signalrot */
 const ATTENDANCE_COLORS: Record<AttendanceStatus, string> = {
-  anwesend: "var(--app-good)",
-  entschuldigt: "var(--app-accent)",
-  krank: "var(--app-warn)",
-  fehlt: "var(--app-bad)",
+  anwesend: "var(--app-accent)",
+  entschuldigt: "var(--app-accent-2)",
+  krank: "#c4b5fd",
+  fehlt: "var(--app-faint)",
 };
 
 const ATTENDANCE_LABELS: Record<AttendanceStatus, string> = { anwesend: "da", entschuldigt: "entsch.", krank: "krank", fehlt: "fehlt" };

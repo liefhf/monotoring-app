@@ -9,10 +9,10 @@ import { Swimmer } from "@/lib/swim";
 export type AttendanceStatus = "anwesend" | "entschuldigt" | "krank" | "fehlt";
 
 export const ATTENDANCE_STATUS: { value: AttendanceStatus; label: string; short: string; className: string }[] = [
-  { value: "anwesend", label: "anwesend", short: "✓", className: "bg-app-good text-white" },
-  { value: "entschuldigt", label: "entschuldigt", short: "E", className: "bg-app-accent text-app-accent-ink" },
-  { value: "krank", label: "krank", short: "K", className: "bg-app-warn text-white" },
-  { value: "fehlt", label: "fehlt (unentschuldigt)", short: "F", className: "bg-app-bad text-white" },
+  { value: "anwesend", label: "anwesend", short: "✓", className: "bg-app-accent text-app-accent-ink" },
+  { value: "entschuldigt", label: "entschuldigt", short: "E", className: "bg-[color:var(--app-accent-2)] text-white" },
+  { value: "krank", label: "krank", short: "K", className: "bg-[#c4b5fd] text-[#1e1a3a]" },
+  { value: "fehlt", label: "fehlt (unentschuldigt)", short: "F", className: "bg-app-faint text-white" },
 ];
 
 export type AttendanceEntry = {
