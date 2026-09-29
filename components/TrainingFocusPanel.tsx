@@ -6,6 +6,7 @@ import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "
 import { supabase } from "@/lib/supabase";
 import { FaultTrend, faultTrends, seasonStart, trendText } from "@/lib/faultCatalog";
 import AthleteFocusEditor from "@/components/AthleteFocusEditor";
+import ForecastCard from "@/components/ForecastCard";
 import { RoleBadge } from "@/components/FocusBadge";
 import { NonFinish, QualifyingStandard, QualifyingTime, Swimmer, SwimmerResult, formatEvent, formatEventShort, formatTime } from "@/lib/swim";
 import { AthleteFocus, FocusKind, focusRole, recentResults, strokeProfile, suggestFocus, topFocus, trainingFocus } from "@/lib/trainingFocus";
@@ -203,6 +204,16 @@ export default function TrainingFocusPanel({
           </ol>
         )}
       </Card>
+
+      <ForecastCard
+        results={results}
+        swimmer={swimmer}
+        focus={focus}
+        upcoming={upcoming}
+        standard={standard}
+        standardTimes={standardTimes}
+        today={today}
+      />
 
       {trends.length > 0 && (
         <Card title="Fehler-Trend der Saison" description="Aus der Fehler-Erfassung bei Wettkämpfen (seit 1. August).">
