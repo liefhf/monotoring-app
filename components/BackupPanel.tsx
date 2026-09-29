@@ -36,6 +36,7 @@ const TABLES = [
   "training_attendance",
   "lactate_tests",
   "athlete_routines",
+  "fitness_tests",
   "news_posts",
   "annual_plans",
   "olympic_cycles",

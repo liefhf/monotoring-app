@@ -43,6 +43,7 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
       { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
       { href: "/coach/analytics", label: "Analysen", icon: "chart" },
       { href: "/coach/analytics/wettkampf", label: "Wettkampf-Auswertung", icon: "trophy" },
+      { href: "/coach/tests", label: "Testbatterie", icon: "chart" },
     ],
   },
   {

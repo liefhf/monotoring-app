@@ -26,6 +26,7 @@ Die Reihenfolge ist wichtig, weil spätere Skripte auf früheren aufbauen.
 | 18 | `wettkampf_fehler.sql` | Wettkampf: Technikfehler per Klick je Abschnitt |
 | 19 | `laktattests.sql` | Laktat-Stufentests mit Schwellen und Zonen |
 | 20 | `wettkampftag.sql` | Mein Wettkampf-Tag: Routine der Athleten, Startzeiten |
+| 21 | `testbatterie.sql` | Testbatterie (Athletik- und Schwimmtests) |
 
 
 Dateien `daten_*.sql` enthalten echte Schwimmerdaten und werden nicht eingecheckt (`.gitignore`).
