@@ -71,6 +71,15 @@ import {
 
 type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
 
+/* Tabs in fuenf Gruppen - die Seite war mit 11 Tabs nebeneinander unuebersichtlich */
+const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
+  { label: "Profil", tabs: ["infos", "fokus"] },
+  { label: "Ergebnisse", tabs: ["bahn", "bestzeiten", "staffel", "wettkaempfe"] },
+  { label: "Entwicklung", tabs: ["entwicklung", "pflichtzeiten"] },
+  { label: "Leistung", tabs: ["form", "laktat"] },
+  { label: "Gesundheit", tabs: ["schmerzen"] },
+];
+
 const TABS: { value: Tab; label: string }[] = [
   { value: "infos", label: "Infos" },
   { value: "bahn", label: "25 & 50m Bahn" },
@@ -576,8 +585,23 @@ export default function SchwimmerDetailPage() {
           </select>
         </div>
 
-        <nav className="mt-4 flex flex-wrap gap-1 border-b border-app-border">
-          {TABS.map((item) => (
+        <nav className="mt-4 flex flex-wrap gap-1.5">
+          {TAB_GROUPS.map((group) => (
+            <button
+              key={group.label}
+              type="button"
+              onClick={() => setTab(group.tabs[0])}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+                group.tabs.includes(tab) ? "bg-app-accent text-app-accent-ink" : "bg-app-elevated text-app-text hover:bg-app-border"
+              }`}
+            >
+              {group.label}
+            </button>
+          ))}
+        </nav>
+
+        <nav className="mt-3 flex flex-wrap gap-1 border-b border-app-border">
+          {TABS.filter((item) => TAB_GROUPS.find((group) => group.tabs.includes(tab))?.tabs.includes(item.value)).map((item) => (
             <button
               key={item.value}
               type="button"
