@@ -38,6 +38,7 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
   const [times, setTimes] = useState<QualifyingTime[]>([]);
   const [nonFinishes, setNonFinishes] = useState<NonFinish[]>([]);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
+  const [competitionFaults, setCompetitionFaults] = useState<{ name: string; code: string }[]>([]);
   const [open, setOpen] = useState(true);
   const [inserted, setInserted] = useState<string[]>([]);
   const [today] = useState(() => new Date().toISOString().slice(0, 10));
@@ -61,6 +62,17 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
       setTimes((timeResponse.data ?? []) as QualifyingTime[]);
       setNonFinishes((await loadNonFinishes()).rows);
       setUpcoming(await loadUpcomingCompetitions());
+      /* Technikfehler aus Wettkaempfen der letzten 4 Wochen (Spalte faults evtl. noch nicht angelegt) */
+      const since = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10);
+      const faultRes = await supabase.from("competition_starts").select("swimmer_id, faults").gte("start_date", since);
+      const names = new Map(rows.map((row) => [row.id as string, row.first_name as string]));
+      setCompetitionFaults(
+        faultRes.error
+          ? []
+          : ((faultRes.data ?? []) as { swimmer_id: string; faults: { code: string }[] | null }[]).flatMap((row) =>
+              (row.faults ?? []).map((fault) => ({ name: names.get(row.swimmer_id) ?? "?", code: fault.code }))
+            )
+      );
     }
     load();
   }, []);
@@ -76,10 +88,11 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
         standard,
         standardTimes: times.filter((time) => time.standard_id === standard?.id),
         nonFinishes,
+        competitionFaults,
         daysUntil: next ? daysUntil(next) : null,
         today,
       }),
-    [swimmers, results, focusBySwimmer, standard, times, nonFinishes, next, today]
+    [swimmers, results, focusBySwimmer, standard, times, nonFinishes, competitionFaults, next, today]
   );
 
   function makeSuggestion() {

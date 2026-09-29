@@ -132,6 +132,14 @@ export function suggestExercises(input: string, week: WeekFocus | null): Suggest
     }
   }
 
+  /* Regelrelevante Fehler aus dem letzten Wettkampf gehoeren immer dazu */
+  for (const block of week?.blocks ?? []) {
+    if (block.id.startsWith("fehler-") && block.title.startsWith("⚠")) {
+      rows.push(...block.rows);
+      notes.push(`Aus dem Wettkampf ergänzt: ${block.title.replace("⚠ Aus dem Wettkampf: ", "")} (${block.why})`);
+    }
+  }
+
   const technique = topics.filter((topic) => ["technik", "wende", "start", "anschlag", "unterwasser"].includes(topic));
   const main = topics.filter((topic) => ["sprint", "ausdauer", "tempo", "beine", "arme", "locker"].includes(topic));
 

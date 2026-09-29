@@ -13,6 +13,7 @@ import {
   formatTime,
 } from "@/lib/swim";
 import { AthleteFocus, FocusRole, parseFocusKey, suggestFocus } from "@/lib/trainingFocus";
+import { faultByCode } from "@/lib/faultCatalog";
 
 /*
  * Wochenfokus fuer die Trainingsplanung (immer fuer alle zusammen):
@@ -106,6 +107,7 @@ export function buildWeekFocus({
   standardTimes,
   nonFinishes,
   daysUntil,
+  competitionFaults = [],
   today,
 }: {
   swimmers: Swimmer[];
@@ -114,6 +116,8 @@ export function buildWeekFocus({
   standard: QualifyingStandard | null;
   standardTimes: QualifyingTime[];
   nonFinishes: NonFinish[];
+  /* Technikfehler aus Wettkaempfen der letzten Wochen (Name, Fehlercode) */
+  competitionFaults?: { name: string; code: string }[];
   daysUntil: number | null;
   today: string;
 }): WeekFocus {
@@ -182,6 +186,36 @@ export function buildWeekFocus({
 
   /* Bausteine */
   const blocks: SuggestedBlock[] = [];
+
+  /* Fehler aus dem Wettkampf -> Technikbausteine (Regelverstoesse zuerst, dann nach Haeufigkeit) */
+  const faultMap = new Map<string, Set<string>>();
+  for (const item of competitionFaults) {
+    faultMap.set(item.code, (faultMap.get(item.code) ?? new Set()).add(item.name));
+  }
+  const faultEntries = [...faultMap.entries()]
+    .map(([code, names]) => ({ fault: faultByCode.get(code), names: [...names] }))
+    .filter((entry) => entry.fault)
+    .sort((a, b) => Number(Boolean(b.fault!.rule)) - Number(Boolean(a.fault!.rule)) || b.names.length - a.names.length)
+    .slice(0, 4);
+  for (const { fault, names } of faultEntries) {
+    blocks.push({
+      id: `fehler-${fault!.code}`,
+      title: `${fault!.rule ? "⚠ " : ""}Aus dem Wettkampf: ${fault!.label}`,
+      why: names.join(", "),
+      rows: [
+        {
+          section: fault!.phase === "tempo" ? "hauptblock" : "technik",
+          repetitions: fault!.drill.repetitions,
+          distance: fault!.drill.distance,
+          exercise: `${fault!.drill.exercise} (${names.join(", ")})`,
+          style: "Beliebig",
+          zone: fault!.drill.zone,
+          intervalType: "P",
+          intervalTime: fault!.drill.interval,
+        },
+      ],
+    });
+  }
 
   for (const item of technique) {
     const stroke = STROKES.find((entry) => item.title.startsWith(entry.label))?.value ?? "freestyle";

@@ -23,6 +23,7 @@ Die Reihenfolge ist wichtig, weil spätere Skripte auf früheren aufbauen.
 | 15 | `athleten_fokus_strecken.sql` | Trainingsfokus: einzelne Strecken je Athlet |
 | 16 | `training_notizen.sql` | Notizen zur Trainingseinheit (auch im Ausdruck) |
 | 17 | `anwesenheit.sql` | Anwesenheitsliste je Trainingseinheit |
+| 18 | `wettkampf_fehler.sql` | Wettkampf: Technikfehler per Klick je Abschnitt |
 
 
 Dateien `daten_*.sql` enthalten echte Schwimmerdaten und werden nicht eingecheckt (`.gitignore`).

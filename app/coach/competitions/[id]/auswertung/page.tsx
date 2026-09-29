@@ -44,6 +44,8 @@ import {
 } from "@/lib/competitionFeedback";
 import { Icon } from "@/components/icons";
 import RelayPanel from "@/components/RelayPanel";
+import FaultPicker from "@/components/FaultPicker";
+import { StartFault, buildAthleteFeedback, plausibilityWarnings } from "@/lib/faultCatalog";
 import ProtocolImport from "@/components/ProtocolImport";
 import {
   Card,
@@ -115,6 +117,7 @@ type Draft = {
   toImprove: string;
   coachNote: string;
   shared: boolean;
+  faults: StartFault[];
 };
 
 const emptyRatings = (): Record<RatingKey, number | null> => ({
@@ -307,7 +310,13 @@ export default function WettkampfAuswertungPage() {
     }
 
     setSwimmers((swimmerResponse.data ?? []) as Swimmer[]);
-    setStarts(((startResponse.data ?? []) as CompetitionStart[]).map((start) => ({ ...start, split_times_ms: start.split_times_ms ?? [] })));
+    const loadedStarts = ((startResponse.data ?? []) as CompetitionStart[]).map((start) => ({ ...start, split_times_ms: start.split_times_ms ?? [] }));
+    /* Fehler separat laden - fehlt die Spalte noch, bleibt es leer */
+    const faultResponse = loadedStarts.length
+      ? await supabase.from("competition_starts").select("id, faults").in("id", loadedStarts.map((start) => start.id))
+      : { data: [], error: null };
+    const faultById = new Map(((faultResponse.error ? [] : faultResponse.data) ?? []).map((row: { id: string; faults: StartFault[] | null }) => [row.id, row.faults]));
+    setStarts(loadedStarts.map((start) => ({ ...start, faults: faultById.get(start.id) ?? null })));
     setResults(splitResults(resultResponse.data ?? []).pool);
     setStandards((standardResponse.data ?? []) as QualifyingStandard[]);
     setQualifyingTimes((timeResponse.data ?? []) as QualifyingTime[]);
@@ -396,6 +405,7 @@ export default function WettkampfAuswertungPage() {
       toImprove: "",
       coachNote: "",
       shared: true,
+      faults: [],
     };
   }
 
@@ -428,6 +438,7 @@ export default function WettkampfAuswertungPage() {
       toImprove: start.to_improve ?? "",
       coachNote: start.coach_note ?? "",
       shared: start.shared_with_athlete,
+      faults: start.faults ?? [],
     };
   }
 
@@ -512,6 +523,8 @@ export default function WettkampfAuswertungPage() {
       to_improve: draft.toImprove.trim() || null,
       coach_note: draft.coachNote.trim() || null,
       shared_with_athlete: draft.shared,
+      /* nur mitschicken, wenn Fehler erfasst sind oder vorher welche da waren (Spalte evtl. noch nicht angelegt) */
+      ...(draft.faults.length || starts.find((start) => start.id === draft.id)?.faults?.length ? { faults: draft.faults } : {}),
     };
 
     setSaving(true);
@@ -1278,6 +1291,57 @@ export default function WettkampfAuswertungPage() {
                 ) : null;
               })()}
             </section>
+
+            {(() => {
+              const splits = parseSplits(draft.splits) ?? [];
+              const final = parseSwimTimeToMs(draft.time);
+              const own = results.filter((result) => result.swimmer_id === draft.swimmerId);
+              const best = draft.swimmerId
+                ? own
+                    .filter((r) => r.distance === Number(draft.distance) && r.stroke === draft.stroke && r.pool_length === draft.poolLength && r.result_date < draft.date)
+                    .sort((a, b) => a.time_ms - b.time_ms)[0] ?? null
+                : null;
+              const warnings = plausibilityWarnings({ finalMs: final, splits, distance: Number(draft.distance), bestMs: best?.time_ms ?? null });
+              const laps = final ? lapTimes({ split_times_ms: splits, time_ms: final, distance: Number(draft.distance) } as CompetitionStart) : [];
+              return (
+                <section className="space-y-3 rounded-2xl border border-app-border p-4">
+                  {warnings.length > 0 && (
+                    <div className="rounded-xl border border-app-warn/40 bg-app-warn/10 px-3 py-2 text-sm text-app-warn">
+                      {warnings.map((warning) => (
+                        <p key={warning}>⚠ {warning}</p>
+                      ))}
+                    </div>
+                  )}
+                  <p className="font-semibold text-app-heading">
+                    Fehler & Technik <span className="text-sm font-normal text-app-muted">per Klick – Abschnitt wählen, dann Fehler</span>
+                  </p>
+                  <FaultPicker
+                    stroke={draft.stroke}
+                    distance={Number(draft.distance)}
+                    poolLength={draft.poolLength}
+                    value={draft.faults}
+                    onChange={(faults) => updateDraft("faults", faults)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const feedback = buildAthleteFeedback({
+                        faults: draft.faults,
+                        poolLength: draft.poolLength,
+                        laps,
+                        goalMs: parseSwimTimeToMs(draft.goalTime),
+                        finalMs: final,
+                        bestMs: best?.time_ms ?? null,
+                      });
+                      setDraft((current) => (current ? { ...current, wentWell: feedback.wentWell || current.wentWell, toImprove: feedback.toImprove || current.toImprove } : current));
+                    }}
+                    className={`${buttonSecondary} w-full sm:w-auto`}
+                  >
+                    Feedback automatisch formulieren
+                  </button>
+                </section>
+              );
+            })()}
 
             <section className="space-y-3 rounded-2xl border border-app-border p-4">
               <p className="font-semibold text-app-heading">

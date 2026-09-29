@@ -16,6 +16,8 @@ export type StartStatus = "ok" | "dsq" | "dns" | "dnf";
 
 export type CompetitionStart = {
   id: string;
+  /* Technikfehler per Klick (Spalte faults, supabase/wettkampf_fehler.sql) */
+  faults?: { code: string; segment: string }[] | null;
   competition_id: string;
   swimmer_id: string;
   event_id: string | null;
