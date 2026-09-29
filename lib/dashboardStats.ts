@@ -48,9 +48,9 @@ export function isoWeek(date: string) {
 
 export type DayBar = { date: string; label: string; meters: number; sessions: number; planned: boolean; today: boolean };
 
-/* Montag bis Sonntag der Woche von "today"; Tage nach heute = geplant */
-export function weekDays(sessions: { session_date: string; total_meters: number | null }[], today: string): DayBar[] {
-  const monday = weekStart(today);
+/* Montag bis Sonntag der Woche von "anchor" (Standard: heute); Tage nach heute = geplant */
+export function weekDays(sessions: { session_date: string; total_meters: number | null }[], today: string, anchor: string = today): DayBar[] {
+  const monday = weekStart(anchor);
   const names = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
   return names.map((name, index) => {
     const date = iso(Date.parse(monday) + index * DAY);

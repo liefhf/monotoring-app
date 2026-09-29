@@ -123,22 +123,26 @@ export default function RedFlagsPanel({ teamId = null }: { teamId?: string | nul
     .sort((a, b) => b.flags.filter((f) => f.level === "rot").length - a.flags.filter((f) => f.level === "rot").length);
 
   return (
-    <section className="mt-6 overflow-hidden rounded-xl border border-app-border bg-app-surface">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-app-border px-4 py-3">
-        <div>
-          <h2 className="text-sm font-semibold text-app-heading">Rote Flaggen</h2>
-        </div>
+    <section className="h-full overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+      <div className="flex items-center justify-between gap-2 px-5 pt-5">
+        <p className="text-sm text-app-muted">Athleten-Check</p>
         <button type="button" onClick={() => setShowAll(!showAll)} className="text-xs font-semibold text-app-accent">
-          {showAll ? "weniger" : "ACWR"}
+          {showAll ? "weniger" : "Belastung"}
         </button>
       </div>
 
       {flagged.length === 0 ? (
-        <p className="px-4 py-3 text-sm text-app-good">✓ Keine Auffälligkeiten.</p>
+        <div className="flex items-center gap-4 px-5 pb-5 pt-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-app-good/12 text-xl font-bold text-app-good">✓</span>
+          <span>
+            <span className="block text-lg font-bold text-app-heading">Alle im grünen Bereich</span>
+            <span className="text-sm text-app-muted">keine Auffälligkeiten</span>
+          </span>
+        </div>
       ) : (
-        <ul className="divide-y divide-app-border">
+        <ul className="space-y-2 px-3 pb-3 pt-3">
           {flagged.map((row) => (
-            <li key={row.id} className="flex flex-wrap items-start gap-x-4 gap-y-1 px-4 py-2.5">
+            <li key={row.id} className="flex flex-wrap items-start gap-x-4 gap-y-1 rounded-2xl bg-app-bg px-3 py-2.5">
               <Link href={`/coach/schwimmer/${row.id}`} className="w-40 shrink-0 text-sm font-semibold text-app-heading hover:text-app-accent">
                 {row.flags.some((flag) => flag.level === "rot") ? "🔴" : "🟡"} {row.name}
               </Link>

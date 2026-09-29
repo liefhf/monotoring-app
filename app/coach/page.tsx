@@ -5,18 +5,17 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { supabase } from "@/lib/supabase";
 import { fetchAll } from "@/lib/fetchAll";
-import { CalendarEntry, formatEntryWhen } from "@/lib/community";
+import { CALENDAR_COLUMNS, CalendarEntry, formatEntryWhen, getCategory } from "@/lib/community";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
-import { daysUntilDate, isoWeek, weekDays, weeklyVolume } from "@/lib/dashboardStats";
+import { daysUntilDate, isoWeek, weekDays, weekStart } from "@/lib/dashboardStats";
 import { AttendanceStatus } from "@/lib/attendance";
 import { Icon, IconName } from "@/components/icons";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
-import { LatestNews, UpcomingEntries } from "@/components/DashboardWidgets";
 
 /*
  * Coach-Dashboard im Kachel-Raster ("Bento"): Wettkampf-Countdown als
- * Hauptkarte, Trainingsumfang je Woche, Anwesenheit als Ring, Kennzahlen,
- * rote Flaggen, Termine, News und das heutige Training.
+ * Hauptkarte, Trainingsumfang der Woche, Anwesenheit als Ring,
+ * Wochenplan (vor/zurueck blaettern, Tage planen), Athleten-Check, Termine.
  */
 
 type Session = { id: string; title: string; session_date: string; start_time: string | null; total_meters: number | null; duration_minutes: number | null; team_id: string };
@@ -48,13 +47,16 @@ function Tile({ className = "", children }: { className?: string; children: Reac
 
 export default function CoachPage() {
   const [today] = useState(() => iso(Date.now()));
-  const [sessions, setSessions] = useState<Session[]>([]);
   const [attendance, setAttendance] = useState<{ status: AttendanceStatus }[]>([]);
   const [athleteCount, setAthleteCount] = useState<number | null>(null);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
   /* Das Dashboard zeigt eine Mannschaft - die Wahl bleibt im Browser gespeichert */
   const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
   const [teamId, setTeamId] = useState<string | null>(null);
+  /* angezeigte Woche (Montag) - vor und zurueck blaetterbar */
+  const [weekAnchor, setWeekAnchor] = useState(() => weekStart(iso(Date.now())));
+  const [weekSessions, setWeekSessions] = useState<Session[]>([]);
+  const [terms, setTerms] = useState<CalendarEntry[]>([]);
 
   useEffect(() => {
     supabase
@@ -102,7 +104,6 @@ export default function CoachPage() {
       ]);
       setAthleteCount(swimmerRes.count ?? 0);
       const loaded = (sessionRes.data ?? []) as Session[];
-      setSessions(loaded);
 
       const recentIds = loaded.filter((session) => session.session_date >= iso(Date.parse(today) - 28 * DAY) && session.session_date <= today).map((s) => s.id);
       if (recentIds.length) {
@@ -116,15 +117,37 @@ export default function CoachPage() {
     load();
   }, [today, teamId]);
 
-  const weeks = useMemo(() => weeklyVolume(sessions.filter((s) => s.session_date <= today), today, 8), [sessions, today]);
-  const thisWeek = weeks[weeks.length - 1];
+  /* Einheiten der angezeigten Woche plus Vorwoche (fuer den Vergleich) */
+  useEffect(() => {
+    if (!teamId) return;
+    fetchAll(() =>
+      supabase
+        .from("training_sessions")
+        .select("id, title, session_date, start_time, total_meters, duration_minutes, team_id")
+        .gte("session_date", iso(Date.parse(weekAnchor) - 7 * DAY))
+        .lte("session_date", iso(Date.parse(weekAnchor) + 6 * DAY))
+        .eq("team_id", teamId)
+        .order("session_date")
+        .order("start_time")
+    ).then(({ data }) => setWeekSessions((data ?? []) as Session[]));
+  }, [teamId, weekAnchor]);
+
+  useEffect(() => {
+    if (!teamId) return;
+    supabase
+      .from("calendar_entries")
+      .select(CALENDAR_COLUMNS)
+      .gte("starts_at", new Date(`${today}T00:00:00`).toISOString())
+      .order("starts_at")
+      .limit(12)
+      .then(({ data }) => setTerms(((data ?? []) as CalendarEntry[]).filter((entry) => !entry.team_id || entry.team_id === teamId).slice(0, 5)));
+  }, [teamId, today]);
+
   /* Mo-So der aktuellen Woche, inkl. geplanter Einheiten */
-  const days = useMemo(() => weekDays(sessions, today), [sessions, today]);
+  const days = useMemo(() => weekDays(weekSessions, today, weekAnchor), [weekSessions, today, weekAnchor]);
+  const previousWeekMeters = weekSessions.filter((session) => session.session_date < weekAnchor).reduce((sum, session) => sum + (session.total_meters ?? 0), 0);
   const weekTotal = days.reduce((sum, day) => sum + day.meters, 0);
   const weekDone = days.filter((day) => !day.planned).reduce((sum, day) => sum + day.meters, 0);
-  const lastWeek = weeks[weeks.length - 2];
-  const todaySessions = sessions.filter((session) => session.session_date === today);
-  const nextSessions = sessions.filter((session) => session.session_date > today).slice(0, 3);
 
   const target = upcoming.find((entry) => competitionPriority(entry) === "A") ?? upcoming[0] ?? null;
   const countdown = target ? daysUntilDate(target.starts_at.slice(0, 10), today) : null;
@@ -135,7 +158,9 @@ export default function CoachPage() {
   const attendanceRate = attendance.length ? Math.round((attendance.filter((a) => a.status === "anwesend").length / attendance.length) * 100) : null;
 
   const todayLabel = new Date(`${today}T12:00:00`).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
-  const volumeChange = lastWeek?.meters ? Math.round(((thisWeek.meters - lastWeek.meters) / lastWeek.meters) * 100) : null;
+  const volumeChange = previousWeekMeters ? Math.round(((weekTotal - previousWeekMeters) / previousWeekMeters) * 100) : null;
+  const currentMonday = weekStart(today);
+  const shiftWeek = (count: number) => setWeekAnchor(iso(Date.parse(weekAnchor) + count * 7 * DAY));
 
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-5">
@@ -156,6 +181,7 @@ export default function CoachPage() {
             ) : (
               teams[0] && <span className="rounded-full bg-app-elevated px-3 py-1 text-sm font-semibold">{teams[0].name}</span>
             )}
+            {athleteCount !== null && <span className="text-sm text-app-muted">{athleteCount} Athleten</span>}
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -211,7 +237,7 @@ export default function CoachPage() {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm text-app-muted">
-                Trainingsumfang · <b className="text-app-text">KW {isoWeek(today)}</b> ({days[0].label.slice(3)}–{days[6].label.slice(3)})
+                Trainingsumfang · <b className="text-app-text">KW {isoWeek(weekAnchor)}</b> ({days[0].label.slice(3)}–{days[6].label.slice(3)})
               </p>
               <p className="text-2xl font-bold text-app-heading">
                 {(weekDone / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km
@@ -223,7 +249,7 @@ export default function CoachPage() {
             {volumeChange !== null && (
               <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${volumeChange >= 0 ? "bg-app-good/10 text-app-good" : "bg-app-warn/15 text-app-warn"}`}>
                 {volumeChange >= 0 ? "+" : ""}
-                {volumeChange} % zur Vorwoche
+                {volumeChange} %
               </span>
             )}
           </div>
@@ -299,78 +325,94 @@ export default function CoachPage() {
           )}
         </Tile>
 
-        {/* Kennzahlen */}
-        {[
-          { label: "Athleten", value: athleteCount ?? "–", icon: "athlete" as IconName, href: "/coach/schwimmer" },
-          { label: "Einheiten diese Woche", value: thisWeek?.sessions ?? 0, icon: "training" as IconName, href: "/coach/training" },
-          { label: "Training heute", value: todaySessions.length, icon: "calendar" as IconName, href: "/coach/training" },
-          { label: "Wettkämpfe geplant", value: upcoming.length, icon: "trophy" as IconName, href: "/coach/kalender" },
-        ].map((kpi) => (
-          <Link key={kpi.label} href={kpi.href} className="group lg:col-span-3">
-            <Tile className="flex h-full items-center gap-4 transition group-hover:border-app-accent">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-app-accent/12 text-app-accent">
-                <Icon name={kpi.icon} className="h-6 w-6" />
-              </span>
-              <span className="min-w-0">
-                <span className="block text-2xl font-bold text-app-heading">{kpi.value}</span>
-                <span className="block text-sm text-app-muted">{kpi.label}</span>
-              </span>
-            </Tile>
-          </Link>
-        ))}
+        {/* Wochenplan */}
+        <Tile className="lg:col-span-12">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-app-muted">
+              Wochenplan · <b className="text-app-text">KW {isoWeek(weekAnchor)}</b>
+            </p>
+            <div className="flex items-center gap-1">
+              <button type="button" onClick={() => shiftWeek(-1)} className="h-8 w-8 rounded-full border border-app-border text-app-muted hover:text-app-heading" aria-label="Vorige Woche">
+                ‹
+              </button>
+              {weekAnchor !== currentMonday && (
+                <button type="button" onClick={() => setWeekAnchor(currentMonday)} className="rounded-full border border-app-border px-3 py-1 text-xs font-semibold text-app-accent">
+                  Heute
+                </button>
+              )}
+              <button type="button" onClick={() => shiftWeek(1)} className="h-8 w-8 rounded-full border border-app-border text-app-muted hover:text-app-heading" aria-label="Nächste Woche">
+                ›
+              </button>
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+            {days.map((day) => {
+              const list = weekSessions.filter((session) => session.session_date === day.date);
+              return (
+                <div key={day.date} className={`flex min-h-[120px] flex-col rounded-2xl p-2.5 ${day.today ? "bg-app-accent/12 ring-1 ring-app-accent/50" : "bg-app-bg"}`}>
+                  <p className={`text-xs font-semibold ${day.today ? "text-app-accent" : "text-app-muted"}`}>{day.label}</p>
+                  <div className="mt-1.5 flex-1 space-y-1.5">
+                    {list.map((session) => (
+                      <Link
+                        key={session.id}
+                        href={`/coach/training/session/${session.id}`}
+                        className="block rounded-xl bg-app-surface px-2 py-1.5 text-xs shadow-app transition hover:ring-1 hover:ring-app-accent"
+                      >
+                        <span className="line-clamp-2 font-semibold text-app-heading">{session.title}</span>
+                        <span className="text-app-muted">
+                          {session.start_time ? session.start_time.slice(0, 5) : ""}
+                          {session.total_meters ? ` · ${session.total_meters.toLocaleString("de-DE")} m` : ""}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                  <Link
+                    href={`/coach/training/new?day=${day.date}`}
+                    className="mt-1.5 rounded-xl border border-dashed border-app-border py-1 text-center text-sm text-app-muted transition hover:border-app-accent hover:text-app-accent"
+                    aria-label={`Training am ${day.label} planen`}
+                  >
+                    +
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </Tile>
 
-        {/* Rote Flaggen */}
-        <div className="lg:col-span-7 [&>section]:mt-0 [&>section]:rounded-3xl [&>section]:shadow-app">
-          {teamId && <RedFlagsPanel teamId={teamId} />}
-        </div>
+        {/* Athleten-Check */}
+        <div className="lg:col-span-7">{teamId && <RedFlagsPanel teamId={teamId} />}</div>
 
-        {/* Heute & naechste Einheiten */}
+        {/* Termine */}
         <Tile className="lg:col-span-5">
           <div className="flex items-center justify-between">
-            <p className="font-semibold text-app-heading">Training</p>
-            <Link href="/coach/training/new" className="text-sm text-app-accent">
-              + planen
+            <p className="text-sm text-app-muted">Nächste Termine</p>
+            <Link href="/coach/kalender" className="text-xs font-semibold text-app-accent">
+              Kalender
             </Link>
           </div>
           <ul className="mt-3 space-y-2">
-            {[...todaySessions, ...nextSessions].length === 0 && <li className="text-sm text-app-faint">Keine Einheiten in den nächsten 7 Tagen.</li>}
-            {[...todaySessions, ...nextSessions].map((session) => (
-              <li key={session.id}>
-                <Link
-                  href={`/coach/training/session/${session.id}`}
-                  className={`flex items-center justify-between gap-3 rounded-2xl px-3 py-2.5 transition hover:bg-app-elevated ${
-                    session.session_date === today ? "bg-app-accent/10" : "bg-app-bg"
-                  }`}
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-semibold text-app-heading">{session.title}</span>
+            {terms.length === 0 && <li className="text-sm text-app-faint">Keine Termine.</li>}
+            {terms.map((entry) => {
+              const date = new Date(entry.starts_at);
+              return (
+                <li key={entry.id} className="flex items-center gap-3 rounded-2xl bg-app-bg px-3 py-2">
+                  <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-app-surface shadow-app">
+                    <span className="text-[10px] uppercase text-app-muted">{date.toLocaleDateString("de-DE", { month: "short" })}</span>
+                    <span className="text-base font-bold leading-none text-app-heading">{date.getDate()}</span>
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-app-heading">{entry.title}</span>
                     <span className="text-xs text-app-muted">
-                      {session.session_date === today
-                        ? "Heute"
-                        : new Date(`${session.session_date}T12:00:00`).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" })}
-                      {session.start_time ? ` · ${session.start_time.slice(0, 5)}` : ""}
-                      {session.duration_minutes ? ` · ${session.duration_minutes} min` : ""}
+                      {getCategory(entry.category).label}
+                      {entry.location ? ` · ${entry.location}` : ""}
                     </span>
                   </span>
-                  <span className="flex shrink-0 items-center gap-2">
-                    {session.total_meters ? <span className="text-sm font-semibold tabular-nums">{session.total_meters.toLocaleString("de-DE")} m</span> : null}
-                    {session.session_date <= today && (
-                      <span className="rounded-full bg-app-accent px-2.5 py-1 text-xs font-semibold text-app-accent-ink">Anwesenheit</span>
-                    )}
-                  </span>
-                </Link>
-              </li>
-            ))}
+                  <span className="shrink-0 text-xs font-semibold text-app-muted">in {daysUntilDate(entry.starts_at.slice(0, 10), today)} T.</span>
+                </li>
+              );
+            })}
           </ul>
         </Tile>
-
-        {/* Termine und News */}
-        <div className="lg:col-span-6">
-          <UpcomingEntries href="/coach/kalender" />
-        </div>
-        <div className="lg:col-span-6">
-          <LatestNews href="/coach/news" />
-        </div>
       </div>
     </div>
   );
