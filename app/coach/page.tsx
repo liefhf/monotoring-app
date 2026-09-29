@@ -274,7 +274,7 @@ export default function CoachPage() {
         </Tile>
 
         {/* Anwesenheit */}
-        <Tile className="flex flex-col lg:col-span-3" href="/coach/athleten-check">
+        <Tile className="flex flex-col lg:col-span-3" href="/coach/anwesenheit">
           <p className="text-sm text-app-muted">Anwesenheit · 4 Wochen</p>
           {attendanceRate === null ? (
             <p className="mt-6 text-sm text-app-faint">Noch keine Anwesenheit abgehakt.</p>
