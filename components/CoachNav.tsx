@@ -36,6 +36,7 @@ export const coachNavigation: { title: string | null; items: NavItem[] }[] = [
       { href: "/coach/training", label: "Training", icon: "training" },
       { href: "/coach/competitions", label: "Wettkämpfe", icon: "trophy" },
       { href: "/coach/meldehilfe", label: "Meldehilfe", icon: "stopwatch" },
+      { href: "/coach/dms", label: "DMS-Aufstellung", icon: "teams" },
     ],
   },
   {
