@@ -49,16 +49,14 @@ export default function CoachPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [attendance, setAttendance] = useState<{ status: AttendanceStatus }[]>([]);
   const [athleteCount, setAthleteCount] = useState<number | null>(null);
-  const [teamCount, setTeamCount] = useState(0);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
 
   useEffect(() => {
     async function load() {
       const since = iso(Date.parse(today) - 8 * 7 * DAY);
       const until = iso(Date.parse(today) + 7 * DAY);
-      const [swimmerRes, teamRes, sessionRes] = await Promise.all([
+      const [swimmerRes, sessionRes] = await Promise.all([
         supabase.from("swimmers").select("id", { count: "exact", head: true }),
-        supabase.from("teams").select("id", { count: "exact", head: true }),
         fetchAll(() =>
           supabase
             .from("training_sessions")
@@ -69,7 +67,6 @@ export default function CoachPage() {
         ),
       ]);
       setAthleteCount(swimmerRes.count ?? 0);
-      setTeamCount(teamRes.count ?? 0);
       const loaded = (sessionRes.data ?? []) as Session[];
       setSessions(loaded);
 
@@ -85,7 +82,7 @@ export default function CoachPage() {
 
   const weeks = useMemo(() => weeklyVolume(sessions.filter((s) => s.session_date <= today), today, 8), [sessions, today]);
   const thisWeek = weeks[weeks.length - 1];
-  /* Mo-Fr der aktuellen Woche, inkl. geplanter Einheiten */
+  /* Mo-So der aktuellen Woche, inkl. geplanter Einheiten */
   const days = useMemo(() => weekDays(sessions, today), [sessions, today]);
   const weekTotal = days.reduce((sum, day) => sum + day.meters, 0);
   const weekDone = days.filter((day) => !day.planned).reduce((sum, day) => sum + day.meters, 0);
@@ -94,7 +91,6 @@ export default function CoachPage() {
   const nextSessions = sessions.filter((session) => session.session_date > today).slice(0, 3);
 
   const target = upcoming.find((entry) => competitionPriority(entry) === "A") ?? upcoming[0] ?? null;
-  const next = upcoming[0] ?? null;
   const countdown = target ? daysUntilDate(target.starts_at.slice(0, 10), today) : null;
 
   const attendanceData = (Object.keys(ATTENDANCE_COLORS) as AttendanceStatus[])
@@ -147,11 +143,6 @@ export default function CoachPage() {
                   <span className="mb-3 ml-auto rounded-full bg-white/20 px-3 py-1 text-xs font-bold">Priorität {competitionPriority(target)}</span>
                 )}
               </div>
-              {next && next.id !== target.id && (
-                <p className="mt-2 text-sm text-white/80">
-                  Davor: <b>{next.title}</b> in {daysUntilDate(next.starts_at.slice(0, 10), today)} Tagen
-                </p>
-              )}
               <div className="relative mt-5 flex gap-2">
                 <Link href="/coach/meldehilfe" className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0b3a6e]">
                   Meldehilfe
@@ -166,18 +157,18 @@ export default function CoachPage() {
           )}
         </section>
 
-        {/* Trainingsumfang der aktuellen Woche (Mo-Fr) */}
+        {/* Trainingsumfang der aktuellen Woche (Mo-So) */}
         <Tile className="lg:col-span-5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm text-app-muted">
-                Trainingsumfang · <b className="text-app-text">KW {isoWeek(today)}</b> ({days[0].label.slice(3)}–{days[4].label.slice(3)})
+                Trainingsumfang · <b className="text-app-text">KW {isoWeek(today)}</b> ({days[0].label.slice(3)}–{days[6].label.slice(3)})
               </p>
               <p className="text-2xl font-bold text-app-heading">
                 {(weekDone / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km
-                <span className="ml-2 text-sm font-medium text-app-muted">
-                  geschwommen{weekTotal > weekDone ? ` · ${(weekTotal / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km geplant` : ""}
-                </span>
+                {weekTotal > weekDone && (
+                  <span className="ml-2 text-sm font-medium text-app-muted">/ {(weekTotal / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km</span>
+                )}
               </p>
             </div>
             {volumeChange !== null && (
@@ -211,7 +202,6 @@ export default function CoachPage() {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-xs text-app-faint">Heute kräftig blau · geplante Tage hell · Vergleich zur Vorwoche bis heute</p>
         </Tile>
 
         {/* Anwesenheit */}
@@ -237,24 +227,14 @@ export default function CoachPage() {
               </div>
             </div>
           )}
-          {attendanceData.length > 0 && (
-            <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-app-muted">
-              {attendanceData.map((item) => (
-                <span key={item.status} className="flex items-center gap-1">
-                  <i className="inline-block h-2 w-2 rounded-full" style={{ background: ATTENDANCE_COLORS[item.status] }} />
-                  {item.status} {item.value}
-                </span>
-              ))}
-            </div>
-          )}
         </Tile>
 
         {/* Kennzahlen */}
         {[
-          { label: "Athleten", value: athleteCount ?? "–", hint: `${teamCount} ${teamCount === 1 ? "Team" : "Teams"}`, icon: "athlete" as IconName, href: "/coach/schwimmer" },
-          { label: "Einheiten diese Woche", value: thisWeek?.sessions ?? 0, hint: `Vorwoche ${lastWeek?.sessions ?? 0}`, icon: "training" as IconName, href: "/coach/training" },
-          { label: "Training heute", value: todaySessions.length, hint: todaySessions[0]?.title ?? "nichts geplant", icon: "calendar" as IconName, href: "/coach/training" },
-          { label: "Wettkämpfe geplant", value: upcoming.length, hint: next ? `nächster: ${next.title}` : "–", icon: "trophy" as IconName, href: "/coach/kalender" },
+          { label: "Athleten", value: athleteCount ?? "–", icon: "athlete" as IconName, href: "/coach/schwimmer" },
+          { label: "Einheiten diese Woche", value: thisWeek?.sessions ?? 0, icon: "training" as IconName, href: "/coach/training" },
+          { label: "Training heute", value: todaySessions.length, icon: "calendar" as IconName, href: "/coach/training" },
+          { label: "Wettkämpfe geplant", value: upcoming.length, icon: "trophy" as IconName, href: "/coach/kalender" },
         ].map((kpi) => (
           <Link key={kpi.label} href={kpi.href} className="group lg:col-span-3">
             <Tile className="flex h-full items-center gap-4 transition group-hover:border-app-accent">
@@ -264,7 +244,6 @@ export default function CoachPage() {
               <span className="min-w-0">
                 <span className="block text-2xl font-bold text-app-heading">{kpi.value}</span>
                 <span className="block text-sm text-app-muted">{kpi.label}</span>
-                <span className="block truncate text-xs text-app-faint">{kpi.hint}</span>
               </span>
             </Tile>
           </Link>

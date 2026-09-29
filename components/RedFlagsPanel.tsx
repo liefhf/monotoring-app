@@ -121,11 +121,10 @@ export default function RedFlagsPanel() {
     <section className="mt-6 overflow-hidden rounded-xl border border-app-border bg-app-surface">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-app-border px-4 py-3">
         <div>
-          <h2 className="text-sm font-semibold text-app-heading">Rote Flaggen – heute im Blick behalten</h2>
-          <p className="text-xs text-app-muted">ACWR (Belastung 7 zu 28 Tage), Schmerzen, Readiness aus dem Check-in, Anwesenheit</p>
+          <h2 className="text-sm font-semibold text-app-heading">Rote Flaggen</h2>
         </div>
         <button type="button" onClick={() => setShowAll(!showAll)} className="text-xs font-semibold text-app-accent">
-          {showAll ? "nur Auffällige" : "ACWR aller Athleten"}
+          {showAll ? "weniger" : "ACWR"}
         </button>
       </div>
 

@@ -23,10 +23,10 @@ describe("dashboardStats", () => {
 });
 
 describe("weekDays", () => {
-  it("zeigt Mo-Fr der aktuellen Woche mit Kalenderwoche", async () => {
+  it("zeigt Mo-So der aktuellen Woche mit Kalenderwoche", async () => {
     const { weekDays, isoWeek } = await import("@/lib/dashboardStats");
     const days = weekDays([{ session_date: "2026-09-29", total_meters: 4800 }, { session_date: "2026-10-01", total_meters: 4000 }], "2026-09-29");
-    expect(days.map((d) => d.label)).toEqual(["Mo 28.09", "Di 29.09", "Mi 30.09", "Do 01.10", "Fr 02.10"]);
+    expect(days.map((d) => d.label)).toEqual(["Mo 28.09", "Di 29.09", "Mi 30.09", "Do 01.10", "Fr 02.10", "Sa 03.10", "So 04.10"]);
     expect(days[1]).toMatchObject({ meters: 4800, today: true, planned: false });
     expect(days[3]).toMatchObject({ meters: 4000, planned: true });
     expect(isoWeek("2026-09-29")).toBe(40);
