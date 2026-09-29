@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -85,7 +86,9 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
     <section className="flex h-full flex-col rounded-3xl border border-app-border bg-app-surface p-5 shadow-app">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-lg font-bold text-app-heading">To-do</p>
+          <Link href="/coach/training/season" className="text-lg font-bold text-app-heading hover:text-app-accent">
+            To-do
+          </Link>
           <p className="text-sm text-app-muted">{open === 0 ? "Alles erledigt." : `${open} offen`}</p>
         </div>
         <button

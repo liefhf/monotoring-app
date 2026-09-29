@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { CALENDAR_COLUMNS, CalendarEntry } from "@/lib/community";
+import { localDateOf, CALENDAR_COLUMNS, CalendarEntry } from "@/lib/community";
 
 /*
  * Kompakter Kalender fuer das Dashboard: zwei Monate nebeneinander,
@@ -59,9 +59,9 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
   /* Tag -> Wettkampf (fuer das Band) bzw. anderer Termin (Punkt) */
   const competitionOn = (date: string) =>
     entries.find(
-      (entry) => BAND_CATEGORIES.includes(entry.category) && entry.starts_at.slice(0, 10) <= date && (entry.ends_at ?? entry.starts_at).slice(0, 10) >= date
+      (entry) => BAND_CATEGORIES.includes(entry.category) && localDateOf(entry.starts_at) <= date && localDateOf(entry.ends_at ?? entry.starts_at) >= date
     ) ?? null;
-  const otherOn = (date: string) => entries.some((entry) => !BAND_CATEGORIES.includes(entry.category) && entry.starts_at.slice(0, 10) === date);
+  const otherOn = (date: string) => entries.some((entry) => !BAND_CATEGORIES.includes(entry.category) && localDateOf(entry.starts_at) === date);
 
   const shift = (count: number) => {
     const date = new Date(Date.UTC(start.year, start.month + count, 1));
@@ -84,7 +84,9 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
                 ) : (
                   <span className="w-7 sm:hidden" />
                 )}
-                <p className="flex-1 text-center text-sm font-bold capitalize text-app-heading">{title}</p>
+                <Link href="/coach/kalender" className="flex-1 text-center text-sm font-bold capitalize text-app-heading hover:text-app-accent">
+                  {title}
+                </Link>
                 {index === 1 ? (
                   <button type="button" onClick={() => shift(1)} className="h-7 w-7 rounded-full text-app-muted hover:bg-app-elevated" aria-label="Nächster Monat">
                     ›

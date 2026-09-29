@@ -1,7 +1,7 @@
 "use client";
 
+import { localDateOf, CalendarEntry, formatEntryWhen } from "@/lib/community";
 import { useMemo, useState } from "react";
-import { CalendarEntry, formatEntryWhen } from "@/lib/community";
 import { competitionPriority } from "@/lib/nextCompetition";
 import { forecastEvent, reachChance } from "@/lib/forecast";
 import { AthleteFocus, parseFocusKey } from "@/lib/trainingFocus";
@@ -34,7 +34,7 @@ export default function ForecastCard({
   const [targetId, setTargetId] = useState(defaultTarget?.id ?? "");
   const [pool, setPool] = useState<25 | 50>(25);
   const target = upcoming.find((entry) => entry.id === targetId) ?? defaultTarget;
-  const targetDate = target ? target.starts_at.slice(0, 10) : null;
+  const targetDate = target ? localDateOf(target.starts_at) : null;
 
   const events: { event: SwimEvent; role: "haupt" | "neben" | null }[] = useMemo(() => {
     if (focus.events?.length) return focus.events.map(parseFocusKey);

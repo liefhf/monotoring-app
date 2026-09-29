@@ -1,8 +1,8 @@
 "use client";
 
+import { localDateOf, CalendarEntry, formatEntryWhen } from "@/lib/community";
 import { useEffect, useMemo, useState } from "react";
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { CalendarEntry, formatEntryWhen } from "@/lib/community";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { loadAthleteDailyLoads } from "@/lib/athleteLoads";
 import { DailyLoad, formCurve, taperAdvice } from "@/lib/formCurve";
@@ -28,7 +28,7 @@ export default function FormCurvePanel({ swimmerId }: { swimmerId: string }) {
   }, []);
 
   const target = upcoming.find((entry) => entry.id === targetId) ?? upcoming.find((entry) => competitionPriority(entry) === "A") ?? upcoming[0] ?? null;
-  const targetDate = target ? target.starts_at.slice(0, 10) : iso(Date.parse(today) + 21 * DAY);
+  const targetDate = target ? localDateOf(target.starts_at) : iso(Date.parse(today) + 21 * DAY);
   /* 90 Tage Vorlauf, damit die Fitness (42 Tage) eingeschwungen ist */
   const from = iso(Date.parse(today) - 90 * DAY);
 

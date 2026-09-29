@@ -160,6 +160,11 @@ export const MONTH_NAMES = [
 ];
 
 /* Lokales Datum als "2026-09-27" */
+/* Lokales Kalenderdatum eines Zeitstempels ("2026-10-23T22:00:00Z" -> "2026-10-24" in Berlin) */
+export function localDateOf(timestamp: string) {
+  return toDateKey(new Date(timestamp));
+}
+
 export function toDateKey(date: Date) {
   const month = `${date.getMonth() + 1}`.padStart(2, "0");
   const day = `${date.getDate()}`.padStart(2, "0");

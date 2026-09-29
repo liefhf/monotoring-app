@@ -34,3 +34,12 @@ describe("weekDays", () => {
     expect(isoWeek("2027-01-01")).toBe(53);
   });
 });
+
+describe("localDateOf", () => {
+  it("nimmt das lokale Datum eines Zeitstempels (Berlin)", async () => {
+    const { localDateOf } = await import("@/lib/community");
+    process.env.TZ = "Europe/Berlin";
+    // 24.10. 00:00 Berlin = 23.10. 22:00 UTC
+    expect(localDateOf("2026-10-23T22:00:00+00:00")).toBe("2026-10-24");
+  });
+});

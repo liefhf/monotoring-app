@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { localDateOf, CalendarEntry } from "@/lib/community";
 import {
   QualifyingStandard,
   QualifyingTime,
@@ -21,7 +22,6 @@ import { focusFromRow, competitionPriority, loadUpcomingCompetitions } from "@/l
 import { AthleteFocus, parseFocusKey } from "@/lib/trainingFocus";
 import { forecastEvent, reachChance } from "@/lib/forecast";
 import { LactateTest, analyzeLactateTest, formatPace } from "@/lib/lactate";
-import { CalendarEntry } from "@/lib/community";
 import { RoleBadge } from "@/components/FocusBadge";
 import { Card, Notice, inputClass } from "@/components/ui";
 
@@ -125,7 +125,7 @@ export default function MeinFortschrittPage() {
                 const required = standard ? findQualifyingTime(standardTimes, swimmer, event) : null;
                 const counting = standard && required ? findBestForStandard(results, event, standard) : null;
                 const gap = required && counting ? counting.time_ms - required.time_ms : null;
-                const forecast = target && required ? forecastEvent(results, event, 25, today, target.starts_at.slice(0, 10)) : null;
+                const forecast = target && required ? forecastEvent(results, event, 25, today, localDateOf(target.starts_at)) : null;
                 const chance = forecast && required ? reachChance(forecast, required.time_ms) : null;
                 const progress = required && counting ? Math.max(0, Math.min(100, (required.time_ms / counting.time_ms) * 100)) : null;
                 if (!best25 && !best50) return null;

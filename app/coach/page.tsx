@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { supabase } from "@/lib/supabase";
 import { fetchAll } from "@/lib/fetchAll";
-import { CalendarEntry, formatEntryWhen } from "@/lib/community";
+import { CalendarEntry, formatEntryWhen, localDateOf, toDateKey } from "@/lib/community";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { daysUntilDate, isoWeek, weekDays, weekStart } from "@/lib/dashboardStats";
 import { AttendanceStatus } from "@/lib/attendance";
@@ -44,12 +44,20 @@ const ATTENDANCE_COLORS: Record<AttendanceStatus, string> = {
 
 const ATTENDANCE_LABELS: Record<AttendanceStatus, string> = { anwesend: "da", entschuldigt: "entsch.", krank: "krank", fehlt: "fehlt" };
 
-function Tile({ className = "", children }: { className?: string; children: React.ReactNode }) {
-  return <section className={`rounded-3xl border border-app-border bg-app-surface p-5 shadow-app ${className}`}>{children}</section>;
+function Tile({ className = "", href, children }: { className?: string; href?: string; children: React.ReactNode }) {
+  const classes = `rounded-3xl border border-app-border bg-app-surface p-5 shadow-app ${className}`;
+  /* Mit href ist die ganze Karte ein Link zur passenden Seite */
+  return href ? (
+    <Link href={href} className={`block transition hover:border-app-accent ${classes}`}>
+      {children}
+    </Link>
+  ) : (
+    <section className={classes}>{children}</section>
+  );
 }
 
 export default function CoachPage() {
-  const [today] = useState(() => iso(Date.now()));
+  const [today] = useState(() => toDateKey(new Date()));
   const [attendance, setAttendance] = useState<{ status: AttendanceStatus }[]>([]);
   const [athleteCount, setAthleteCount] = useState<number | null>(null);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
@@ -142,7 +150,7 @@ export default function CoachPage() {
   const weekDone = days.filter((day) => !day.planned).reduce((sum, day) => sum + day.meters, 0);
 
   const target = upcoming.find((entry) => competitionPriority(entry) === "A") ?? upcoming[0] ?? null;
-  const countdown = target ? daysUntilDate(target.starts_at.slice(0, 10), today) : null;
+  const countdown = target ? daysUntilDate(localDateOf(target.starts_at), today) : null;
 
   const attendanceData = (Object.keys(ATTENDANCE_COLORS) as AttendanceStatus[])
     .map((status) => ({ status, value: attendance.filter((entry) => entry.status === status).length }))
@@ -199,7 +207,9 @@ export default function CoachPage() {
           <p className="text-sm font-medium text-white/75">Nächster Höhepunkt</p>
           {target ? (
             <>
-              <p className="mt-1 text-xl font-bold leading-tight">{target.title}</p>
+              <Link href="/coach/kalender" className="relative mt-1 block text-xl font-bold leading-tight hover:underline">
+                {target.title}
+              </Link>
               <p className="text-sm text-white/75">
                 {formatEntryWhen(target)}
                 {target.location ? ` · ${target.location}` : ""}
@@ -226,7 +236,7 @@ export default function CoachPage() {
         </section>
 
         {/* Trainingsumfang der aktuellen Woche (Mo-So) */}
-        <Tile className="lg:col-span-5">
+        <Tile className="lg:col-span-5" href="/coach/training">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm text-app-muted">
@@ -273,7 +283,7 @@ export default function CoachPage() {
         </Tile>
 
         {/* Anwesenheit */}
-        <Tile className="flex flex-col lg:col-span-3">
+        <Tile className="flex flex-col lg:col-span-3" href="/coach/athleten-check">
           <p className="text-sm text-app-muted">Anwesenheit · 4 Wochen</p>
           {attendanceRate === null ? (
             <p className="mt-6 text-sm text-app-faint">Noch keine Anwesenheit abgehakt.</p>
@@ -321,9 +331,9 @@ export default function CoachPage() {
         {/* Wochenplan */}
         <Tile className="lg:col-span-12">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-app-muted">
+            <Link href="/coach/training" className="text-sm text-app-muted hover:text-app-accent">
               Wochenplan · <b className="text-app-text">KW {isoWeek(weekAnchor)}</b>
-            </p>
+            </Link>
             <div className="flex items-center gap-1">
               <button type="button" onClick={() => shiftWeek(-1)} className="h-8 w-8 rounded-full border border-app-border text-app-muted hover:text-app-heading" aria-label="Vorige Woche">
                 ‹
