@@ -101,6 +101,13 @@ async function loadRows(today: string, teamId: string | null): Promise<Row[]> {
   });
 }
 
+const CHECKS: { kind: Flag["kind"]; label: string; icon: string }[] = [
+  { kind: "acwr", label: "Belastung", icon: "📈" },
+  { kind: "schmerz", label: "Schmerzen", icon: "🩹" },
+  { kind: "befinden", label: "Readiness", icon: "🔋" },
+  { kind: "anwesenheit", label: "Anwesenheit", icon: "🗓" },
+];
+
 const TONE: Record<string, string> = {
   good: "text-app-good",
   warn: "text-app-warn",
@@ -127,37 +134,45 @@ export default function RedFlagsPanel({ teamId = null }: { teamId?: string | nul
       <div className="flex items-center justify-between gap-2 px-5 pt-5">
         <p className="text-sm text-app-muted">Athleten-Check</p>
         <button type="button" onClick={() => setShowAll(!showAll)} className="text-xs font-semibold text-app-accent">
-          {showAll ? "weniger" : "Belastung"}
+          {showAll ? "weniger" : "ACWR-Tabelle"}
         </button>
       </div>
 
+      {/* Vier Bereiche auf einen Blick: Anzahl auffaelliger Athleten je Bereich */}
+      <div className="grid grid-cols-4 gap-2 px-5 pt-3">
+        {CHECKS.map((check) => {
+          const affected = rows.filter((row) => row.flags.some((flag) => flag.kind === check.kind));
+          const red = affected.some((row) => row.flags.some((flag) => flag.kind === check.kind && flag.level === "rot"));
+          return (
+            <div
+              key={check.kind}
+              className={`rounded-2xl px-2 py-3 text-center ${
+                affected.length === 0 ? "bg-app-good/10" : red ? "bg-app-bad/10" : "bg-app-warn/15"
+              }`}
+            >
+              <span className="block text-xl">{check.icon}</span>
+              <span className={`block text-lg font-bold ${affected.length === 0 ? "text-app-good" : red ? "text-app-bad" : "text-app-warn"}`}>
+                {affected.length === 0 ? "✓" : affected.length}
+              </span>
+              <span className="block text-[11px] text-app-muted">{check.label}</span>
+            </div>
+          );
+        })}
+      </div>
+
       {flagged.length === 0 ? (
-        <div className="flex items-center gap-4 px-5 pb-5 pt-3">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-app-good/12 text-xl font-bold text-app-good">✓</span>
-          <span>
-            <span className="block text-lg font-bold text-app-heading">Alle im grünen Bereich</span>
-            <span className="text-sm text-app-muted">keine Auffälligkeiten</span>
-          </span>
-        </div>
+        <p className="px-5 pb-5 pt-3 text-sm text-app-muted">Alle {rows.length} Athleten im grünen Bereich.</p>
       ) : (
-        <ul className="space-y-2 px-3 pb-3 pt-3">
+        <ul className="space-y-1.5 px-3 pb-3 pt-3">
           {flagged.map((row) => (
-            <li key={row.id} className="flex flex-wrap items-start gap-x-4 gap-y-1 rounded-2xl bg-app-bg px-3 py-2.5">
-              <Link href={`/coach/schwimmer/${row.id}`} className="w-40 shrink-0 text-sm font-semibold text-app-heading hover:text-app-accent">
-                {row.flags.some((flag) => flag.level === "rot") ? "🔴" : "🟡"} {row.name}
+            <li key={row.id}>
+              <Link href={`/coach/schwimmer/${row.id}`} className="flex items-center gap-3 rounded-2xl bg-app-bg px-3 py-2 transition hover:ring-1 hover:ring-app-accent">
+                <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${row.flags.some((flag) => flag.level === "rot") ? "bg-app-bad" : "bg-app-warn"}`} />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold text-app-heading">{row.name}</span>
+                  <span className="block truncate text-xs text-app-muted">{row.flags.map((flag) => flag.text).join(" · ")}</span>
+                </span>
               </Link>
-              <div className="flex flex-1 flex-wrap gap-1.5">
-                {row.flags.map((flag) => (
-                  <span
-                    key={flag.text}
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      flag.level === "rot" ? "bg-app-bad/10 text-app-bad" : "bg-app-warn/15 text-app-warn"
-                    }`}
-                  >
-                    {flag.text}
-                  </span>
-                ))}
-              </div>
             </li>
           ))}
         </ul>

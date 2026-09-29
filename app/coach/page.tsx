@@ -5,12 +5,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { supabase } from "@/lib/supabase";
 import { fetchAll } from "@/lib/fetchAll";
-import { CALENDAR_COLUMNS, CalendarEntry, formatEntryWhen, getCategory } from "@/lib/community";
+import { CalendarEntry, formatEntryWhen } from "@/lib/community";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { daysUntilDate, isoWeek, weekDays, weekStart } from "@/lib/dashboardStats";
 import { AttendanceStatus } from "@/lib/attendance";
 import { Icon, IconName } from "@/components/icons";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
+import TodoCard from "@/components/TodoCard";
 
 /*
  * Coach-Dashboard im Kachel-Raster ("Bento"): Wettkampf-Countdown als
@@ -56,7 +57,6 @@ export default function CoachPage() {
   /* angezeigte Woche (Montag) - vor und zurueck blaetterbar */
   const [weekAnchor, setWeekAnchor] = useState(() => weekStart(iso(Date.now())));
   const [weekSessions, setWeekSessions] = useState<Session[]>([]);
-  const [terms, setTerms] = useState<CalendarEntry[]>([]);
 
   useEffect(() => {
     supabase
@@ -132,16 +132,6 @@ export default function CoachPage() {
     ).then(({ data }) => setWeekSessions((data ?? []) as Session[]));
   }, [teamId, weekAnchor]);
 
-  useEffect(() => {
-    if (!teamId) return;
-    supabase
-      .from("calendar_entries")
-      .select(CALENDAR_COLUMNS)
-      .gte("starts_at", new Date(`${today}T00:00:00`).toISOString())
-      .order("starts_at")
-      .limit(12)
-      .then(({ data }) => setTerms(((data ?? []) as CalendarEntry[]).filter((entry) => !entry.team_id || entry.team_id === teamId).slice(0, 5)));
-  }, [teamId, today]);
 
   /* Mo-So der aktuellen Woche, inkl. geplanter Einheiten */
   const days = useMemo(() => weekDays(weekSessions, today, weekAnchor), [weekSessions, today, weekAnchor]);
@@ -380,20 +370,26 @@ export default function CoachPage() {
         </Tile>
 
         {/* Athleten-Check */}
-        <div className="lg:col-span-7">{teamId && <RedFlagsPanel teamId={teamId} />}</div>
+        <div className="lg:col-span-4">{teamId && <RedFlagsPanel teamId={teamId} />}</div>
 
-        {/* Termine */}
-        <Tile className="lg:col-span-5">
+        {/* To-do */}
+        <div className="lg:col-span-4">
+          <TodoCard teamId={teamId} />
+        </div>
+
+        {/* Naechste Wettkaempfe */}
+        <Tile className="lg:col-span-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-app-muted">Nächste Termine</p>
+            <p className="text-sm text-app-muted">Nächste Wettkämpfe</p>
             <Link href="/coach/kalender" className="text-xs font-semibold text-app-accent">
               Kalender
             </Link>
           </div>
-          <ul className="mt-3 space-y-2">
-            {terms.length === 0 && <li className="text-sm text-app-faint">Keine Termine.</li>}
-            {terms.map((entry) => {
+          <ul className="mt-3 space-y-1.5">
+            {upcoming.length === 0 && <li className="text-sm text-app-faint">Keine Wettkämpfe geplant.</li>}
+            {upcoming.slice(0, 5).map((entry) => {
               const date = new Date(entry.starts_at);
+              const priority = competitionPriority(entry);
               return (
                 <li key={entry.id} className="flex items-center gap-3 rounded-2xl bg-app-bg px-3 py-2">
                   <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-app-surface shadow-app">
@@ -402,12 +398,17 @@ export default function CoachPage() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold text-app-heading">{entry.title}</span>
-                    <span className="text-xs text-app-muted">
-                      {getCategory(entry.category).label}
-                      {entry.location ? ` · ${entry.location}` : ""}
-                    </span>
+                    <span className="text-xs text-app-muted">in {daysUntilDate(entry.starts_at.slice(0, 10), today)} Tagen</span>
                   </span>
-                  <span className="shrink-0 text-xs font-semibold text-app-muted">in {daysUntilDate(entry.starts_at.slice(0, 10), today)} T.</span>
+                  {priority && (
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
+                        priority === "A" ? "bg-app-accent text-app-accent-ink" : "bg-app-elevated text-app-muted"
+                      }`}
+                    >
+                      {priority}
+                    </span>
+                  )}
                 </li>
               );
             })}
