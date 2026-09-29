@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import RedFlagsPanel from "@/components/RedFlagsPanel";
 import {
   LatestNews,
   QuickTiles,
@@ -762,6 +763,9 @@ export default function CoachPage() {
           + Training erstellen
         </Link>
       </div>
+
+      {/* Rote Flaggen: wer braucht heute Aufmerksamkeit? */}
+      <RedFlagsPanel />
 
       {/* Schnellzugriff und was als Naechstes ansteht */}
       <section className="mt-6">
