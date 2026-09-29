@@ -1967,7 +1967,7 @@ function TrainingEditor() {
         )}
 
         <div className="mt-6">
-          <WeekFocusPanel onInsert={insertSuggestedBlock} />
+          <WeekFocusPanel onInsert={insertSuggestedBlock} poolLength={Number(poolLength)} />
         </div>
 
         <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">

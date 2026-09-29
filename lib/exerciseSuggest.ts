@@ -70,18 +70,29 @@ function mainRows(topic: Topic, style: string, label: string): SuggestionRow[] {
       return [
         row("hauptblock", 8, 25, `${label}: max. Sprint, volle Erholung`, style, "BZ8 (S)", "60"),
         row("hauptblock", 4, 15, `${label}: aus dem Wasser antreten, 15 m explosiv`, style, "BZ8 (S)", "45"),
+        row("hauptblock", 4, 50, `${label}: 12,5 m max + locker ausschwimmen`, style, "BZ5 (GA2)", "40"),
       ];
     case "ausdauer":
-      return [row("hauptblock", 8, 100, `${label}: gleichmäßig, Zugzahl konstant`, style, "BZ3 (GA1)", "20")];
+      return [
+        row("hauptblock", 8, 100, `${label}: gleichmäßig, Zugzahl konstant`, style, "BZ3 (GA1)", "20"),
+        row("hauptblock", 4, 200, `${label}: 1–4 steigern (GA1 → GA2)`, style, "BZ4 (GA2)", "30"),
+      ];
     case "tempo":
       return [
         row("hauptblock", 6, 50, `${label}: Renntempo, Wende scharf`, style, "BZ6 (WA)", "60"),
         row("hauptblock", 3, 100, `${label}: 2. Hälfte schneller (negativ splitten)`, style, "BZ4 (GA2)", "30"),
+        row("hauptblock", 4, 50, `${label}: Broken – 25 m Renntempo, 10 s Pause, 25 m`, style, "BZ6 (WA)", "60"),
       ];
     case "beine":
-      return [row("hauptblock", 8, 50, `${label} Beine mit Brett, 25 m schnell / 25 m locker`, "Beine", "BZ4 (GA2)", "20")];
+      return [
+        row("hauptblock", 8, 50, `${label} Beine mit Brett, 25 m schnell / 25 m locker`, "Beine", "BZ4 (GA2)", "20"),
+        row("hauptblock", 4, 100, `${label} Beine ohne Brett in Seitlage`, "Beine", "BZ3 (GA1)", "20"),
+      ];
     case "arme":
-      return [row("hauptblock", 6, 100, `${label} Arme mit Pullbuoy + Paddles, langer Zug`, "Arme", "BZ3 (GA1)", "20")];
+      return [
+        row("hauptblock", 6, 100, `${label} Arme mit Pullbuoy + Paddles, langer Zug`, "Arme", "BZ3 (GA1)", "20"),
+        row("hauptblock", 4, 50, `${label} Arme mit Pullbuoy, kräftig durchziehen`, "Arme", "BZ4 (GA2)", "20"),
+      ];
     case "locker":
       return [row("hauptblock", 4, 100, `${label} locker, Technik sauber halten`, style, "BZ2 (GA1)", "15")];
     default:
@@ -89,13 +100,49 @@ function mainRows(topic: Topic, style: string, label: string): SuggestionRow[] {
   }
 }
 
+/* Technikuebungen je Lage (je 25 m gedacht, auf der 50m-Bahn werden daraus 50er) */
+const DRILLS: Record<Exclude<StrokeKey, "Lagen">, string[]> = {
+  Kraul: [
+    "Kraul Abschlagschwimmen, Hand vorne kurz halten",
+    "Kraul Einarm (anderer Arm vorne), Atmung zur Zugarmseite",
+    "Kraul Reißverschluss: Daumen an der Körperseite hochziehen",
+    "Kraul 6-Beinschläge – 1 Zug (Seitlage, Rotation)",
+    "Kraul Faustschwimmen, dann offene Hand",
+  ],
+  Rücken: [
+    "Rücken Einarm, Schulter führt aus dem Wasser",
+    "Rücken Doppelarm, Hüfte hoch halten",
+    "Rücken 6 Beine Seitlage – 3 Züge (Rotation)",
+    "Rücken mit Becher/Brett auf der Stirn, Kopf ruhig",
+  ],
+  Brust: [
+    "Brust 2 Beinschläge – 1 Zug, lange Gleitphase",
+    "Brust Beine in Rückenlage, Knie bleiben unter Wasser",
+    "Brust Arme mit Kraulbeinen, Zug schnell nach vorn schieben",
+    "Brust Zugzahl zählen, pro Bahn 1 Zug weniger",
+  ],
+  Schmetterling: [
+    "Schmetterling Einarm (anderer Arm vorne), 2 Beinschläge pro Zug",
+    "Schmetterling 3 Züge Rechts – 3 Links – 3 Ganz",
+    "Delfinbeine in Rückenlage, Bewegung aus der Hüfte",
+    "Schmetterling ganze Lage 12,5 m sauber, Rest locker Kraul",
+  ],
+};
+
 function techniqueRows(topic: Topic, style: string, label: string): SuggestionRow[] {
   switch (topic) {
-    case "technik":
+    case "technik": {
+      if (style === "Lagen") {
+        return (["Schmetterling", "Rücken", "Brust", "Kraul"] as const).map((stroke) =>
+          row("technik", 2, 25, `${DRILLS[stroke][0]} / ${DRILLS[stroke][1]}`, stroke, "BZ1 (Rekom)", "15")
+        ).concat([row("technik", 4, 100, "Lagen-Übergänge: Wechsel S→R, R→B, B→F sauber, ohne Stopp", "Lagen", "BZ2 (GA1)", "20")]);
+      }
+      const drills = DRILLS[style as keyof typeof DRILLS] ?? DRILLS.Kraul;
       return [
-        row("technik", 8, 25, `${label}-Technik: Übung Einarm / Abschlag, Fokus Wasserlage`, style, "BZ1 (Rekom)", "15"),
+        ...drills.slice(0, 3).map((drill) => row("technik", 4, 25, drill, style, "BZ1 (Rekom)", "15")),
         row("technik", 4, 50, `${label} Zugzahl reduzieren (−2 pro Bahn)`, style, "BZ2 (GA1)", "20"),
       ];
+    }
     case "wende":
       return style === "Rücken"
         ? [row("technik", 8, 25, "Rückenwende: Drehen in Bauchlage, letzter Armzug, sofort Rolle – kein Gleiten", "Rücken", "BZ1 (Rekom)", "20")]
@@ -113,7 +160,7 @@ function techniqueRows(topic: Topic, style: string, label: string): SuggestionRo
   }
 }
 
-export function suggestExercises(input: string, week: WeekFocus | null): Suggestion {
+export function suggestExercises(input: string, week: WeekFocus | null, poolLength: 25 | 50 = 25): Suggestion {
   const text = input.toLowerCase();
   const topics = TOPIC_WORDS.filter(([pattern]) => pattern.test(text)).map(([, topic]) => topic);
   const strokes = STROKE_WORDS.filter(([pattern]) => pattern.test(text)).map(([, stroke]) => stroke);
@@ -121,7 +168,10 @@ export function suggestExercises(input: string, week: WeekFocus | null): Suggest
   const minutes = minutesMatch ? Number(minutesMatch[1]) : null;
   const notes: string[] = [];
 
-  const rows: SuggestionRow[] = [row("einschwimmen", 1, 400, "Einschwimmen gemischt (200 Kraul, 100 Rücken, 100 Brust)", "Beliebig", "BZ2 (GA1)", "")];
+  const rows: SuggestionRow[] = [
+    row("einschwimmen", 1, 600, "Einschwimmen ganze Lage beliebig", "Beliebig", "BZ2 (GA1)", ""),
+    row("einschwimmen", 1, 200, "Beine Kraul mit Brett", "Beine", "BZ4 (GA2)", ""),
+  ];
   const strokeList: StrokeKey[] = strokes.length ? strokes : ["Kraul"];
 
   /* Wochenfokus: Technik aus Disqualifikationen gehoert immer dazu */
@@ -186,5 +236,20 @@ export function suggestExercises(input: string, week: WeekFocus | null): Suggest
     notes.push(`Umfang grob auf ${minutes} min angepasst (ca. ${Math.round(target / 100) / 10} km).`);
   }
 
-  return { topics, strokes, minutes, rows, notes };
+  if (poolLength === 50) notes.push("An die 50m-Bahn angepasst: 25er werden zu 50ern, Wenden-Übungen ab Bahnmitte.");
+  return { topics, strokes, minutes, rows: fitPool(rows, poolLength), notes };
+}
+
+/*
+ * Bahnlaenge: auf der 50m-Bahn gehen 25er nicht auf. Wenden/Anschlag ab
+ * Bahnmitte (25 m bleiben), sonst 50er mit halb so vielen Wiederholungen.
+ * 15er (Starts, Antritte) bleiben.
+ */
+export function fitPool(rows: SuggestionRow[], poolLength: 25 | 50): SuggestionRow[] {
+  if (poolLength === 25) return rows;
+  return rows.map((entry) => {
+    if (entry.distance !== 25) return entry;
+    if (/wende|anschlag/i.test(entry.exercise)) return { ...entry, exercise: `ab Bahnmitte: ${entry.exercise}` };
+    return { ...entry, distance: 50, repetitions: Math.max(2, Math.ceil(entry.repetitions / 2)) };
+  });
 }

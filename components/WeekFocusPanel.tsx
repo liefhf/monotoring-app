@@ -31,7 +31,7 @@ const SECTION_LABEL: Record<string, string> = {
  * Wochenfokus in der Trainingsplanung: fasst den aktuellen Stand aller
  * Athleten zusammen und schlaegt Bausteine vor (Hauptteil A/B, Technik).
  */
-export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: SuggestedBlock) => void }) {
+export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert?: (block: SuggestedBlock) => void; poolLength?: number }) {
   const [swimmers, setSwimmers] = useState<Swimmer[]>([]);
   const [focusBySwimmer, setFocusBySwimmer] = useState<Map<string, AthleteFocus>>(new Map());
   const [results, setResults] = useState<SwimmerResult[]>([]);
@@ -97,7 +97,7 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
   );
 
   function makeSuggestion() {
-    const result = suggestExercises(request, week);
+    const result = suggestExercises(request, week, poolLength === 50 ? 50 : 25);
     setSuggestion(result);
     setPicked(result.rows.map((_, index) => index));
   }
