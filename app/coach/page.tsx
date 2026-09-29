@@ -40,6 +40,8 @@ const ATTENDANCE_COLORS: Record<AttendanceStatus, string> = {
   fehlt: "var(--app-bad)",
 };
 
+const ATTENDANCE_LABELS: Record<AttendanceStatus, string> = { anwesend: "da", entschuldigt: "entsch.", krank: "krank", fehlt: "fehlt" };
+
 function Tile({ className = "", children }: { className?: string; children: React.ReactNode }) {
   return <section className={`rounded-3xl border border-app-border bg-app-surface p-5 shadow-app ${className}`}>{children}</section>;
 }
@@ -252,27 +254,48 @@ export default function CoachPage() {
         </Tile>
 
         {/* Anwesenheit */}
-        <Tile className="lg:col-span-3">
+        <Tile className="flex flex-col lg:col-span-3">
           <p className="text-sm text-app-muted">Anwesenheit · 4 Wochen</p>
           {attendanceRate === null ? (
             <p className="mt-6 text-sm text-app-faint">Noch keine Anwesenheit abgehakt.</p>
           ) : (
-            <div className="relative mt-2 h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={attendanceData} dataKey="value" nameKey="status" innerRadius="68%" outerRadius="95%" paddingAngle={3} stroke="none">
-                    {attendanceData.map((item) => (
-                      <Cell key={item.status} fill={ATTENDANCE_COLORS[item.status]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: "var(--app-surface)", border: "1px solid var(--app-border)", borderRadius: 12 }} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-app-heading">{attendanceRate} %</span>
-                <span className="text-xs text-app-muted">anwesend</span>
+            <>
+              <div className="relative mx-auto mt-1 h-36 w-36">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={attendanceData}
+                      dataKey="value"
+                      nameKey="status"
+                      innerRadius="78%"
+                      outerRadius="100%"
+                      startAngle={90}
+                      endAngle={-270}
+                      paddingAngle={2}
+                      cornerRadius={6}
+                      stroke="none"
+                    >
+                      {attendanceData.map((item) => (
+                        <Cell key={item.status} fill={ATTENDANCE_COLORS[item.status]} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-3xl font-bold text-app-heading">{attendanceRate}%</span>
+                  <span className="text-[11px] text-app-muted">anwesend</span>
+                </div>
               </div>
-            </div>
+              <div className="mt-auto grid grid-cols-4 gap-1 pt-3 text-center">
+                {(Object.keys(ATTENDANCE_COLORS) as AttendanceStatus[]).map((status) => (
+                  <div key={status}>
+                    <span className="mx-auto mb-1 block h-1.5 w-6 rounded-full" style={{ background: ATTENDANCE_COLORS[status] }} />
+                    <span className="block text-base font-bold text-app-heading">{attendance.filter((entry) => entry.status === status).length}</span>
+                    <span className="block text-[10px] text-app-muted">{ATTENDANCE_LABELS[status]}</span>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </Tile>
 
