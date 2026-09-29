@@ -83,8 +83,20 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
 
   return (
     <section className="flex h-full flex-col rounded-3xl border border-app-border bg-app-surface p-5 shadow-app">
-      <p className="text-lg font-bold text-app-heading">To-do</p>
-      <p className="text-sm text-app-muted">{open === 0 ? "Alles erledigt." : `${open} offen`}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-lg font-bold text-app-heading">To-do</p>
+          <p className="text-sm text-app-muted">{open === 0 ? "Alles erledigt." : `${open} offen`}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setAdding(!adding)}
+          aria-label={adding ? "Abbrechen" : "Aufgabe hinzufügen"}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-app-heading text-xl font-semibold leading-none text-app-surface transition hover:opacity-90"
+        >
+          {adding ? "×" : "+"}
+        </button>
+      </div>
 
       <ul className="mt-4 flex-1 space-y-4">
         {tasks.slice(0, 6).map((task) => {
@@ -113,7 +125,7 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
         })}
       </ul>
 
-      {adding ? (
+      {adding && (
         <form onSubmit={add} className="mt-4 space-y-2">
           <input
             autoFocus
@@ -129,10 +141,6 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
             </button>
           </div>
         </form>
-      ) : (
-        <button type="button" onClick={() => setAdding(true)} className="mt-4 w-full rounded-full bg-app-heading py-2.5 text-sm font-semibold text-app-surface transition hover:opacity-90">
-          Aufgabe hinzufügen
-        </button>
       )}
       {error && <p className="mt-2 text-xs text-app-bad">{error}</p>}
     </section>
