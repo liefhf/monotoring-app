@@ -6,8 +6,7 @@ import { supabase } from "@/lib/supabase";
 /*
  * To-do-Liste auf dem Dashboard. Nutzt die vorhandenen Aufgaben/Fristen
  * (calendar_tasks) - dieselben wie in Kalender und Jahresplanung.
- * Abhaken = erledigt (gespeichert); erledigte bleiben bis zum Neuladen
- * durchgestrichen sichtbar und lassen sich wieder zuruecknehmen.
+ * Abhaken = erledigt (gespeichert) und verschwindet aus der Liste.
  */
 
 type Task = { id: string; title: string; description: string | null; due_date: string | null; completed: boolean; team_id: string | null };
@@ -60,14 +59,16 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
     await load();
   }
 
-  async function toggle(task: Task) {
-    const completed = !task.completed;
-    setTasks((current) => current.map((item) => (item.id === task.id ? { ...item, completed } : item)));
-    const { error: updateError } = await supabase.from("calendar_tasks").update({ completed }).eq("id", task.id);
+  /* Abhaken: kurz als erledigt zeigen, dann aus der Liste nehmen */
+  async function complete(task: Task) {
+    setTasks((current) => current.map((item) => (item.id === task.id ? { ...item, completed: true } : item)));
+    const { error: updateError } = await supabase.from("calendar_tasks").update({ completed: true }).eq("id", task.id);
     if (updateError) {
       setError(`Konnte nicht gespeichert werden: ${updateError.message}`);
       await load();
+      return;
     }
+    setTimeout(() => setTasks((current) => current.filter((item) => item.id !== task.id)), 400);
   }
 
   const dueText = (date: string | null) => {
@@ -98,12 +99,16 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
         </button>
       </div>
 
-      <ul className="mt-4 flex-1 space-y-4">
+      <ul className="mt-4 flex-1 space-y-2.5">
         {tasks.slice(0, 6).map((task) => {
           const due = dueText(task.due_date);
           return (
-            <li key={task.id}>
-              <button type="button" onClick={() => toggle(task)} className="flex w-full items-start gap-3 text-left">
+            <li key={task.id} className={`transition-opacity duration-300 ${task.completed ? "opacity-0" : "opacity-100"}`}>
+              <button
+                type="button"
+                onClick={() => complete(task)}
+                className="flex w-full items-start gap-3 rounded-xl border border-app-border px-3.5 py-3 text-left transition hover:border-app-accent"
+              >
                 <span
                   className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 text-xs font-bold transition ${
                     task.completed ? "border-app-heading bg-app-heading text-app-surface" : "border-app-muted"
@@ -112,9 +117,9 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
                   {task.completed ? "✓" : ""}
                 </span>
                 <span className="min-w-0">
-                  <span className={`block font-semibold ${task.completed ? "text-app-muted line-through" : "text-app-heading"}`}>{task.title}</span>
+                  <span className={`block text-sm font-semibold ${task.completed ? "text-app-muted line-through" : "text-app-heading"}`}>{task.title}</span>
                   {(task.description || due) && (
-                    <span className={`block text-sm ${task.completed ? "text-app-faint" : due?.tone ?? "text-app-muted"}`}>
+                    <span className={`block text-xs ${task.completed ? "text-app-faint" : due?.tone ?? "text-app-muted"}`}>
                       {task.description ?? due?.text}
                     </span>
                   )}
