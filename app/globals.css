@@ -127,6 +127,37 @@
   }
 }
 
+/* ---------- Sonnen-Modus (Beckenrand) ----------
+   Maximaler Kontrast unabhaengig von hell/dunkel: weisser Grund,
+   schwarze Schrift, kraeftige Kanten und Signalfarben, etwas groesser.
+   Wird ueber data-contrast="sonne" auf <html> gesetzt
+   (components/ContrastToggle.tsx). Steht nach den Dunkel-Regeln,
+   damit es sie ueberschreibt. */
+:root[data-contrast="sonne"] {
+  color-scheme: light;
+  --app-bg: #ffffff;
+  --app-surface: #ffffff;
+  --app-elevated: #e6e6e6;
+  --app-border: #1a1a1a;
+  --app-heading: #000000;
+  --app-text: #000000;
+  --app-muted: #1f1f1f;
+  --app-faint: #3a3a3a;
+  --app-accent: #0047b3;
+  --app-accent-ink: #ffffff;
+  --app-good: #006b3c;
+  --app-warn: #8a4b00;
+  --app-bad: #b00012;
+  --chart-25: #0047b3;
+  --chart-50: #c2410c;
+  --app-shadow: none;
+}
+
+:root[data-contrast="sonne"] body {
+  font-size: 17px;
+  font-weight: 500;
+}
+
 @theme inline {
   --color-app-bg: var(--app-bg);
   --color-app-surface: var(--app-surface);

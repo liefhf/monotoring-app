@@ -24,7 +24,7 @@ export const metadata: Metadata = {
  * Seite gezeichnet wird - sonst blitzt kurz das falsche auf.
  * Ohne gespeicherte Wahl entscheidet die Geraeteeinstellung.
  */
-const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}`;
+const themeScript = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;if(localStorage.getItem("contrast")==="sonne")document.documentElement.dataset.contrast="sonne"}catch(e){}`;
 
 export default function RootLayout({
   children,

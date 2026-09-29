@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import ContrastToggle from "@/components/ContrastToggle";
 import NotificationBell from "@/components/NotificationBell";
 import Logo from "@/components/Logo";
 import { Icon, IconName } from "@/components/icons";
@@ -162,6 +163,7 @@ export default function CoachNav() {
 
         <div className="flex items-center gap-2">
           <NotificationBell />
+          <ContrastToggle />
           <ThemeToggle />
           <LogoutButton />
         </div>
@@ -209,6 +211,7 @@ export default function CoachNav() {
 
         <div className="flex items-center gap-2 border-t border-app-border p-3">
           <LogoutButton className="flex-1" />
+          <ContrastToggle />
           <ThemeToggle />
         </div>
       </aside>
