@@ -1,5 +1,9 @@
 # Datenbank-Skripte
 
+**Kurzweg:** `status_pruefen.sql` ausführen (zeigt ✓/✗ je Skript, ändert nichts).
+Fehlt etwas aus 1 oder 12–21, einfach **`alles_aktualisieren.sql`** ausführen – das spielt
+alle diese Skripte auf einmal ein und überspringt Vorhandenes.
+
 Jedes Skript einmal im **Supabase SQL-Editor** ausführen (Inhalt einfügen → *Run*).
 Alle Skripte sind wiederholbar – ein zweiter Lauf macht nichts kaputt.
 Die Reihenfolge ist wichtig, weil spätere Skripte auf früheren aufbauen.
