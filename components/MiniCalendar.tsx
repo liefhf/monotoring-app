@@ -12,6 +12,9 @@ import { CALENDAR_COLUMNS, CalendarEntry } from "@/lib/community";
  * Klick auf einen Tag plant ein Training fuer diesen Tag.
  */
 
+/* Als durchgehendes Band: Wettkaempfe (pink) und Trainingslager (lila) */
+const BAND_CATEGORIES = ["wettkampf", "trainingslager"];
+
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 const pad = (n: number) => String(n).padStart(2, "0");
 const key = (y: number, m: number, d: number) => `${y}-${pad(m + 1)}-${pad(d)}`;
@@ -56,9 +59,9 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
   /* Tag -> Wettkampf (fuer das Band) bzw. anderer Termin (Punkt) */
   const competitionOn = (date: string) =>
     entries.find(
-      (entry) => entry.category === "wettkampf" && entry.starts_at.slice(0, 10) <= date && (entry.ends_at ?? entry.starts_at).slice(0, 10) >= date
+      (entry) => BAND_CATEGORIES.includes(entry.category) && entry.starts_at.slice(0, 10) <= date && (entry.ends_at ?? entry.starts_at).slice(0, 10) >= date
     ) ?? null;
-  const otherOn = (date: string) => entries.some((entry) => entry.category !== "wettkampf" && entry.starts_at.slice(0, 10) === date);
+  const otherOn = (date: string) => entries.some((entry) => !BAND_CATEGORIES.includes(entry.category) && entry.starts_at.slice(0, 10) === date);
 
   const shift = (count: number) => {
     const date = new Date(Date.UTC(start.year, start.month + count, 1));
@@ -108,12 +111,12 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
                       href={`/coach/training/new?day=${date}`}
                       title={competition?.title ?? (trainingDays.has(date) ? "Training" : undefined)}
                       className={`relative flex h-8 items-center justify-center text-sm tabular-nums transition ${
-                        competition ? "bg-app-accent/20 text-app-heading" : "text-app-text hover:bg-app-elevated"
+                        competition ? `${competition.category === "trainingslager" ? "bg-[color:var(--app-accent-2)]/25" : "bg-app-accent/20"} text-app-heading` : "text-app-text hover:bg-app-elevated"
                       } ${competition && !prevSame ? "rounded-l-lg" : ""} ${competition && !nextSame ? "rounded-r-lg" : ""} ${!competition ? "rounded-lg" : ""}`}
                     >
                       <span
                         className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                          isToday ? "bg-app-heading font-bold text-app-surface" : competition && !prevSame ? "font-bold text-app-accent" : ""
+                          isToday ? "bg-app-heading font-bold text-app-surface" : competition && !prevSame ? `font-bold ${competition.category === "trainingslager" ? "text-[color:var(--app-accent-2)]" : "text-app-accent"}` : ""
                         }`}
                       >
                         {Number(date.slice(8))}
@@ -128,6 +131,17 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
             </div>
           );
         })}
+      </div>
+      <div className="mt-3 flex justify-center gap-4 text-[11px] text-app-muted">
+        <span className="flex items-center gap-1.5">
+          <i className="inline-block h-2.5 w-4 rounded bg-app-accent/40" /> Wettkampf
+        </span>
+        <span className="flex items-center gap-1.5">
+          <i className="inline-block h-2.5 w-4 rounded bg-[color:var(--app-accent-2)]/50" /> Trainingslager
+        </span>
+        <span className="flex items-center gap-1.5">
+          <i className="inline-block h-1.5 w-1.5 rounded-full bg-app-accent" /> Training
+        </span>
       </div>
     </section>
   );
