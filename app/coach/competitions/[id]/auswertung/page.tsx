@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAll } from "@/lib/fetchAll";
 import {
   PoolLength,
   QualifyingStandard,
@@ -239,7 +240,7 @@ export default function WettkampfAuswertungPage() {
         supabase.from("competition_sections").select("id, section_date").eq("competition_id", competitionId),
         supabase.from("swimmers").select("id, first_name, last_name, birth_year, gender").order("first_name"),
         supabase.from("competition_starts").select(START_COLUMNS).eq("competition_id", competitionId).order("start_date"),
-        supabase.from("swimmer_results").select(RESULT_COLUMNS),
+        fetchAll(() => supabase.from("swimmer_results").select(RESULT_COLUMNS)),
         supabase.from("qualifying_standards").select("*").order("created_at", { ascending: false }),
         supabase.from("qualifying_times").select("id, standard_id, gender, birth_year_from, birth_year_to, distance, stroke, time_ms"),
         supabase.from("competition_reviews").select("summary, went_well, to_improve, next_steps").eq("competition_id", competitionId).maybeSingle(),

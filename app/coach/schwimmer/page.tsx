@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAll } from "@/lib/fetchAll";
 import { Gender, Swimmer, formatGender, getSwimmerName } from "@/lib/swim";
 import { Icon } from "@/components/icons";
 import {
@@ -56,7 +57,7 @@ export default function AthletenPage() {
       supabase.from("swimmers").select("id, first_name, last_name, birth_year, gender, profile_id").order("first_name"),
       supabase.from("teams").select("id, name").eq("coach_id", userData.user?.id ?? "").order("name"),
       supabase.from("team_swimmers").select("team_id, swimmer_id"),
-      supabase.from("swimmer_results").select("swimmer_id"),
+      fetchAll(() => supabase.from("swimmer_results").select("swimmer_id")),
     ]);
 
     if (athleteResponse.error) {

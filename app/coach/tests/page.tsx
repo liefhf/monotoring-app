@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAll } from "@/lib/fetchAll";
 import { Swimmer, getSwimmerName } from "@/lib/swim";
 import { FITNESS_TESTS, FitnessTestDef, Rating, formatTestValue, improvementPct, rateTest, testByCode, teamRank } from "@/lib/fitnessTests";
 import { Card, FormField, Notice, PageHeader, buttonPrimary, inputClass } from "@/components/ui";
@@ -46,7 +47,7 @@ export default function TestbatteriePage() {
   const load = useCallback(async () => {
     const [swimmerRes, testRes] = await Promise.all([
       supabase.from("swimmers").select("id, first_name, last_name, birth_year, gender"),
-      supabase.from("fitness_tests").select("*").order("test_date"),
+      fetchAll(() => supabase.from("fitness_tests").select("*").order("test_date")),
     ]);
     setSwimmers(((swimmerRes.data ?? []) as Swimmer[]).sort((a, b) => (a.last_name ?? "").localeCompare(b.last_name ?? "", "de")));
     setMissingTable(Boolean(testRes.error));

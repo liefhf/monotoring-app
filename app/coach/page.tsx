@@ -308,6 +308,8 @@ export default function CoachPage() {
           "athlete_id",
           athleteIds
         )
+        /* nur letzter Eintrag und heute werden gebraucht - 60 Tage reichen und bleiben unter dem 1000-Zeilen-Limit */
+        .gte("entry_date", getLocalDateString(new Date(Date.now() - 60 * 86_400_000)))
         .order("entry_date", {
           ascending: false,
         })

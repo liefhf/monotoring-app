@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { fetchAll } from "@/lib/fetchAll";
 import { CalendarEntry } from "@/lib/community";
 import {
   NonFinish,
@@ -50,7 +51,7 @@ export default function WeekFocusPanel({ onInsert }: { onInsert?: (block: Sugges
     async function load() {
       const [swimmerResponse, resultResponse, standardResponse, timeResponse] = await Promise.all([
         supabase.from("swimmers").select("*"),
-        supabase.from("swimmer_results").select(RESULT_COLUMNS),
+        fetchAll(() => supabase.from("swimmer_results").select(RESULT_COLUMNS)),
         supabase.from("qualifying_standards").select("*").order("created_at", { ascending: false }),
         supabase.from("qualifying_times").select("id, standard_id, gender, birth_year_from, birth_year_to, distance, stroke, time_ms"),
       ]);

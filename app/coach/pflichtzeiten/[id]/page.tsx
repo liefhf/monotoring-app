@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { fetchAll } from "@/lib/fetchAll";
 import {
   Gender,
   QualifyingStandard,
@@ -110,7 +111,7 @@ export default function PflichtzeitenDetailPage() {
           .from("swimmers")
           .select("id, first_name, last_name, birth_year, gender")
           .order("first_name"),
-        supabase.from("swimmer_results").select(RESULT_COLUMNS),
+        fetchAll(() => supabase.from("swimmer_results").select(RESULT_COLUMNS)),
       ]);
 
     if (standardResponse.error || !standardResponse.data) {
