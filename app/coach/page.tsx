@@ -227,7 +227,7 @@ export default function CoachPage() {
         </section>
 
         {/* Trainingsumfang der aktuellen Woche (Mo-So) */}
-        <Tile className="lg:col-span-5" href="/coach/training">
+        <Tile className="lg:col-span-5" href={`/coach/wochenplan?week=${weekAnchor}`}>
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-sm text-app-muted">
@@ -322,7 +322,7 @@ export default function CoachPage() {
         {/* Wochenplan */}
         <Tile className="lg:col-span-12">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Link href="/coach/training" className="text-sm text-app-muted hover:text-app-accent">
+            <Link href={`/coach/wochenplan?week=${weekAnchor}`} className="text-sm text-app-muted hover:text-app-accent">
               Wochenplan · <b className="text-app-text">KW {isoWeek(weekAnchor)}</b>
             </Link>
             <div className="flex items-center gap-1">
