@@ -168,15 +168,15 @@ export function trainingPlanHtml(plan: TrainingPlan) {
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
 body { font: 8.8pt/1.25 "Segoe UI", Arial, Helvetica, sans-serif; color: #2a2640; margin: 0; padding: 9mm 11mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-header { display: flex; justify-content: space-between; align-items: center; gap: 5mm; padding: 3.5mm 5mm; border-radius: 4mm; color: #fff; background: linear-gradient(135deg, #7c4dde, #c83fae); }
-h1 { font-size: 15pt; margin: 0; }
-.focus { margin-top: 0.5mm; opacity: 0.9; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 5mm; padding-bottom: 2.5mm; border-bottom: 1.5px solid #7c4dde; }
+h1 { font-size: 15pt; margin: 0; color: #2a2640; }
+.focus { margin-top: 0.5mm; color: #6b6585; }
 .facts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1.2mm; margin: 0; max-width: 95mm; }
-.facts div { background: rgba(255,255,255,0.18); border-radius: 10mm; padding: 0.6mm 2.4mm; font-size: 7.8pt; white-space: nowrap; }
-.facts dt { display: inline; opacity: 0.8; } .facts dd { display: inline; margin: 0 0 0 1mm; font-weight: 700; }
+.facts div { border: 0.5px solid #d6d1e6; border-radius: 10mm; padding: 0.6mm 2.4mm; font-size: 7.8pt; white-space: nowrap; }
+.facts dt { display: inline; color: #8a84a3; } .facts dd { display: inline; margin: 0 0 0 1mm; font-weight: 700; }
 section { break-inside: avoid; margin-top: 2.5mm; }
-.sec { display: flex; justify-content: space-between; background: #f4f2fb; color: #7c4dde; font-weight: 700; padding: 0.9mm 2.5mm; border-radius: 10mm; }
-.sec span:last-child { color: #c83fae; }
+.sec { display: flex; justify-content: space-between; color: #7c4dde; font-weight: 700; padding: 0.6mm 0; border-bottom: 1px solid #7c4dde; }
+.sec span:last-child { color: #2a2640; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
 td { padding: 0.8mm 1.6mm; border-bottom: 0.5px solid #e6e2f3; vertical-align: top; }
 col.c-serie { width: 15mm; } col.c-lage { width: 23mm; } col.c-zone { width: 20mm; } col.c-int { width: 13mm; } col.c-note { width: 32mm; }
@@ -184,18 +184,18 @@ td.serie { font-weight: 700; font-size: 9.5pt; white-space: nowrap; color: #2a26
 td.lage { color: #6b6585; }
 td.int { white-space: nowrap; font-weight: 600; }
 td.note { border-left: 0.5px dashed #cfc8e6; }
-.zone { display: inline-block; font-size: 7.3pt; padding: 0.1mm 1.6mm; border-radius: 10mm; background: #f3e6f7; color: #a0338b; white-space: nowrap; }
+.zone { display: inline-block; font-size: 7.3pt; padding: 0.1mm 1.6mm; border-radius: 10mm; border: 0.5px solid #cfc8e6; color: #6b6585; white-space: nowrap; }
 .mat { font-size: 7.3pt; color: #8a84a3; }
 tr.h td { font-size: 7.5pt; color: #8a84a3; }
 .bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 4mm; margin-top: 3mm; break-inside: avoid; }
 .notes .lines { height: 22mm; border: 0.5px solid #e6e2f3; border-radius: 2.5mm; background: repeating-linear-gradient(transparent 0 5.3mm, #ece8f6 5.3mm 5.6mm); }
-.notes .pre { white-space: pre-wrap; margin-bottom: 1.5mm; padding: 1.5mm 2.5mm; background: #f4f2fb; border-left: 2px solid #c83fae; border-radius: 1mm; }
+.notes .pre { white-space: pre-wrap; margin-bottom: 1.5mm; padding: 1.5mm 2.5mm; border-left: 2px solid #7c4dde; border-radius: 1mm; }
 .att { margin-top: 3mm; break-inside: avoid; }
 .bottom .att { margin-top: 0; }
 .att b, .notes b { display: block; margin-bottom: 1mm; color: #7c4dde; }
 .att-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8mm 3mm; font-size: 8pt; }
 .att-grid span { display: flex; align-items: center; gap: 1.4mm; }
-.att-grid i { width: 3mm; height: 3mm; border: 0.8px solid #7c4dde; border-radius: 50%; flex: none; }
+.att-grid i { width: 3mm; height: 3mm; border: 0.8px solid #555; border-radius: 50%; flex: none; }
 footer { margin-top: 2mm; font-size: 7pt; color: #a09bb8; display: flex; justify-content: space-between; }
 </style></head><body>
 <header>
