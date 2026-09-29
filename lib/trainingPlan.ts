@@ -122,10 +122,11 @@ export function trainingPlanHtml(plan: TrainingPlan) {
   /* Jede Serie mit leerer Notizspalte zum Mitschreiben am Beckenrand */
   const water = plan.sections
     .map(
-      (section) => `<section>
+      (section, index) => `<section>
       <div class="sec"><span>${esc(section.name)}</span><span>${sectionMeters(section.rows).toLocaleString("de-DE")} m</span></div>
       <table>
         <colgroup><col class="c-serie"><col class="c-lage"><col><col class="c-zone"><col class="c-int"><col class="c-note"></colgroup>
+        ${index === 0 ? `<tr class="colh"><td>Serie</td><td>Lage</td><td>Übung</td><td>Zone</td><td>Pause</td><td>Notiz</td></tr>` : ""}
         ${section.rows
           .map(
             (row) => `<tr>
@@ -167,25 +168,26 @@ export function trainingPlanHtml(plan: TrainingPlan) {
 /* margin 0 blendet die Kopf-/Fusszeile des Browsers (Datum, URL) aus; Farben wie in der App */
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
-body { font: 8.8pt/1.25 "Segoe UI", Arial, Helvetica, sans-serif; color: #2a2640; margin: 0; padding: 9mm 11mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font: 10pt/1.3 "Segoe UI", Arial, Helvetica, sans-serif; color: #2a2640; margin: 0; padding: 9mm 11mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 header { display: flex; justify-content: space-between; align-items: center; gap: 5mm; padding-bottom: 2.5mm; border-bottom: 1.5px solid #7c4dde; }
 h1 { font-size: 15pt; margin: 0; color: #2a2640; }
 .focus { margin-top: 0.5mm; color: #6b6585; }
 .facts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 1.2mm; margin: 0; max-width: 95mm; }
 .facts div { border: 0.5px solid #d6d1e6; border-radius: 10mm; padding: 0.6mm 2.4mm; font-size: 7.8pt; white-space: nowrap; }
 .facts dt { display: inline; color: #8a84a3; } .facts dd { display: inline; margin: 0 0 0 1mm; font-weight: 700; }
-section { break-inside: avoid; margin-top: 2.5mm; }
-.sec { display: flex; justify-content: space-between; color: #7c4dde; font-weight: 700; padding: 0.6mm 0; border-bottom: 1px solid #7c4dde; }
-.sec span:last-child { color: #2a2640; }
+section { break-inside: avoid; margin-top: 3.8mm; }
+.sec { display: flex; justify-content: space-between; color: #7c4dde; font-size: 11pt; font-weight: 700; padding: 0.6mm 0; border-bottom: 1.2px solid #7c4dde; text-transform: uppercase; letter-spacing: 0.3px; }
+.sec span:last-child { color: #2a2640; text-transform: none; }
 table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-td { padding: 0.8mm 1.6mm; border-bottom: 0.5px solid #e6e2f3; vertical-align: top; }
-col.c-serie { width: 15mm; } col.c-lage { width: 23mm; } col.c-zone { width: 20mm; } col.c-int { width: 13mm; } col.c-note { width: 32mm; }
-td.serie { font-weight: 700; font-size: 9.5pt; white-space: nowrap; color: #2a2640; } .x { font-weight: 400; color: #8a84a3; margin: 0 0.3mm; }
+td { padding: 1.2mm 1.6mm; border-bottom: 0.5px solid #e6e2f3; vertical-align: top; }
+tr.colh td { font-size: 7.5pt; color: #8a84a3; padding-top: 1mm; padding-bottom: 0.6mm; text-transform: uppercase; }
+col.c-serie { width: 19mm; } col.c-lage { width: 23mm; } col.c-zone { width: 20mm; } col.c-int { width: 13mm; } col.c-note { width: 32mm; }
+td.serie { font-weight: 800; font-size: 11.5pt; white-space: nowrap; color: #2a2640; } .x { font-weight: 400; color: #8a84a3; margin: 0 0.3mm; }
 td.lage { color: #6b6585; }
 td.int { white-space: nowrap; font-weight: 600; }
 td.note { border-left: 0.5px dashed #cfc8e6; }
-.zone { display: inline-block; font-size: 7.3pt; padding: 0.1mm 1.6mm; border-radius: 10mm; border: 0.5px solid #cfc8e6; color: #6b6585; white-space: nowrap; }
-.mat { font-size: 7.3pt; color: #8a84a3; }
+.zone { font-size: 8.5pt; color: #2a2640; font-weight: 600; white-space: nowrap; }
+.mat { font-size: 8pt; font-style: italic; color: #8a84a3; }
 tr.h td { font-size: 7.5pt; color: #8a84a3; }
 .bottom { display: grid; grid-template-columns: 1.4fr 1fr; gap: 4mm; margin-top: 3mm; break-inside: avoid; }
 .notes .lines { height: 22mm; border: 0.5px solid #e6e2f3; border-radius: 2.5mm; background: repeating-linear-gradient(transparent 0 5.3mm, #ece8f6 5.3mm 5.6mm); }
