@@ -38,7 +38,7 @@ describe("buildFlags", () => {
         { created_at: `${day(2)}T08:00:00Z`, pain_level: 2, spot_label: "Schulter rechts", body_region: null },
         { created_at: `${day(0)}T08:00:00Z`, pain_level: 4, spot_label: "Schulter rechts", body_region: null },
       ],
-      wellness: [{ entry_date: day(0), score: 5.6 }],
+      wellness: [{ entry_date: day(0), score: 58 }],
       attendanceRate: 90,
       today: "2026-09-29",
     });
@@ -47,5 +47,18 @@ describe("buildFlags", () => {
       ["befinden", "gelb"],
     ]);
     expect(flags[0].text).toContain("zunehmend");
+  });
+});
+
+describe("readinessScore", () => {
+  it("zieht fuer wenig Schlaf, Schmerzen und Abweichung vom eigenen Schnitt ab", async () => {
+    const { readinessScore } = await import("@/lib/monitoring");
+    const good = readinessScore({ sleep_quality: 8, energy: 8, muscle_feeling: 8, stress: 8, mood: 8, sleep_hours: 8.5, has_pain: false });
+    expect(good).toMatchObject({ score: 80, level: "bereit" });
+    const bad = readinessScore({ sleep_quality: 5, energy: 6, muscle_feeling: 4, stress: 6, mood: 6, sleep_hours: 6, has_pain: true }, 8);
+    // Basis 5,4 -> 54, -8 Schlaf, -10 Schmerz, -10 unter Schnitt = 26
+    expect(bad.score).toBe(26);
+    expect(bad.level).toBe("regeneration");
+    expect(bad.hints.join(" ")).toContain("Muskelgefühl");
   });
 });

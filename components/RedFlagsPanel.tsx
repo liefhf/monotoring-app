@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { ACWR_ZONES, Acwr, Flag, LoadEntry, acwr, buildFlags, sessionLoad, wellnessScore } from "@/lib/monitoring";
+import { ACWR_ZONES, Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, wellnessScore } from "@/lib/monitoring";
 import { attendanceStats, AttendanceStatus } from "@/lib/attendance";
 
 /*
@@ -26,7 +26,7 @@ async function loadRows(today: string): Promise<Row[]> {
   const since35 = isoDay(Date.parse(today) - 35 * DAY);
   const since28 = isoDay(Date.parse(today) - 28 * DAY);
   const since3 = new Date(Date.parse(today) - 3 * DAY).toISOString();
-  const since7 = isoDay(Date.parse(today) - 7 * DAY);
+  const since21 = isoDay(Date.parse(today) - 21 * DAY);
 
   const [swimmerRes, sessionRes] = await Promise.all([
     supabase.from("swimmers").select("*"),
@@ -45,7 +45,7 @@ async function loadRows(today: string): Promise<Row[]> {
       ? supabase.from("training_attendance").select("training_session_id, swimmer_id, status").in("training_session_id", sessionIds)
       : Promise.resolve({ data: [] }),
     profileIds.length
-      ? supabase.from("befinden_entries").select("athlete_id, entry_date, sleep_quality, energy, muscle_feeling, stress, mood").in("athlete_id", profileIds).gte("entry_date", since7)
+      ? supabase.from("befinden_entries").select("athlete_id, entry_date, sleep_quality, energy, muscle_feeling, stress, mood, sleep_hours, has_pain").in("athlete_id", profileIds).gte("entry_date", since21)
       : Promise.resolve({ data: [] }),
     profileIds.length
       ? supabase.from("pain_reports").select("athlete_id, created_at, pain_level, spot_label, body_region").in("athlete_id", profileIds).gte("created_at", since3)
@@ -54,7 +54,7 @@ async function loadRows(today: string): Promise<Row[]> {
 
   const feedback = (feedbackRes.data ?? []) as { training_session_id: string; athlete_id: string; rpe: number | null; completed: boolean | null }[];
   const attendance = (attendanceRes.data ?? []) as { training_session_id: string; swimmer_id: string; status: AttendanceStatus }[];
-  const wellness = (wellnessRes.data ?? []) as { athlete_id: string; entry_date: string; sleep_quality: number; energy: number; muscle_feeling: number; stress: number; mood: number }[];
+  const wellness = (wellnessRes.data ?? []) as { athlete_id: string; entry_date: string; sleep_quality: number; energy: number; muscle_feeling: number; stress: number; mood: number; sleep_hours: number | null; has_pain: boolean | null }[];
   const pain = (painRes.data ?? []) as { athlete_id: string; created_at: string; pain_level: number; spot_label: string | null; body_region: string | null }[];
   const sessionById = new Map(sessions.map((session) => [session.id, session]));
 
@@ -76,10 +76,13 @@ async function loadRows(today: string): Promise<Row[]> {
     const flags = buildFlags({
       acwr: load,
       painReports: pain.filter((item) => item.athlete_id === swimmer.profile_id),
-      wellness: wellness
-        .filter((item) => item.athlete_id === swimmer.profile_id)
-        .sort((a, b) => b.entry_date.localeCompare(a.entry_date))
-        .map((item) => ({ entry_date: item.entry_date, score: wellnessScore(item) })),
+      wellness: (() => {
+        const own = wellness.filter((item) => item.athlete_id === swimmer.profile_id).sort((a, b) => b.entry_date.localeCompare(a.entry_date));
+        /* eigener Durchschnitt der Vortage als Vergleich */
+        const earlier = own.slice(1);
+        const baseline = earlier.length >= 3 ? earlier.reduce((sum, item) => sum + wellnessScore(item), 0) / earlier.length : null;
+        return own.map((item, index) => ({ entry_date: item.entry_date, score: readinessScore(item, index === 0 ? baseline : null).score }));
+      })(),
       attendanceRate: ownAttendance.length >= 3 ? attendanceStats(ownAttendance).rate : null,
       today,
     });
@@ -119,7 +122,7 @@ export default function RedFlagsPanel() {
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-app-border px-4 py-3">
         <div>
           <h2 className="text-sm font-semibold text-app-heading">Rote Flaggen – heute im Blick behalten</h2>
-          <p className="text-xs text-app-muted">ACWR (Belastung 7 zu 28 Tage), Schmerzen, Befinden, Anwesenheit</p>
+          <p className="text-xs text-app-muted">ACWR (Belastung 7 zu 28 Tage), Schmerzen, Readiness aus dem Check-in, Anwesenheit</p>
         </div>
         <button type="button" onClick={() => setShowAll(!showAll)} className="text-xs font-semibold text-app-accent">
           {showAll ? "nur Auffällige" : "ACWR aller Athleten"}

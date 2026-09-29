@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { readinessScore, wellnessScore } from "@/lib/monitoring";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -94,6 +95,8 @@ export default function DailyCheckInPage() {
 
   const [success, setSuccess] =
     useState(false);
+
+  const [readinessBaseline, setReadinessBaseline] = useState<number | null>(null);
 
   const [checkInStreak, setCheckInStreak] =
     useState<number | null>(null);
@@ -458,6 +461,18 @@ export default function DailyCheckInPage() {
       streak
     );
 
+    /* eigener Durchschnitt der letzten 14 Tage (ohne heute) als Vergleich fuer die Readiness */
+    const baselineStart = new Date();
+    baselineStart.setDate(baselineStart.getDate() - 14);
+    const { data: previous } = await supabase
+      .from("befinden_entries")
+      .select("entry_date, sleep_quality, energy, muscle_feeling, stress, mood")
+      .eq("athlete_id", user.id)
+      .gte("entry_date", getLocalDateString(baselineStart))
+      .lt("entry_date", getLocalDateString(new Date()));
+    const previousRows = (previous ?? []) as { sleep_quality: number; energy: number; muscle_feeling: number; stress: number; mood: number }[];
+    setReadinessBaseline(previousRows.length >= 3 ? previousRows.reduce((sum, row) => sum + wellnessScore(row), 0) / previousRows.length : null);
+
     setSuccess(true);
     setSaving(false);
   }
@@ -482,6 +497,24 @@ export default function DailyCheckInPage() {
             <h1 className="text-2xl font-bold text-app-good">
               ✓ Check-in erledigt
             </h1>
+
+            {(() => {
+              if (!energy || !mood || !muscleFeeling || !stress || !sleepQuality) return null;
+              const hours = sleepHours.trim() ? Number(sleepHours.replace(",", ".")) : null;
+              const readiness = readinessScore(
+                { energy, mood, muscle_feeling: muscleFeeling, stress, sleep_quality: sleepQuality, sleep_hours: hours !== null && Number.isFinite(hours) ? hours : null, has_pain: hasPain },
+                readinessBaseline
+              );
+              const tone = readiness.level === "bereit" ? "text-app-good" : readiness.level === "vorsicht" ? "text-app-warn" : "text-app-bad";
+              return (
+                <div className="mt-4 rounded-xl border border-app-border p-4">
+                  <p className="text-xs text-app-muted">Deine Readiness heute</p>
+                  <p className={`text-5xl font-bold ${tone}`}>{readiness.score}</p>
+                  <p className={`font-semibold ${tone}`}>{readiness.label}</p>
+                  {readiness.hints.length > 0 && <p className="mt-1 text-xs text-app-muted">{readiness.hints.join(" · ")}</p>}
+                </div>
+              );
+            })()}
 
             {checkInStreak !== null &&
               checkInStreak > 0 && (
