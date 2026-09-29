@@ -74,9 +74,9 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
     if (!date) return null;
     const days = Math.round((Date.parse(date) - Date.parse(today)) / 86_400_000);
     if (days < 0) return { text: `überfällig seit ${-days} ${days === -1 ? "Tag" : "Tagen"}`, tone: "text-app-bad" };
-    if (days === 0) return { text: "heute fällig", tone: "text-app-warn" };
-    if (days === 1) return { text: "morgen fällig", tone: "text-app-muted" };
-    return { text: `fällig am ${new Date(`${date}T12:00:00`).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" })}`, tone: "text-app-muted" };
+    if (days === 0) return { text: "heute", tone: "text-app-accent" };
+    if (days === 1) return { text: "morgen", tone: "text-app-muted" };
+    return { text: `${new Date(`${date}T12:00:00`).toLocaleDateString("de-DE", { weekday: "short", day: "2-digit", month: "2-digit" })}`, tone: "text-app-muted" };
   };
 
   const open = tasks.filter((task) => !task.completed).length;
@@ -116,7 +116,7 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
                   {task.completed && <path d="M6.5 10.2l2.3 2.3 4.7-4.9" />}
                 </svg>
                 <span className={`min-w-0 flex-1 truncate text-sm ${task.completed ? "text-app-faint line-through" : "text-app-text"}`}>{task.title}</span>
-                {!task.completed && due && (due.tone !== "text-app-muted") && <span className={`shrink-0 text-xs font-semibold ${due.tone}`}>{due.text.replace(" fällig", "")}</span>}
+                {!task.completed && due && <span className={`shrink-0 text-xs font-semibold ${due.tone}`}>{due.text}</span>}
               </button>
             </li>
           );
