@@ -20,6 +20,7 @@ import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import PainPanel from "@/components/PainPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
+import AttendanceSummary from "@/components/AttendanceSummary";
 import FocusBadge, { FocusContext } from "@/components/FocusBadge";
 import { loadAthleteFocus } from "@/lib/nextCompetition";
 import { AthleteFocus, FocusRole, parseFocusKey } from "@/lib/trainingFocus";
@@ -629,6 +630,10 @@ export default function SchwimmerDetailPage() {
                 <InfoRow label="Hauptstrecken" value={focusList(athleteFocus, "haupt")} />
                 <InfoRow label="Nebenstrecken" value={focusList(athleteFocus, "neben")} />
                 <InfoRow label="Notiz" value={athleteFocus.note ?? null} />
+              </Card>
+
+              <Card title="Anwesenheit Training">
+                <AttendanceSummary swimmerId={swimmer.id} />
               </Card>
 
               <div className="lg:col-span-2">

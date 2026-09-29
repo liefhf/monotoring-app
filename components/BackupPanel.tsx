@@ -33,6 +33,7 @@ const TABLES = [
   "calendar_entries",
   "calendar_registrations",
   "calendar_tasks",
+  "training_attendance",
   "news_posts",
   "annual_plans",
   "olympic_cycles",

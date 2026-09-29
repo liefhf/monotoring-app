@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { deleteTraining, printTraining } from "@/lib/trainingPlan";
+import AttendanceCard from "@/components/AttendanceCard";
 import LoadStrainPanel from "@/components/LoadStrainPanel";
 
 type TrainingSession = {
@@ -608,6 +609,8 @@ export default function CoachTrainingSessionPage() {
             {message}
           </div>
         )}
+
+        <AttendanceCard sessionId={training.id} teamId={training.team_id} />
 
         <section className="mt-5">
           <div className="mb-2 flex items-center gap-2">

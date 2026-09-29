@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { loadTeamSwimmers } from "@/lib/attendance";
 
 /*
  * Trainingseinheit komplett laden, drucken (PDF) und loeschen.
@@ -37,6 +38,8 @@ export type TrainingPlan = {
   focus: string | null;
   notes?: string | null;
   teamName: string | null;
+  /* Namen fuer die Anwesenheits-Liste im Ausdruck */
+  athletes?: string[];
   sections: { name: string; rows: PlanRow[] }[];
   landRows: PlanLandRow[];
   warmUpRows: PlanLandRow[];
@@ -71,6 +74,7 @@ export async function loadTrainingPlan(sessionId: string): Promise<TrainingPlan 
   return {
     ...(session as Omit<TrainingPlan, "teamName" | "sections" | "landRows" | "warmUpRows">),
     teamName: (team.data as { name: string } | null)?.name ?? null,
+    athletes: (await loadTeamSwimmers(session.team_id)).map((swimmer) => `${swimmer.last_name ?? ""}, ${swimmer.first_name}`),
     sections: sectionList
       .map((section) => ({ name: section.section_name, rows: rows.filter((row) => row.section_id === section.id) }))
       .filter((section) => section.rows.length > 0),
@@ -159,6 +163,11 @@ tr.h td { font-size: 8pt; color: #6b7686; }
 .notes { margin-top: 5mm; break-inside: avoid; }
 .notes .lines { height: 38mm; border: 0.5px solid #d9dee6; border-radius: 1.5mm; background: repeating-linear-gradient(transparent 0 7.3mm, #e3e7ed 7.3mm 7.6mm); }
 .notes .pre { white-space: pre-wrap; margin-bottom: 2mm; padding: 2mm 2.5mm; background: #fff8e6; border-left: 2px solid #e0a800; border-radius: 1mm; }
+.att { margin-top: 5mm; break-inside: avoid; }
+.att b { display: block; margin-bottom: 1mm; color: #12325c; }
+.att-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2mm 4mm; font-size: 9pt; }
+.att-grid span { display: flex; align-items: center; gap: 1.5mm; }
+.att-grid i { width: 3.5mm; height: 3.5mm; border: 0.8px solid #555; border-radius: 0.6mm; flex: none; }
 .notes b { display: block; margin-bottom: 1mm; color: #12325c; }
 footer { margin-top: 3mm; font-size: 7.5pt; color: #8a93a1; display: flex; justify-content: space-between; }
 </style></head><body>
@@ -169,6 +178,7 @@ footer { margin-top: 3mm; font-size: 7.5pt; color: #8a93a1; display: flex; justi
 ${landTable("Warm Up an Land", plan.warmUpRows)}
 ${plan.training_type === "water" ? water : ""}
 ${plan.training_type === "land" ? landTable("Landtraining", plan.landRows) : ""}
+${plan.athletes?.length ? `<div class="att"><b>Anwesenheit</b><div class="att-grid">${plan.athletes.map((name) => `<span><i></i>${esc(name)}</span>`).join("")}</div></div>` : ""}
 <div class="notes"><b>Notizen</b>${plan.notes ? `<div class="pre">${esc(plan.notes)}</div>` : ""}<div class="lines"></div></div>
 <footer><span>Monitoring App · Trainingsplan</span><span>${esc(formatDay(plan.session_date))}</span></footer>
 </body></html>`;
