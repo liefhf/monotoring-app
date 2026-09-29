@@ -20,6 +20,7 @@ import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import PainPanel from "@/components/PainPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
+import LactatePanel from "@/components/LactatePanel";
 import AttendanceSummary from "@/components/AttendanceSummary";
 import FocusBadge, { FocusContext } from "@/components/FocusBadge";
 import { loadAthleteFocus } from "@/lib/nextCompetition";
@@ -67,7 +68,7 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "wettkaempfe" | "schmerzen";
+type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "laktat" | "wettkaempfe" | "schmerzen";
 
 const TABS: { value: Tab; label: string }[] = [
   { value: "infos", label: "Infos" },
@@ -77,6 +78,7 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "entwicklung", label: "Entwicklung" },
   { value: "pflichtzeiten", label: "Pflichtzeiten" },
   { value: "fokus", label: "Trainingsfokus" },
+  { value: "laktat", label: "Laktat" },
   { value: "wettkaempfe", label: "Saison-Auswertung" },
   { value: "schmerzen", label: "Schmerzen" },
 ];
@@ -796,6 +798,8 @@ export default function SchwimmerDetailPage() {
         {tab === "wettkaempfe" && <SwimmerSeasonReport swimmerId={swimmerId} />}
 
         {tab === "schmerzen" && <PainPanel swimmerId={swimmerId} />}
+
+        {tab === "laktat" && <LactatePanel swimmerId={swimmerId} />}
 
         {tab === "fokus" && (
           <TrainingFocusPanel

@@ -34,6 +34,7 @@ const TABLES = [
   "calendar_registrations",
   "calendar_tasks",
   "training_attendance",
+  "lactate_tests",
   "news_posts",
   "annual_plans",
   "olympic_cycles",

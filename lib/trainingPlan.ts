@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { loadTeamSwimmers } from "@/lib/attendance";
+import { LactateTest, analyzeLactateTest, formatPace } from "@/lib/lactate";
 
 /*
  * Trainingseinheit komplett laden, drucken (PDF) und loeschen.
@@ -40,6 +41,8 @@ export type TrainingPlan = {
   teamName: string | null;
   /* Namen fuer die Anwesenheits-Liste im Ausdruck */
   athletes?: string[];
+  /* persoenliches Tempo je Zone aus dem letzten Laktattest (Kraul) */
+  paces?: { name: string; zones: Record<string, string> }[];
   sections: { name: string; rows: PlanRow[] }[];
   landRows: PlanLandRow[];
   warmUpRows: PlanLandRow[];
@@ -74,7 +77,30 @@ export async function loadTrainingPlan(sessionId: string): Promise<TrainingPlan 
   return {
     ...(session as Omit<TrainingPlan, "teamName" | "sections" | "landRows" | "warmUpRows">),
     teamName: (team.data as { name: string } | null)?.name ?? null,
-    athletes: (await loadTeamSwimmers(session.team_id)).map((swimmer) => `${swimmer.last_name ?? ""}, ${swimmer.first_name}`),
+    ...(await (async () => {
+      const team = await loadTeamSwimmers(session.team_id);
+      const tests = team.length
+        ? await supabase.from("lactate_tests").select("*").in("swimmer_id", team.map((swimmer) => swimmer.id)).eq("stroke", "freestyle").order("test_date", { ascending: false })
+        : { data: [], error: null };
+      const latest = new Map<string, LactateTest>();
+      for (const test of ((tests.error ? [] : tests.data) ?? []) as LactateTest[]) if (!latest.has(test.swimmer_id)) latest.set(test.swimmer_id, test);
+      const paces = team
+        .filter((swimmer) => latest.has(swimmer.id))
+        .map((swimmer) => {
+          const zones = analyzeLactateTest(latest.get(swimmer.id)!).zones;
+          return {
+            name: `${swimmer.first_name} ${(swimmer.last_name ?? "").slice(0, 1)}.`,
+            zones: Object.fromEntries(
+              zones.map((zone) => [
+                zone.code,
+                zone.fromPace && zone.toPace ? `${formatPace(zone.fromPace)}–${formatPace(zone.toPace)}` : zone.toPace ? `> ${formatPace(zone.toPace)}` : `< ${formatPace(zone.fromPace!)}`,
+              ])
+            ),
+          };
+        })
+        .filter((entry) => Object.keys(entry.zones).length);
+      return { athletes: team.map((swimmer) => `${swimmer.last_name ?? ""}, ${swimmer.first_name}`), paces };
+    })()),
     sections: sectionList
       .map((section) => ({ name: section.section_name, rows: rows.filter((row) => row.section_id === section.id) }))
       .filter((section) => section.rows.length > 0),
@@ -178,6 +204,11 @@ footer { margin-top: 3mm; font-size: 7.5pt; color: #8a93a1; display: flex; justi
 ${landTable("Warm Up an Land", plan.warmUpRows)}
 ${plan.training_type === "water" ? water : ""}
 ${plan.training_type === "land" ? landTable("Landtraining", plan.landRows) : ""}
+${(() => {
+  const used = [...new Set(plan.sections.flatMap((section) => section.rows.map((row) => row.zone ?? "")))].filter((zone) => plan.paces?.some((p) => p.zones[zone]));
+  if (!plan.paces?.length || !used.length) return "";
+  return `<div class="att"><b>Tempo je Zone (/100 m Kraul, aus dem letzten Laktattest)</b><table><tr class="h"><td>Athlet</td>${used.map((z) => `<td>${esc(z)}</td>`).join("")}</tr>${plan.paces.map((p) => `<tr><td>${esc(p.name)}</td>${used.map((z) => `<td>${esc(p.zones[z] ?? "–")}</td>`).join("")}</tr>`).join("")}</table></div>`;
+})()}
 ${plan.athletes?.length ? `<div class="att"><b>Anwesenheit</b><div class="att-grid">${plan.athletes.map((name) => `<span><i></i>${esc(name)}</span>`).join("")}</div></div>` : ""}
 <div class="notes"><b>Notizen</b>${plan.notes ? `<div class="pre">${esc(plan.notes)}</div>` : ""}<div class="lines"></div></div>
 <footer><span>Monitoring App · Trainingsplan</span><span>${esc(formatDay(plan.session_date))}</span></footer>
