@@ -12,6 +12,7 @@ import { AttendanceStatus } from "@/lib/attendance";
 import { Icon, IconName } from "@/components/icons";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
 import TodoCard from "@/components/TodoCard";
+import TeamSwitcher from "@/components/TeamSwitcher";
 import MiniCalendar from "@/components/MiniCalendar";
 
 /*
@@ -170,17 +171,7 @@ export default function CoachPage() {
           <p className="text-sm text-app-muted">{todayLabel}</p>
           <div className="flex flex-wrap items-center gap-3">
             <h1 className="text-3xl font-bold text-app-heading">Dashboard</h1>
-            {teams.length > 1 ? (
-              <select value={teamId ?? ""} onChange={(e) => chooseTeam(e.target.value)} className="rounded-full border border-app-border bg-app-surface px-3 py-1.5 text-sm font-semibold">
-                {teams.map((team) => (
-                  <option key={team.id} value={team.id}>
-                    {team.name}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              teams[0] && <span className="rounded-full bg-app-elevated px-3 py-1 text-sm font-semibold">{teams[0].name}</span>
-            )}
+            <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} />
             {athleteCount !== null && <span className="text-sm text-app-muted">{athleteCount} Athleten</span>}
           </div>
         </div>
