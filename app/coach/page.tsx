@@ -12,6 +12,7 @@ import { AttendanceStatus } from "@/lib/attendance";
 import { Icon, IconName } from "@/components/icons";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
 import TodoCard from "@/components/TodoCard";
+import MiniCalendar from "@/components/MiniCalendar";
 
 /*
  * Coach-Dashboard im Kachel-Raster ("Bento"): Wettkampf-Countdown als
@@ -375,47 +376,14 @@ export default function CoachPage() {
         <div className="lg:col-span-4">{teamId && <RedFlagsPanel teamId={teamId} />}</div>
 
         {/* To-do */}
-        <div className="lg:col-span-4">
+        <div className="lg:col-span-3">
           <TodoCard teamId={teamId} />
         </div>
 
-        {/* Naechste Wettkaempfe */}
-        <Tile className="lg:col-span-4">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-app-muted">Nächste Wettkämpfe</p>
-            <Link href="/coach/kalender" className="text-xs font-semibold text-app-accent">
-              Kalender
-            </Link>
-          </div>
-          <ul className="mt-3 space-y-1.5">
-            {upcoming.length === 0 && <li className="text-sm text-app-faint">Keine Wettkämpfe geplant.</li>}
-            {upcoming.slice(0, 5).map((entry) => {
-              const date = new Date(entry.starts_at);
-              const priority = competitionPriority(entry);
-              return (
-                <li key={entry.id} className="flex items-center gap-3 rounded-2xl bg-app-bg px-3 py-2">
-                  <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-app-surface shadow-app">
-                    <span className="text-[10px] uppercase text-app-muted">{date.toLocaleDateString("de-DE", { month: "short" })}</span>
-                    <span className="text-base font-bold leading-none text-app-heading">{date.getDate()}</span>
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold text-app-heading">{entry.title}</span>
-                    <span className="text-xs text-app-muted">in {daysUntilDate(entry.starts_at.slice(0, 10), today)} Tagen</span>
-                  </span>
-                  {priority && (
-                    <span
-                      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-bold ${
-                        priority === "A" ? "bg-app-accent text-app-accent-ink" : "bg-app-elevated text-app-muted"
-                      }`}
-                    >
-                      {priority}
-                    </span>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        </Tile>
+        {/* Kalender */}
+        <div className="lg:col-span-5">
+          <MiniCalendar teamId={teamId} today={today} />
+        </div>
       </div>
     </div>
   );
