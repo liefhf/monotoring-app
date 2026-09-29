@@ -93,9 +93,12 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
           type="button"
           onClick={() => setAdding(!adding)}
           aria-label={adding ? "Abbrechen" : "Aufgabe hinzufügen"}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-app-heading text-xl font-semibold leading-none text-app-surface transition hover:opacity-90"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-app-heading text-app-surface transition hover:opacity-90"
         >
-          {adding ? "×" : "+"}
+          {/* SVG statt Schriftzeichen - sitzt immer exakt mittig */}
+          <svg viewBox="0 0 20 20" className={`h-4 w-4 transition-transform ${adding ? "rotate-45" : ""}`} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+            <path d="M10 4v12M4 10h12" />
+          </svg>
         </button>
       </div>
 
