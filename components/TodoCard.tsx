@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 /*
  * To-do-Liste auf dem Dashboard. Nutzt die vorhandenen Aufgaben/Fristen
  * (calendar_tasks) - dieselben wie in Kalender und Jahresplanung.
- * Abhaken = erledigt (gespeichert) und verschwindet aus der Liste.
+ * Abhaken = erledigt (gespeichert): durchgestrichen unten, beim naechsten Oeffnen weg.
  */
 
 type Task = { id: string; title: string; description: string | null; due_date: string | null; completed: boolean; team_id: string | null };
@@ -59,7 +59,7 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
     await load();
   }
 
-  /* Abhaken: kurz als erledigt zeigen, dann aus der Liste nehmen */
+  /* Abhaken: rutscht durchgestrichen nach unten; beim naechsten Laden ist es weg */
   async function complete(task: Task) {
     setTasks((current) => current.map((item) => (item.id === task.id ? { ...item, completed: true } : item)));
     const { error: updateError } = await supabase.from("calendar_tasks").update({ completed: true }).eq("id", task.id);
@@ -68,7 +68,6 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
       await load();
       return;
     }
-    setTimeout(() => setTasks((current) => current.filter((item) => item.id !== task.id)), 400);
   }
 
   const dueText = (date: string | null) => {
@@ -102,31 +101,22 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
         </button>
       </div>
 
-      <ul className="mt-4 flex-1 space-y-2.5">
-        {tasks.slice(0, 6).map((task) => {
+      <ul className="mt-3 flex-1 space-y-0.5">
+        {[...tasks.filter((task) => !task.completed), ...tasks.filter((task) => task.completed)].slice(0, 8).map((task) => {
           const due = dueText(task.due_date);
           return (
-            <li key={task.id} className={`transition-opacity duration-300 ${task.completed ? "opacity-0" : "opacity-100"}`}>
+            <li key={task.id}>
               <button
                 type="button"
-                onClick={() => complete(task)}
-                className="flex w-full items-start gap-3 rounded-xl border border-app-border px-3.5 py-3 text-left transition hover:border-app-accent"
+                onClick={() => !task.completed && complete(task)}
+                className="flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left transition hover:bg-app-elevated/50"
               >
-                <span
-                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 text-xs font-bold transition ${
-                    task.completed ? "border-app-heading bg-app-heading text-app-surface" : "border-app-muted"
-                  }`}
-                >
-                  {task.completed ? "✓" : ""}
-                </span>
-                <span className="min-w-0">
-                  <span className={`block text-sm font-semibold ${task.completed ? "text-app-muted line-through" : "text-app-heading"}`}>{task.title}</span>
-                  {(task.description || due) && (
-                    <span className={`block text-xs ${task.completed ? "text-app-faint" : due?.tone ?? "text-app-muted"}`}>
-                      {task.description ?? due?.text}
-                    </span>
-                  )}
-                </span>
+                <svg viewBox="0 0 20 20" className={`h-5 w-5 shrink-0 ${task.completed ? "text-app-faint" : "text-app-accent"}`} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="10" cy="10" r="8" />
+                  {task.completed && <path d="M6.5 10.2l2.3 2.3 4.7-4.9" />}
+                </svg>
+                <span className={`min-w-0 flex-1 truncate text-sm ${task.completed ? "text-app-faint line-through" : "text-app-text"}`}>{task.title}</span>
+                {!task.completed && due && (due.tone !== "text-app-muted") && <span className={`shrink-0 text-xs font-semibold ${due.tone}`}>{due.text.replace(" fällig", "")}</span>}
               </button>
             </li>
           );
