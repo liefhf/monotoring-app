@@ -38,3 +38,24 @@ describe("faultCatalog", () => {
     expect(week.blocks[1].rows[0].section).toBe("hauptblock");
   });
 });
+
+describe("faultTrends", () => {
+  it("zaehlt Fehler je Wettkampf ueber die Saison", async () => {
+    const { faultTrends, trendText, seasonStart } = await import("@/lib/faultCatalog");
+    const f = (code: string) => [{ code, segment: "wende-1" }];
+    const trends = faultTrends(
+      [
+        { competition_id: "a", start_date: "2026-09-01", faults: f("wende_rueckendrehung") },
+        { competition_id: "a", start_date: "2026-09-01", faults: f("wende_rueckendrehung") },
+        { competition_id: "b", start_date: "2026-10-01", faults: f("tempo_einbruch") },
+        { competition_id: "c", start_date: "2026-10-24", faults: f("wende_rueckendrehung") },
+        { competition_id: "d", start_date: "2026-11-01", faults: [] },
+        { competition_id: "x", start_date: "2026-05-01", faults: f("tempo_einbruch") },
+      ],
+      seasonStart("2026-11-02")
+    );
+    expect(trendText(trends[0])).toBe("Rückenwende: nicht sofort eingeleitet: 2× in 4 Wettkämpfen");
+    expect(trends[0].stillOpen).toBe(false);
+    expect(trends[1].competitions).toBe(1);
+  });
+});

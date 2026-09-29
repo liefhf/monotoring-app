@@ -189,3 +189,67 @@ export function buildAthleteFeedback({
 
   return { wentWell: good.join("\n"), toImprove: improve.join("\n") };
 }
+
+/*
+ * Fehler-Trend ueber die Saison: Wie oft taucht ein Fehler bei wie vielen
+ * Wettkaempfen auf? "Rückenwende: 3× in 4 Wettkämpfen".
+ */
+export type FaultTrend = {
+  code: string;
+  label: string;
+  rule: boolean;
+  /* Wettkaempfe mit diesem Fehler / Wettkaempfe mit erfassten Starts */
+  competitions: number;
+  totalCompetitions: number;
+  starts: number;
+  lastDate: string;
+  /* auch beim letzten Wettkampf wieder aufgetreten */
+  stillOpen: boolean;
+};
+
+export function seasonStart(today: string) {
+  const year = Number(today.slice(0, 4));
+  const month = Number(today.slice(5, 7));
+  return `${month >= 8 ? year : year - 1}-08-01`;
+}
+
+export function faultTrends(
+  starts: { competition_id: string; start_date: string; faults: StartFault[] | null }[],
+  since: string
+): FaultTrend[] {
+  const inSeason = starts.filter((start) => start.start_date >= since);
+  const competitions = [...new Set(inSeason.map((start) => start.competition_id))];
+  const lastCompetitionDate = inSeason.reduce((max, start) => (start.start_date > max ? start.start_date : max), "");
+  const lastCompetitions = new Set(inSeason.filter((start) => start.start_date === lastCompetitionDate).map((start) => start.competition_id));
+
+  const map = new Map<string, { competitions: Set<string>; starts: number; lastDate: string }>();
+  for (const start of inSeason) {
+    for (const code of new Set((start.faults ?? []).map((fault) => fault.code))) {
+      const entry = map.get(code) ?? { competitions: new Set<string>(), starts: 0, lastDate: "" };
+      entry.competitions.add(start.competition_id);
+      entry.starts += 1;
+      if (start.start_date > entry.lastDate) entry.lastDate = start.start_date;
+      map.set(code, entry);
+    }
+  }
+
+  return [...map.entries()]
+    .map(([code, entry]) => {
+      const fault = faultByCode.get(code);
+      return {
+        code,
+        label: fault?.label ?? code,
+        rule: Boolean(fault?.rule),
+        competitions: entry.competitions.size,
+        totalCompetitions: competitions.length,
+        starts: entry.starts,
+        lastDate: entry.lastDate,
+        stillOpen: [...entry.competitions].some((id) => lastCompetitions.has(id)),
+      };
+    })
+    .sort((a, b) => Number(b.rule) - Number(a.rule) || b.competitions - a.competitions || b.starts - a.starts);
+}
+
+export function trendText(trend: FaultTrend) {
+  return `${trend.label}: ${trend.competitions}× in ${trend.totalCompetitions} Wettkämpfen`;
+}

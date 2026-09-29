@@ -23,7 +23,7 @@ import {
  * Dazu kommen Pflichtzeiten in Reichweite und Distanz-Profil.
  */
 
-export type FocusKind = "dq" | "quali" | "stroke" | "missing" | "distance" | "stagnation";
+export type FocusKind = "dq" | "trend" | "quali" | "stroke" | "missing" | "distance" | "stagnation";
 
 export type FocusItem = {
   kind: FocusKind;
@@ -249,7 +249,10 @@ export function trainingFocus({
   today,
   nonFinishes = [],
   focus = null,
+  faultTrends = [],
 }: {
+  /* wiederkehrende Wettkampf-Fehler der Saison (lib/faultCatalog.faultTrends) */
+  faultTrends?: { label: string; rule: boolean; competitions: number; totalCompetitions: number; stillOpen: boolean }[];
   focus?: AthleteFocus | null;
   nonFinishes?: NonFinish[];
   results: SwimmerResult[];
@@ -281,6 +284,19 @@ export function trainingFocus({
         : "Grund noch nicht eingetragen – bitte ergänzen. Muss vor dem nächsten Start behoben sein.",
       /* Disqualifikationen stehen immer ganz oben, unabhaengig von Punkten */
       score: 1000 - daysBetween(dq.result_date, today) / 10,
+    });
+  }
+
+  /* 0b. Fehler, die bei mindestens 2 Wettkaempfen auftreten: Dauer-Schwerpunkt */
+  for (const trend of faultTrends) {
+    if (trend.competitions < 2) continue;
+    items.push({
+      kind: "trend",
+      title: `${trend.rule ? "⚠ " : ""}${trend.label}: ${trend.competitions}× in ${trend.totalCompetitions} Wettkämpfen`,
+      detail: trend.stillOpen
+        ? "Wiederkehrender Fehler, auch beim letzten Wettkampf wieder – fester Bestandteil jeder Trainingswoche, bis er verschwindet."
+        : "Trat mehrfach auf, beim letzten Wettkampf aber nicht mehr – weiter beobachten.",
+      score: (trend.rule ? 500 : 100) + trend.competitions * 5 + (trend.stillOpen ? 10 : -30),
     });
   }
 

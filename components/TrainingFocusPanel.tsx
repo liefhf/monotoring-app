@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { CalendarEntry } from "@/lib/community";
 import { describeCompetition, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
+import { supabase } from "@/lib/supabase";
+import { FaultTrend, faultTrends, seasonStart, trendText } from "@/lib/faultCatalog";
 import AthleteFocusEditor from "@/components/AthleteFocusEditor";
 import { RoleBadge } from "@/components/FocusBadge";
 import { NonFinish, QualifyingStandard, QualifyingTime, Swimmer, SwimmerResult, formatEvent, formatEventShort, formatTime } from "@/lib/swim";
@@ -11,6 +13,7 @@ import { Card, inputClass } from "@/components/ui";
 
 const KIND_LABEL: Record<FocusKind, { label: string; className: string }> = {
   dq: { label: "Disqualifikation", className: "bg-app-bad/10 text-app-bad" },
+  trend: { label: "wiederkehrend", className: "bg-app-bad/10 text-app-bad" },
   quali: { label: "Pflichtzeit", className: "bg-app-warn/15 text-app-warn" },
   stroke: { label: "Lage", className: "bg-app-accent/12 text-app-accent" },
   missing: { label: "fehlt", className: "bg-app-elevated text-app-muted" },
@@ -53,11 +56,18 @@ export default function TrainingFocusPanel({
   const [today] = useState(todayIso);
   const [nonFinishes, setNonFinishes] = useState<NonFinish[]>([]);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
+  const [trends, setTrends] = useState<FaultTrend[]>([]);
 
   useEffect(() => {
     loadNonFinishes(swimmer.id).then(({ rows }) => setNonFinishes(rows));
     loadUpcomingCompetitions().then(setUpcoming);
-  }, [swimmer.id]);
+    /* Wettkampf-Fehler der Saison (Spalte faults evtl. noch nicht angelegt -> leer) */
+    supabase
+      .from("competition_starts")
+      .select("competition_id, start_date, faults")
+      .eq("swimmer_id", swimmer.id)
+      .then(({ data, error }) => setTrends(error ? [] : faultTrends((data ?? []) as Parameters<typeof faultTrends>[0], seasonStart(today))));
+  }, [swimmer.id, today]);
 
   const standard = standards.find((item) => item.id === standardId) ?? null;
   const standardTimes = useMemo(
@@ -66,8 +76,8 @@ export default function TrainingFocusPanel({
   );
 
   const items = useMemo(
-    () => trainingFocus({ results, swimmer, standard, standardTimes, today, nonFinishes, focus }),
-    [results, swimmer, standard, standardTimes, today, nonFinishes, focus]
+    () => trainingFocus({ results, swimmer, standard, standardTimes, today, nonFinishes, focus, faultTrends: trends }),
+    [results, swimmer, standard, standardTimes, today, nonFinishes, focus, trends]
   );
   const suggestion = useMemo(
     () => suggestFocus({ results, swimmer, standard, standardTimes, today }),
@@ -193,6 +203,24 @@ export default function TrainingFocusPanel({
           </ol>
         )}
       </Card>
+
+      {trends.length > 0 && (
+        <Card title="Fehler-Trend der Saison" description="Aus der Fehler-Erfassung bei Wettkämpfen (seit 1. August).">
+          <ul className="divide-y divide-app-border text-sm">
+            {trends.map((trend) => (
+              <li key={trend.code} className="flex flex-wrap items-center justify-between gap-2 px-5 py-2">
+                <span className={trend.rule ? "font-semibold text-app-bad" : "font-medium"}>
+                  {trend.rule && "⚠ "}
+                  {trendText(trend)}
+                </span>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${trend.stillOpen ? "bg-app-bad/10 text-app-bad" : "bg-app-good/10 text-app-good"}`}>
+                  {trend.stillOpen ? "zuletzt wieder aufgetreten" : "zuletzt nicht mehr"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       <Card title="Lagen-Profil" description="Beste Punktzahl je Lage in den letzten 12 Monaten.">
         <div className="space-y-2.5 p-5">
