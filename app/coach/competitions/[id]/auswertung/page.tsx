@@ -682,6 +682,9 @@ export default function WettkampfAuswertungPage() {
         description={`${formatDate(competition.start_date)}${competition.end_date ? ` – ${formatDate(competition.end_date)}` : ""} · ${competition.location}`}
         actions={
           <div className="flex flex-wrap gap-2 print:hidden">
+            <Link href={`/coach/competitions/${competitionId}/stoppuhr`} className={buttonPrimary}>
+              ⏱ Stoppuhr
+            </Link>
             <button type="button" onClick={() => setShowImport(true)} className={buttonSecondary}>
               Protokoll importieren
             </button>

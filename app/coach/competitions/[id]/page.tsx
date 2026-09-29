@@ -890,6 +890,12 @@ export default function CompetitionDetailPage() {
             >
               Auswertung & Feedback →
             </Link>
+            <Link
+              href={`/coach/competitions/${competition.id}/stoppuhr`}
+              className="inline-flex items-center gap-2 rounded-xl border border-app-border px-4 py-2.5 text-sm font-semibold transition hover:bg-app-elevated"
+            >
+              ⏱ Stoppuhr
+            </Link>
           </div>
         </div>
       </section>
