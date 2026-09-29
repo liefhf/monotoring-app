@@ -373,7 +373,7 @@ export default function CoachPage() {
         </Tile>
 
         {/* Athleten-Check */}
-        <div className="lg:col-span-4">{teamId && <RedFlagsPanel teamId={teamId} />}</div>
+        <div className="lg:col-span-4">{teamId && <RedFlagsPanel teamId={teamId} variant="summary" />}</div>
 
         {/* To-do */}
         <div className="lg:col-span-3">

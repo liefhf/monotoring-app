@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, wellnessScore } from "@/lib/monitoring";
@@ -106,9 +107,27 @@ async function loadRows(today: string, teamId: string | null): Promise<Row[]> {
   });
 }
 
-export default function RedFlagsPanel({ teamId = null }: { teamId?: string | null }) {
+/* Gruppen fuer die Kurzuebersicht (Ring) */
+const GROUPS = [
+  { key: "ok", label: "im grünen", color: "var(--app-accent)" },
+  { key: "gelb", label: "beobachten", color: "#c4b5fd" },
+  { key: "rot", label: "auffällig", color: "var(--app-bad)" },
+  { key: "leer", label: "ohne Daten", color: "var(--app-faint)" },
+] as const;
+
+function groupOf(row: Row) {
+  if (row.flags.some((flag) => flag.level === "rot")) return "rot";
+  if (row.flags.length) return "gelb";
+  const hasData = row.acwr.ratio !== null || row.readiness !== null || row.painMax !== null || row.attendanceRate !== null;
+  return hasData ? "ok" : "leer";
+}
+
+/*
+ * variant "summary": Ring mit Anteil im gruenen Bereich (Dashboard, Klick fuehrt zur Uebersicht)
+ * variant "table": vollstaendige Tabelle aller Athleten
+ */
+export default function RedFlagsPanel({ teamId = null, variant = "table" }: { teamId?: string | null; variant?: "summary" | "table" }) {
   const [rows, setRows] = useState<Row[] | null>(null);
-  const [showAll, setShowAll] = useState(false);
   const [today] = useState(() => isoDay(Date.now()));
 
   useEffect(() => {
@@ -123,7 +142,7 @@ export default function RedFlagsPanel({ teamId = null }: { teamId?: string | nul
       y.flags.length - x.flags.length ||
       x.name.localeCompare(y.name, "de")
   );
-  const shown = showAll ? sorted : sorted.slice(0, 5);
+  const shown = sorted;
 
   const cell = (row: Row, kind: Flag["kind"]) => {
     const flag = row.flags.find((item) => item.kind === kind);
@@ -145,17 +164,63 @@ export default function RedFlagsPanel({ teamId = null }: { teamId?: string | nul
 
   const flaggedCount = rows.filter((row) => row.flags.length).length;
 
+  if (variant === "summary") {
+    const counts = GROUPS.map((group) => ({ ...group, value: rows.filter((row) => groupOf(row) === group.key).length }));
+    const withData = rows.length - counts[3].value;
+    const okShare = withData ? Math.round((counts[0].value / withData) * 100) : null;
+    return (
+      <Link
+        href="/coach/athleten-check"
+        className="flex h-full flex-col rounded-3xl border border-app-border bg-app-surface p-5 shadow-app transition hover:border-app-accent"
+      >
+        <p className="text-sm text-app-muted">Athleten-Check</p>
+        <div className="relative mx-auto mt-1 h-36 w-36">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={counts.filter((item) => item.value > 0)}
+                dataKey="value"
+                innerRadius="78%"
+                outerRadius="100%"
+                startAngle={90}
+                endAngle={-270}
+                paddingAngle={2}
+                cornerRadius={6}
+                stroke="none"
+                isAnimationActive={false}
+              >
+                {counts
+                  .filter((item) => item.value > 0)
+                  .map((item) => (
+                    <Cell key={item.key} fill={item.color} />
+                  ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-3xl font-bold text-app-heading">{okShare === null ? "–" : `${okShare}%`}</span>
+            <span className="text-[11px] text-app-muted">im grünen</span>
+          </div>
+        </div>
+        <div className="mt-auto grid grid-cols-4 gap-1 pt-3 text-center">
+          {counts.map((item) => (
+            <div key={item.key}>
+              <span className="mx-auto mb-1 block h-1.5 w-6 rounded-full" style={{ background: item.color }} />
+              <span className="block text-base font-bold text-app-heading">{item.value}</span>
+              <span className="block text-[10px] text-app-muted">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <section className="h-full overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
       <div className="flex items-center justify-between gap-2 px-5 pt-5">
         <p className="text-sm text-app-muted">
           Athleten-Check <span className={flaggedCount ? "text-app-bad" : "text-app-good"}>· {flaggedCount ? `${flaggedCount} auffällig` : "alle im grünen Bereich"}</span>
         </p>
-        {rows.length > 5 && (
-          <button type="button" onClick={() => setShowAll(!showAll)} className="text-xs font-semibold text-app-accent">
-            {showAll ? "weniger" : `alle ${rows.length}`}
-          </button>
-        )}
       </div>
       <div className="mt-3 overflow-x-auto">
         <table className="w-full text-sm">
