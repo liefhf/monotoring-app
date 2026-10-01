@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { printStandard, standardCsv } from "@/lib/standardExport";
 import { fetchAll } from "@/lib/fetchAll";
 import {
   Gender,
@@ -525,7 +526,15 @@ export default function PflichtzeitenDetailPage() {
           <>
             <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border px-6 py-4">
-                <h2 className="text-lg font-semibold">Aktueller Stand</h2>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="text-lg font-semibold">Aktueller Stand</h2>
+                  {swimmersWithTimes.length > 0 && (
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => { const error = printStandard(standard, swimmersWithTimes); if (error) setMessage(error); }} className="rounded-full border border-app-border px-4 py-1.5 text-xs font-semibold hover:bg-app-elevated">Drucken / PDF</button>
+                      <button type="button" onClick={() => standardCsv(standard, swimmersWithTimes)} className="rounded-full bg-app-accent px-4 py-1.5 text-xs font-semibold text-app-accent-ink hover:opacity-90">Excel (CSV)</button>
+                    </div>
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-app-muted">
                   Bestzeit auf der {standard.count_both_pools ? "25m- oder 50m" : `${standard.pool_length}m`}-Bahn
                   {standard.valid_from || standard.valid_to ? " im Qualifikationszeitraum" : ""} im
