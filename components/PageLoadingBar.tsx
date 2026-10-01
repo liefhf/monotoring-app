@@ -1,43 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { subscribeLoading } from "@/lib/loadingTracker";
 
 /*
  * Ladebalken oben am Bildschirmrand auf allen Seiten: sichtbar, solange
- * Daten geladen werden (offene fetch-Anfragen, z. B. an Supabase).
- * Erst nach kurzer Verzoegerung, damit schnelle Klicks nicht flackern.
- * Realtime-/Websocket-Verbindungen zaehlen nicht mit.
+ * Daten aus Supabase geladen werden. Erst nach kurzer Verzoegerung,
+ * damit schnelle Anfragen nicht flackern.
  */
 export default function PageLoadingBar() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const original = window.fetch;
-    let pending = 0;
     let timer: ReturnType<typeof setTimeout> | null = null;
-
-    const update = () => {
+    const unsubscribe = subscribeLoading((pending) => {
       if (pending > 0 && !timer) timer = setTimeout(() => setVisible(true), 150);
       if (pending === 0) {
         if (timer) clearTimeout(timer);
         timer = null;
         setVisible(false);
       }
-    };
-
-    window.fetch = async (...args) => {
-      pending++;
-      update();
-      try {
-        return await original.apply(window, args);
-      } finally {
-        pending--;
-        update();
-      }
-    };
-
+    });
     return () => {
-      window.fetch = original;
+      unsubscribe();
       if (timer) clearTimeout(timer);
     };
   }, []);
