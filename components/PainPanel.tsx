@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { formatRelative } from "@/lib/community";
@@ -90,7 +91,7 @@ export default function PainPanel({ swimmerId }: { swimmerId: string }) {
   }, [reports]);
 
   if (profileId === undefined) {
-    return <p className="mt-6 text-sm text-app-muted">Wird geladen...</p>;
+    return <p className="mt-6 text-sm text-app-muted"><Loader /></p>;
   }
 
   if (!profileId) {
@@ -116,7 +117,7 @@ export default function PainPanel({ swimmerId }: { swimmerId: string }) {
 
         <Card title="Verlauf" description="Die letzten 8 Wochen">
           {reports === null ? (
-            <p className="p-5 text-sm text-app-muted">Wird geladen...</p>
+            <p className="p-5 text-sm text-app-muted"><Loader /></p>
           ) : groups.length === 0 ? (
             <EmptyState icon="heart" title="Keine Schmerzmeldungen" />
           ) : (

@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -242,7 +243,7 @@ export default function TeamsPage() {
       </Card>
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">Wird geladen...</div>
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : teams.length === 0 ? (
         <Card>
           <EmptyState icon="teams" title="Noch kein Team">

@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
@@ -629,7 +630,7 @@ export default function WettkampfAuswertungPage() {
   if (loading) {
     return (
       <main className="mx-auto max-w-6xl">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">Wird geladen...</div>
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       </main>
     );
   }

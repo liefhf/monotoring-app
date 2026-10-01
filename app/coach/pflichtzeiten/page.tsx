@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -213,7 +214,7 @@ export default function PflichtzeitenPage() {
           </div>
 
           {loading ? (
-            <div className="p-6 text-sm text-app-muted">Wird geladen...</div>
+            <div className="p-6 text-sm text-app-muted"><Loader /></div>
           ) : standards.length === 0 ? (
             <div className="p-6 text-sm text-app-faint">Noch keine Pflichtzeiten-Listen.</div>
           ) : (

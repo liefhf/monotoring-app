@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -74,7 +75,7 @@ export function UpcomingEntries({ href, limit = 4 }: { href: string; limit?: num
   return (
     <WidgetCard title="Nächste Termine" href={href} linkLabel="Kalender">
       {entries === null ? (
-        <p className="px-4 py-6 text-sm text-app-muted">Wird geladen...</p>
+        <p className="px-4 py-6 text-sm text-app-muted"><Loader /></p>
       ) : entries.length === 0 ? (
         <p className="px-4 py-6 text-sm text-app-muted">Keine anstehenden Termine.</p>
       ) : (
@@ -128,7 +129,7 @@ export function LatestNews({ href, limit = 3 }: { href: string; limit?: number }
   return (
     <WidgetCard title="Neuigkeiten" href={href} linkLabel="Alle News">
       {posts === null ? (
-        <p className="px-4 py-6 text-sm text-app-muted">Wird geladen...</p>
+        <p className="px-4 py-6 text-sm text-app-muted"><Loader /></p>
       ) : posts.length === 0 ? (
         <p className="px-4 py-6 text-sm text-app-muted">Noch keine Neuigkeiten.</p>
       ) : (

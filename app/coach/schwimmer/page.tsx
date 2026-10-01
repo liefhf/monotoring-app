@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -292,7 +293,7 @@ export default function AthletenPage() {
 
       <Card>
         {loading ? (
-          <p className="p-6 text-sm text-app-muted">Wird geladen...</p>
+          <p className="p-6 text-sm text-app-muted"><Loader /></p>
         ) : athletes.length === 0 ? (
           <EmptyState icon="athlete" title="Noch keine Athleten">
             Leg oben den ersten Athleten an.

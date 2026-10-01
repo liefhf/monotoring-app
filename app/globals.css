@@ -233,3 +233,9 @@
     outline-offset: 2px;
   }
 }
+
+/* Ladebalken (components/Loader.tsx) */
+@keyframes app-loader {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(250%); }
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { NewsPost, TeamOption } from "@/lib/community";
@@ -42,7 +43,7 @@ export default function AthleteNewsPage() {
       {error && <Notice tone="bad">Neuigkeiten konnten nicht geladen werden.</Notice>}
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">Wird geladen...</div>
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : (
         <NewsList posts={posts} teamName={teamName} />
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -46,7 +47,7 @@ export function GroupRoomList({ basePath }: { basePath: string }) {
       )}
 
       {teams === null ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">Wird geladen...</div>
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : teams.length === 0 ? (
         <div className="rounded-2xl border border-app-border bg-app-surface shadow-app">
           <EmptyState icon="teams" title="Noch kein Team">

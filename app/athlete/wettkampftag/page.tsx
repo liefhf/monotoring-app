@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -108,7 +109,7 @@ export default function WettkampfTagPage() {
       {message && <Notice tone={message.includes("✅") ? "good" : "bad"}>{message}</Notice>}
 
       {loading ? (
-        <p className="text-sm text-app-muted">Lade …</p>
+        <p className="text-sm text-app-muted"><Loader /></p>
       ) : !nextCompetitionId ? (
         <Card padded>
           <p className="text-sm text-app-muted">Für dich ist noch kein kommender Wettkampf mit Starts eingetragen. Deine Routine kannst du trotzdem schon vorbereiten.</p>

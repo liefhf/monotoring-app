@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -89,7 +90,7 @@ export default function MeinFortschrittPage() {
   const latestLactate = [...lactate].filter((test) => test.stroke === "freestyle").sort((a, b) => b.test_date.localeCompare(a.test_date))[0] ?? null;
   const zones = latestLactate ? analyzeLactateTest(latestLactate).zones : [];
 
-  if (state === "loading") return <main className="mx-auto max-w-2xl px-4 py-6 text-sm text-app-muted">Lade …</main>;
+  if (state === "loading") return <main className="mx-auto max-w-2xl px-4 py-6 text-sm text-app-muted"><Loader /></main>;
 
   return (
     <main className="mx-auto max-w-2xl space-y-4 px-4 py-5">

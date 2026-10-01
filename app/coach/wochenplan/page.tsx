@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -208,7 +209,7 @@ function WochenplanView() {
 
 export default function WochenplanPage() {
   return (
-    <Suspense fallback={<p className="text-sm text-app-muted">Lade …</p>}>
+    <Suspense fallback={<p className="text-sm text-app-muted"><Loader /></p>}>
       <WochenplanView />
     </Suspense>
   );

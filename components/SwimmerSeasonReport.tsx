@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -70,7 +71,7 @@ export default function SwimmerSeasonReport({ swimmerId }: { swimmerId: string }
   const ratedCategories = RATING_CATEGORIES.filter((category) => trend.some((row) => row[category.key] !== null));
 
   if (starts === null) {
-    return <p className="mt-6 text-sm text-app-muted">Wird geladen...</p>;
+    return <p className="mt-6 text-sm text-app-muted"><Loader /></p>;
   }
 
   if (starts.length === 0) {

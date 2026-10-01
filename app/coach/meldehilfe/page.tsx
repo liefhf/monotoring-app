@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -185,7 +186,7 @@ export default function MeldehilfePage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-app-muted">Lade …</p>
+        <p className="text-sm text-app-muted"><Loader /></p>
       ) : perSwimmer.length === 0 ? (
         <Card padded>
           <p className="text-sm text-app-muted">Für diese Liste hat noch niemand eine Pflichtzeit erreicht oder ist knapp dran.</p>

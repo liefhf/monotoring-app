@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { localDateOf, CalendarEntry, formatEntryWhen } from "@/lib/community";
 import { useEffect, useMemo, useState } from "react";
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -63,7 +64,7 @@ export default function FormCurvePanel({ swimmerId }: { swimmerId: string }) {
         </div>
 
         {loads === null ? (
-          <p className="p-5 text-sm text-app-muted">Lade …</p>
+          <p className="p-5 text-sm text-app-muted"><Loader /></p>
         ) : (
           <>
             <div className="h-80 p-4">

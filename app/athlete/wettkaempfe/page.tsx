@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { formatDate, formatEvent, formatTime, formatTimeDifference } from "@/lib/swim";
@@ -136,7 +137,7 @@ export default function AthleteWettkaempfePage() {
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">Wird geladen...</div>
+        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : groups.length === 0 ? (
         <Card>
           <EmptyState icon="trophy" title="Noch kein Wettkampf-Feedback">

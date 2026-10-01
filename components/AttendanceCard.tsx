@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import { useEffect, useState } from "react";
 import { Swimmer } from "@/lib/swim";
 import {
@@ -79,7 +80,7 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
       {missingTable ? (
         <p className="p-4 text-sm text-app-warn">Bitte zuerst <b>anwesenheit.sql</b> im Supabase SQL-Editor ausführen und die Seite neu laden.</p>
       ) : loading ? (
-        <p className="p-4 text-sm text-app-muted">Lade …</p>
+        <p className="p-4 text-sm text-app-muted"><Loader /></p>
       ) : swimmers.length === 0 ? (
         <p className="p-4 text-sm text-app-muted">Diesem Team sind keine Athleten zugeordnet.</p>
       ) : (
