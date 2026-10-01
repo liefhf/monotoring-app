@@ -34,21 +34,24 @@ const monthYear = (date: string | undefined) => (date ? `${Number(date.slice(5, 
 
 function linesFor(swimmer: Swimmer, results: SwimmerResult[], times: QualifyingTime[], standard: QualifyingStandard): Line[] {
   const own = results.filter((result) => result.swimmer_id === swimmer.id);
-  return SWIM_EVENTS.map((event, index) => {
+  return SWIM_EVENTS.map((event) => {
     const required = findQualifyingTime(times, swimmer, event);
     const counted = required ? findBestForStandard(own, event, standard) : null;
     const diff = required && counted ? counted.time_ms - required.time_ms : null;
     return {
       distance: event.distance,
       stroke: formatStroke(event.stroke),
-      newStroke: index > 0 && SWIM_EVENTS[index - 1].stroke !== event.stroke,
+      newStroke: false,
       best25: findBestResult(own, event, 25),
       best50: findBestResult(own, event, 50),
       required: required?.time_ms ?? null,
       status: !required ? "" : diff === null ? "keine Zeit" : diff <= 0 ? `✓ ${formatTimeDifference(diff)}` : `fehlt ${formatTimeDifference(diff)}`,
       ok: diff !== null && diff <= 0,
     };
-  });
+  })
+    /* kompakt: nur Strecken mit Bestzeit oder Pflichtzeit */
+    .filter((line) => line.best25 || line.best50 || line.required)
+    .map((line, index, list) => ({ ...line, newStroke: index > 0 && list[index - 1].stroke !== line.stroke }));
 }
 
 export function standardCsv(standard: QualifyingStandard, swimmers: Swimmer[], results: SwimmerResult[], times: QualifyingTime[]) {
@@ -85,6 +88,7 @@ export function printStandard(standard: QualifyingStandard, swimmers: Swimmer[],
   const blocks = swimmers
     .map((swimmer) => {
       const lines = linesFor(swimmer, results, times, standard);
+      if (!lines.length) return "";
       const rows = lines
         .map(
           (line, index) => `<tr class="${line.newStroke ? "grp" : ""}">
@@ -101,14 +105,14 @@ export function printStandard(standard: QualifyingStandard, swimmers: Swimmer[],
   win.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Bestzeiten – ${esc(standard.name)}</title><style>
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
-body { font: 8.3pt/1.2 "Segoe UI", Arial, sans-serif; color: #2a2640; margin: 0; padding: 9mm 10mm; }
+body { font: 8pt/1.15 "Segoe UI", Arial, sans-serif; color: #2a2640; margin: 0; padding: 9mm 10mm; }
 header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2mm; }
 h1 { font-size: 13pt; margin: 0; } header span { color: #6b6585; }
 table { width: 100%; border-collapse: collapse; }
 thead th { border-top: 1.5px solid #7c4dde; border-bottom: 1.5px solid #7c4dde; color: #7c4dde; font-size: 7.8pt; padding: 1mm; text-align: left; }
 thead { display: table-header-group; }
 tbody { break-inside: avoid; border-bottom: 1.5px solid #7c4dde; }
-td { padding: 0.45mm 1mm; border-bottom: 0.5px solid #e6e2f3; white-space: nowrap; }
+td { padding: 0.3mm 1mm; border-bottom: 0.5px solid #e6e2f3; white-space: nowrap; }
 tr.grp td { border-top: 0.8px solid #b9aee0; }
 td.name { font-weight: 700; vertical-align: top; padding-top: 1mm; border-right: 0.5px solid #e6e2f3; }
 td.jg { vertical-align: top; padding-top: 1mm; color: #6b6585; border-right: 0.5px solid #e6e2f3; }
