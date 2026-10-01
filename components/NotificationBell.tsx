@@ -50,15 +50,16 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
 
   useEffect(() => {
     let channel: ReturnType<typeof supabase.channel> | null = null;
+    let active = true;
 
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     load();
 
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) return;
+      if (!data.user || !active) return;
 
       channel = supabase
-        .channel(`notifications-${data.user.id}`)
+        .channel(`notifications-${data.user.id}-${Math.random().toString(36).slice(2)}`)
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "notifications", filter: `recipient_id=eq.${data.user.id}` },
@@ -68,6 +69,7 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
     });
 
     return () => {
+      active = false;
       if (channel) supabase.removeChannel(channel);
     };
   }, [load]);
