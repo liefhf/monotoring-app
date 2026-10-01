@@ -29,7 +29,7 @@ export default function PageLoadingBar() {
       pending++;
       update();
       try {
-        return await original(...args);
+        return await original.apply(window, args);
       } finally {
         pending--;
         update();
