@@ -530,8 +530,8 @@ export default function PflichtzeitenDetailPage() {
                   <h2 className="text-lg font-semibold">Aktueller Stand</h2>
                   {swimmersWithTimes.length > 0 && (
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => { const error = printStandard(standard, swimmersWithTimes); if (error) setMessage(error); }} className="rounded-full border border-app-border px-4 py-1.5 text-xs font-semibold hover:bg-app-elevated">Drucken / PDF</button>
-                      <button type="button" onClick={() => standardCsv(standard, swimmersWithTimes)} className="rounded-full bg-app-accent px-4 py-1.5 text-xs font-semibold text-app-accent-ink hover:opacity-90">Excel (CSV)</button>
+                      <button type="button" onClick={() => { const error = printStandard(standard, swimmersWithTimes.map((entry) => entry.swimmer), results, times); if (error) setMessage(error); }} className="rounded-full border border-app-border px-4 py-1.5 text-xs font-semibold hover:bg-app-elevated">Drucken / PDF</button>
+                      <button type="button" onClick={() => standardCsv(standard, swimmersWithTimes.map((entry) => entry.swimmer), results, times)} className="rounded-full bg-app-accent px-4 py-1.5 text-xs font-semibold text-app-accent-ink hover:opacity-90">Excel (CSV)</button>
                     </div>
                   )}
                 </div>

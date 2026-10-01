@@ -1,35 +1,72 @@
-import { QualifyingStandard, Swimmer, SwimmerResult, SwimEvent, formatDate, formatEvent, formatTime, formatTimeDifference, getSwimmerName } from "@/lib/swim";
+import {
+  QualifyingStandard,
+  QualifyingTime,
+  SWIM_EVENTS,
+  Swimmer,
+  SwimmerResult,
+  findBestForStandard,
+  findBestResult,
+  findQualifyingTime,
+  formatStroke,
+  formatTime,
+  formatTimeDifference,
+} from "@/lib/swim";
 
 /*
- * Export der Pflichtzeiten-Auswertung: je Athlet und Strecke Bestzeit,
- * Pflichtzeit und Abstand – als CSV (Excel) oder kompakte Druckansicht.
+ * Bestzeitenliste zu einer Pflichtzeiten-Liste: je Athlet alle Strecken mit
+ * Bestzeit 25m- und 50m-Bahn (mit Monat/Jahr), Pflichtzeit und Stand.
+ * Als CSV (Excel) oder Druckansicht.
  */
 
-export type ExportEntry = {
-  swimmer: Swimmer;
-  fulfilled: number;
-  rows: { event: SwimEvent; best: SwimmerResult | null; required: { time_ms: number }; diff: number | null }[];
+type Line = {
+  distance: number;
+  stroke: string;
+  newStroke: boolean;
+  best25: SwimmerResult | null;
+  best50: SwimmerResult | null;
+  required: number | null;
+  status: string;
+  ok: boolean;
 };
 
 const esc = (value: string) => value.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c] as string);
-const status = (diff: number | null) => (diff === null ? "keine Zeit" : diff <= 0 ? `erfüllt (${formatTimeDifference(diff)})` : `fehlt ${formatTimeDifference(diff)}`);
+const monthYear = (date: string | undefined) => (date ? `${Number(date.slice(5, 7))}/${date.slice(0, 4)}` : "");
 
-export function standardCsv(standard: QualifyingStandard, entries: ExportEntry[]) {
-  const lines = [["Nachname", "Vorname", "Jahrgang", "Strecke", "Bestzeit", "Bahn", "Datum", "Ort", "Pflichtzeit", "Stand"].join(";")];
-  for (const { swimmer, rows } of entries) {
-    for (const row of rows) {
+function linesFor(swimmer: Swimmer, results: SwimmerResult[], times: QualifyingTime[], standard: QualifyingStandard): Line[] {
+  const own = results.filter((result) => result.swimmer_id === swimmer.id);
+  return SWIM_EVENTS.map((event, index) => {
+    const required = findQualifyingTime(times, swimmer, event);
+    const counted = required ? findBestForStandard(own, event, standard) : null;
+    const diff = required && counted ? counted.time_ms - required.time_ms : null;
+    return {
+      distance: event.distance,
+      stroke: formatStroke(event.stroke),
+      newStroke: index > 0 && SWIM_EVENTS[index - 1].stroke !== event.stroke,
+      best25: findBestResult(own, event, 25),
+      best50: findBestResult(own, event, 50),
+      required: required?.time_ms ?? null,
+      status: !required ? "" : diff === null ? "keine Zeit" : diff <= 0 ? `✓ ${formatTimeDifference(diff)}` : `fehlt ${formatTimeDifference(diff)}`,
+      ok: diff !== null && diff <= 0,
+    };
+  });
+}
+
+export function standardCsv(standard: QualifyingStandard, swimmers: Swimmer[], results: SwimmerResult[], times: QualifyingTime[]) {
+  const lines = [["Vorname", "Nachname", "Geburtsjahr", "Disziplin", "Bestzeit 25m Bahn", "Datum", "Bestzeit 50m Bahn", "Datum", "Pflichtzeit", "Stand"].join(";")];
+  for (const swimmer of swimmers) {
+    for (const line of linesFor(swimmer, results, times, standard)) {
       lines.push(
         [
-          swimmer.last_name ?? "",
           swimmer.first_name,
+          swimmer.last_name ?? "",
           swimmer.birth_year ?? "",
-          formatEvent(row.event),
-          row.best ? formatTime(row.best.time_ms) : "",
-          row.best ? `${row.best.pool_length}m` : "",
-          row.best ? formatDate(row.best.result_date) : "",
-          row.best?.location ?? "",
-          formatTime(row.required.time_ms),
-          status(row.diff),
+          `${line.distance}m ${line.stroke}`,
+          line.best25 ? formatTime(line.best25.time_ms) : "",
+          monthYear(line.best25?.result_date),
+          line.best50 ? formatTime(line.best50.time_ms) : "",
+          monthYear(line.best50?.result_date),
+          line.required ? formatTime(line.required) : "",
+          line.status,
         ].join(";")
       );
     }
@@ -42,41 +79,46 @@ export function standardCsv(standard: QualifyingStandard, entries: ExportEntry[]
   URL.revokeObjectURL(link.href);
 }
 
-export function printStandard(standard: QualifyingStandard, entries: ExportEntry[]) {
+export function printStandard(standard: QualifyingStandard, swimmers: Swimmer[], results: SwimmerResult[], times: QualifyingTime[]) {
   const win = window.open("", "_blank");
   if (!win) return "Das Druckfenster wurde vom Browser blockiert – bitte Pop-ups für diese Seite erlauben.";
-  const blocks = entries
-    .map(
-      ({ swimmer, rows, fulfilled }) => `<section>
-      <div class="sec"><span>${esc(getSwimmerName(swimmer))} <small>Jg. ${swimmer.birth_year ?? "?"}</small></span><span>${fulfilled} / ${rows.length} erfüllt</span></div>
-      <table>${rows
+  const blocks = swimmers
+    .map((swimmer) => {
+      const lines = linesFor(swimmer, results, times, standard);
+      const rows = lines
         .map(
-          (row) => `<tr class="${row.diff !== null && row.diff <= 0 ? "ok" : ""}"><td class="ev">${esc(formatEvent(row.event))}</td>
-          <td class="t">${row.best ? formatTime(row.best.time_ms) : "–"}${row.best ? ` <small>${row.best.pool_length}m · ${formatDate(row.best.result_date)}</small>` : ""}</td>
-          <td class="t">${formatTime(row.required.time_ms)}</td><td>${esc(status(row.diff))}</td></tr>`
+          (line, index) => `<tr class="${line.newStroke ? "grp" : ""}">
+          ${index === 0 ? `<td class="name" rowspan="${lines.length}">${esc(swimmer.first_name)} ${esc(swimmer.last_name ?? "")}</td><td class="jg" rowspan="${lines.length}">${swimmer.birth_year ?? ""}</td>` : ""}
+          <td class="d">${line.distance}m</td><td>${esc(line.stroke)}</td>
+          <td class="t">${line.best25 ? formatTime(line.best25.time_ms) : ""}</td><td class="m">${monthYear(line.best25?.result_date)}</td>
+          <td class="t">${line.best50 ? formatTime(line.best50.time_ms) : ""}</td><td class="m">${monthYear(line.best50?.result_date)}</td>
+          <td class="t pz">${line.required ? formatTime(line.required) : ""}</td><td class="st${line.ok ? " ok" : ""}">${esc(line.status)}</td></tr>`
         )
-        .join("")}</table></section>`
-    )
+        .join("");
+      return `<tbody>${rows}</tbody>`;
+    })
     .join("");
   win.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Bestzeiten – ${esc(standard.name)}</title><style>
 @page { size: A4; margin: 0; }
 * { box-sizing: border-box; }
-body { font: 8.8pt/1.25 "Segoe UI", Arial, sans-serif; color: #2a2640; margin: 0; padding: 9mm 11mm; }
-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1.5px solid #7c4dde; padding-bottom: 2mm; }
-h1 { font-size: 14pt; margin: 0; } header span { color: #6b6585; }
-.cols { columns: 2; column-gap: 6mm; margin-top: 3mm; }
-section { break-inside: avoid; margin-bottom: 3mm; }
-.sec { display: flex; justify-content: space-between; color: #7c4dde; font-weight: 700; border-bottom: 1px solid #7c4dde; padding: 0.4mm 0; }
-.sec small { color: #6b6585; font-weight: 400; } .sec span:last-child { color: #2a2640; }
+body { font: 8.3pt/1.2 "Segoe UI", Arial, sans-serif; color: #2a2640; margin: 0; padding: 9mm 10mm; }
+header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2mm; }
+h1 { font-size: 13pt; margin: 0; } header span { color: #6b6585; }
 table { width: 100%; border-collapse: collapse; }
-td { padding: 0.6mm 1mm; border-bottom: 0.5px solid #e6e2f3; white-space: nowrap; }
-td.ev { font-weight: 600; } td.t { font-variant-numeric: tabular-nums; } td small { color: #8a84a3; }
-tr.ok td:last-child { font-weight: 700; }
-footer { margin-top: 2mm; font-size: 7pt; color: #a09bb8; }
+thead th { border-top: 1.5px solid #7c4dde; border-bottom: 1.5px solid #7c4dde; color: #7c4dde; font-size: 7.8pt; padding: 1mm; text-align: left; }
+thead { display: table-header-group; }
+tbody { break-inside: avoid; border-bottom: 1.5px solid #7c4dde; }
+td { padding: 0.45mm 1mm; border-bottom: 0.5px solid #e6e2f3; white-space: nowrap; }
+tr.grp td { border-top: 0.8px solid #b9aee0; }
+td.name { font-weight: 700; vertical-align: top; padding-top: 1mm; border-right: 0.5px solid #e6e2f3; }
+td.jg { vertical-align: top; padding-top: 1mm; color: #6b6585; border-right: 0.5px solid #e6e2f3; }
+td.d { text-align: right; color: #6b6585; }
+td.t { font-weight: 700; font-variant-numeric: tabular-nums; }
+td.m { color: #8a84a3; font-size: 7.3pt; border-right: 0.5px solid #e6e2f3; }
+td.pz { font-weight: 400; } td.st { color: #6b6585; } td.st.ok { color: #2a2640; font-weight: 700; }
 </style></head><body>
-<header><h1>Bestzeiten – ${esc(standard.name)}</h1><span>${standard.count_both_pools ? "25m und 50m" : `${standard.pool_length}m-Bahn`}${standard.valid_from || standard.valid_to ? ` · Zeitraum ${formatDate(standard.valid_from)} – ${formatDate(standard.valid_to)}` : ""} · Stand ${formatDate(new Date().toISOString().slice(0, 10))}</span></header>
-<div class="cols">${blocks}</div>
-<footer>Monitoring App · Spalten: Strecke · Bestzeit · Pflichtzeit · Stand</footer>
+<header><h1>Bestzeiten · Pflichtzeiten ${esc(standard.name)}</h1><span>Stand ${new Date().toLocaleDateString("de-DE")}</span></header>
+<table><thead><tr><th>Name</th><th>Jg.</th><th colspan="2">Disziplin</th><th>Bestzeit 25m</th><th>Datum</th><th>Bestzeit 50m</th><th>Datum</th><th>Pflichtzeit</th><th>Stand</th></tr></thead>${blocks}</table>
 </body></html>`);
   win.document.close();
   win.focus();
