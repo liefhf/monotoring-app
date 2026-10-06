@@ -1197,7 +1197,7 @@ export default function AthletePage() {
         {/* Mein Fortschritt: Bestzeiten, Pflichtzeit, Zonen */}
         <Link
           href="/athlete/fortschritt"
-          className="mt-4 flex items-center justify-between gap-3 rounded-3xl border border-app-border bg-app-surface shadow-app px-4 py-3 transition hover:border-app-accent"
+          className="mt-4 flex items-center justify-between gap-3 rounded-[20px] border border-app-border bg-app-surface shadow-app px-4 py-3 transition hover:border-app-accent"
         >
           <span>
             <span className="block font-semibold text-app-heading">📈 Mein Fortschritt</span>
@@ -1231,7 +1231,7 @@ export default function AthletePage() {
         )}
 
         {loading ? (
-          <div className="mt-5 rounded-3xl border border-app-border bg-app-surface shadow-app p-7 text-center text-sm text-app-muted">
+          <div className="mt-5 rounded-[20px] border border-app-border bg-app-surface shadow-app p-7 text-center text-sm text-app-muted">
             Deine Daten werden geladen...
           </div>
         ) : (
@@ -1284,7 +1284,7 @@ export default function AthletePage() {
                 {!todayCheckIn && (
                   <Link
                     href="/athlete/check-in"
-                    className="shrink-0 rounded-lg bg-app-warn px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:bg-app-warn"
+                    className="shrink-0 rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
                   >
                     Check-in
                   </Link>
@@ -1499,7 +1499,7 @@ export default function AthletePage() {
                               className={`shrink-0 rounded-lg px-4 py-2.5 text-center text-sm font-medium transition ${
                                 completed
                                   ? "border border-app-border text-app-text hover:bg-app-elevated"
-                                  : "bg-app-warn text-app-accent-ink hover:bg-app-warn"
+                                  : "bg-app-accent text-app-accent-ink hover:brightness-110"
                               }`}
                             >
                               {completed

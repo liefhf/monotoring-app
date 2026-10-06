@@ -184,7 +184,7 @@ export default function WettkampfTagPage() {
                   onClick={() => setDone((current) => (current.includes(index) ? current.filter((i) => i !== index) : [...current, index]))}
                   className="flex w-full items-center gap-3 px-4 py-3 text-left"
                 >
-                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 ${done.includes(index) ? "border-app-good bg-app-good text-white" : "border-app-border"}`}>
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 ${done.includes(index) ? "border-app-good bg-app-good text-app-signal-ink" : "border-app-border"}`}>
                     {done.includes(index) ? "✓" : ""}
                   </span>
                   <span className={done.includes(index) ? "text-app-muted line-through" : ""}>{item}</span>

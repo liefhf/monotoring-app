@@ -243,7 +243,7 @@ export default function TeamsPage() {
       </Card>
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : teams.length === 0 ? (
         <Card>
           <EmptyState icon="teams" title="Noch kein Team">
@@ -257,7 +257,7 @@ export default function TeamsPage() {
             const withLogin = members.filter((member) => member.profile_id).length;
 
             return (
-              <section key={team.id} className="flex flex-col rounded-3xl border border-app-border bg-app-surface shadow-app p-5 shadow-app">
+              <section key={team.id} className="flex flex-col rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 shadow-app">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h2 className="truncate text-lg font-semibold">{team.name}</h2>

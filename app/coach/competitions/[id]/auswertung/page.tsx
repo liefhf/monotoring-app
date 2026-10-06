@@ -630,7 +630,7 @@ export default function WettkampfAuswertungPage() {
   if (loading) {
     return (
       <main className="mx-auto max-w-6xl">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       </main>
     );
   }
@@ -935,7 +935,7 @@ export default function WettkampfAuswertungPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
             {kpis.map((kpi) => (
-              <div key={kpi.label} className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4 shadow-app">
+              <div key={kpi.label} className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4 shadow-app">
                 <p className="text-xs font-medium text-app-muted">{kpi.label}</p>
                 <p className={`mt-1 text-2xl font-bold ${kpi.tone ?? "text-app-heading"}`}>{kpi.value}</p>
                 <p className="mt-0.5 text-[11px] text-app-faint">{kpi.hint}</p>

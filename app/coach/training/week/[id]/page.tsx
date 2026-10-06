@@ -231,7 +231,7 @@ export default function WeekPage() {
       </div>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 xl:col-span-2">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 xl:col-span-2">
           <p className="text-sm text-app-muted">
             Wochenschwerpunkt
           </p>
@@ -241,7 +241,7 @@ export default function WeekPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Zielumfang
           </p>
@@ -251,7 +251,7 @@ export default function WeekPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Geplant
           </p>
@@ -261,7 +261,7 @@ export default function WeekPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Einheiten
           </p>
@@ -292,7 +292,7 @@ export default function WeekPage() {
           {days.map((day) => (
             <div
               key={day.id}
-              className="min-h-[420px] rounded-3xl border border-app-border bg-app-surface shadow-app"
+              className="min-h-[420px] rounded-[20px] border border-app-border bg-app-surface shadow-app"
             >
               <div className="border-b border-app-border p-4">
                 <p className="text-xs text-app-faint">
@@ -385,7 +385,7 @@ export default function WeekPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-6">
+      <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-6">
         <h2 className="text-lg font-semibold">
           Struktur
         </h2>

@@ -218,7 +218,7 @@ export default function LactatePanel({ swimmerId }: { swimmerId: string }) {
               { title: "Anaerobe Schwelle (4 mmol/l)", value: analysis.v4, change: change("v4") },
               { title: `Individuell (Laktatbett + 1)`, value: analysis.individual, change: null },
             ].map((item) => (
-              <div key={item.title} className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+              <div key={item.title} className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
                 <p className="text-xs text-app-muted">{item.title}</p>
                 <p className="text-2xl font-bold text-app-heading">{item.value ? `${formatPace(item.value.pace100Ms)} /100 m` : "–"}</p>
                 <p className="text-xs text-app-muted">

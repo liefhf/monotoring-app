@@ -481,7 +481,7 @@ export default function DailyCheckInPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
+          <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
             Check-in wird geladen...
           </div>
         </div>
@@ -528,7 +528,7 @@ export default function DailyCheckInPage() {
 
             <Link
               href="/athlete"
-              className="mt-5 block w-full rounded-xl bg-app-warn px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:bg-app-warn"
+              className="mt-5 block w-full rounded-xl bg-app-accent px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:brightness-110"
             >
               Zurück zum Dashboard
             </Link>
@@ -585,7 +585,7 @@ export default function DailyCheckInPage() {
           </div>
         )}
 
-        <section className="mt-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-4 sm:p-5">
+        <section className="mt-4 rounded-[20px] border border-app-border bg-app-surface shadow-app p-4 sm:p-5">
           {step === 1 && (
             <>
               <QuestionHeader
@@ -821,7 +821,7 @@ export default function DailyCheckInPage() {
             <button
               type="button"
               onClick={goNext}
-              className="min-h-12 rounded-xl bg-app-warn px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-app-warn"
+              className="min-h-12 rounded-xl bg-app-accent px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:brightness-110"
             >
               Weiter →
             </button>
@@ -832,7 +832,7 @@ export default function DailyCheckInPage() {
                 submitCheckIn
               }
               disabled={saving}
-              className="min-h-12 rounded-xl bg-app-warn px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-12 rounded-xl bg-app-accent px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Speichert..."

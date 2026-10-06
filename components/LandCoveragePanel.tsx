@@ -185,7 +185,7 @@ export default function LandCoveragePanel() {
   const currentWeek = weeks[weeks.length - 1];
 
   return (
-    <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+    <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
       <div className="border-b border-app-border px-4 py-3 sm:px-5">
         <h2 className="font-semibold text-app-heading">
           Kräftigung & Kernziele

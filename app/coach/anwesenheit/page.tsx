@@ -124,12 +124,12 @@ export default function AnwesenheitPage() {
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        <div className="rounded-3xl border border-app-border bg-app-surface p-4 shadow-app">
+        <div className="rounded-[20px] border border-app-border bg-app-surface p-4 shadow-app">
           <p className="text-3xl font-bold text-app-heading">{total.rate === null ? "–" : `${total.rate}%`}</p>
           <p className="text-xs text-app-muted">anwesend gesamt</p>
         </div>
         {ATTENDANCE_STATUS.map((item) => (
-          <div key={item.value} className="rounded-3xl border border-app-border bg-app-surface p-4 shadow-app">
+          <div key={item.value} className="rounded-[20px] border border-app-border bg-app-surface p-4 shadow-app">
             <p className="flex items-center gap-2 text-3xl font-bold text-app-heading">
               <span className={`flex h-7 w-7 items-center justify-center rounded-lg text-sm ${item.className}`}>{item.short}</span>
               {entries.filter((entry) => entry.status === item.value).length}
@@ -139,7 +139,7 @@ export default function AnwesenheitPage() {
         ))}
       </div>
 
-      <section className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+      <section className="overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
         {sessions.length === 0 ? (
           <p className="p-6 text-sm text-app-muted">Keine Einheiten in diesem Zeitraum.</p>
         ) : (

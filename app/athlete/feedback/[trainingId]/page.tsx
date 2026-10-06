@@ -664,7 +664,7 @@ export default function TrainingFeedbackPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+          <div className="rounded-[20px] border border-app-border bg-app-surface p-10 text-center text-app-muted">
             Training wird geladen...
           </div>
         </div>
@@ -676,7 +676,7 @@ export default function TrainingFeedbackPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-app-bad/40 bg-app-bad/10 p-6 text-app-bad">
+          <div className="rounded-[20px] border border-app-bad/40 bg-app-bad/10 p-6 text-app-bad">
             {message ||
               "Training konnte nicht geladen werden."}
           </div>
@@ -700,7 +700,7 @@ export default function TrainingFeedbackPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading sm:px-6">
         <div className="mx-auto max-w-2xl">
-          <section className="overflow-hidden rounded-3xl border border-app-good/40 bg-app-surface">
+          <section className="overflow-hidden rounded-[20px] border border-app-good/40 bg-app-surface">
             <div className="bg-app-good/10 px-6 py-8 text-center sm:px-8 sm:py-10">
               <div className="text-6xl">
                 🔥
@@ -742,7 +742,7 @@ export default function TrainingFeedbackPage() {
             <div className="p-5">
               <Link
                 href="/athlete"
-                className="block w-full rounded-2xl bg-app-warn px-6 py-4 text-center font-bold text-app-accent-ink transition hover:bg-app-warn"
+                className="block w-full rounded-2xl bg-app-accent px-6 py-4 text-center font-bold text-app-accent-ink transition hover:brightness-110"
               >
                 Zurück zur Übersicht →
               </Link>
@@ -778,7 +778,7 @@ export default function TrainingFeedbackPage() {
         </header>
 
         {/* ÄUSSERE BELASTUNG */}
-        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface shadow-app px-4 py-4 sm:px-5">
+        <section className="mt-5 rounded-[20px] border border-app-border bg-app-surface shadow-app px-4 py-4 sm:px-5">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
@@ -863,7 +863,7 @@ export default function TrainingFeedbackPage() {
         )}
 
         {/* INNERE BEANSPRUCHUNG */}
-        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-6">
+        <section className="mt-5 rounded-[20px] border border-app-border bg-app-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-app-warn">
@@ -931,7 +931,7 @@ export default function TrainingFeedbackPage() {
                     }
                     className={`flex aspect-square items-center justify-center rounded-2xl text-lg font-bold transition ${
                       selected
-                        ? "scale-105 bg-app-warn text-app-accent-ink shadow-lg shadow-amber-950/30"
+                        ? "scale-105 bg-app-accent text-app-accent-ink shadow-lg"
                         : "border border-app-border bg-app-bg text-app-text hover:border-app-border hover:bg-app-elevated"
                     }`}
                   >
@@ -969,7 +969,7 @@ export default function TrainingFeedbackPage() {
         </section>
 
         {/* NOTIZ */}
-        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-6">
+        <section className="mt-5 rounded-[20px] border border-app-border bg-app-surface p-5 sm:p-6">
           <h2 className="text-xl font-bold">
             Notiz
           </h2>
@@ -1018,7 +1018,7 @@ export default function TrainingFeedbackPage() {
             saving ||
             rpe === null
           }
-          className="mt-5 w-full rounded-2xl bg-app-warn px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 w-full rounded-2xl bg-app-accent px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving
             ? "Wird gespeichert..."

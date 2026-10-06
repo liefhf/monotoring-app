@@ -147,7 +147,7 @@ export default function NewCompetitionPage() {
         onSubmit={
           handleSubmit
         }
-        className="mt-6 space-y-5 rounded-3xl border border-app-border bg-app-surface shadow-app p-5 sm:p-6"
+        className="mt-6 space-y-5 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 sm:p-6"
       >
         <div>
           <label

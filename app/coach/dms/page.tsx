@@ -150,11 +150,11 @@ export default function DmsPage() {
       </Card>
 
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
           <p className="text-2xl font-bold">{lineup.total.toLocaleString("de-DE")}</p>
           <p className="text-xs text-app-muted">Punkte gesamt</p>
         </div>
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
           <p className="text-2xl font-bold">{available.length}</p>
           <p className="text-xs text-app-muted">Schwimmer verfügbar</p>
         </div>

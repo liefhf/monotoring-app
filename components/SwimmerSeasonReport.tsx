@@ -121,7 +121,7 @@ export default function SwimmerSeasonReport({ swimmerId }: { swimmerId: string }
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {kpis.map((kpi) => (
-          <div key={kpi.label} className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4 shadow-app">
+          <div key={kpi.label} className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4 shadow-app">
             <p className="text-xs font-medium text-app-muted">{kpi.label}</p>
             <p className="mt-1 text-2xl font-bold text-app-heading">{kpi.value}</p>
             {kpi.hint && <p className="text-[11px] text-app-faint">{kpi.hint}</p>}

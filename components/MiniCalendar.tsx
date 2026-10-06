@@ -65,7 +65,7 @@ export default function MiniCalendar({ teamId, today }: { teamId: string | null;
   };
 
   return (
-    <section className="h-full rounded-3xl border border-app-border bg-app-surface p-4 shadow-app">
+    <section className="h-full rounded-[20px] border border-app-border bg-app-surface p-4 shadow-app">
       <div className="grid gap-4 sm:grid-cols-2">
         {months.map((m, index) => {
           const cells = monthGrid(m.year, m.month);

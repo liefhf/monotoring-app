@@ -445,7 +445,7 @@ export default function WettkampfAuswertungPage() {
 
 function Kpi({ value, label }: { value: React.ReactNode; label: string }) {
   return (
-    <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4 shadow-app">
+    <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4 shadow-app">
       <p className="text-2xl font-bold text-app-heading">{value}</p>
       <p className="text-xs text-app-muted">{label}</p>
     </div>

@@ -51,7 +51,7 @@ export default function TeamSwitcher({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-2 min-w-[220px] overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app p-1.5">
+        <div className="absolute left-0 top-full z-30 mt-2 min-w-[220px] overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app p-1.5">
           {teams.map((team) => (
             <button
               key={team.id}

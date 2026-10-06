@@ -515,7 +515,7 @@ export default function AthleteTrainingDetailPage() {
   if (loading) {
     return (
       <main className="bg-app-bg p-8 text-app-heading">
-        <div className="mx-auto max-w-4xl rounded-3xl border border-app-border bg-app-surface shadow-app p-6">
+        <div className="mx-auto max-w-4xl rounded-[20px] border border-app-border bg-app-surface shadow-app p-6">
           <p className="text-app-muted">
             Training wird geladen...
           </p>
@@ -598,7 +598,7 @@ export default function AthleteTrainingDetailPage() {
 
       {/* Trainingsinfos */}
       <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Umfang
           </p>
@@ -613,7 +613,7 @@ export default function AthleteTrainingDetailPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Dauer
           </p>
@@ -625,7 +625,7 @@ export default function AthleteTrainingDetailPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Trainingsart
           </p>
@@ -635,7 +635,7 @@ export default function AthleteTrainingDetailPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Schwerpunkt
           </p>
@@ -651,7 +651,7 @@ export default function AthleteTrainingDetailPage() {
         "water" && (
         <section className="mt-6 space-y-6">
           {blocks.length === 0 ? (
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-6">
+            <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-6">
               <p className="text-app-muted">
                 Für dieses Training wurden
                 keine Serien gespeichert.
@@ -671,7 +671,7 @@ export default function AthleteTrainingDetailPage() {
               return (
                 <div
                   key={block.id}
-                  className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app"
+                  className="overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app"
                 >
                   <div className="border-b border-app-border p-5">
                     <div className="flex flex-wrap items-center gap-2">
@@ -810,7 +810,7 @@ export default function AthleteTrainingDetailPage() {
       {/* Landtraining */}
       {training.training_type ===
         "land" && (
-        <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border p-5">
             <h2 className="text-xl font-semibold">
               Landtraining
@@ -878,7 +878,7 @@ export default function AthleteTrainingDetailPage() {
       )}
 
       {/* Rückmeldung */}
-      <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+      <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
         <div className="border-b border-app-border p-5">
           <h2 className="text-xl font-semibold">
             Rückmeldung zum Training
@@ -980,7 +980,7 @@ export default function AthleteTrainingDetailPage() {
               }
               className={`rounded-xl px-5 py-3 text-sm font-medium ${
                 completed
-                  ? "bg-app-good text-app-accent-ink"
+                  ? "bg-app-good text-app-signal-ink"
                   : "border border-app-border hover:bg-app-elevated"
               }`}
             >

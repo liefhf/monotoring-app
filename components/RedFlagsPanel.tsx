@@ -171,7 +171,7 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
     return (
       <Link
         href="/coach/athleten-check"
-        className="flex h-full flex-col rounded-3xl border border-app-border bg-app-surface p-5 shadow-app transition hover:border-app-accent"
+        className="flex h-full flex-col rounded-[20px] border border-app-border bg-app-surface p-5 shadow-app transition hover:border-app-accent"
       >
         <p className="text-sm text-app-muted">Athleten-Check</p>
         <div className="relative mx-auto mt-1 h-36 w-36">
@@ -216,7 +216,7 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
   }
 
   return (
-    <section className="h-full overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+    <section className="h-full overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
       <div className="flex items-center justify-between gap-2 px-5 pt-5">
         <p className="text-sm text-app-muted">
           Athleten-Check <span className={flaggedCount ? "text-app-bad" : "text-app-good"}>· {flaggedCount ? `${flaggedCount} auffällig` : "alle im grünen Bereich"}</span>

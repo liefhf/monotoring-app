@@ -136,7 +136,7 @@ export default function PflichtzeitenPage() {
           </div>
         )}
 
-        <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border px-6 py-4">
             <h2 className="text-lg font-semibold">Neue Pflichtzeiten-Liste</h2>
             <p className="mt-1 text-sm text-app-muted">
@@ -208,7 +208,7 @@ export default function PflichtzeitenPage() {
           </form>
         </section>
 
-        <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border px-6 py-4">
             <h2 className="text-lg font-semibold">Meine Listen ({standards.length})</h2>
           </div>

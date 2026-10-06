@@ -124,7 +124,7 @@ export default function SetTimesCard({ sessionId, teamId, sessionDate }: { sessi
   const input = "rounded-lg border border-app-border bg-app-bg px-2 py-1.5 text-sm";
 
   return (
-    <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+    <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
       <div className="border-b border-app-border px-4 py-3">
         <h2 className="text-lg font-semibold">Serienzeiten</h2>
         <p className="text-xs text-app-muted">

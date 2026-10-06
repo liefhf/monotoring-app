@@ -183,7 +183,7 @@ export default function StoppuhrPage() {
               </button>
             ))}
           </div>
-          <button type="button" onClick={startAll} className="rounded-xl bg-app-good px-5 py-2.5 text-sm font-bold text-white">
+          <button type="button" onClick={startAll} className="rounded-xl bg-app-good px-5 py-2.5 text-sm font-bold text-app-signal-ink">
             ▶ Alle starten
           </button>
           <button
@@ -283,7 +283,7 @@ export default function StoppuhrPage() {
               )}
 
               {!lane.startedAt ? (
-                <button type="button" onClick={() => tap(lane.id, "start")} className="h-20 w-full rounded-2xl bg-app-good text-2xl font-bold text-white active:scale-[0.98]">
+                <button type="button" onClick={() => tap(lane.id, "start")} className="h-20 w-full rounded-2xl bg-app-good text-2xl font-bold text-app-signal-ink active:scale-[0.98]">
                   ▶ Start
                 </button>
               ) : isRunning ? (
@@ -300,7 +300,7 @@ export default function StoppuhrPage() {
                   type="button"
                   onClick={() => save(lane)}
                   disabled={lane.saved}
-                  className="h-16 w-full rounded-2xl bg-app-accent text-xl font-bold text-app-accent-ink disabled:bg-app-good disabled:text-white"
+                  className="h-16 w-full rounded-2xl bg-app-accent text-xl font-bold text-app-accent-ink disabled:bg-app-good disabled:text-app-signal-ink"
                 >
                   {lane.saved ? "✓ gespeichert" : "Speichern"}
                 </button>

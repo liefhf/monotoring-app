@@ -36,6 +36,7 @@
      den aktiven Menuepunkt. Nie fuer Zustaende. */
   --app-accent: #6a3dd0;
   --app-accent-ink: #ffffff; /* Schrift auf Akzentflaechen      */
+  --app-signal-ink: #ffffff; /* Schrift auf Signalflaechen (gut/warn/soon) */
   --app-accent-soft: #6a3dd0; /* Akzent als Schrift auf dunklen Flaechen */
   --app-accent-2: #b8329e;  /* Pink - zweiter Akzent fuer Verlaeufe */
 
@@ -85,6 +86,7 @@
 
   --app-accent: #7c4dde;
   --app-accent-ink: #ffffff;
+  --app-signal-ink: #15141f;
   --app-accent-soft: #c4b0f7;
   --app-accent-2: #c83fae;
 
@@ -125,6 +127,7 @@
 
     --app-accent: #7c4dde;
     --app-accent-ink: #ffffff;
+    --app-signal-ink: #15141f;
     --app-accent-soft: #c4b0f7;
     --app-accent-2: #c83fae;
 
@@ -168,6 +171,7 @@
   --app-accent: #0047b3;
   --app-accent-ink: #ffffff;
   --app-accent-soft: #0047b3;
+  --app-signal-ink: #ffffff;
   --app-soon: #a3006e;
   --app-info: #0047b3;
   --app-good: #006b3c;
@@ -195,6 +199,7 @@
   --color-app-accent: var(--app-accent);
   --color-app-accent-ink: var(--app-accent-ink);
   --color-app-accent-soft: var(--app-accent-soft);
+  --color-app-signal-ink: var(--app-signal-ink);
   --color-app-accent-2: var(--app-accent-2);
   --color-app-sidebar: var(--app-sidebar);
   --color-app-soon: var(--app-soon);

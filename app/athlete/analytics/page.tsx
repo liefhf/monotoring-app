@@ -76,7 +76,7 @@ export default function AthleteAnalyticsPage() {
 
       {/* Kennzahlen */}
       <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Ø Befinden
           </p>
@@ -90,7 +90,7 @@ export default function AthleteAnalyticsPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Wochenumfang
           </p>
@@ -104,7 +104,7 @@ export default function AthleteAnalyticsPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Trainingsbelastung
           </p>
@@ -118,7 +118,7 @@ export default function AthleteAnalyticsPage() {
           </p>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm text-app-muted">
             Erledigte Einheiten
           </p>
@@ -134,7 +134,7 @@ export default function AthleteAnalyticsPage() {
       </section>
 
       {/* Befinden */}
-      <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+      <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
         <div className="border-b border-app-border p-5">
           <h2 className="text-xl font-semibold">
             Befinden – letzte 7 Tage
@@ -182,7 +182,7 @@ export default function AthleteAnalyticsPage() {
       </section>
 
       {/* Trainingsbelastung */}
-      <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+      <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
         <div className="border-b border-app-border p-5">
           <h2 className="text-xl font-semibold">
             Trainingsbelastung
@@ -233,7 +233,7 @@ export default function AthleteAnalyticsPage() {
 
       {/* Wochenzusammenfassung */}
       <section className="mt-6 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <h2 className="text-lg font-semibold">
             Wochenstatus
           </h2>
@@ -283,7 +283,7 @@ export default function AthleteAnalyticsPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <h2 className="text-lg font-semibold">
             Aktueller Trend
           </h2>
@@ -323,7 +323,7 @@ export default function AthleteAnalyticsPage() {
       </section>
 
       {/* Hinweis */}
-      <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+      <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
         <p className="text-sm leading-6 text-app-muted">
           Diese Auswertung verwendet aktuell nur Testdaten. Später
           werden hier deine echten Befinden-Einträge, Trainingsdaten

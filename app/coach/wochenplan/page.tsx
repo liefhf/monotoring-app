@@ -140,7 +140,7 @@ function WochenplanView() {
           { value: sessions.length, label: "Einheiten" },
           { value: `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")} h`, label: "Trainingszeit" },
         ].map((kpi) => (
-          <div key={kpi.label} className="rounded-3xl border border-app-border bg-app-surface p-4 shadow-app">
+          <div key={kpi.label} className="rounded-[20px] border border-app-border bg-app-surface p-4 shadow-app">
             <p className="text-2xl font-bold text-app-heading">{kpi.value}</p>
             <p className="text-xs text-app-muted">{kpi.label}</p>
           </div>
@@ -148,7 +148,7 @@ function WochenplanView() {
       </div>
 
       {zoneTotal > 0 && (
-        <section className="rounded-3xl border border-app-border bg-app-surface p-5 shadow-app">
+        <section className="rounded-[20px] border border-app-border bg-app-surface p-5 shadow-app">
           <p className="text-sm font-semibold text-app-heading">Meter je Zone</p>
           <ul className="mt-3 space-y-2">
             {zones.map(([zone, value]) => (
@@ -170,7 +170,7 @@ function WochenplanView() {
         {days.map((day) => (
           <section
             key={day.date}
-            className={`flex min-h-[220px] flex-col rounded-3xl border bg-app-surface p-3 shadow-app ${day.date === today ? "border-app-accent" : "border-app-border"}`}
+            className={`flex min-h-[220px] flex-col rounded-[20px] border bg-app-surface p-3 shadow-app ${day.date === today ? "border-app-accent" : "border-app-border"}`}
           >
             <p className={`px-1 text-sm font-semibold ${day.date === today ? "text-app-accent" : "text-app-heading"}`}>
               {day.name} <span className="font-normal text-app-muted">{fmt(day.date)}</span>

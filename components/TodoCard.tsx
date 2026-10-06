@@ -83,7 +83,7 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
   const open = tasks.filter((task) => !task.completed).length;
 
   return (
-    <section className="flex h-full flex-col rounded-3xl border border-app-border bg-app-surface p-5 shadow-app">
+    <section className="flex h-full flex-col rounded-[20px] border border-app-border bg-app-surface p-5 shadow-app">
       <div className="flex items-start justify-between gap-3">
         <div>
           <Link href="/coach/training/season" className="text-lg font-bold text-app-heading hover:text-app-accent">

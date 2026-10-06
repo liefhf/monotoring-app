@@ -131,7 +131,7 @@ export default function AuthCallbackPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-app-bg px-6 text-app-text">
-      <div className="w-full max-w-md rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center">
+      <div className="w-full max-w-md rounded-[20px] border border-app-border bg-app-surface shadow-app p-8 text-center">
         <h1 className="text-2xl font-bold">
           Monitoring App
         </h1>

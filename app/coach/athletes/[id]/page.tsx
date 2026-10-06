@@ -1398,7 +1398,7 @@ export default function CoachAthleteProfilePage() {
 
           {/* AKTUELLES BEFINDEN */}
 
-          <section className="mt-4 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-4 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex flex-col gap-2 border-b border-app-border px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-5">
               <div>
                 <h2 className="text-lg font-semibold">
@@ -1545,7 +1545,7 @@ export default function CoachAthleteProfilePage() {
 
           {/* BEFINDEN IM VERLAUF */}
 
-          <section className="mt-4 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-4 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3.5 sm:px-5 xl:flex-row xl:items-center xl:justify-between">
               <div>
                 <h2 className="text-lg font-semibold">
@@ -1773,7 +1773,7 @@ export default function CoachAthleteProfilePage() {
 
           {/* TRAINING */}
 
-          <section className="mt-4 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-4 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3.5 sm:px-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="text-lg font-semibold">
@@ -1916,7 +1916,7 @@ export default function CoachAthleteProfilePage() {
 
           {/* TRAININGSRÜCKMELDUNGEN */}
 
-          <section className="mt-4 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-4 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex items-center justify-between border-b border-app-border px-4 py-3.5 sm:px-5">
               <div>
                 <h2 className="text-lg font-semibold">

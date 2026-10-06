@@ -164,7 +164,7 @@ const colorStyles: Record<
   }
 > = {
   amber: {
-    card: "border-app-warn bg-app-warn text-app-accent-ink",
+    card: "border-app-warn bg-app-warn text-app-signal-ink",
     dot: "bg-app-warn",
     soft: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   },
@@ -188,7 +188,7 @@ const colorStyles: Record<
   },
 
   emerald: {
-    card: "border-app-good bg-app-good text-app-accent-ink",
+    card: "border-app-good bg-app-good text-app-signal-ink",
     dot: "bg-app-good",
     soft: "border-app-good/40 bg-app-good/10 text-app-good",
   },
@@ -200,13 +200,13 @@ const colorStyles: Record<
   },
 
   orange: {
-    card: "border-app-warn bg-app-warn text-app-accent-ink",
+    card: "border-app-warn bg-app-warn text-app-signal-ink",
     dot: "bg-app-warn",
     soft: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   },
 
   pink: {
-    card: "border-pink-300 bg-pink-500 text-white",
+    card: "border-app-soon bg-app-soon text-app-signal-ink",
     dot: "bg-pink-500",
     soft: "border-pink-800 bg-pink-950 text-pink-200",
   },
@@ -1599,7 +1599,7 @@ export default function SeasonPlanningPage() {
       {/* TERMIN FORMULAR */}
 
       {showEventForm && (
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="flex items-start justify-between border-b border-app-border p-5">
             <div>
               <p className="text-sm text-app-muted">
@@ -1850,7 +1850,7 @@ export default function SeasonPlanningPage() {
       {/* AUFGABEN FORMULAR */}
 
       {showTaskForm && (
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="flex items-start justify-between border-b border-app-border p-5">
             <div>
               <p className="text-sm text-app-muted">
@@ -2065,7 +2065,7 @@ export default function SeasonPlanningPage() {
       )}
 
       {loading ? (
-        <div className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
+        <div className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Wird geladen...
         </div>
       ) : (
@@ -2075,7 +2075,7 @@ export default function SeasonPlanningPage() {
           <section className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_0.7fr]">
             {/* MONAT */}
 
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app">
+            <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app">
               <div className="flex flex-col gap-4 border-b border-app-border p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-app-muted">
@@ -2335,7 +2335,7 @@ export default function SeasonPlanningPage() {
 
             {/* FRISTEN & TO-DOS */}
 
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app">
+            <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -2546,7 +2546,7 @@ export default function SeasonPlanningPage() {
 
           {/* JAHRESZEITSTRAHL */}
 
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex flex-col gap-4 border-b border-app-border p-5 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-sm text-app-muted">
@@ -2980,7 +2980,7 @@ export default function SeasonPlanningPage() {
 
           {/* NÄCHSTE TERMINE */}
 
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex items-center justify-between border-b border-app-border p-5">
               <div>
                 <h2 className="text-xl font-semibold">

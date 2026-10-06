@@ -137,7 +137,7 @@ export default function AthleteWettkaempfePage() {
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : groups.length === 0 ? (
         <Card>
           <EmptyState icon="trophy" title="Noch kein Wettkampf-Feedback">
