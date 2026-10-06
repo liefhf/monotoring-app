@@ -5,17 +5,22 @@
  * Neue Seiten bitte hieraus zusammensetzen, damit
  * alles gleich aussieht.
  */
+import Link from "next/link";
 import { ReactNode, useEffect } from "react";
 import { Icon, IconName } from "@/components/icons";
 
 export const inputClass =
   "w-full rounded-xl border border-app-border bg-app-bg px-3.5 py-2.5 text-sm text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-accent";
 
+/* Knoepfe nach Design 9f: 44 px hoch, Radius 12, Icon + ein kurzes Wort. */
 export const buttonPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-app-accent px-5 py-2.5 text-sm font-semibold text-app-accent-ink shadow-app transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-accent px-[18px] py-2.5 text-sm font-bold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-full border border-app-border bg-app-surface px-5 py-2.5 text-sm font-medium text-app-heading transition hover:bg-app-elevated disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-elevated px-[18px] py-2.5 text-sm font-bold text-app-heading transition hover:bg-app-border/70 disabled:cursor-not-allowed disabled:opacity-50";
+
+export const buttonDanger =
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-bad/15 px-[18px] py-2.5 text-sm font-bold text-app-bad transition hover:bg-app-bad/25 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonGhost =
   "inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-app-muted transition hover:bg-app-elevated hover:text-app-heading";
@@ -37,13 +42,13 @@ export function PageHeader({
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="flex min-w-0 items-start gap-4">
         {icon && (
-          <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-app-accent/12 text-app-accent sm:flex">
+          <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-app-accent/15 text-app-accent-soft sm:flex">
             <Icon name={icon} className="h-6 w-6" />
           </span>
         )}
         <div className="min-w-0">
           {eyebrow && <p className="text-sm font-medium text-app-muted">{eyebrow}</p>}
-          <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight sm:text-[28px]">{title}</h1>
           {description && <p className="mt-1.5 max-w-2xl text-sm text-app-muted">{description}</p>}
         </div>
       </div>
@@ -68,17 +73,17 @@ export function Card({
   padded?: boolean;
 }) {
   return (
-    <section className={`overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app ${className}`}>
+    <section className={`overflow-hidden rounded-[20px] border border-app-border/60 bg-app-surface shadow-app ${className}`}>
       {(title || action) && (
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 pb-2 pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-2 pt-4 sm:px-[22px] sm:pt-5">
           <div className="min-w-0">
-            {title && <h2 className="text-base font-semibold text-app-heading">{title}</h2>}
+            {title && <h2 className="text-[15px] font-bold text-app-heading">{title}</h2>}
             {description && <p className="mt-0.5 text-sm text-app-muted">{description}</p>}
           </div>
           {action}
         </div>
       )}
-      <div className={padded ? "p-5" : ""}>{children}</div>
+      <div className={padded ? "p-4 sm:p-[22px]" : ""}>{children}</div>
     </section>
   );
 }
@@ -127,17 +132,18 @@ export function Notice({
   tone = "info",
   children,
 }: {
-  tone?: "info" | "good" | "bad" | "warn";
+  tone?: "info" | "good" | "bad" | "warn" | "soon";
   children: ReactNode;
 }) {
   const tones = {
-    info: "border-app-accent/30 bg-app-accent/8 text-app-text",
+    info: "border-app-accent/30 bg-app-accent/10 text-app-text",
+    soon: "border-app-soon/40 bg-app-soon/10 text-app-text",
     good: "border-app-good/40 bg-app-good/10 text-app-good",
     bad: "border-app-bad/40 bg-app-bad/10 text-app-bad",
     warn: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   };
 
-  return <div className={`rounded-xl border px-4 py-3 text-sm ${tones[tone]}`}>{children}</div>;
+  return <div className={`rounded-[14px] border px-4 py-3 text-sm ${tones[tone]}`}>{children}</div>;
 }
 
 export function Modal({
@@ -219,5 +225,98 @@ export function RichText({ text, className = "" }: { text: string; className?: s
         )
       )}
     </p>
+  );
+}
+
+/* ---------- Bausteine aus dem Gesamtdesign ---------- */
+
+export type ChipTone = "soon" | "good" | "warn" | "bad" | "neutral" | "primary" | "info";
+
+const chipTones: Record<ChipTone, string> = {
+  soon: "bg-app-soon/15 text-app-soon",
+  good: "bg-app-good/15 text-app-good",
+  warn: "bg-app-warn/15 text-app-warn",
+  bad: "bg-app-bad/15 text-app-bad",
+  neutral: "bg-app-elevated text-app-muted",
+  primary: "bg-app-accent/20 text-app-accent-soft",
+  info: "bg-app-info/15 text-app-info",
+};
+
+/*
+ * Status-Chip (Design 9g). Pink = bald faellig,
+ * Ampel (good/warn/bad) nur fuer den Athleten-Status.
+ */
+export function Chip({ tone = "neutral", children, className = "" }: { tone?: ChipTone; children: ReactNode; className?: string }) {
+  return (
+    <span className={`inline-flex h-7 shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-xs font-extrabold ${chipTones[tone]} ${className}`}>
+      {children}
+    </span>
+  );
+}
+
+/* Kennzahl (Design 9l): Label in Grossbuchstaben, Wert in Rubik. */
+export function Stat({ label, value, unit, trend, className = "" }: { label: string; value: ReactNode; unit?: string; trend?: ReactNode; className?: string }) {
+  return (
+    <div className={`min-w-0 rounded-[14px] bg-app-elevated/60 px-3.5 py-3 ${className}`}>
+      <div className="label-caps truncate">{label}</div>
+      <div className="mt-1 flex items-baseline gap-1">
+        <span className="num text-xl font-semibold text-app-heading">{value}</span>
+        {unit && <span className="text-xs text-app-muted">{unit}</span>}
+      </div>
+      {trend && <div className="mt-0.5 text-xs">{trend}</div>}
+    </div>
+  );
+}
+
+/*
+ * Kachel (Design 9d): ganze Flaeche klickbar, Pfeil oben rechts.
+ * Titel 15 · Zusatz 13 · Inhalt.
+ */
+export function Tile({ href, title, meta, children, className = "" }: { href: string; title: ReactNode; meta?: ReactNode; children?: ReactNode; className?: string }) {
+  return (
+    <Link
+      href={href}
+      className={`block rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app transition hover:border-app-accent/40 hover:bg-app-elevated/40 sm:p-[22px] ${className}`}
+    >
+      <div className="mb-3 flex items-center gap-3">
+        <h2 className="min-w-0 flex-1 truncate text-[15px] font-bold text-app-heading">{title}</h2>
+        {meta && <span className="shrink-0 text-[13px] text-app-muted">{meta}</span>}
+        <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-app-muted" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M6 14L14 6M7 6h7v7" />
+        </svg>
+      </div>
+      {children}
+    </Link>
+  );
+}
+
+/*
+ * Listenzeile (Design 9j): ganze Zeile antippbar,
+ * mindestens 52 px hoch, Pfeil rechts.
+ */
+export function ListRow({ href, leading, title, subtitle, trailing, className = "" }: { href?: string; leading?: ReactNode; title: ReactNode; subtitle?: ReactNode; trailing?: ReactNode; className?: string }) {
+  const content = (
+    <>
+      {leading}
+      <div className="min-w-0 flex-1">
+        <div className="truncate font-semibold text-app-heading">{title}</div>
+        {subtitle && <div className="truncate text-[13px] text-app-muted">{subtitle}</div>}
+      </div>
+      {trailing}
+      {href && (
+        <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-app-faint" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M8 5l5 5-5 5" />
+        </svg>
+      )}
+    </>
+  );
+  const base = `flex min-h-13 items-center gap-3 rounded-[14px] bg-app-surface px-3.5 py-2.5 ${className}`;
+
+  return href ? (
+    <Link href={href} className={`${base} transition hover:bg-app-elevated`}>
+      {content}
+    </Link>
+  ) : (
+    <div className={base}>{content}</div>
   );
 }

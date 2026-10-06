@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans, Rubik } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import PageLoadingBar from "@/components/PageLoadingBar";
 
 const appSans = Plus_Jakarta_Sans({
   variable: "--font-app-sans",
+  subsets: ["latin"],
+});
+
+/* Zahlen (Zeiten, Meter, Kennzahlen) - Klasse "num" */
+const appNum = Rubik({
+  variable: "--font-app-num",
   subsets: ["latin"],
 });
 
@@ -34,7 +40,7 @@ export default function RootLayout({
     <html
       lang="de"
       suppressHydrationWarning
-      className={`${appSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${appSans.variable} ${appNum.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-app-bg text-app-text">
         <PageLoadingBar />
