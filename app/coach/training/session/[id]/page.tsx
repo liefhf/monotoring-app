@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { deleteTraining, printTraining } from "@/lib/trainingPlan";
 import AttendanceCard from "@/components/AttendanceCard";
 import LoadStrainPanel from "@/components/LoadStrainPanel";
+import SetTimesCard from "@/components/SetTimesCard";
 
 type TrainingSession = {
   id: string;
@@ -611,6 +612,8 @@ export default function CoachTrainingSessionPage() {
         )}
 
         <AttendanceCard sessionId={training.id} teamId={training.team_id} />
+
+        <SetTimesCard sessionId={training.id} teamId={training.team_id} sessionDate={training.session_date} />
 
         <section className="mt-5">
           <div className="mb-2 flex items-center gap-2">

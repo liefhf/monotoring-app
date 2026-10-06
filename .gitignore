@@ -42,5 +42,6 @@ next-env.d.ts
 
 # Import-Skripte mit Schwimmerdaten (persoenliche Daten, nicht einchecken)
 supabase/daten_*.sql
+supabase/serienzeiten_*.sql
 
 .vercel
