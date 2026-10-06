@@ -57,7 +57,7 @@ export default function AthleteAnalyticsPage() {
             Meine Entwicklung
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             Auswertung
           </h1>
 

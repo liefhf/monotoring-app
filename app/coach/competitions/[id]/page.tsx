@@ -850,7 +850,7 @@ export default function CompetitionDetailPage() {
       <section className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
+            <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               {
                 competition.name
               }

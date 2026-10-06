@@ -97,7 +97,7 @@ export default function MeinFortschrittPage() {
       <Link href="/athlete" className="text-sm text-app-muted">
         ← Zurück
       </Link>
-      <h1 className="text-2xl font-bold">📈 Mein Fortschritt</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">📈 Mein Fortschritt</h1>
 
       {state === "missing" && <Notice tone="warn">Diese Seite ist bald verfügbar – dein Trainer muss noch ein Update einspielen.</Notice>}
       {state === "unlinked" && <Notice tone="info">Dein Login ist noch nicht mit deinem Athleten-Profil verknüpft. Sag deinem Trainer Bescheid.</Notice>}

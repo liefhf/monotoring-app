@@ -123,7 +123,7 @@ export default function PflichtzeitenPage() {
       <div className="mx-auto max-w-5xl">
         <header>
           <p className="text-sm text-app-muted">Coach</p>
-          <h1 className="mt-1 text-3xl font-bold">Pflichtzeiten</h1>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">Pflichtzeiten</h1>
           <p className="mt-2 text-app-muted">
             Lege eine Liste pro Wettkampf oder Meisterschaft an und trag die Zeiten ein. Die
             Auswertung zeigt dann, wer welche Zeit schon geschafft hat.

@@ -323,7 +323,7 @@ export default function TrainingPage() {
         {/* Kopf */}
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-app-heading">
+            <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               Training
             </h1>
 

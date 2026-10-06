@@ -541,7 +541,7 @@ export default function CoachTrainingSessionPage() {
                 "Trainingseinheit"}
             </p>
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               {training.title}
             </h1>
 

@@ -182,7 +182,7 @@ export default function CompetitionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
+        <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
           Wettkämpfe
         </h1>
 

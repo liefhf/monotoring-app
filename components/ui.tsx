@@ -48,7 +48,7 @@ export function PageHeader({
         )}
         <div className="min-w-0">
           {eyebrow && <p className="text-sm font-medium text-app-muted">{eyebrow}</p>}
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-[28px]">{title}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{title}</h1>
           {description && <p className="mt-1.5 max-w-2xl text-sm text-app-muted">{description}</p>}
         </div>
       </div>

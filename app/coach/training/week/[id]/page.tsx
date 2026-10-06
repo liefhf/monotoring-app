@@ -208,7 +208,7 @@ export default function WeekPage() {
               {weekData.macro} · {weekData.meso}
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold">
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               KW {weekData.weekNumber}
             </h1>
 

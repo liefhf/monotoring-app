@@ -1100,7 +1100,7 @@ export default function CoachAnalyticsPage() {
               Monitoring & Analyse
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold tracking-tight">
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               Auswertungen
             </h1>
 

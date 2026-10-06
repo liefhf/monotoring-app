@@ -234,7 +234,7 @@ export default function TeamSchwimmerabfragePage() {
             Schwimmerabfrage
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             {team?.name ?? "Team"}
           </h1>
 

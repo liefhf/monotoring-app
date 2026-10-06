@@ -1265,7 +1265,7 @@ export default function CoachAthleteProfilePage() {
             </p>
 
             <div className="mt-1 flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">
+              <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
                 {
                   fullName
                 }

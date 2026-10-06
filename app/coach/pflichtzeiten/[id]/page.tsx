@@ -336,7 +336,7 @@ export default function PflichtzeitenDetailPage() {
       <div className="mx-auto max-w-6xl">
         <header>
           <p className="text-sm text-app-muted">Pflichtzeiten</p>
-          <h1 className="mt-1 text-3xl font-bold">{standard.name}</h1>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{standard.name}</h1>
           <p className="mt-2 text-app-muted">
             {standard.pool_length}m-Bahn
             {standard.valid_from || standard.valid_to

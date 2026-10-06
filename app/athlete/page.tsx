@@ -1185,7 +1185,7 @@ export default function AthletePage() {
             Dein Dashboard
           </p>
 
-          <h1 className="mt-0.5 text-3xl font-bold tracking-tight">
+          <h1 className="mt-0.5 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             Hallo {firstName}! 👋
           </h1>
 
@@ -1193,36 +1193,6 @@ export default function AthletePage() {
             Deine Trainings und Rückmeldungen im Überblick.
           </p>
         </header>
-
-        {/* Mein Fortschritt: Bestzeiten, Pflichtzeit, Zonen */}
-        <Link
-          href="/athlete/fortschritt"
-          className="mt-4 flex items-center justify-between gap-3 rounded-[20px] border border-app-border bg-app-surface shadow-app px-4 py-3 transition hover:border-app-accent"
-        >
-          <span>
-            <span className="block font-semibold text-app-heading">📈 Mein Fortschritt</span>
-            <span className="text-sm text-app-muted">Bestzeiten, Pflichtzeiten, meine Tempo-Zonen</span>
-          </span>
-          <span className="text-app-accent">→</span>
-        </Link>
-
-        {/* Wettkampf-Tag: Starts, Routine, Essen & Trinken */}
-        <Link
-          href="/athlete/wettkampftag"
-          className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-app-accent/40 bg-app-accent/8 px-4 py-3 transition hover:border-app-accent"
-        >
-          <span>
-            <span className="block font-semibold text-app-heading">🏁 Mein Wettkampf-Tag</span>
-            <span className="text-sm text-app-muted">Starts, Routine, Essen & Trinken</span>
-          </span>
-          <span className="text-app-accent">→</span>
-        </Link>
-
-        {/* Termine und Neuigkeiten vom Trainer */}
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          <UpcomingEntries href="/athlete/termine" limit={3} />
-          <LatestNews href="/athlete/news" limit={2} />
-        </div>
 
         {message && (
           <div className="mt-4 rounded-xl border border-app-bad/40 bg-app-bad/10 p-4 text-sm text-app-bad">
@@ -1310,6 +1280,39 @@ export default function AthletePage() {
                 </span>
               </Link>
             </section>
+
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {/* Mein Fortschritt: Bestzeiten, Pflichtzeit, Zonen */}
+              <Link
+                href="/athlete/fortschritt"
+                className="flex min-h-14 items-center justify-between gap-3 rounded-[20px] border border-app-border/60 bg-app-surface px-4 py-3 shadow-app transition hover:border-app-accent/40"
+              >
+                <span>
+                  <span className="block font-semibold text-app-heading">📈 Mein Fortschritt</span>
+                  <span className="text-sm text-app-muted">Bestzeiten, Pflichtzeiten, meine Tempo-Zonen</span>
+                </span>
+                <span className="text-app-accent-soft">→</span>
+              </Link>
+
+              {/* Wettkampf-Tag: Starts, Routine, Essen & Trinken */}
+              <Link
+                href="/athlete/wettkampftag"
+                className="flex min-h-14 items-center justify-between gap-3 rounded-[20px] border border-app-accent/40 bg-app-accent/10 px-4 py-3 transition hover:border-app-accent"
+              >
+                <span>
+                  <span className="block font-semibold text-app-heading">🏁 Mein Wettkampf-Tag</span>
+                  <span className="text-sm text-app-muted">Starts, Routine, Essen & Trinken</span>
+                </span>
+                <span className="text-app-accent-soft">→</span>
+              </Link>
+
+            </div>
+
+            {/* Termine und Neuigkeiten vom Trainer */}
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              <UpcomingEntries href="/athlete/termine" limit={3} />
+              <LatestNews href="/athlete/news" limit={2} />
+            </div>
 
             {/* DEIN TRAINING */}
 

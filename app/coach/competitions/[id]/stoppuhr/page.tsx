@@ -167,7 +167,7 @@ export default function StoppuhrPage() {
           <Link href={`/coach/competitions/${competitionId}/auswertung`} className="text-sm text-app-accent">
             ← zur Auswertung
           </Link>
-          <h1 className="text-2xl font-bold">⏱ Stoppuhr</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">⏱ Stoppuhr</h1>
           <p className="text-sm text-app-muted">{competition?.name ?? ""}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

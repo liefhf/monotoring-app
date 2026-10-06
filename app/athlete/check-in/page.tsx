@@ -553,7 +553,7 @@ export default function DailyCheckInPage() {
             Täglicher Check-in
           </p>
 
-          <h1 className="mt-1 text-2xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             Wie geht es dir heute?
           </h1>
 

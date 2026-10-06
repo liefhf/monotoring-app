@@ -527,7 +527,7 @@ export default function SchwimmerDetailPage() {
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Link href="/coach/schwimmer" className="text-sm text-app-muted hover:text-app-accent">Athleten</Link>
-            <h1 className="mt-1 text-3xl font-bold">{getSwimmerName(swimmer)}</h1>
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{getSwimmerName(swimmer)}</h1>
             <p className="mt-2 text-app-muted">
               Jahrgang {swimmer.birth_year ?? "–"} · {formatGender(swimmer.gender)}
               {swimmer.club_name ? ` · ${swimmer.club_name}` : ""}
