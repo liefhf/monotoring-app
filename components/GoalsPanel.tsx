@@ -1,12 +1,11 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { isMissingTable, supabase } from "@/lib/supabase";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { GOAL_KIND_LABELS, Goal, GoalKind, goalLabel, goalProgress, sortGoals } from "@/lib/goals";
 import { RESULT_COLUMNS, STROKES, Stroke, SwimmerResult, formatTime, formatTimeDifference, parseSwimTimeToMs } from "@/lib/swim";
-import { isMissingTable } from "@/components/HealthPanel";
 import { FormField, Modal, Notice, buttonGhost, buttonPrimary, inputClass } from "@/components/ui";
 
 /*

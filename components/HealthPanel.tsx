@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { isMissingTable, supabase } from "@/lib/supabase";
 import { toDateKey } from "@/lib/community";
 import {
   AVAILABILITY_LABELS,
@@ -54,8 +54,6 @@ const emptyDraft = (today: string): Draft => ({
   visible_to_athlete: true,
 });
 
-/* Tabelle fehlt -> Skript 23 noch nicht ausgefuehrt */
-export const isMissingTable = (code: string | undefined) => code === "42P01" || code === "PGRST205";
 
 export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
   const [today] = useState(() => toDateKey(new Date()));

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import TrainingEffectCards from "@/components/TrainingEffectCards";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -525,6 +526,11 @@ export default function AthleteTrainingPage() {
               dein Coach.
             </p>
           </section>
+
+          {/* "Was dein Training bewirkt" - kurze Erklaerkarten (Kapitel 1.3) */}
+          <div className="mt-6">
+            <TrainingEffectCards />
+          </div>
         </>
       )}
     </div>

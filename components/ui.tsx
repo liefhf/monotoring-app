@@ -5,7 +5,6 @@
  * Neue Seiten bitte hieraus zusammensetzen, damit
  * alles gleich aussieht.
  */
-import Link from "next/link";
 import { ReactNode, useEffect } from "react";
 import { Icon, IconName } from "@/components/icons";
 
@@ -18,9 +17,6 @@ export const buttonPrimary =
 
 export const buttonSecondary =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-elevated px-[18px] py-2.5 text-sm font-bold text-app-heading transition hover:bg-app-border/70 disabled:cursor-not-allowed disabled:opacity-50";
-
-export const buttonDanger =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-bad/15 px-[18px] py-2.5 text-sm font-bold text-app-bad transition hover:bg-app-bad/25 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonGhost =
   "inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-app-muted transition hover:bg-app-elevated hover:text-app-heading";
@@ -230,30 +226,6 @@ export function RichText({ text, className = "" }: { text: string; className?: s
 
 /* ---------- Bausteine aus dem Gesamtdesign ---------- */
 
-export type ChipTone = "soon" | "good" | "warn" | "bad" | "neutral" | "primary" | "info";
-
-const chipTones: Record<ChipTone, string> = {
-  soon: "bg-app-soon/15 text-app-soon",
-  good: "bg-app-good/15 text-app-good",
-  warn: "bg-app-warn/15 text-app-warn",
-  bad: "bg-app-bad/15 text-app-bad",
-  neutral: "bg-app-elevated text-app-muted",
-  primary: "bg-app-accent/20 text-app-accent-soft",
-  info: "bg-app-info/15 text-app-info",
-};
-
-/*
- * Status-Chip (Design 9g). Pink = bald faellig,
- * Ampel (good/warn/bad) nur fuer den Athleten-Status.
- */
-export function Chip({ tone = "neutral", children, className = "" }: { tone?: ChipTone; children: ReactNode; className?: string }) {
-  return (
-    <span className={`inline-flex h-7 shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-xs font-extrabold ${chipTones[tone]} ${className}`}>
-      {children}
-    </span>
-  );
-}
-
 /* Kennzahl (Design 9l): Label in Grossbuchstaben, Wert in Rubik. */
 export function Stat({ label, value, unit, trend, className = "" }: { label: string; value: ReactNode; unit?: string; trend?: ReactNode; className?: string }) {
   return (
@@ -265,58 +237,5 @@ export function Stat({ label, value, unit, trend, className = "" }: { label: str
       </div>
       {trend && <div className="mt-0.5 text-xs">{trend}</div>}
     </div>
-  );
-}
-
-/*
- * Kachel (Design 9d): ganze Flaeche klickbar, Pfeil oben rechts.
- * Titel 15 · Zusatz 13 · Inhalt.
- */
-export function Tile({ href, title, meta, children, className = "" }: { href: string; title: ReactNode; meta?: ReactNode; children?: ReactNode; className?: string }) {
-  return (
-    <Link
-      href={href}
-      className={`block rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app transition hover:border-app-accent/40 hover:bg-app-elevated/40 sm:p-[22px] ${className}`}
-    >
-      <div className="mb-3 flex items-center gap-3">
-        <h2 className="min-w-0 flex-1 truncate text-[15px] font-bold text-app-heading">{title}</h2>
-        {meta && <span className="shrink-0 text-[13px] text-app-muted">{meta}</span>}
-        <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-app-muted" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M6 14L14 6M7 6h7v7" />
-        </svg>
-      </div>
-      {children}
-    </Link>
-  );
-}
-
-/*
- * Listenzeile (Design 9j): ganze Zeile antippbar,
- * mindestens 52 px hoch, Pfeil rechts.
- */
-export function ListRow({ href, leading, title, subtitle, trailing, className = "" }: { href?: string; leading?: ReactNode; title: ReactNode; subtitle?: ReactNode; trailing?: ReactNode; className?: string }) {
-  const content = (
-    <>
-      {leading}
-      <div className="min-w-0 flex-1">
-        <div className="truncate font-semibold text-app-heading">{title}</div>
-        {subtitle && <div className="truncate text-[13px] text-app-muted">{subtitle}</div>}
-      </div>
-      {trailing}
-      {href && (
-        <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-app-faint" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M8 5l5 5-5 5" />
-        </svg>
-      )}
-    </>
-  );
-  const base = `flex min-h-13 items-center gap-3 rounded-[14px] bg-app-surface px-3.5 py-2.5 ${className}`;
-
-  return href ? (
-    <Link href={href} className={`${base} transition hover:bg-app-elevated`}>
-      {content}
-    </Link>
-  ) : (
-    <div className={base}>{content}</div>
   );
 }

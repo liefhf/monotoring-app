@@ -1,10 +1,9 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { isMissingTable, supabase } from "@/lib/supabase";
 import { toDateKey } from "@/lib/community";
 import { AthleteDocument, DOC_TYPE_LABELS, DocType, documentStatus } from "@/lib/health";
-import { isMissingTable } from "@/components/HealthPanel";
 import { EmptyState, FormField, Modal, Notice, buttonGhost, buttonPrimary, inputClass } from "@/components/ui";
 
 /*

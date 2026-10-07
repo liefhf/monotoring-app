@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { isoWeek, weekStart } from "@/lib/dashboardStats";
@@ -40,30 +41,11 @@ function WochenplanView() {
   const params = useSearchParams();
   const [today] = useState(() => toDateKey(new Date()));
   const [week, setWeek] = useState(() => weekStart(params.get("week") ?? toDateKey(new Date())));
-  const [teamId, setTeamId] = useState<string | null>(null);
-  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
+  const { teams, teamId, chooseTeam } = useSelectedTeam();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [zoneRows, setZoneRows] = useState<ZoneRow[]>([]);
   const [reloadKey, setReloadKey] = useState(0);
 
-  useEffect(() => {
-    supabase
-      .from("teams")
-      .select("id, name")
-      .order("name")
-      .then(({ data }) => {
-        const list = (data ?? []) as { id: string; name: string }[];
-        setTeams(list);
-        const ids = list.map((team) => team.id);
-        let saved: string | null = null;
-        try {
-          saved = localStorage.getItem("dashboard-team");
-        } catch {
-          /* ohne Browser-Speicher */
-        }
-        setTeamId(ids.find((id) => id === saved) ?? ids[0] ?? null);
-      });
-  }, []);
 
   useEffect(() => {
     if (!teamId) return;
@@ -112,16 +94,6 @@ function WochenplanView() {
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "de", { numeric: true }));
   }, [zoneRows]);
   const zoneTotal = zones.reduce((sum, [, value]) => sum + value, 0);
-
-  /* Teamwahl gilt app-weit (Dashboard, Athleten-Check, Training) */
-  function chooseTeam(id: string) {
-    setTeamId(id);
-    try {
-      localStorage.setItem("dashboard-team", id);
-    } catch {
-      /* ohne Browser-Speicher */
-    }
-  }
 
   const waterMeters = sessions.filter((session) => session.training_type !== "land").reduce((sum, session) => sum + (session.total_meters ?? 0), 0);
   const landCount = sessions.filter((session) => session.training_type === "land").length;

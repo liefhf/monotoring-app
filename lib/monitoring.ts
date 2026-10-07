@@ -30,13 +30,6 @@ export type Acwr = {
   daysWithData: number;
 };
 
-export const ACWR_ZONES: Record<AcwrZone, { label: string; tone: "good" | "warn" | "bad" | "muted" }> = {
-  "zu-wenig-daten": { label: "zu wenig Daten", tone: "muted" },
-  niedriger: { label: "deutlich weniger als gewohnt", tone: "muted" },
-  ueblich: { label: "im gewohnten Bereich", tone: "good" },
-  hoeher: { label: "höher als gewohnt", tone: "warn" },
-  "deutlich-hoeher": { label: "deutlich höher als gewohnt", tone: "bad" },
-};
 
 const DAY = 86_400_000;
 const daysBetween = (from: string, to: string) => Math.round((Date.parse(to) - Date.parse(from)) / DAY);

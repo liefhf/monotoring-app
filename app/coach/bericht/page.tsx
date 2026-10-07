@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { isoWeek, weekStart } from "@/lib/dashboardStats";
@@ -32,8 +33,7 @@ function Report() {
   const [today] = useState(() => toDateKey(new Date()));
   /* Standard: die zuletzt abgeschlossene Woche */
   const [week, setWeek] = useState(() => weekStart(params.get("week") ?? shiftDays(toDateKey(new Date()), -7)));
-  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
-  const [teamId, setTeamId] = useState<string | null>(null);
+  const { teams, teamId, chooseTeam } = useSelectedTeam();
   const [data, setData] = useState<{
     swimmers: Swimmer[];
     sessions: ReportSession[];
@@ -44,23 +44,6 @@ function Report() {
     flags: Row[];
   } | null>(null);
 
-  useEffect(() => {
-    supabase
-      .from("teams")
-      .select("id, name")
-      .order("name")
-      .then(({ data: list }) => {
-        const all = (list ?? []) as { id: string; name: string }[];
-        setTeams(all);
-        let saved: string | null = null;
-        try {
-          saved = localStorage.getItem("dashboard-team");
-        } catch {
-          /* ohne Browser-Speicher */
-        }
-        setTeamId(all.find((team) => team.id === saved)?.id ?? all[0]?.id ?? null);
-      });
-  }, []);
 
   useEffect(() => {
     if (!teamId) return;
@@ -99,15 +82,6 @@ function Report() {
     }
     load();
   }, [teamId, week, today]);
-
-  function chooseTeam(id: string) {
-    setTeamId(id);
-    try {
-      localStorage.setItem("dashboard-team", id);
-    } catch {
-      /* ohne Browser-Speicher */
-    }
-  }
 
   const sunday = shiftDays(week, 6);
   const nameOf = (id: string, key: "id" | "profile_id" = "id") => {

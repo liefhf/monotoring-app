@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { ATTENDANCE_STATUS, AttendanceStatus, attendanceStats, loadTeamSwimmers } from "@/lib/attendance";
 import { Swimmer } from "@/lib/swim";
 import { PageHeader } from "@/components/ui";
+import TeamSwitcher from "@/components/TeamSwitcher";
 
 /*
  * Anwesenheitsuebersicht: Athleten x Einheiten der Mannschaft in einem
@@ -22,7 +24,7 @@ const DAY = 86_400_000;
 const STYLE = Object.fromEntries(ATTENDANCE_STATUS.map((item) => [item.value, item]));
 
 export default function AnwesenheitPage() {
-  const [teamId, setTeamId] = useState<string | null>(null);
+  const { teams, teamId, chooseTeam } = useSelectedTeam();
   const [swimmers, setSwimmers] = useState<Swimmer[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -31,22 +33,6 @@ export default function AnwesenheitPage() {
   const [until, setUntil] = useState(today);
   const from = toDateKey(new Date(Date.parse(until) - 27 * DAY));
 
-  useEffect(() => {
-    supabase
-      .from("teams")
-      .select("id")
-      .order("name")
-      .then(({ data }) => {
-        const ids = ((data ?? []) as { id: string }[]).map((team) => team.id);
-        let saved: string | null = null;
-        try {
-          saved = localStorage.getItem("dashboard-team");
-        } catch {
-          /* ohne Browser-Speicher */
-        }
-        setTeamId(ids.find((id) => id === saved) ?? ids[0] ?? null);
-      });
-  }, []);
 
   useEffect(() => {
     if (!teamId) return;
@@ -99,11 +85,12 @@ export default function AnwesenheitPage() {
   return (
     <main className="mx-auto max-w-[1500px] space-y-5">
       <PageHeader
-        eyebrow="Dashboard"
+        eyebrow="Team"
         title="Anwesenheit"
         icon="calendar"
         actions={
           <div className="flex items-center gap-2">
+            {teams.length > 1 && teamId && <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} />}
             <button type="button" onClick={() => shift(-4)} className="h-9 w-9 rounded-full border border-app-border text-app-muted hover:text-app-heading" aria-label="Frühere 4 Wochen">
               ‹
             </button>
@@ -143,7 +130,26 @@ export default function AnwesenheitPage() {
         {sessions.length === 0 ? (
           <p className="p-6 text-sm text-app-muted">Keine Einheiten in diesem Zeitraum.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Handy: Liste je Athlet statt breiter Matrix */}
+          <ul className="divide-y divide-app-border/60 md:hidden">
+            {rows.map(({ swimmer, stats }) => (
+              <li key={swimmer.id}>
+                <Link href={`/coach/schwimmer/${swimmer.id}`} className="flex min-h-14 items-center gap-3 px-4 py-2.5">
+                  <span className="min-w-0 flex-1 truncate font-semibold text-app-heading">
+                    {swimmer.first_name} {swimmer.last_name ?? ""}
+                  </span>
+                  <span className="text-xs text-app-muted">
+                    {stats.present}/{stats.total}
+                  </span>
+                  <span className={`num w-12 text-right font-bold ${stats.rate !== null && stats.rate < 70 ? "text-app-warn" : "text-app-heading"}`}>
+                    {stats.rate === null ? "–" : `${stats.rate} %`}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-app-border text-xs text-app-muted">
@@ -201,6 +207,7 @@ export default function AnwesenheitPage() {
               </tfoot>
             </table>
           </div>
+          </>
         )}
       </section>
     </main>

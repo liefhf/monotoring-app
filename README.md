@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Monitoring App
 
-## Getting Started
+Athlete-Monitoring für den leistungsorientierten Schwimmsport. Die App hat zwei Bereiche:
 
-First, run the development server:
+- **Coach:** Kommandozentrale (wer braucht heute Aufmerksamkeit?), zentrales Athletenprofil, Trainingswoche mit Schnelleingabe, Anwesenheit, Wettkämpfe und Meldehilfe, Pflichtzeiten, Diagnostik, Gesundheit, Ziele, Wochenbericht.
+- **Athlet:** bewusst einfach, auch für Kinder: Heute · Training · Fortschritt · Termine. Check-in mit fünf Gesichtern, Feedback nach dem Training, Bestzeiten und Ziele.
+
+Technik: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS v4, Supabase (`@supabase/supabase-js`, RLS), Vitest.
+
+## Starten
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Benötigt `.env.local` mit `NEXT_PUBLIC_SUPABASE_URL` und `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Nur den Anon-Key verwenden.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Befehl | Zweck |
+|---|---|
+| `npm run dev` | Entwicklung |
+| `npm run build` | Produktions-Build |
+| `npm run lint` | ESLint |
+| `npm test` | Tests (Vitest) |
+| `npx tsc --noEmit` | TypeScript-Prüfung |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Aufbau
 
-## Learn More
+```
+app/coach/        Coach-Bereich (RoleGuard in layout.tsx)
+app/athlete/      Athleten-Bereich
+components/       UI-Bausteine (ui.tsx) und Fach-Komponenten (Panels, Navigation)
+lib/              Berechnungen ohne Datenbank (mit Tests) und Datenzugriff-Helfer
+supabase/         SQL-Skripte – nur additiv, werden von Hand im SQL-Editor ausgeführt
+docs/             Produkt- und Fachdokumentation
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Dokumentation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `docs/informationsarchitektur.md` – welche Seite wofür da ist, Bewertung aller Funktionen
+- `docs/monitoring-grundlagen.md` – fachliche Begründung aller Kennzahlen mit Quellen
+- `docs/datenmodell.md` – Tabellen, Altlasten, RLS
+- `supabase/README.md` – Reihenfolge der SQL-Skripte
+- `CLAUDE.md` – verbindliche Datenregel (Produktivbetrieb)

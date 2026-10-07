@@ -1,8 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { isMissingTable } from "@/components/HealthPanel";
+import { isMissingTable, supabase } from "@/lib/supabase";
 import { buttonGhost, buttonPrimary, inputClass } from "@/components/ui";
 
 /*

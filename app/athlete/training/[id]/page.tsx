@@ -106,9 +106,6 @@ export default function AthleteTrainingDetailPage() {
 
   const [rpe, setRpe] = useState(6);
 
-  const [feedback, setFeedback] =
-    useState("");
-
   const [completed, setCompleted] =
     useState(false);
 
@@ -194,9 +191,6 @@ export default function AthleteTrainingDetailPage() {
 
       setRpe(loadedFeedback.rpe);
 
-      setFeedback(
-        loadedFeedback.comment ?? ""
-      );
 
       setCompleted(
         loadedFeedback.completed

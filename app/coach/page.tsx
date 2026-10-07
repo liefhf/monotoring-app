@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { CalendarEntry, CALENDAR_COLUMNS, formatEntryWhen, localDateOf, toDateKey } from "@/lib/community";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
@@ -46,8 +47,7 @@ function Section({ title, meta, children }: { title: string; meta?: React.ReactN
 
 export default function CoachDashboard() {
   const [today] = useState(() => toDateKey(new Date()));
-  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
-  const [teamId, setTeamId] = useState<string | null>(null);
+  const { teams, teamId, chooseTeam } = useSelectedTeam();
   const [todaySessions, setTodaySessions] = useState<Session[]>([]);
   const [weekEvents, setWeekEvents] = useState<CalendarEntry[]>([]);
   const [competition, setCompetition] = useState<CalendarEntry | null>(null);
@@ -56,32 +56,6 @@ export default function CoachDashboard() {
   const [attendanceRate, setAttendanceRate] = useState<number | null>(null);
   const [bests, setBests] = useState<{ result: SwimmerResult; previous: number }[]>([]);
 
-  useEffect(() => {
-    supabase
-      .from("teams")
-      .select("id, name")
-      .order("name")
-      .then(({ data }) => {
-        const list = (data ?? []) as { id: string; name: string }[];
-        setTeams(list);
-        let saved: string | null = null;
-        try {
-          saved = localStorage.getItem("dashboard-team");
-        } catch {
-          /* ohne Browser-Speicher */
-        }
-        setTeamId(list.find((team) => team.id === saved)?.id ?? list[0]?.id ?? null);
-      });
-  }, []);
-
-  function chooseTeam(id: string) {
-    setTeamId(id);
-    try {
-      localStorage.setItem("dashboard-team", id);
-    } catch {
-      /* ohne Browser-Speicher */
-    }
-  }
 
   useEffect(() => {
     if (!teamId) return;

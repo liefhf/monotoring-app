@@ -1,37 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useSelectedTeam } from "@/lib/useSelectedTeam";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
 import { PageHeader } from "@/components/ui";
+import TeamSwitcher from "@/components/TeamSwitcher";
 
 /*
- * Athleten-Check: vollstaendige Uebersicht (Belastung, Schmerz, Readiness,
- * Anwesenheit) fuer die auf dem Dashboard gewaehlte Mannschaft.
+ * Athleten-Check: vollstaendige Uebersicht aller Hinweise (Belastung,
+ * Schmerz, Befinden, Gesundheit, Check-ins, Anwesenheit) fuer die
+ * gewaehlte Mannschaft.
  */
 export default function AthletenCheckPage() {
-  const [teamId, setTeamId] = useState<string | null>(null);
-
-  useEffect(() => {
-    supabase
-      .from("teams")
-      .select("id")
-      .order("name")
-      .then(({ data }) => {
-        const ids = ((data ?? []) as { id: string }[]).map((team) => team.id);
-        let saved: string | null = null;
-        try {
-          saved = localStorage.getItem("dashboard-team");
-        } catch {
-          /* ohne Browser-Speicher */
-        }
-        setTeamId(ids.find((id) => id === saved) ?? ids[0] ?? null);
-      });
-  }, []);
+  const { teams, teamId, chooseTeam } = useSelectedTeam();
 
   return (
     <main className="mx-auto max-w-6xl space-y-6">
-      <PageHeader eyebrow="Dashboard" title="Athleten-Check" icon="heart" />
+      <PageHeader
+        eyebrow="Team"
+        title="Athleten-Check"
+        icon="heart"
+        actions={teams.length > 1 && teamId ? <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} /> : undefined}
+      />
       {teamId && <RedFlagsPanel teamId={teamId} variant="table" />}
     </main>
   );
