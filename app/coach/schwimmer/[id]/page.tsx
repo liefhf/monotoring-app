@@ -24,6 +24,8 @@ import AthleteWellnessPanel from "@/components/AthleteWellnessPanel";
 import HealthPanel from "@/components/HealthPanel";
 import DocumentsPanel from "@/components/DocumentsPanel";
 import FitnessTestsPanel from "@/components/FitnessTestsPanel";
+import GoalsPanel from "@/components/GoalsPanel";
+import NotesPanel from "@/components/NotesPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
 import LactatePanel from "@/components/LactatePanel";
 import FormCurvePanel from "@/components/FormCurvePanel";
@@ -74,7 +76,7 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "ueberblick" | "befinden" | "gesundheit" | "tests" | "dokumente" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
+type Tab = "ueberblick" | "ziele" | "befinden" | "gesundheit" | "tests" | "dokumente" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
 
 /* Tabs in fuenf Gruppen - die Seite war mit 11 Tabs nebeneinander unuebersichtlich */
 /*
@@ -85,9 +87,9 @@ type Tab = "ueberblick" | "befinden" | "gesundheit" | "tests" | "dokumente" | "i
  */
 const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
   { label: "Überblick", tabs: ["ueberblick"] },
-  { label: "Befinden & Training", tabs: ["befinden", "form"] },
+  { label: "Training", tabs: ["befinden", "form"] },
+  { label: "Leistung", tabs: ["bestzeiten", "ziele", "entwicklung", "pflichtzeiten", "bahn", "staffel", "wettkaempfe"] },
   { label: "Gesundheit", tabs: ["gesundheit"] },
-  { label: "Zeiten & Wettkämpfe", tabs: ["bestzeiten", "entwicklung", "pflichtzeiten", "bahn", "staffel", "wettkaempfe"] },
   { label: "Diagnostik", tabs: ["tests", "laktat"] },
   { label: "Stammdaten", tabs: ["infos", "fokus", "dokumente"] },
 ];
@@ -98,9 +100,10 @@ const TABS: { value: Tab; label: string }[] = [
   { value: "form", label: "Formkurve" },
   { value: "gesundheit", label: "Gesundheit" },
   { value: "bestzeiten", label: "Bestzeiten" },
+  { value: "ziele", label: "Ziele" },
   { value: "entwicklung", label: "Entwicklung" },
   { value: "pflichtzeiten", label: "Pflichtzeiten" },
-  { value: "bahn", label: "Alle Ergebnisse" },
+  { value: "bahn", label: "Alle Zeiten" },
   { value: "staffel", label: "Staffeln & Freiwasser" },
   { value: "wettkaempfe", label: "Saison-Auswertung" },
   { value: "tests", label: "Testbatterie" },
@@ -546,18 +549,19 @@ export default function SchwimmerDetailPage() {
           <div>
             <Link href="/coach/schwimmer" className="text-sm text-app-muted hover:text-app-accent">Athleten</Link>
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{getSwimmerName(swimmer)}</h1>
-            <p className="mt-2 text-app-muted">
-              Jahrgang {swimmer.birth_year ?? "–"} · {formatGender(swimmer.gender)}
-              {swimmer.club_name ? ` · ${swimmer.club_name}` : ""}
+            <p className="mt-1 text-app-muted">
+              {swimmer.birth_year ? `Jahrgang ${swimmer.birth_year} (${new Date().getFullYear() - swimmer.birth_year} J.)` : "Jahrgang –"} · {formatGender(swimmer.gender)}
+              {focusList(athleteFocus, "haupt") ? ` · Hauptstrecken ${focusList(athleteFocus, "haupt")}` : ""}
             </p>
+            <SwimmerTeamChips swimmerId={swimmerId} />
           </div>
 
           <button
             type="button"
             onClick={() => setShowEntryForm((open) => !open)}
-            className="rounded-xl bg-app-accent px-5 py-3 text-sm font-semibold text-app-accent-ink transition hover:opacity-90"
+            className="min-h-11 rounded-xl bg-app-accent px-[18px] text-sm font-bold text-app-accent-ink transition hover:brightness-110"
           >
-            {showEntryForm ? "Eingabe schließen" : "+ Ergebnisse eintragen"}
+            {showEntryForm ? "Eingabe schließen" : "+ Zeiten eintragen"}
           </button>
         </header>
 
@@ -641,46 +645,33 @@ export default function SchwimmerDetailPage() {
         )}
 
         {tab === "ueberblick" && (
-          <div className="mt-6 grid gap-4 lg:grid-cols-2 lg:gap-5">
-            <div className="lg:col-span-2">
+          <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-5">
+            <div className="space-y-4 lg:col-span-2 lg:space-y-5">
               <AthleteStatusCard swimmerId={swimmerId} />
+              <Card
+                title="Aktuelle Bestzeiten"
+                action={
+                  <button type="button" onClick={() => setTab("bestzeiten")} className="text-sm font-semibold text-app-accent-soft hover:underline">
+                    alle
+                  </button>
+                }
+              >
+                <OverviewBests results={poolResults} focus={athleteFocus} />
+              </Card>
+              <GoalsPanel swimmerId={swimmerId} compact />
             </div>
-            <Card
-              title="Fokus-Strecken"
-              action={
-                <button type="button" onClick={() => setTab("fokus")} className="text-sm font-semibold text-app-accent-soft hover:underline">
-                  bearbeiten
-                </button>
-              }
-            >
-              <InfoRow label="Hauptstrecken" value={focusList(athleteFocus, "haupt")} />
-              <InfoRow label="Nebenstrecken" value={focusList(athleteFocus, "neben")} />
-              <InfoRow label="Notiz" value={athleteFocus.note ?? null} />
-            </Card>
-            <Card title="Anwesenheit Training">
-              <AttendanceSummary swimmerId={swimmer.id} />
-            </Card>
-            <div className="flex flex-wrap gap-2 lg:col-span-2">
-              {(
-                [
-                  ["bestzeiten", "Bestzeiten"],
-                  ["pflichtzeiten", "Pflichtzeiten"],
-                  ["entwicklung", "Entwicklung"],
-                  ["befinden", "Befinden"],
-                  ["gesundheit", "Gesundheit"],
-                  ["tests", "Tests"],
-                ] as [Tab, string][]
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setTab(value)}
-                  className="flex h-9 items-center rounded-full bg-app-elevated px-3.5 text-[13px] font-bold text-app-heading hover:bg-app-border/70"
-                >
-                  {label} →
-                </button>
-              ))}
+            <div className="space-y-4 lg:space-y-5">
+              <NotesPanel swimmerId={swimmerId} limit={3} />
+              <Card title="Anwesenheit">
+                <AttendanceSummary swimmerId={swimmer.id} />
+              </Card>
             </div>
+          </div>
+        )}
+
+        {tab === "ziele" && (
+          <div className="mt-6">
+            <GoalsPanel swimmerId={swimmerId} />
           </div>
         )}
 
@@ -1684,5 +1675,73 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
       <span className="mb-2 block text-sm font-medium text-app-text">{label}</span>
       {children}
     </label>
+  );
+}
+
+/* Teams des Athleten als kleine Chips im Kopf */
+function SwimmerTeamChips({ swimmerId }: { swimmerId: string }) {
+  const [teams, setTeams] = useState<string[]>([]);
+  useEffect(() => {
+    supabase
+      .from("team_swimmers")
+      .select("teams(name)")
+      .eq("swimmer_id", swimmerId)
+      .then(({ data }) => setTeams(((data ?? []) as unknown as { teams: { name: string } | null }[]).map((row) => row.teams?.name).filter(Boolean) as string[]));
+  }, [swimmerId]);
+  if (!teams.length) return null;
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {teams.map((name) => (
+        <span key={name} className="rounded-full bg-app-elevated px-2.5 py-1 text-xs font-bold text-app-muted">
+          {name}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/*
+ * Kurzfassung Bestzeiten fuer den Ueberblick: Hauptstrecken (sonst die
+ * am haeufigsten geschwommenen), je Bahn die Bestzeit und die Saison-
+ * bestzeit (Saison ab 1. September).
+ */
+function OverviewBests({ results, focus }: { results: SwimmerResult[]; focus: AthleteFocus }) {
+  const now = new Date();
+  const seasonStart = `${now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1}-09-01`;
+  const valid = results.filter((result) => !result.is_split);
+  const focusEvents = (focus.events ?? []).map(parseFocusKey).filter((item) => item.role === "haupt").map((item) => item.event);
+  const counted = new Map<string, { event: SwimEvent; count: number }>();
+  for (const result of valid) {
+    const key = `${result.distance}-${result.stroke}`;
+    counted.set(key, { event: { distance: result.distance, stroke: result.stroke }, count: (counted.get(key)?.count ?? 0) + 1 });
+  }
+  const events = (focusEvents.length ? focusEvents : [...counted.values()].sort((a, b) => b.count - a.count).map((item) => item.event)).slice(0, 5);
+
+  if (!events.length) return <p className="px-4 pb-4 text-sm text-app-muted sm:px-[22px]">Noch keine Zeiten.</p>;
+
+  return (
+    <ul className="divide-y divide-app-border/60 px-4 pb-2 sm:px-[22px]">
+      {events.map((event) => {
+        const best25 = findBestResult(valid, event, 25);
+        const best50 = findBestResult(valid, event, 50);
+        const season = valid
+          .filter((result) => result.distance === event.distance && result.stroke === event.stroke && result.result_date >= seasonStart)
+          .sort((a, b) => a.time_ms - b.time_ms)[0];
+        return (
+          <li key={eventKey(event)} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-2.5">
+            <span className="w-16 font-bold text-app-heading">{formatEventShort(event)}</span>
+            <span className="num text-sm text-app-heading">
+              <span className="text-xs text-app-faint">25 m </span>
+              {best25 ? formatTime(best25.time_ms) : "–"}
+            </span>
+            <span className="num text-sm text-app-heading">
+              <span className="text-xs text-app-faint">50 m </span>
+              {best50 ? formatTime(best50.time_ms) : "–"}
+            </span>
+            <span className="num ml-auto text-xs text-app-muted">Saison {season ? `${formatTime(season.time_ms)} (${season.pool_length} m)` : "–"}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

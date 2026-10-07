@@ -57,3 +57,42 @@ Auf dem Handy gibt es unten eine Leiste: Start · Team · **+** (neue Einheit) �
 | `/athlete/training`, `/athlete/training/[id]` | verbessert | Die Rückmeldung läuft nur noch über **einen** Weg (`/athlete/feedback/[id]`). Vorher gab es zwei verschiedene Formulare für dieselbe Tabelle. |
 | `/athlete/feedback/[id]` | behalten | Der eine Weg für das Trainings-Feedback. |
 | `/athlete/wettkaempfe`, `/athlete/wettkampftag`, `/athlete/termine`, `/athlete/news`, `/athlete/gruppen`, `/athlete/pain` | behalten | Wettkampf-Tag ist jetzt auch im Menü „Mehr“. |
+
+
+## Final Product Design Pass (07.10.2026)
+
+### Funktionen nach Arbeitswert (A = täglich und zentral, B = wichtig, aber seltener, C = integriert/vereinfacht, D = entfernt)
+
+| Funktion | Stufe | Platz |
+|---|---|---|
+| Dashboard (Aufmerksamkeit, Heute, Team, Bestzeiten, Fristen) | A | Start |
+| Anwesenheit in der Einheit | A | Dashboard → „Anwesenheit“ springt direkt in die Liste |
+| Athletenprofil | A | Team → Athleten |
+| Trainingswoche (planen, kopieren, verschieben) | A | Training |
+| Schnelleingabe Serien („8x200 Kraul GA2 @3:00“) | A | in jedem Abschnitt der Einheit |
+| Athleten-Check | A | Dashboard („Alle ansehen“) und Team |
+| Trainernotizen | A | Überblick im Profil |
+| Gesundheit / Einschränkungen | A | Profil; Hinweise auf Dashboard und in der Anwesenheitsliste |
+| Ziele je Athlet | B | Profil → Leistung → Ziele; Kurzfassung im Überblick |
+| Wettkämpfe, Ergebnisse, Meldehilfe | B | Wettkampf |
+| Pflichtzeiten, Testbatterie, Laktat | B | Leistung bzw. Profil → Diagnostik |
+| Wochenbericht | B | Team |
+| Saisonplanung, Kalender, Belastungsverlauf | B | Training |
+| DMS-Aufstellung | B (saisonal) | Wettkampf |
+| Dokumente | C | Profil → Stammdaten; Fristen automatisch auf dem Dashboard |
+| Formkurve | C | Profil → Training (mit Modellhinweis) |
+| News, Gruppenräume, Wissen | C | Kommunikation |
+| Wochenumfang-Diagramm und Monatskalender auf dem Dashboard | D | entfernt: ohne Handlungswert, die Wochenansicht liegt unter Training |
+| Kennzahl-Kacheln (Umfang, Wasser, Land) beim Athleten | D | entfernt: für Athleten ohne Nutzen |
+| Punktzahl „Befinden 0–100“ für Athleten | D | ersetzt durch eine kurze Rückmeldung in Worten |
+
+### Athletenprofil (Coach)
+Kopf: Name, Jahrgang mit Alter, Geschlecht, Hauptstrecken, Trainingsgruppen.
+Bereiche: **Überblick** (Status und Hinweise, aktuelle Bestzeiten mit Saisonbestzeit, offene Ziele, Notizen, Anwesenheit) · **Training** (Befinden, Rückmeldungen, Belastung, Formkurve) · **Leistung** (Bestzeiten, Ziele, Entwicklung, Pflichtzeiten, alle Zeiten, Staffeln, Saison-Auswertung) · **Gesundheit** · **Diagnostik** · **Stammdaten**.
+
+### Athleten (auch Kinder ab 9 Jahren)
+Navigation: **Heute · Training · Fortschritt · Termine · Mehr**.
+- **Heute:** (1) Check-in, falls offen, (2) „Wie anstrengend war dein Training?“, falls offen, (3) nächstes Training, (4) nächster Wettkampf mit Tagen bis dahin, (5) neue Bestzeit 🎉 und eigenes Ziel, (6) neue Nachricht vom Trainer. Keine Diagramme und keine Kennzahlen.
+- **Check-in:** 5 Fragen mit Gesichtern in Alltagssprache. Antippen springt automatisch weiter. Danach eine kurze Rückmeldung statt einer Punktzahl.
+- **Fortschritt:** zuerst „Neue Bestzeiten – x Sekunden schneller“ und „Meine Ziele – noch x Sekunden“, darunter die Details.
+- Darstellung und Abmelden liegen unter „Mehr“, damit die Kopfzeile ruhig bleibt.

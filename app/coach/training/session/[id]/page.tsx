@@ -611,7 +611,9 @@ export default function CoachTrainingSessionPage() {
           </div>
         )}
 
-        <AttendanceCard sessionId={training.id} teamId={training.team_id} />
+        <div id="anwesenheit" className="scroll-mt-20">
+          <AttendanceCard sessionId={training.id} teamId={training.team_id} />
+        </div>
 
         <SetTimesCard sessionId={training.id} teamId={training.team_id} sessionDate={training.session_date} />
 

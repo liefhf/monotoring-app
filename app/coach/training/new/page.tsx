@@ -7,6 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { parseSetBlock } from "@/lib/setParser";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import WeekFocusPanel from "@/components/WeekFocusPanel";
@@ -968,6 +969,35 @@ function TrainingEditor() {
             : section
       );
     });
+  }
+
+  /*
+   * Schnelleingabe: "8x200 Kraul GA2 @3:00" (eine Serie je Zeile) wird
+   * in Serien-Zeilen umgewandelt. Nicht erkannte Teile landen als Uebung.
+   */
+  function addParsedRows(sectionId: string, text: string) {
+    const parsed = parseSetBlock(text);
+    if (!parsed.length) return 0;
+    setWaterSections((current) => {
+      let nextId = Math.max(0, ...current.flatMap((section) => section.rows.map((row) => row.id))) + 1;
+      return current.map((section) => {
+        if (section.id !== sectionId) return section;
+        /* eine leere Standardzeile wird durch die Eingabe ersetzt */
+        const keep = section.rows.filter((row) => row.exercise.trim() || row.intervalTime.trim() || row.repetitions !== 1 || row.distance !== 100);
+        const rows = parsed.map((set) => ({
+          ...createWaterRow(nextId++),
+          repetitions: set.repetitions,
+          distance: set.distance,
+          style: set.style ?? "Kraul",
+          zone: set.zone ?? "BZ2 (GA1)",
+          intervalType: set.intervalType ?? "P",
+          intervalTime: set.intervalTime,
+          exercise: set.exercise,
+        }));
+        return { ...section, rows: [...keep, ...rows] };
+      });
+    });
+    return parsed.length;
   }
 
   function removeWaterRow(
@@ -2534,6 +2564,8 @@ function TrainingEditor() {
                     </div>
                   </div>
 
+                  <QuickSetInput onAdd={(text) => addParsedRows(section.id, text)} />
+
                   <div className="overflow-x-auto p-4">
                     <div className="min-w-[1500px]">
                       <div className="grid grid-cols-[80px_105px_2fr_140px_170px_130px_180px_110px_85px] gap-2 px-2 pb-2 text-xs font-medium text-app-faint">
@@ -3106,5 +3138,55 @@ export default function NewTrainingPage() {
     >
       <TrainingEditor />
     </Suspense>
+  );
+}
+/*
+ * Schnelleingabe je Abschnitt: Serien wie auf der Tafel tippen
+ * ("8x200 Kraul GA2 @3:00", mehrere Zeilen moeglich), Enter = uebernehmen.
+ * Shift+Enter = neue Zeile. Die Tabelle darunter bleibt zum Feinschliff.
+ */
+function QuickSetInput({ onAdd }: { onAdd: (text: string) => number }) {
+  const [text, setText] = useState("");
+  const [hint, setHint] = useState<string | null>(null);
+
+  function submit() {
+    const added = onAdd(text);
+    if (added) {
+      setText("");
+      setHint(`${added} ${added === 1 ? "Serie" : "Serien"} übernommen`);
+    } else {
+      setHint("Nicht erkannt – Beispiel: 8x200 Kraul GA2 @3:00");
+    }
+  }
+
+  return (
+    <div className="border-b border-app-border/60 px-4 pb-3 pt-1">
+      <label className="block text-xs font-semibold text-app-faint">
+        Schnelleingabe
+      </label>
+      <div className="mt-1 flex gap-2">
+        <textarea
+          rows={1}
+          value={text}
+          onChange={(event) => {
+            setText(event.target.value);
+            setHint(null);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              submit();
+            }
+          }}
+          placeholder="z. B. 8x200 Kraul GA2 @3:00 – Enter übernimmt, Shift+Enter neue Zeile"
+          aria-label="Serien als Text eingeben"
+          className="min-h-11 flex-1 resize-y rounded-xl border border-app-border bg-app-bg px-3.5 py-2.5 text-sm text-app-heading outline-none placeholder:text-app-faint focus:border-app-accent"
+        />
+        <button type="button" onClick={submit} disabled={!text.trim()} className="min-h-11 rounded-xl bg-app-accent px-4 text-sm font-bold text-app-accent-ink disabled:opacity-50">
+          Übernehmen
+        </button>
+      </div>
+      {hint && <p className="mt-1 text-xs text-app-muted">{hint}</p>}
+    </div>
   );
 }

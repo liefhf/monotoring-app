@@ -1,7 +1,7 @@
 # Datenbank-Skripte
 
 **Kurzweg:** `status_pruefen.sql` ausführen (zeigt ✓/✗ je Skript, ändert nichts).
-Fehlt etwas aus 1 oder 12–23, einfach **`alles_aktualisieren.sql`** ausführen – das spielt
+Fehlt etwas aus 1 oder 12–24, einfach **`alles_aktualisieren.sql`** ausführen – das spielt
 alle diese Skripte auf einmal ein und überspringt Vorhandenes.
 
 Jedes Skript einmal im **Supabase SQL-Editor** ausführen (Inhalt einfügen → *Run*).
@@ -33,6 +33,7 @@ Die Reihenfolge ist wichtig, weil spätere Skripte auf früheren aufbauen.
 | 21 | `testbatterie.sql` | Testbatterie (Athletik- und Schwimmtests) |
 | 22 | `mein_fortschritt.sql` | Athleten sehen ihre eigenen Zeiten, Pflichtzeiten, Laktat-Zonen |
 | 23 | `gesundheit_dokumente.sql` | Gesundheit (Ausfälle, Einschränkungen, Freigabe) und Dokumente mit Ablaufdatum je Athlet |
+| 24 | `ziele_notizen.sql` | Ziele je Athlet (Zeit-, Technik-, Trainingsziel) und interne Trainernotizen |
 
 
 Dateien `daten_*.sql` enthalten echte Schwimmerdaten und werden nicht eingecheckt (`.gitignore`).

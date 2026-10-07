@@ -329,7 +329,7 @@ export function AthleteStatusCard({ swimmerId }: { swimmerId: string }) {
       </div>
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {stat(
-          "Belastung ggü. Vorwochen",
+          "Belastung",
           row.acwr.changePercent === null ? "–" : `${row.acwr.changePercent > 0 ? "+" : ""}${row.acwr.changePercent} %`,
           toneOf("acwr")
         )}

@@ -27,17 +27,17 @@ type ScaleOption = {
   label: string;
 };
 
+/*
+ * Fuenf Gesichter statt zehn Zahlen - auch fuer Kinder sofort klar.
+ * Gespeichert wird weiter auf der Skala 1-10 (2/4/6/8/10), damit alle
+ * Auswertungen und alte Eintraege unveraendert funktionieren.
+ */
 const scaleOptions: ScaleOption[] = [
-  { value: 1, label: "1" },
-  { value: 2, label: "2" },
-  { value: 3, label: "3" },
-  { value: 4, label: "4" },
-  { value: 5, label: "5" },
-  { value: 6, label: "6" },
-  { value: 7, label: "7" },
-  { value: 8, label: "8" },
-  { value: 9, label: "9" },
-  { value: 10, label: "10" },
+  { value: 2, label: "😣" },
+  { value: 4, label: "🙁" },
+  { value: 6, label: "😐" },
+  { value: 8, label: "🙂" },
+  { value: 10, label: "😄" },
 ];
 
 function getLocalDateString(date: Date) {
@@ -504,7 +504,7 @@ export default function DailyCheckInPage() {
         <div className="mx-auto max-w-xl">
           <section className="rounded-2xl border border-app-good/70 bg-app-surface p-6 text-center">
             <h1 className="text-2xl font-bold text-app-good">
-              ✓ Check-in erledigt
+              ✓ Danke!
             </h1>
 
             {(() => {
@@ -516,11 +516,16 @@ export default function DailyCheckInPage() {
               );
               const tone = readiness.level === "bereit" ? "text-app-good" : readiness.level === "vorsicht" ? "text-app-warn" : "text-app-bad";
               return (
+                /* Fuer Athleten (auch Kinder) keine Punktzahl - nur eine klare Rueckmeldung */
                 <div className="mt-4 rounded-xl border border-app-border p-4">
-                  <p className="text-xs text-app-muted">Dein Befinden heute</p>
-                  <p className={`text-5xl font-bold ${tone}`}>{readiness.score}</p>
-                  <p className={`font-semibold ${tone}`}>{readiness.label}</p>
-                  {readiness.hints.length > 0 && <p className="mt-1 text-xs text-app-muted">{readiness.hints.join(" · ")}</p>}
+                  <p className="text-4xl" aria-hidden="true">{readiness.level === "bereit" ? "💪" : readiness.level === "vorsicht" ? "🙂" : "🤗"}</p>
+                  <p className={`mt-1 font-semibold ${tone}`}>
+                    {readiness.level === "bereit"
+                      ? "Super, viel Spaß beim Training!"
+                      : readiness.level === "vorsicht"
+                        ? "Danke! Dein Trainer weiß jetzt Bescheid."
+                        : "Danke, dass du es sagst. Sprich heute kurz mit deinem Trainer."}
+                  </p>
                 </div>
               );
             })()}
@@ -539,7 +544,7 @@ export default function DailyCheckInPage() {
               href="/athlete"
               className="mt-5 block w-full rounded-xl bg-app-accent px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:brightness-110"
             >
-              Zurück zum Dashboard
+              Fertig
             </Link>
           </section>
         </div>
@@ -554,7 +559,7 @@ export default function DailyCheckInPage() {
           href="/athlete"
           className="text-sm text-app-muted transition hover:text-app-heading"
         >
-          ← Zurück zum Dashboard
+          ← Zurück
         </Link>
 
         <header className="mt-4">
@@ -567,7 +572,7 @@ export default function DailyCheckInPage() {
           </h1>
 
           <p className="mt-1 text-sm text-app-muted">
-            Kurzer Überblick über dein aktuelles Befinden.
+            Tippe einfach auf ein Gesicht.
           </p>
         </header>
 
@@ -598,10 +603,10 @@ export default function DailyCheckInPage() {
           {step === 1 && (
             <>
               <QuestionHeader
-                eyebrow="Energie"
-                title="Wie fit fühlst du dich heute?"
-                leftLabel="Sehr müde"
-                rightLabel="Sehr fit"
+                eyebrow="Frage 1 von 5"
+                title="Wie fit fühlst du dich?"
+                leftLabel="sehr müde"
+                rightLabel="super fit"
               />
 
               <ScaleGrid
@@ -614,10 +619,10 @@ export default function DailyCheckInPage() {
           {step === 2 && (
             <>
               <QuestionHeader
-                eyebrow="Stimmung"
-                title="Wie ist deine Stimmung heute?"
-                leftLabel="Sehr schlecht"
-                rightLabel="Sehr gut"
+                eyebrow="Frage 2 von 5"
+                title="Wie ist deine Laune?"
+                leftLabel="schlecht"
+                rightLabel="super"
               />
 
               <ScaleGrid
@@ -630,10 +635,10 @@ export default function DailyCheckInPage() {
           {step === 3 && (
             <>
               <QuestionHeader
-                eyebrow="Muskelgefühl"
+                eyebrow="Frage 3 von 5"
                 title="Wie fühlen sich deine Muskeln an?"
-                leftLabel="Sehr schlecht"
-                rightLabel="Sehr gut"
+                leftLabel="schwer, Muskelkater"
+                rightLabel="locker"
               />
 
               <ScaleGrid
@@ -648,10 +653,10 @@ export default function DailyCheckInPage() {
           {step === 4 && (
             <>
               <QuestionHeader
-                eyebrow="Stress"
-                title="Wie entspannt fühlst du dich heute?"
-                leftLabel="Sehr gestresst"
-                rightLabel="Sehr entspannt"
+                eyebrow="Frage 4 von 5"
+                title="Wie entspannt bist du?"
+                leftLabel="viel Stress"
+                rightLabel="ganz entspannt"
               />
 
               <ScaleGrid
@@ -664,10 +669,10 @@ export default function DailyCheckInPage() {
           {step === 5 && (
             <>
               <QuestionHeader
-                eyebrow="Schlaf"
-                title="Wie gut hast du geschlafen?"
-                leftLabel="Sehr schlecht"
-                rightLabel="Sehr gut"
+                eyebrow="Frage 5 von 5"
+                title="Wie hast du geschlafen?"
+                leftLabel="schlecht"
+                rightLabel="sehr gut"
               />
 
               <ScaleGrid
@@ -867,17 +872,17 @@ function QuestionHeader({
         {eyebrow}
       </p>
 
-      <h2 className="mt-1 text-xl font-bold">
+      <h2 className="mt-1 text-2xl font-extrabold">
         {title}
       </h2>
 
-      <div className="mt-2 flex justify-between text-[11px] text-app-faint">
+      <div className="mt-2 flex justify-between text-sm text-app-muted">
         <span>
-          1 · {leftLabel}
+          😣 {leftLabel}
         </span>
 
         <span>
-          10 · {rightLabel}
+          {rightLabel} 😄
         </span>
       </div>
     </div>
@@ -892,7 +897,7 @@ function ScaleGrid({
   onSelect: (value: number) => void;
 }) {
   return (
-    <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10">
+    <div className="mt-5 grid grid-cols-5 gap-2">
       {scaleOptions.map(
         (option) => {
           const active =
@@ -910,7 +915,8 @@ function ScaleGrid({
                   option.value
                 )
               }
-              className={`flex min-h-12 items-center justify-center rounded-xl border text-sm font-semibold transition ${
+              aria-label={`${option.value / 2} von 5`}
+              className={`flex min-h-16 items-center justify-center rounded-2xl border text-4xl transition ${
                 active
                   ? "border-app-accent bg-app-accent text-app-accent-ink"
                   : "border-app-border bg-app-bg text-app-muted hover:border-app-border hover:text-app-heading"

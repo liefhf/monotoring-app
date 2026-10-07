@@ -13,7 +13,7 @@ Leitfrage für jede Kennzahl: **Kann ein Schwimmtrainer daraus eine Entscheidung
 | Intensitätsverteilung (Meter je Zone) | Anteil der Intensitäten | so gut wie die Zonenangaben im Plan | **behalten**, prominent in der Trainingswoche – zentral für die Ausdauersteuerung [3]. |
 | ACWR 7:28 als Risikowert | angeblich Verletzungsrisiko | mathematisch gekoppelt, als Einzelwert nicht prognostisch [4, 5] | **ersetzt** durch „Belastung ggü. Vorwochen“: 7 Tage gegenüber dem Wochenschnitt der 3 Wochen davor (entkoppelt), in Prozent. Keine Risikoaussage. |
 | Monotonie / Strain (Foster) | Gleichförmigkeit und Wochenbeanspruchung | gering validiert, schwer interpretierbar [6] | **bewusst nicht eingeführt**. Der Mehrwert gegenüber Wochensumme und Verlauf ist für den Trainer gering, die Gefahr der Fehlinterpretation hoch. |
-| Befinden (5 Skalen 1–10) | subjektive Reaktion auf Belastung | kurze subjektive Fragebögen reagieren empfindlicher als viele objektive Marker [7] | **behalten**. Bewertet wird gegen den eigenen Durchschnitt und den Verlauf, nicht gegen absolute Grenzen. Pro Skala wird gezeigt, was sich gegenüber den 2 Wochen davor verändert hat (erst ab 0,5 Punkten Abstand). |
+| Befinden (5 Fragen, für Athleten als 5 Gesichter = Werte 2/4/6/8/10) | subjektive Reaktion auf Belastung | kurze subjektive Fragebögen reagieren empfindlicher als viele objektive Marker [7] | **behalten**. Bewertet wird gegen den eigenen Durchschnitt und den Verlauf, nicht gegen absolute Grenzen. Pro Skala wird gezeigt, was sich gegenüber den 2 Wochen davor verändert hat (erst ab 0,5 Punkten Abstand). |
 | „Readiness“-Score 0–100 | Zusammenfassung des Befindens | nicht validiert, sondern eine Konstruktion | **umbenannt** in „Befinden“, beschreibende Texte statt Anweisungen („Befinden eingeschränkt“ statt „Regeneration empfohlen“). |
 | Schlafdauer | Erholung | Selbstauskunft, grob | **behalten, optional**. Abzug unter 8 h. Jugendliche brauchen 8–10 h [8]. |
 | Schmerzen (Körpermodell, 0–10) | Beschwerden | Selbstauskunft, aber direkt handlungsrelevant | **behalten**. Rot ab 6/10 oder bei zunehmenden Werten. |
@@ -30,6 +30,11 @@ Leitfrage für jede Kennzahl: **Kann ein Schwimmtrainer daraus eine Entscheidung
 | Wettkampfanalyse (Splits, Technikfehler, Feedback) | Rennverlauf | exakt bzw. Trainerurteil | **behalten**. |
 | Start-/Wendenanalyse, Zugfrequenz, Unterwasserphase | Technik-Teilzeiten | braucht Video oder Messsysteme | **bewusst nicht eingeführt**. Ohne Video- oder Sensorintegration wäre der Erfassungsaufwand am Beckenrand zu hoch. Technikfehler werden in der Wettkampfauswertung schon per Klick je Abschnitt erfasst. |
 | Wachstum (Größe, Gewicht) | biologische Entwicklung | exakt | **behalten** (im Profil unter „Befinden & Training“). Relevant für Jugendliche in der Wachstumsphase [8]. |
+
+Fünf Fragen genügen: Fitness/Müdigkeit, Laune, Muskelgefühl, Entspannung und Schlaf decken die Bereiche ab, die in Studien am empfindlichsten auf Belastung reagieren [7]. Motivation ist bewusst keine eigene Frage, weil sie bei Kindern stark mit der Laune zusammenfällt. Schmerzen werden gezielt am Körpermodell gemeldet. Fünf Antwortstufen statt zehn sind für Kinder eindeutiger. Gespeichert wird weiter auf der 1–10-Skala, damit alte Einträge vergleichbar bleiben.
+
+## Ziele
+Zeitziele werden automatisch mit der Bestzeit verglichen (gleiche Strecke, Lage und Bahn, ohne Zwischenzeiten). Athleten sehen „noch x Sekunden“ und keine Prozentwerte oder Prognosen.
 
 ## Hinweise (Warnsystem)
 

@@ -952,7 +952,7 @@ export default function TrainingFeedbackPage() {
 
               <div>
                 <p className="font-bold">
-                  RPE {rpe}/10 ·{" "}
+                  {rpe} von 10 ·{" "}
                   {
                     selectedRpe.title
                   }

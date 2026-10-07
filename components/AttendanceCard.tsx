@@ -1,7 +1,11 @@
 "use client";
 
 import Loader from "@/components/Loader";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { toDateKey } from "@/lib/community";
+import { AVAILABILITY_LABELS, HealthEvent, isActive } from "@/lib/health";
 import { Swimmer } from "@/lib/swim";
 import {
   ATTENDANCE_STATUS,
@@ -15,6 +19,8 @@ import {
 /*
  * Anwesenheitsliste einer Trainingseinheit: je Athlet ein Klick auf
  * anwesend / entschuldigt / krank / fehlt. Wird sofort gespeichert.
+ * Am Beckenrand wichtig: wer eingeschraenkt ist oder pausiert, steht
+ * direkt am Namen (aus Gesundheit, Skript 23). Grosse Knoepfe (44 px).
  */
 export default function AttendanceCard({ sessionId, teamId }: { sessionId: string; teamId: string }) {
   const [swimmers, setSwimmers] = useState<Swimmer[]>([]);
@@ -22,6 +28,7 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
   const [missingTable, setMissingTable] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [health, setHealth] = useState<HealthEvent[]>([]);
 
   useEffect(() => {
     async function load() {
@@ -30,6 +37,15 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
       setStatus(Object.fromEntries(attendance.rows.map((row) => [row.swimmer_id, row.status])));
       setMissingTable(attendance.missingTable);
       setLoading(false);
+      if (team.length) {
+        const today = toDateKey(new Date());
+        const { data } = await supabase
+          .from("health_events")
+          .select("*")
+          .in("swimmer_id", team.map((swimmer) => swimmer.id))
+          .or(`end_date.is.null,end_date.gte.${today}`);
+        setHealth(((data ?? []) as HealthEvent[]).filter((event) => isActive(event, today) && event.availability !== "voll"));
+      }
     }
     load();
   }, [sessionId, teamId]);
@@ -61,7 +77,7 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
   const stats = attendanceStats(Object.values(status).map((value) => ({ status: value })));
 
   return (
-    <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
+    <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border/60 bg-app-surface shadow-app">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-app-border px-4 py-3">
         <div>
           <h2 className="text-lg font-semibold">Anwesenheit</h2>
@@ -71,7 +87,7 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
           </p>
         </div>
         {!missingTable && swimmers.length > 0 && (
-          <button type="button" onClick={allPresent} className="rounded-lg border border-app-border px-3 py-1.5 text-xs font-medium hover:bg-app-elevated">
+          <button type="button" onClick={allPresent} className="min-h-11 rounded-xl bg-app-elevated px-4 text-sm font-bold text-app-heading hover:bg-app-border/70">
             Alle offenen = anwesend
           </button>
         )}
@@ -86,9 +102,19 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
       ) : (
         <ul className="divide-y divide-app-border">
           {swimmers.map((swimmer) => (
-            <li key={swimmer.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
-              <span className="text-sm font-medium">
-                {swimmer.last_name}, {swimmer.first_name}
+            <li key={swimmer.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5">
+              <span className="min-w-0">
+                <Link href={`/coach/schwimmer/${swimmer.id}`} className="block text-[15px] font-semibold text-app-heading hover:text-app-accent-soft">
+                  {swimmer.first_name} {swimmer.last_name ?? ""}
+                </Link>
+                {health
+                  .filter((event) => event.swimmer_id === swimmer.id)
+                  .map((event) => (
+                    <span key={event.id} className={`block text-xs font-semibold ${event.availability === "pause" ? "text-app-bad" : "text-app-warn"}`}>
+                      {AVAILABILITY_LABELS[event.availability]}: {event.title}
+                      {event.restriction ? ` – ${event.restriction}` : ""}
+                    </span>
+                  ))}
               </span>
               <div className="flex gap-1.5">
                 {ATTENDANCE_STATUS.map((option) => (
@@ -97,7 +123,9 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
                     type="button"
                     title={option.label}
                     onClick={() => change(swimmer.id, option.value)}
-                    className={`h-9 min-w-9 rounded-lg px-2 text-sm font-bold transition ${
+                    aria-label={option.label}
+                    aria-pressed={status[swimmer.id] === option.value}
+                    className={`h-11 min-w-11 rounded-xl px-2 text-sm font-bold transition ${
                       status[swimmer.id] === option.value ? option.className : "border border-app-border text-app-muted hover:bg-app-elevated"
                     }`}
                   >

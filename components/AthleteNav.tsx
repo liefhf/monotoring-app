@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "@/components/LogoutButton";
+import ThemeToggle from "@/components/ThemeToggle";
+import ContrastToggle from "@/components/ContrastToggle";
 import { Icon, IconName } from "@/components/icons";
 
 /*
@@ -16,20 +18,20 @@ import { Icon, IconName } from "@/components/icons";
  */
 type NavItem = { href: string; label: string; icon: IconName };
 
+/* Wenige, klare Ziele - auch fuer Kinder verstaendlich */
 const mainItems: NavItem[] = [
-  { href: "/athlete", label: "Start", icon: "home" },
-  { href: "/athlete/check-in", label: "Check-in", icon: "check" },
+  { href: "/athlete", label: "Heute", icon: "home" },
   { href: "/athlete/training", label: "Training", icon: "training" },
+  { href: "/athlete/fortschritt", label: "Fortschritt", icon: "chart" },
   { href: "/athlete/termine", label: "Termine", icon: "calendar" },
 ];
 
 const moreItems: NavItem[] = [
-  { href: "/athlete/fortschritt", label: "Mein Fortschritt", icon: "chart" },
-  { href: "/athlete/wettkampftag", label: "Wettkampf-Tag", icon: "stopwatch" },
   { href: "/athlete/wettkaempfe", label: "Wettkämpfe", icon: "trophy" },
+  { href: "/athlete/wettkampftag", label: "Wettkampf-Tag", icon: "stopwatch" },
   { href: "/athlete/news", label: "News", icon: "news" },
-  { href: "/athlete/gruppen", label: "Gruppenräume", icon: "chat" },
-  { href: "/athlete/pain", label: "Schmerz", icon: "heart" },
+  { href: "/athlete/gruppen", label: "Gruppen", icon: "chat" },
+  { href: "/athlete/pain", label: "Schmerz melden", icon: "heart" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -62,7 +64,7 @@ export default function AthleteNav() {
   }, [moreOpen]);
 
   const itemClass = (active: boolean) =>
-    `flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-[11px] font-bold transition ${
+    `flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-xs font-bold transition ${
       active ? "text-app-heading" : "text-app-faint hover:text-app-heading"
     }`;
 
@@ -104,7 +106,11 @@ export default function AthleteNav() {
                 );
               })}
             </div>
-            <LogoutButton className="mt-3 w-full" />
+            <div className="mt-3 flex items-center gap-2">
+              <ThemeToggle />
+              <ContrastToggle />
+              <LogoutButton className="flex-1" />
+            </div>
           </div>
         </div>
       )}

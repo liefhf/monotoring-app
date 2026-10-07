@@ -659,7 +659,7 @@ export default function AthleteTrainingDetailPage() {
                           <div>Aufgabe</div>
                           <div>Lage</div>
                           <div>Material</div>
-                          <div>Belastung</div>
+                          <div>Tempo</div>
                           <div>
                             Pause / Abgang
                           </div>

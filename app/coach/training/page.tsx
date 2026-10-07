@@ -149,6 +149,19 @@ function WochenplanView() {
     setReloadKey((key) => key + 1);
   }
 
+  /* Einheit verschieben (z. B. Hallenzeit faellt aus): nur das Datum aendert sich */
+  async function moveSession(session: Session) {
+    const target = window.prompt("Auf welches Datum verschieben? (JJJJ-MM-TT)", session.session_date);
+    if (!target || target === session.session_date) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(target)) {
+      setNotice("Bitte das Datum als JJJJ-MM-TT eingeben.");
+      return;
+    }
+    const { error } = await supabase.from("training_sessions").update({ session_date: target }).eq("id", session.id);
+    setNotice(error ? "Verschieben fehlgeschlagen." : `„${session.title}“ liegt jetzt am ${fmt(target)}.`);
+    if (!error) setReloadKey((key) => key + 1);
+  }
+
   const shift = (count: number) => setWeek(toDateKey(new Date(Date.parse(`${week}T12:00:00`) + count * 7 * DAY)));
   const fmt = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
   const sunday = days[6].date;
@@ -264,6 +277,9 @@ function WochenplanView() {
                   </Link>
                   <button type="button" onClick={() => copySession(session)} disabled={copying === session.id} className="text-app-muted hover:text-app-heading disabled:opacity-50">
                     {copying === session.id ? "Kopiert …" : "Kopieren"}
+                  </button>
+                  <button type="button" onClick={() => moveSession(session)} className="text-app-muted hover:text-app-heading">
+                    Verschieben
                   </button>
                 </div>
                 </div>

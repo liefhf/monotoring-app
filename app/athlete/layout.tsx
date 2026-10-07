@@ -1,7 +1,5 @@
 import RoleGuard from "@/components/RoleGuard";
 import AthleteNav from "@/components/AthleteNav";
-import ThemeToggle from "@/components/ThemeToggle";
-import ContrastToggle from "@/components/ContrastToggle";
 import NotificationBell from "@/components/NotificationBell";
 import Logo from "@/components/Logo";
 
@@ -18,8 +16,6 @@ export default function AthleteLayout({
 
           <div className="flex items-center gap-2">
             <NotificationBell />
-            <ContrastToggle />
-            <ThemeToggle />
           </div>
         </div>
 

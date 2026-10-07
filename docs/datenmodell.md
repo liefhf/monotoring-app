@@ -9,6 +9,7 @@ teams ──< team_swimmers >── swimmers (die eine Athleten-Identität, prof
    │                           ├─< swimmer_results, swimmer_non_finishes   (Zeiten)
    │                           ├─< fitness_tests, lactate_tests            (Diagnostik)
    │                           ├─< health_events, athlete_documents        (neu, Skript 23)
+   │                           ├─< athlete_goals, athlete_notes            (neu, Skript 24)
    │                           └─< training_attendance
    └─< training_sessions ─< training_sections ─< training_rows (Serien, Zone)
           ├─< training_land_rows, training_warmup_land_rows
@@ -28,3 +29,5 @@ calendar_entries, calendar_tasks, news_posts, team_messages, notifications
 - Im Projekt sichtbar und geprüft: alle Tabellen aus den Skripten 1–23. Coach-Zugriff läuft über `coach_owns_swimmer`, `coach_has_athlete` oder `is_team_coach`, Athleten-Zugriff über `auth.uid()`.
 - **Nicht sichtbar:** Die Regeln der Kern-Tabellen (`profiles`, `teams`, `team_members`, `befinden_entries`, `pain_reports`, `training_*`, `competitions`, `competition_events`, `competition_sections`, `calendar_tasks`). Zur Prüfung `supabase/regeln_anzeigen.sql` und `supabase/sicherheitscheck.sql` ausführen.
 - Bekannter offener Punkt: Die Regel „Coaches can read athlete profiles“ erlaubt laut früherer Analyse jedem Coach, alle Athletenprofile zu lesen.
+
+- **Neu (Skript 24):** `athlete_goals`. Athleten lesen sichtbare eigene Ziele. `athlete_notes` ist nur für Trainer sichtbar.
