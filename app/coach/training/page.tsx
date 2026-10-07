@@ -1,731 +1,291 @@
 "use client";
 
+import Loader from "@/components/Loader";
 import Link from "next/link";
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { deleteTraining, printTraining } from "@/lib/trainingPlan";
+import { fetchAll } from "@/lib/fetchAll";
+import { toDateKey } from "@/lib/community";
+import { isoWeek, weekStart } from "@/lib/dashboardStats";
+import { PageHeader, buttonPrimary, buttonSecondary } from "@/components/ui";
+import TeamSwitcher from "@/components/TeamSwitcher";
+import { copyTraining } from "@/lib/trainingPlan";
 
-type TrainingSession = {
+/*
+ * Training: EINE Seite fuer die Trainingswoche einer Mannschaft (frueher
+ * getrennt als "Training" und "Wochenplan"). Mo-So mit Umfang, Dauer,
+ * Fokus und geplanter Belastung, Summen, Wasser/Land und die Verteilung
+ * der Meter auf die Belastungszonen. Von hier: Einheit planen, oeffnen,
+ * kopieren; Saisonplanung ueber den Knopf oben. Woche per ?week=YYYY-MM-DD.
+ */
+
+type Session = {
   id: string;
-  team_id: string;
   title: string;
   session_date: string;
   start_time: string | null;
   duration_minutes: number | null;
-  training_type: "water" | "land";
   total_meters: number | null;
   focus: string | null;
+  planned_rpe?: number | null;
+  training_type: string | null;
 };
+type ZoneRow = { zone: string | null; repetitions: number; distance: number; section_id: string };
 
-type Team = {
-  id: string;
-  name: string;
-};
+const DAY = 86_400_000;
+const DAYS = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
 
-type TeamFilter = "all" | string;
-type TypeFilter = "all" | "water" | "land";
+function WochenplanView() {
+  const params = useSearchParams();
+  const [today] = useState(() => toDateKey(new Date()));
+  const [week, setWeek] = useState(() => weekStart(params.get("week") ?? toDateKey(new Date())));
+  const [teamId, setTeamId] = useState<string | null>(null);
+  const [teams, setTeams] = useState<{ id: string; name: string }[]>([]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [zoneRows, setZoneRows] = useState<ZoneRow[]>([]);
+  const [reloadKey, setReloadKey] = useState(0);
 
-function getLocalDateString(date: Date) {
-  const year = date.getFullYear();
+  useEffect(() => {
+    supabase
+      .from("teams")
+      .select("id, name")
+      .order("name")
+      .then(({ data }) => {
+        const list = (data ?? []) as { id: string; name: string }[];
+        setTeams(list);
+        const ids = list.map((team) => team.id);
+        let saved: string | null = null;
+        try {
+          saved = localStorage.getItem("dashboard-team");
+        } catch {
+          /* ohne Browser-Speicher */
+        }
+        setTeamId(ids.find((id) => id === saved) ?? ids[0] ?? null);
+      });
+  }, []);
 
-  const month = String(
-    date.getMonth() + 1
-  ).padStart(2, "0");
+  useEffect(() => {
+    if (!teamId) return;
+    async function load() {
+      const { data } = await fetchAll(() =>
+        supabase
+          .from("training_sessions")
+          .select("*")
+          .eq("team_id", teamId!)
+          .gte("session_date", week)
+          .lte("session_date", toDateKey(new Date(Date.parse(week) + 6 * DAY + 12 * 3600_000)))
+          .order("session_date")
+          .order("start_time")
+      );
+      const list = (data ?? []) as Session[];
+      setSessions(list);
+      if (!list.length) {
+        setZoneRows([]);
+        return;
+      }
+      const { data: sections } = await supabase.from("training_sections").select("id").in("training_session_id", list.map((s) => s.id));
+      const sectionIds = ((sections ?? []) as { id: string }[]).map((section) => section.id);
+      if (!sectionIds.length) {
+        setZoneRows([]);
+        return;
+      }
+      const { data: rows } = await fetchAll(() => supabase.from("training_rows").select("zone, repetitions, distance, section_id").in("section_id", sectionIds));
+      setZoneRows((rows ?? []) as ZoneRow[]);
+    }
+    load();
+  }, [teamId, week, reloadKey]);
 
-  const day = String(
-    date.getDate()
-  ).padStart(2, "0");
+  const days = DAYS.map((name, index) => {
+    const date = toDateKey(new Date(Date.parse(`${week}T12:00:00`) + index * DAY));
+    return { name, date, list: sessions.filter((session) => session.session_date === date) };
+  });
 
-  return `${year}-${month}-${day}`;
-}
+  const minutes = sessions.reduce((sum, session) => sum + (session.duration_minutes ?? 0), 0);
 
-function getStartOfWeek(date: Date) {
-  const result = new Date(date);
+  const zones = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const row of zoneRows) {
+      const key = row.zone ?? "ohne Zone";
+      map.set(key, (map.get(key) ?? 0) + row.repetitions * row.distance);
+    }
+    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0], "de", { numeric: true }));
+  }, [zoneRows]);
+  const zoneTotal = zones.reduce((sum, [, value]) => sum + value, 0);
 
-  const day = result.getDay();
+  /* Teamwahl gilt app-weit (Dashboard, Athleten-Check, Training) */
+  function chooseTeam(id: string) {
+    setTeamId(id);
+    try {
+      localStorage.setItem("dashboard-team", id);
+    } catch {
+      /* ohne Browser-Speicher */
+    }
+  }
 
-  const difference =
-    day === 0 ? -6 : 1 - day;
+  const waterMeters = sessions.filter((session) => session.training_type !== "land").reduce((sum, session) => sum + (session.total_meters ?? 0), 0);
+  const landCount = sessions.filter((session) => session.training_type === "land").length;
 
-  result.setDate(
-    result.getDate() + difference
+  const [copying, setCopying] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  /* Einheit kopieren: Standard ist derselbe Wochentag eine Woche spaeter */
+  async function copySession(session: Session) {
+    const suggestion = toDateKey(new Date(Date.parse(`${session.session_date}T12:00:00`) + 7 * DAY));
+    const target = window.prompt("Kopieren auf welches Datum? (JJJJ-MM-TT)", suggestion);
+    if (!target) return;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(target)) {
+      setNotice("Bitte das Datum als JJJJ-MM-TT eingeben.");
+      return;
+    }
+    setCopying(session.id);
+    const result = await copyTraining(session.id, target);
+    setCopying(null);
+    if ("error" in result) {
+      setNotice(result.error);
+      return;
+    }
+    setNotice(`„${session.title}“ wurde auf den ${fmt(target)} kopiert.`);
+    setReloadKey((key) => key + 1);
+  }
+
+  const shift = (count: number) => setWeek(toDateKey(new Date(Date.parse(`${week}T12:00:00`) + count * 7 * DAY)));
+  const fmt = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit" });
+  const sunday = days[6].date;
+
+  return (
+    <main className="mx-auto max-w-[1500px] space-y-4 sm:space-y-5">
+      <PageHeader
+        eyebrow={`Training · ${fmt(week)} – ${fmt(sunday)}`}
+        title={`KW ${isoWeek(week)}`}
+        actions={
+          <>
+            {teams.length > 1 && teamId && <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} />}
+            <Link href="/coach/training/season" className={buttonSecondary}>
+              Saison
+            </Link>
+            <Link href={`/coach/training/new?day=${week >= weekStart(today) ? (week === weekStart(today) ? today : week) : week}`} className={buttonPrimary}>
+              + Einheit
+            </Link>
+          </>
+        }
+      />
+
+      {notice && (
+        <p role="status" className="rounded-[14px] border border-app-accent/30 bg-app-accent/10 px-4 py-3 text-sm text-app-text">
+          {notice}
+        </p>
+      )}
+
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={() => shift(-1)} className="flex h-11 w-11 items-center justify-center rounded-xl bg-app-elevated text-app-heading hover:bg-app-border/70" aria-label="Vorige Woche">
+          ‹
+        </button>
+        <button
+          type="button"
+          onClick={() => setWeek(weekStart(today))}
+          disabled={week === weekStart(today)}
+          className="h-11 rounded-xl bg-app-elevated px-4 text-sm font-bold text-app-heading hover:bg-app-border/70 disabled:opacity-50"
+        >
+          Diese Woche
+        </button>
+        <button type="button" onClick={() => shift(1)} className="flex h-11 w-11 items-center justify-center rounded-xl bg-app-elevated text-app-heading hover:bg-app-border/70" aria-label="Nächste Woche">
+          ›
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
+        {[
+          { value: `${(waterMeters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km`, label: "Wasser" },
+          { value: sessions.length, label: "Einheiten" },
+          { value: landCount, label: "davon Land" },
+          { value: `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")} h`, label: "Trainingszeit" },
+        ].map((kpi) => (
+          <div key={kpi.label} className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
+            <p className="label-caps">{kpi.label}</p>
+            <p className="num mt-1 text-xl font-semibold text-app-heading">{kpi.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {zoneTotal > 0 && (
+        <section className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">
+          <p className="text-[15px] font-bold text-app-heading">Intensitätsverteilung · Meter je Zone</p>
+          <ul className="mt-3 space-y-2">
+            {zones.map(([zone, value]) => (
+              <li key={zone} className="grid grid-cols-[7rem_1fr_5.5rem] items-center gap-3 text-xs">
+                <span className="font-semibold text-app-text">{zone}</span>
+                <span className="h-2.5 overflow-hidden rounded-full bg-app-elevated">
+                  <span className="block h-full rounded-full bg-app-accent" style={{ width: `${(value / Math.max(...zones.map(([, v]) => v))) * 100}%` }} />
+                </span>
+                <span className="text-right tabular-nums text-app-muted">
+                  {value.toLocaleString("de-DE")} m · {Math.round((value / zoneTotal) * 100)} %
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {zoneTotal === 0 && sessions.length > 0 && (
+        <p className="text-[13px] text-app-muted">Für die Intensitätsverteilung in den Einheiten Zonen bei den Serien angeben.</p>
+      )}
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
+        {days.map((day) => (
+          <section
+            key={day.date}
+            className={`flex flex-col rounded-[20px] border bg-app-surface p-3 shadow-app xl:min-h-[220px] ${day.date === today ? "border-app-accent" : "border-app-border/60"}`}
+          >
+            <p className={`px-1 text-sm font-bold ${day.date === today ? "text-app-soon" : "text-app-heading"}`}>
+              {day.name} <span className="font-normal text-app-muted">{fmt(day.date)}</span>
+            </p>
+            <div className="mt-2 flex-1 space-y-2">
+              {day.list.map((session) => (
+                <div key={session.id} className="rounded-[14px] bg-app-elevated/60 p-3">
+                <Link href={`/coach/training/session/${session.id}`} className="block transition hover:text-app-accent-soft">
+                  <p className="text-sm font-semibold text-app-heading">{session.title}</p>
+                  <p className="mt-0.5 text-xs text-app-muted">
+                    {[
+                      session.start_time?.slice(0, 5),
+                      session.duration_minutes ? `${session.duration_minutes} min` : null,
+                      session.total_meters ? `${session.total_meters.toLocaleString("de-DE")} m` : null,
+                      session.training_type === "land" ? "Land" : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                  {session.focus && <p className="mt-1 text-xs text-app-text">{session.focus}</p>}
+                  {session.planned_rpe ? <p className="mt-1 text-[11px] text-app-faint">geplant RPE {session.planned_rpe}</p> : null}
+                </Link>
+                <div className="mt-2 flex gap-3 text-xs font-semibold">
+                  <Link href={`/coach/training/new?session=${session.id}`} className="text-app-muted hover:text-app-heading">
+                    Bearbeiten
+                  </Link>
+                  <button type="button" onClick={() => copySession(session)} disabled={copying === session.id} className="text-app-muted hover:text-app-heading disabled:opacity-50">
+                    {copying === session.id ? "Kopiert …" : "Kopieren"}
+                  </button>
+                </div>
+                </div>
+              ))}
+            </div>
+            <Link
+              href={`/coach/training/new?day=${day.date}`}
+              className="mt-2 flex min-h-11 items-center justify-center rounded-[14px] border border-dashed border-app-border text-sm text-app-muted transition hover:border-app-accent hover:text-app-accent-soft"
+            >
+              + Einheit
+            </Link>
+          </section>
+        ))}
+      </div>
+    </main>
   );
-
-  result.setHours(0, 0, 0, 0);
-
-  return result;
-}
-
-function getEndOfWeek(date: Date) {
-  const start = getStartOfWeek(date);
-
-  const result = new Date(start);
-
-  result.setDate(
-    result.getDate() + 6
-  );
-
-  result.setHours(
-    23,
-    59,
-    59,
-    999
-  );
-
-  return result;
 }
 
 export default function TrainingPage() {
-  const [trainings, setTrainings] =
-    useState<TrainingSession[]>([]);
-
-  const [teams, setTeams] =
-    useState<Team[]>([]);
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [message, setMessage] =
-    useState("");
-
-  const [
-    selectedTeam,
-    setSelectedTeam,
-  ] = useState<TeamFilter>("all");
-
-  const [
-    selectedType,
-    setSelectedType,
-  ] = useState<TypeFilter>("all");
-
-  async function loadData() {
-    setLoading(true);
-    setMessage("");
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setMessage(
-        "Coach konnte nicht geladen werden."
-      );
-
-      setLoading(false);
-      return;
-    }
-
-    /*
-      1. Eigene Teams des Coaches laden
-    */
-    const {
-      data: teamData,
-      error: teamError,
-    } = await supabase
-      .from("teams")
-      .select("id, name")
-      .eq("coach_id", user.id)
-      .order("name");
-
-    if (teamError) {
-      setMessage(
-        `Teams konnten nicht geladen werden: ${teamError.message}`
-      );
-
-      setLoading(false);
-      return;
-    }
-
-    /*
-      2. Echte Trainingseinheiten
-      dieses Coaches laden
-    */
-    const {
-      data: trainingData,
-      error: trainingError,
-    } = await supabase
-      .from("training_sessions")
-      .select(
-        `
-          id,
-          team_id,
-          title,
-          session_date,
-          start_time,
-          duration_minutes,
-          training_type,
-          total_meters,
-          focus
-        `
-      )
-      .eq("coach_id", user.id)
-      .order("session_date", {
-        ascending: true,
-      })
-      .order("start_time", {
-        ascending: true,
-      });
-
-    if (trainingError) {
-      setMessage(
-        `Trainings konnten nicht geladen werden: ${trainingError.message}`
-      );
-
-      setLoading(false);
-      return;
-    }
-
-    setTeams(
-      (teamData ?? []) as Team[]
-    );
-
-    setTrainings(
-      (trainingData ??
-        []) as TrainingSession[]
-    );
-
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
-    loadData();
-  }, []);
-
-  const today =
-    getLocalDateString(new Date());
-
-  const weekStart =
-    getLocalDateString(
-      getStartOfWeek(new Date())
-    );
-
-  const weekEnd =
-    getLocalDateString(
-      getEndOfWeek(new Date())
-    );
-
-  /*
-    Trainingseinheiten dieser Woche
-  */
-  const weekTrainings =
-    useMemo(() => {
-      return trainings.filter(
-        (training) =>
-          training.session_date >=
-            weekStart &&
-          training.session_date <=
-            weekEnd
-      );
-    }, [
-      trainings,
-      weekStart,
-      weekEnd,
-    ]);
-
-  /*
-    KPI: heutige Einheiten
-  */
-  const todayTrainings =
-    weekTrainings.filter(
-      (training) =>
-        training.session_date ===
-        today
-    );
-
-  const waterTrainings =
-    weekTrainings.filter(
-      (training) =>
-        training.training_type ===
-        "water"
-    );
-
-  const landTrainings =
-    weekTrainings.filter(
-      (training) =>
-        training.training_type ===
-        "land"
-    );
-
-  /*
-    Kommende Trainings:
-    heute oder später
-  */
-  const upcomingTrainings =
-    useMemo(() => {
-      return trainings.filter(
-        (training) =>
-          training.session_date >=
-          today
-      );
-    }, [trainings, today]);
-
-  /*
-    Team- und Artfilter anwenden
-  */
-  const filteredTrainings =
-    useMemo(() => {
-      return upcomingTrainings.filter(
-        (training) => {
-          const matchesTeam =
-            selectedTeam === "all" ||
-            training.team_id ===
-              selectedTeam;
-
-          const matchesType =
-            selectedType === "all" ||
-            training.training_type ===
-              selectedType;
-
-          return (
-            matchesTeam &&
-            matchesType
-          );
-        }
-      );
-    }, [
-      upcomingTrainings,
-      selectedTeam,
-      selectedType,
-    ]);
-
-  function getTeamName(
-    teamId: string
-  ) {
-    return (
-      teams.find(
-        (team) =>
-          team.id === teamId
-      )?.name ?? "Unbekanntes Team"
-    );
-  }
-
-  function formatDate(
-    date: string
-  ) {
-    return new Date(
-      `${date}T12:00:00`
-    ).toLocaleDateString("de-DE", {
-      weekday: "short",
-      day: "2-digit",
-      month: "2-digit",
-    });
-  }
-
   return (
-    <main>
-      <div className="mx-auto w-full max-w-[1500px]">
-        {/* Kopf */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
-              Training
-            </h1>
-
-            <p className="mt-0.5 text-sm text-app-muted">
-              Einheiten deiner Teams
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Link
-              href="/coach/training/season"
-              className="rounded-lg border border-app-border px-4 py-2.5 text-sm font-medium text-app-text transition hover:bg-app-elevated hover:text-app-heading"
-            >
-              Jahresplanung
-            </Link>
-
-            <Link
-              href="/coach/training/new"
-              className="rounded-lg bg-app-accent px-4 py-2.5 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
-            >
-              + Training erstellen
-            </Link>
-          </div>
-        </div>
-
-        {message && (
-          <div className="mt-5 rounded-lg border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-bad">
-            {message}
-          </div>
-        )}
-
-        {/* Kennzahlen */}
-        <section className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-app-border bg-app-border lg:grid-cols-4">
-          <div className="bg-app-surface px-4 py-3.5">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
-              Heute
-            </p>
-
-            <p className="mt-1.5 text-2xl font-semibold text-app-heading">
-              {todayTrainings.length}
-            </p>
-
-            <p className="mt-0.5 text-xs text-app-faint">
-              Geplante Einheiten
-            </p>
-          </div>
-
-          <div className="bg-app-surface px-4 py-3.5">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
-              Diese Woche
-            </p>
-
-            <p className="mt-1.5 text-2xl font-semibold text-app-heading">
-              {weekTrainings.length}
-            </p>
-
-            <p className="mt-0.5 text-xs text-app-faint">
-              Einheiten gesamt
-            </p>
-          </div>
-
-          <div className="bg-app-surface px-4 py-3.5">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
-              Wasser
-            </p>
-
-            <p className="mt-1.5 text-2xl font-semibold text-app-accent">
-              {waterTrainings.length}
-            </p>
-
-            <p className="mt-0.5 text-xs text-app-faint">
-              Diese Woche
-            </p>
-          </div>
-
-          <div className="bg-app-surface px-4 py-3.5">
-            <p className="text-[11px] font-medium uppercase tracking-wider text-app-muted">
-              Land
-            </p>
-
-            <p className="mt-1.5 text-2xl font-semibold text-app-good">
-              {landTrainings.length}
-            </p>
-
-            <p className="mt-0.5 text-xs text-app-faint">
-              Diese Woche
-            </p>
-          </div>
-        </section>
-
-        {/* Kommende Einheiten */}
-        <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
-          <div className="flex flex-col gap-3 border-b border-app-border px-4 py-3 md:flex-row md:items-center md:justify-between">
-            <h2 className="text-sm font-semibold text-app-heading">
-              Kommende Einheiten
-            </h2>
-
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={selectedTeam}
-                onChange={(event) =>
-                  setSelectedTeam(event.target.value)
-                }
-                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-app-heading outline-none transition focus:border-app-accent"
-              >
-                <option value="all">
-                  Alle Teams
-                </option>
-
-                {teams.map((team) => (
-                  <option
-                    key={team.id}
-                    value={team.id}
-                  >
-                    {team.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={selectedType}
-                onChange={(event) =>
-                  setSelectedType(
-                    event.target.value as TypeFilter
-                  )
-                }
-                className="rounded-lg border border-app-border bg-app-bg px-3 py-1.5 text-sm text-app-heading outline-none transition focus:border-app-accent"
-              >
-                <option value="all">
-                  Alle Arten
-                </option>
-
-                <option value="water">
-                  Wasser
-                </option>
-
-                <option value="land">
-                  Land
-                </option>
-              </select>
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="px-4 py-10 text-center text-sm text-app-muted">
-              Trainings werden geladen...
-            </div>
-          ) : filteredTrainings.length === 0 ? (
-            <div className="px-4 py-10 text-center">
-              <p className="text-sm text-app-faint">
-                Keine kommenden Einheiten gefunden.
-              </p>
-
-              <Link
-                href="/coach/training/new"
-                className="mt-4 inline-block rounded-lg bg-app-accent px-4 py-2 text-sm font-semibold text-app-accent-ink transition hover:brightness-110"
-              >
-                Erstes Training erstellen
-              </Link>
-            </div>
-          ) : (
-            /*
-              Dichte Liste statt grosser Karten: beim Planen
-              vergleicht man Einheiten, statt eine zu lesen.
-            */
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[860px] text-left">
-                <thead>
-                  <tr className="border-b border-app-border text-[11px] uppercase tracking-wider text-app-faint">
-                    <th className="px-4 py-2.5 font-medium">
-                      Datum
-                    </th>
-
-                    <th className="px-4 py-2.5 font-medium">
-                      Zeit
-                    </th>
-
-                    <th className="px-4 py-2.5 font-medium">
-                      Einheit
-                    </th>
-
-                    <th className="px-4 py-2.5 font-medium">
-                      Team
-                    </th>
-
-                    <th className="px-4 py-2.5 font-medium">
-                      Art
-                    </th>
-
-                    <th className="px-4 py-2.5 text-right font-medium">
-                      Dauer
-                    </th>
-
-                    <th className="px-4 py-2.5 text-right font-medium">
-                      Umfang
-                    </th>
-
-                    <th className="px-4 py-2.5 text-right font-medium">
-                      Aktionen
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody className="divide-y divide-app-border">
-                  {filteredTrainings.map(
-                    (training) => {
-                      const isToday =
-                        training.session_date === today;
-
-                      return (
-                        <tr
-                          key={training.id}
-                          className="transition hover:bg-app-elevated/40"
-                        >
-                          <td className="px-4 py-2.5">
-                            <Link
-                              href={`/coach/training/session/${training.id}`}
-                              className={`text-sm font-medium ${
-                                isToday
-                                  ? "text-app-accent"
-                                  : "text-app-text"
-                              }`}
-                            >
-                              {isToday
-                                ? "Heute"
-                                : formatDate(
-                                    training.session_date
-                                  )}
-                            </Link>
-                          </td>
-
-                          <td className="px-4 py-2.5 text-sm text-app-text">
-                            {training.start_time
-                              ? training.start_time.slice(0, 5)
-                              : "—"}
-                          </td>
-
-                          <td className="px-4 py-2.5">
-                            <Link
-                              href={`/coach/training/session/${training.id}`}
-                              className="block max-w-[26rem] truncate text-sm font-medium text-app-heading hover:underline"
-                            >
-                              {training.title}
-                            </Link>
-
-                            {training.focus && (
-                              <span className="mt-0.5 block max-w-[26rem] truncate text-xs text-app-faint">
-                                {training.focus}
-                              </span>
-                            )}
-                          </td>
-
-                          <td className="px-4 py-2.5 text-sm text-app-muted">
-                            {getTeamName(training.team_id)}
-                          </td>
-
-                          <td className="px-4 py-2.5">
-                            <span
-                              className={`rounded px-2 py-0.5 text-[11px] font-medium ${
-                                training.training_type === "water"
-                                  ? "bg-app-accent/15 text-app-accent"
-                                  : "bg-app-good/15 text-app-good"
-                              }`}
-                            >
-                              {training.training_type === "water"
-                                ? "Wasser"
-                                : "Land"}
-                            </span>
-                          </td>
-
-                          <td className="px-4 py-2.5 text-right text-sm text-app-text">
-                            {training.duration_minutes !== null
-                              ? `${training.duration_minutes} min`
-                              : "—"}
-                          </td>
-
-                          <td className="px-4 py-2.5 text-right text-sm text-app-text">
-                            {training.training_type === "water" &&
-                            training.total_meters !== null
-                              ? `${training.total_meters.toLocaleString(
-                                  "de-DE"
-                                )} m`
-                              : "—"}
-                          </td>
-
-                          <td className="whitespace-nowrap px-4 py-2.5 text-right text-xs">
-                            <Link
-                              href={`/coach/training/new?session=${training.id}`}
-                              className="text-app-muted transition hover:text-app-heading"
-                            >
-                              Bearbeiten
-                            </Link>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const error = await printTraining(training.id);
-                                if (error) setMessage(error);
-                              }}
-                              className="ml-3 text-app-muted transition hover:text-app-heading"
-                            >
-                              Drucken
-                            </button>
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                if (!window.confirm(`Training „${training.title}“ vom ${formatDate(training.session_date)} wirklich löschen? Das kann nicht rückgängig gemacht werden.`)) return;
-                                const error = await deleteTraining(training.id);
-                                if (error) {
-                                  setMessage(error);
-                                  return;
-                                }
-                                setTrainings((current) => current.filter((item) => item.id !== training.id));
-                              }}
-                              className="ml-3 text-app-muted transition hover:text-app-bad"
-                            >
-                              Löschen
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-
-        {/* Planungsbereiche */}
-        <section className="mt-5 overflow-hidden rounded-xl border border-app-border bg-app-surface">
-          <div className="border-b border-app-border px-4 py-3">
-            <h2 className="text-sm font-semibold text-app-heading">
-              Planung
-            </h2>
-          </div>
-
-          <ul className="divide-y divide-app-border">
-            <li>
-              <Link
-                href="/coach/training/season"
-                className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
-              >
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium text-app-heading">
-                    Jahresplanung
-                  </span>
-
-                  <span className="mt-0.5 block text-xs text-app-faint">
-                    Makrozyklen, Mesozyklen und Saisontermine
-                  </span>
-                </span>
-
-                <span className="shrink-0 text-app-muted">
-                  →
-                </span>
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                href="/coach/training/week/1"
-                className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
-              >
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium text-app-heading">
-                    Wochenplanung
-                  </span>
-
-                  <span className="mt-0.5 block text-xs text-app-faint">
-                    Montag bis Sonntag mit allen Einheiten
-                  </span>
-                </span>
-
-                <span className="shrink-0 text-app-muted">
-                  →
-                </span>
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                href="/coach/training/new"
-                className="flex items-center justify-between gap-4 px-4 py-3 transition hover:bg-app-elevated/40"
-              >
-                <span className="min-w-0">
-                  <span className="block text-sm font-medium text-app-heading">
-                    Training schreiben
-                  </span>
-
-                  <span className="mt-0.5 block text-xs text-app-faint">
-                    Wasser- oder Landtraining erstellen
-                  </span>
-                </span>
-
-                <span className="shrink-0 text-app-muted">
-                  →
-                </span>
-              </Link>
-            </li>
-          </ul>
-        </section>
-      </div>
-    </main>
+    <Suspense fallback={<p className="text-sm text-app-muted"><Loader /></p>}>
+      <WochenplanView />
+    </Suspense>
   );
 }

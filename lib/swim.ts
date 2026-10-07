@@ -28,6 +28,7 @@ export type Swimmer = {
 
 /* Persoenliche Daten fuer den Tab "Infos" */
 export type SwimmerDetails = Swimmer & {
+  profile_id?: string | null;
   birth_date: string | null;
   nationality: string | null;
   dsv_id: string | null;
@@ -37,7 +38,7 @@ export type SwimmerDetails = Swimmer & {
 };
 
 export const SWIMMER_DETAIL_COLUMNS =
-  "id, first_name, last_name, birth_year, gender, birth_date, nationality, dsv_id, club_name, club_id, club_since";
+  "id, first_name, last_name, birth_year, gender, birth_date, nationality, dsv_id, club_name, club_id, club_since, profile_id";
 
 export type ResultKind = "einzel" | "staffel" | "freiwasser";
 

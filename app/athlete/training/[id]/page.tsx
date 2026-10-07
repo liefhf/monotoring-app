@@ -102,11 +102,7 @@ export default function AthleteTrainingDetailPage() {
   const [message, setMessage] =
     useState("");
 
-  const [feedbackMessage, setFeedbackMessage] =
-    useState("");
 
-  const [savingFeedback, setSavingFeedback] =
-    useState(false);
 
   const [rpe, setRpe] = useState(6);
 
@@ -119,7 +115,6 @@ export default function AthleteTrainingDetailPage() {
   async function loadTraining() {
     setLoading(true);
     setMessage("");
-    setFeedbackMessage("");
 
     const {
       data: { user },
@@ -190,9 +185,7 @@ export default function AthleteTrainingDetailPage() {
       .maybeSingle();
 
     if (feedbackError) {
-      setFeedbackMessage(
-        `Vorhandene Rückmeldung konnte nicht geladen werden: ${feedbackError.message}`
-      );
+      setMessage("Vorhandene Rückmeldung konnte nicht geladen werden.");
     }
 
     if (feedbackData) {
@@ -360,64 +353,6 @@ export default function AthleteTrainingDetailPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     loadTraining();
   }, [trainingId]);
-
-  async function handleSaveFeedback() {
-    setFeedbackMessage("");
-    setSavingFeedback(true);
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      setFeedbackMessage(
-        "Athlete konnte nicht geladen werden."
-      );
-
-      setSavingFeedback(false);
-      return;
-    }
-
-    const { error } = await supabase
-      .from("training_feedback")
-      .upsert(
-        {
-          training_session_id:
-            trainingId,
-
-          athlete_id: user.id,
-
-          rpe,
-
-          comment:
-            feedback.trim() === ""
-              ? null
-              : feedback.trim(),
-
-          completed,
-        },
-        {
-          onConflict:
-            "training_session_id,athlete_id",
-        }
-      );
-
-    if (error) {
-      setFeedbackMessage(
-        `Rückmeldung konnte nicht gespeichert werden: ${error.message}`
-      );
-
-      setSavingFeedback(false);
-      return;
-    }
-
-    setFeedbackMessage(
-      "Rückmeldung wurde gespeichert ✅"
-    );
-
-    setSavingFeedback(false);
-  }
 
   const blocks =
     useMemo<TrainingBlock[]>(() => {
@@ -877,136 +812,21 @@ export default function AthleteTrainingDetailPage() {
         </section>
       )}
 
-      {/* Rückmeldung */}
-      <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
-        <div className="border-b border-app-border p-5">
-          <h2 className="text-xl font-semibold">
-            Rückmeldung zum Training
-          </h2>
-
-          <p className="mt-1 text-sm text-app-muted">
-            Diese Rückmeldung wird
-            dauerhaft gespeichert und kann
-            später vom Coach eingesehen
-            werden.
+      {/* Rueckmeldung: nur noch EIN Weg (Seite /athlete/feedback/[id]),
+          damit Athleten nicht zwei verschiedene Formulare sehen. */}
+      <section className="mt-6 flex flex-wrap items-center gap-3 rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-5">
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-app-heading">Rückmeldung</p>
+          <p className="text-sm text-app-muted">
+            {rpe ? `Abgegeben: Anstrengung ${rpe}/10${completed ? "" : " · nicht vollständig absolviert"}` : "Wie anstrengend war das Training? Dauert 10 Sekunden."}
           </p>
         </div>
-
-        <div className="p-5">
-          {feedbackMessage && (
-            <div className="mb-6 rounded-xl border border-app-border bg-app-bg p-4 text-sm text-app-text">
-              {feedbackMessage}
-            </div>
-          )}
-
-          <div>
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-medium">
-                  Wie anstrengend war die
-                  Einheit?
-                </p>
-
-                <p className="mt-1 text-sm text-app-faint">
-                  RPE: 1 = sehr leicht, 10
-                  = maximal
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-app-bg px-4 py-2 text-xl font-bold">
-                {rpe} / 10
-              </div>
-            </div>
-
-            <input
-              type="range"
-              min="1"
-              max="10"
-              value={rpe}
-              onChange={(event) =>
-                setRpe(
-                  Number(
-                    event.target.value
-                  )
-                )
-              }
-              className="mt-5 w-full"
-            />
-
-            <div className="mt-2 flex justify-between text-xs text-app-faint">
-              <span>sehr leicht</span>
-              <span>mittel</span>
-              <span>maximal</span>
-            </div>
-          </div>
-
-          <div className="mt-8">
-            <label className="mb-2 block font-medium">
-              Kommentar
-            </label>
-
-            <textarea
-              value={feedback}
-              onChange={(event) =>
-                setFeedback(
-                  event.target.value
-                )
-              }
-              rows={4}
-              placeholder="Wie lief die Einheit? Gab es Probleme oder Besonderheiten?"
-              className="w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 outline-none"
-            />
-          </div>
-
-          <div className="mt-6 flex flex-col gap-4 rounded-xl border border-app-border bg-app-bg p-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="font-medium">
-                Training abgeschlossen
-              </p>
-
-              <p className="mt-1 text-sm text-app-faint">
-                Aktiviere dies, wenn du die
-                Einheit absolviert hast.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              onClick={() =>
-                setCompleted(
-                  (current) =>
-                    !current
-                )
-              }
-              className={`rounded-xl px-5 py-3 text-sm font-medium ${
-                completed
-                  ? "bg-app-good text-app-signal-ink"
-                  : "border border-app-border hover:bg-app-elevated"
-              }`}
-            >
-              {completed
-                ? "✓ Abgeschlossen"
-                : "Als abgeschlossen markieren"}
-            </button>
-          </div>
-
-          <div className="mt-6 flex justify-end">
-            <button
-              type="button"
-              onClick={
-                handleSaveFeedback
-              }
-              disabled={
-                savingFeedback
-              }
-              className="rounded-xl bg-app-accent px-5 py-3 text-sm font-medium text-app-accent-ink hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {savingFeedback
-                ? "Wird gespeichert..."
-                : "Rückmeldung speichern"}
-            </button>
-          </div>
-        </div>
+        <Link
+          href={`/athlete/feedback/${trainingId}`}
+          className="inline-flex min-h-11 items-center rounded-xl bg-app-accent px-[18px] text-sm font-bold text-app-accent-ink transition hover:brightness-110"
+        >
+          {rpe ? "Ändern" : "Bewerten"}
+        </Link>
       </section>
     </div>
   );

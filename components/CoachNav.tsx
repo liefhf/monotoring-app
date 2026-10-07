@@ -38,18 +38,20 @@ export const coachNavigation: NavGroup[] = [
     tone: "bg-app-good/20 text-app-good",
     items: [
       { href: "/coach/schwimmer", label: "Athleten", icon: "athlete" },
-      { href: "/coach/anwesenheit", label: "Anwesenheit", icon: "check" },
       { href: "/coach/athleten-check", label: "Athleten-Check", icon: "heart" },
+      { href: "/coach/anwesenheit", label: "Anwesenheit", icon: "check" },
+      { href: "/coach/bericht", label: "Wochenbericht", icon: "news" },
       { href: "/coach/teams", label: "Teams", icon: "teams" },
     ],
   },
   {
-    title: "Planung",
+    title: "Training",
     icon: "calendar",
     tone: "bg-app-accent-soft/20 text-app-accent-soft",
     items: [
-      { href: "/coach/wochenplan", label: "Wochenplan", icon: "calendar" },
-      { href: "/coach/training", label: "Training", icon: "training" },
+      { href: "/coach/training", label: "Trainingswoche", icon: "training" },
+      { href: "/coach/training/season", label: "Saisonplanung", icon: "calendar" },
+      { href: "/coach/analytics", label: "Belastungsverlauf", icon: "chart" },
       { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
     ],
   },
@@ -59,7 +61,7 @@ export const coachNavigation: NavGroup[] = [
     tone: "bg-app-soon/20 text-app-soon",
     items: [
       { href: "/coach/competitions", label: "Wettkämpfe", icon: "trophy" },
-      { href: "/coach/analytics/wettkampf", label: "Auswertung", icon: "chart" },
+      { href: "/coach/analytics/wettkampf", label: "Ergebnisse", icon: "chart" },
       { href: "/coach/meldehilfe", label: "Meldehilfe", icon: "stopwatch" },
       { href: "/coach/dms", label: "DMS-Aufstellung", icon: "teams" },
     ],
@@ -74,12 +76,13 @@ export const coachNavigation: NavGroup[] = [
     ],
   },
   {
-    title: "Infos",
+    title: "Kommunikation",
     icon: "news",
     tone: "bg-app-info/20 text-app-info",
     items: [
-      { href: "/coach/infoboard", label: "Infoboard", icon: "book" },
+      { href: "/coach/news", label: "News", icon: "news" },
       { href: "/coach/gruppen", label: "Gruppenräume", icon: "chat" },
+      { href: "/coach/infoboard", label: "Wissen", icon: "book" },
     ],
   },
 ];
@@ -88,25 +91,23 @@ export const coachNavigation: NavGroup[] = [
 const mobileTabs: { href: string; label: string; icon: IconName; group: string | null }[] = [
   { href: "/coach", label: "Start", icon: "home", group: null },
   { href: "/coach/schwimmer", label: "Team", icon: "teams", group: "Team" },
-  { href: "/coach/wochenplan", label: "Planung", icon: "calendar", group: "Planung" },
+  { href: "/coach/training", label: "Training", icon: "training", group: "Training" },
 ];
 
+const allHrefs = coachNavigation.flatMap((group) => group.items.map((item) => item.href)).concat("/coach/settings");
+
+/*
+ * Aktiv ist der Menuepunkt mit dem laengsten passenden Pfad - so ist auf
+ * /coach/training/season nur "Saisonplanung" markiert, nicht zusaetzlich
+ * "Trainingswoche". "/coach" ist nur auf dem Dashboard selbst aktiv.
+ */
 function isActive(pathname: string, href: string) {
-  /*
-   * "/coach" ist nur dann aktiv, wenn man wirklich auf
-   * dem Dashboard steht - sonst waere es auf jeder
-   * Unterseite mit hervorgehoben.
-   */
   if (href === "/coach") {
     return pathname === "/coach";
   }
-
-  /* Die Wettkampf-Auswertung hat einen eigenen Menuepunkt */
-  if (href === "/coach/analytics") {
-    return pathname === href;
-  }
-
-  return pathname === href || pathname.startsWith(`${href}/`);
+  const matches = (candidate: string) => pathname === candidate || pathname.startsWith(`${candidate}/`);
+  if (!matches(href)) return false;
+  return !allHrefs.some((other) => other !== href && other.length > href.length && other.startsWith(href) && matches(other));
 }
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
@@ -181,7 +182,7 @@ function isTabActive(pathname: string, group: string | null) {
   const ownerTitle = owner?.title ?? (pathname === "/coach" ? null : "more");
 
   if (group === "more") {
-    return ownerTitle !== null && ownerTitle !== "Team" && ownerTitle !== "Planung";
+    return ownerTitle !== null && ownerTitle !== "Team" && ownerTitle !== "Training";
   }
 
   return ownerTitle === group;

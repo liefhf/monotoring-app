@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, wellnessScore } from "@/lib/monitoring";
 import { attendanceStats, AttendanceStatus } from "@/lib/attendance";
+import { HealthEvent, healthFlags } from "@/lib/health";
 
 /*
  * Athleten-Check fuer den Coach: wer braucht heute Aufmerksamkeit?
@@ -13,7 +14,7 @@ import { attendanceStats, AttendanceStatus } from "@/lib/attendance";
  * warum es wichtig ist und was zu pruefen ist (lib/monitoring.ts).
  */
 
-type Row = {
+export type Row = {
   id: string;
   name: string;
   acwr: Acwr;
@@ -28,7 +29,7 @@ type Row = {
 const DAY = 86_400_000;
 const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
-async function loadRows(today: string, teamId: string | null, swimmerId: string | null = null): Promise<Row[]> {
+export async function loadRows(today: string, teamId: string | null, swimmerId: string | null = null): Promise<Row[]> {
   const since35 = isoDay(Date.parse(today) - 35 * DAY);
   const since28 = isoDay(Date.parse(today) - 28 * DAY);
   const since3 = new Date(Date.parse(today) - 3 * DAY).toISOString();
@@ -49,7 +50,8 @@ async function loadRows(today: string, teamId: string | null, swimmerId: string 
   const sessionIds = sessions.map((session) => session.id);
   const profileIds = swimmers.map((swimmer) => swimmer.profile_id).filter(Boolean) as string[];
 
-  const [feedbackRes, attendanceRes, wellnessRes, painRes] = await Promise.all([
+  const swimmerIds = swimmers.map((swimmer) => swimmer.id);
+  const [feedbackRes, attendanceRes, wellnessRes, painRes, healthRes] = await Promise.all([
     sessionIds.length
       ? supabase.from("training_feedback").select("training_session_id, athlete_id, rpe, completed").in("training_session_id", sessionIds)
       : Promise.resolve({ data: [] }),
@@ -62,7 +64,12 @@ async function loadRows(today: string, teamId: string | null, swimmerId: string 
     profileIds.length
       ? supabase.from("pain_reports").select("athlete_id, created_at, pain_level, spot_label, body_region").in("athlete_id", profileIds).gte("created_at", since3)
       : Promise.resolve({ data: [] }),
+    /* Gesundheit (Skript 23) - fehlt die Tabelle, bleibt die Liste einfach leer */
+    swimmerIds.length
+      ? supabase.from("health_events").select("*").in("swimmer_id", swimmerIds).or(`end_date.is.null,end_date.gte.${today},clearance.eq.offen`)
+      : Promise.resolve({ data: [] }),
   ]);
+  const health = (healthRes.data ?? []) as HealthEvent[];
 
   const feedback = (feedbackRes.data ?? []) as { training_session_id: string; athlete_id: string; rpe: number | null; completed: boolean | null }[];
   const attendance = (attendanceRes.data ?? []) as { training_session_id: string; swimmer_id: string; status: AttendanceStatus }[];
@@ -102,7 +109,10 @@ async function loadRows(today: string, teamId: string | null, swimmerId: string 
     /* letzter Check-in innerhalb von 3 Wochen; nur bei Athleten mit Login sinnvoll */
     const lastCheckIn = swimmer.profile_id ? (readinessList[0]?.entry_date ?? null) : null;
     const attendanceRate = ownAttendance.length >= 3 ? attendanceStats(ownAttendance).rate : null;
-    const flags = buildFlags({ acwr: load, painReports: ownPain, wellness: readinessList, attendanceRate, lastCheckIn, today });
+    const flags = [
+      ...healthFlags(health.filter((item) => item.swimmer_id === swimmer.id), today).map((flag) => ({ ...flag, kind: "gesundheit" as const })),
+      ...buildFlags({ acwr: load, painReports: ownPain, wellness: readinessList, attendanceRate, lastCheckIn, today }),
+    ].sort((a, b) => (a.level === b.level ? 0 : a.level === "rot" ? -1 : 1));
     const latestReadiness = readinessList.find((item) => (Date.parse(today) - Date.parse(item.entry_date)) / DAY <= 2);
     return {
       id: swimmer.id,
@@ -215,7 +225,7 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
                   <span className="mb-1 block text-[15px] font-bold text-app-heading">{row.name}</span>
                   <ul className="space-y-1">
                     {row.flags.slice(0, 2).map((flag) => (
-                      <FlagLine key={flag.kind} flag={flag} compact />
+                      <FlagLine key={flag.kind + flag.text} flag={flag} compact />
                     ))}
                   </ul>
                   {row.flags[0] && <span className="mt-1 block pl-[18px] text-[13px] text-app-muted">→ {row.flags[0].check}</span>}
@@ -268,7 +278,7 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
                   <td colSpan={6} className="px-5 pb-3 pt-1">
                     <ul className="space-y-1.5">
                       {row.flags.map((flag) => (
-                        <FlagLine key={flag.kind} flag={flag} />
+                        <FlagLine key={flag.kind + flag.text} flag={flag} />
                       ))}
                     </ul>
                   </td>
@@ -330,7 +340,7 @@ export function AthleteStatusCard({ swimmerId }: { swimmerId: string }) {
       {row.flags.length ? (
         <ul className="mt-4 space-y-2.5">
           {row.flags.map((flag) => (
-            <FlagLine key={flag.kind} flag={flag} />
+            <FlagLine key={flag.kind + flag.text} flag={flag} />
           ))}
         </ul>
       ) : (

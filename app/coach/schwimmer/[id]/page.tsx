@@ -20,6 +20,10 @@ import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import PainPanel from "@/components/PainPanel";
 import { AthleteStatusCard } from "@/components/RedFlagsPanel";
+import AthleteWellnessPanel from "@/components/AthleteWellnessPanel";
+import HealthPanel from "@/components/HealthPanel";
+import DocumentsPanel from "@/components/DocumentsPanel";
+import FitnessTestsPanel from "@/components/FitnessTestsPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
 import LactatePanel from "@/components/LactatePanel";
 import FormCurvePanel from "@/components/FormCurvePanel";
@@ -70,31 +74,40 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "ueberblick" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
+type Tab = "ueberblick" | "befinden" | "gesundheit" | "tests" | "dokumente" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
 
 /* Tabs in fuenf Gruppen - die Seite war mit 11 Tabs nebeneinander unuebersichtlich */
+/*
+ * Ein Athlet, eine Seite. Reihenfolge nach Haeufigkeit im Traineralltag:
+ * erst Lage (Ueberblick), dann Befinden/Training, Gesundheit, Zeiten,
+ * Diagnostik, zuletzt Stammdaten. Frueher lagen Befinden und
+ * Trainings-Rueckmeldungen auf einer eigenen Seite (/coach/athletes/[id]).
+ */
 const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
   { label: "Überblick", tabs: ["ueberblick"] },
-  { label: "Profil", tabs: ["infos", "fokus"] },
-  { label: "Ergebnisse", tabs: ["bahn", "bestzeiten", "staffel", "wettkaempfe"] },
-  { label: "Entwicklung", tabs: ["entwicklung", "pflichtzeiten"] },
-  { label: "Leistung", tabs: ["form", "laktat"] },
-  { label: "Gesundheit", tabs: ["schmerzen"] },
+  { label: "Befinden & Training", tabs: ["befinden", "form"] },
+  { label: "Gesundheit", tabs: ["gesundheit"] },
+  { label: "Zeiten & Wettkämpfe", tabs: ["bestzeiten", "entwicklung", "pflichtzeiten", "bahn", "staffel", "wettkaempfe"] },
+  { label: "Diagnostik", tabs: ["tests", "laktat"] },
+  { label: "Stammdaten", tabs: ["infos", "fokus", "dokumente"] },
 ];
 
 const TABS: { value: Tab; label: string }[] = [
   { value: "ueberblick", label: "Überblick" },
-  { value: "infos", label: "Infos" },
-  { value: "bahn", label: "25 & 50m Bahn" },
-  { value: "staffel", label: "Staffeln & Freiwasser" },
+  { value: "befinden", label: "Befinden & Rückmeldungen" },
+  { value: "form", label: "Formkurve" },
+  { value: "gesundheit", label: "Gesundheit" },
   { value: "bestzeiten", label: "Bestzeiten" },
   { value: "entwicklung", label: "Entwicklung" },
   { value: "pflichtzeiten", label: "Pflichtzeiten" },
-  { value: "fokus", label: "Trainingsfokus" },
-  { value: "form", label: "Form" },
-  { value: "laktat", label: "Laktat" },
+  { value: "bahn", label: "Alle Ergebnisse" },
+  { value: "staffel", label: "Staffeln & Freiwasser" },
   { value: "wettkaempfe", label: "Saison-Auswertung" },
-  { value: "schmerzen", label: "Schmerzen" },
+  { value: "tests", label: "Testbatterie" },
+  { value: "laktat", label: "Laktat" },
+  { value: "infos", label: "Infos" },
+  { value: "fokus", label: "Trainingsfokus" },
+  { value: "dokumente", label: "Dokumente" },
 ];
 
 /* Felder, die im Tab "Infos" bearbeitet werden (alle als Text im Formular) */
@@ -197,7 +210,9 @@ export default function SchwimmerDetailPage() {
 
   /* ?tab=schmerzen oeffnet direkt einen Tab (z. B. aus einem Hinweis) */
   const searchParams = useSearchParams();
-  const initialTab = TABS.find((item) => item.value === searchParams.get("tab"))?.value ?? "ueberblick";
+  /* alte Links (?tab=schmerzen) landen im zusammengelegten Bereich Gesundheit */
+  const requestedTab = searchParams.get("tab") === "schmerzen" ? "gesundheit" : searchParams.get("tab");
+  const initialTab = TABS.find((item) => item.value === requestedTab)?.value ?? "ueberblick";
   const [tab, setTab] = useState<Tab>(initialTab);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [standardId, setStandardId] = useState("");
@@ -571,7 +586,9 @@ export default function SchwimmerDetailPage() {
           />
         )}
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        {/* Das Ergebnisjahr betrifft nur die Ergebnislisten - sonst ausgeblendet */}
+        {(["bahn", "staffel"] as Tab[]).includes(tab) && (
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <span className="text-sm font-medium text-app-text">Ergebnisjahr:</span>
           <select
             value={selectedYear}
@@ -587,6 +604,7 @@ export default function SchwimmerDetailPage() {
             ))}
           </select>
         </div>
+        )}
 
         <nav aria-label="Bereiche" className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
           {TAB_GROUPS.map((group) => (
@@ -648,8 +666,9 @@ export default function SchwimmerDetailPage() {
                   ["bestzeiten", "Bestzeiten"],
                   ["pflichtzeiten", "Pflichtzeiten"],
                   ["entwicklung", "Entwicklung"],
-                  ["schmerzen", "Schmerzen"],
-                  ["laktat", "Laktat"],
+                  ["befinden", "Befinden"],
+                  ["gesundheit", "Gesundheit"],
+                  ["tests", "Tests"],
                 ] as [Tab, string][]
               ).map(([value, label]) => (
                 <button
@@ -871,7 +890,20 @@ export default function SchwimmerDetailPage() {
 
         {tab === "wettkaempfe" && <SwimmerSeasonReport swimmerId={swimmerId} />}
 
-        {tab === "schmerzen" && <PainPanel swimmerId={swimmerId} />}
+        {tab === "gesundheit" && (
+          <>
+            <HealthPanel swimmerId={swimmerId} />
+            <div className="mt-6">
+              <PainPanel swimmerId={swimmerId} />
+            </div>
+          </>
+        )}
+
+        {tab === "befinden" && <AthleteWellnessPanel profileId={swimmer.profile_id ?? null} />}
+
+        {tab === "tests" && <FitnessTestsPanel swimmerId={swimmerId} />}
+
+        {tab === "dokumente" && <DocumentsPanel swimmerId={swimmerId} />}
 
         {tab === "laktat" && <LactatePanel swimmerId={swimmerId} />}
 

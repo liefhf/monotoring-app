@@ -517,7 +517,7 @@ export default function DailyCheckInPage() {
               const tone = readiness.level === "bereit" ? "text-app-good" : readiness.level === "vorsicht" ? "text-app-warn" : "text-app-bad";
               return (
                 <div className="mt-4 rounded-xl border border-app-border p-4">
-                  <p className="text-xs text-app-muted">Deine Readiness heute</p>
+                  <p className="text-xs text-app-muted">Dein Befinden heute</p>
                   <p className={`text-5xl font-bold ${tone}`}>{readiness.score}</p>
                   <p className={`font-semibold ${tone}`}>{readiness.label}</p>
                   {readiness.hints.length > 0 && <p className="mt-1 text-xs text-app-muted">{readiness.hints.join(" · ")}</p>}

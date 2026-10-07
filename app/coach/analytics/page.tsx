@@ -1101,7 +1101,7 @@ export default function CoachAnalyticsPage() {
             </p>
 
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
-              Auswertungen
+              Belastungsverlauf
             </h1>
 
             <p className="mt-1.5 text-sm text-app-muted sm:text-base">

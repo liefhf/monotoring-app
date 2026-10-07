@@ -81,7 +81,7 @@ export type FlagLevel = "rot" | "gelb";
  */
 export type Flag = {
   level: FlagLevel;
-  kind: "acwr" | "schmerz" | "befinden" | "anwesenheit" | "checkin";
+  kind: "acwr" | "schmerz" | "befinden" | "anwesenheit" | "checkin" | "gesundheit";
   text: string;
   reason: string;
   check: string;

@@ -262,3 +262,52 @@ export async function deleteTraining(sessionId: string) {
   const { error } = await supabase.from("training_sessions").delete().eq("id", sessionId);
   return error ? `Training konnte nicht gelöscht werden: ${error.message}` : null;
 }
+
+/*
+ * Einheit kopieren (z. B. "wie letzte Woche"): legt eine neue Einheit am
+ * Zieldatum an und uebernimmt Abschnitte, Serien und Landuebungen.
+ * Nur neue Zeilen - die Vorlage bleibt unveraendert. Gibt die neue ID
+ * oder eine Fehlermeldung zurueck.
+ */
+const COPY_SKIP = new Set(["id", "created_at", "updated_at"]);
+const withoutKeys = (row: Record<string, unknown>, extra: Record<string, unknown> = {}) =>
+  ({ ...Object.fromEntries(Object.entries(row).filter(([key]) => !COPY_SKIP.has(key))), ...extra });
+
+export async function copyTraining(sessionId: string, targetDate: string): Promise<{ id: string } | { error: string }> {
+  const { data: session, error } = await supabase.from("training_sessions").select("*").eq("id", sessionId).single();
+  if (error || !session) return { error: "Einheit konnte nicht geladen werden." };
+
+  const { data: created, error: createError } = await supabase
+    .from("training_sessions")
+    .insert(withoutKeys(session as Record<string, unknown>, { session_date: targetDate }))
+    .select("id")
+    .single();
+  if (createError || !created) return { error: "Kopie konnte nicht angelegt werden." };
+  const newId = (created as { id: string }).id;
+
+  const [sections, landRows, warmupRows] = await Promise.all([
+    supabase.from("training_sections").select("*").eq("training_session_id", sessionId).order("sort_order"),
+    supabase.from("training_land_rows").select("*").eq("training_session_id", sessionId),
+    supabase.from("training_warmup_land_rows").select("*").eq("training_session_id", sessionId),
+  ]);
+
+  for (const section of (sections.data ?? []) as Record<string, unknown>[]) {
+    const { data: newSection } = await supabase
+      .from("training_sections")
+      .insert(withoutKeys(section, { training_session_id: newId }))
+      .select("id")
+      .single();
+    if (!newSection) continue;
+    const { data: rows } = await supabase.from("training_rows").select("*").eq("section_id", section.id as string);
+    if (rows?.length) {
+      await supabase.from("training_rows").insert((rows as Record<string, unknown>[]).map((row) => withoutKeys(row, { section_id: (newSection as { id: string }).id })));
+    }
+  }
+  if (landRows.data?.length) {
+    await supabase.from("training_land_rows").insert((landRows.data as Record<string, unknown>[]).map((row) => withoutKeys(row, { training_session_id: newId })));
+  }
+  if (warmupRows.data?.length) {
+    await supabase.from("training_warmup_land_rows").insert((warmupRows.data as Record<string, unknown>[]).map((row) => withoutKeys(row, { training_session_id: newId })));
+  }
+  return { id: newId };
+}

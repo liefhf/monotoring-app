@@ -1841,7 +1841,7 @@ function TrainingEditor() {
         <div className="mb-5">
           {weekFromUrl ? (
             <Link
-              href={`/coach/training/week/${weekFromUrl}`}
+              href={`/coach/training?week=${weekFromUrl}`}
               className="text-sm text-app-muted hover:text-app-heading"
             >
               ← Zurück zur Woche

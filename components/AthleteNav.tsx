@@ -24,11 +24,12 @@ const mainItems: NavItem[] = [
 ];
 
 const moreItems: NavItem[] = [
+  { href: "/athlete/fortschritt", label: "Mein Fortschritt", icon: "chart" },
+  { href: "/athlete/wettkampftag", label: "Wettkampf-Tag", icon: "stopwatch" },
   { href: "/athlete/wettkaempfe", label: "Wettkämpfe", icon: "trophy" },
   { href: "/athlete/news", label: "News", icon: "news" },
   { href: "/athlete/gruppen", label: "Gruppenräume", icon: "chat" },
   { href: "/athlete/pain", label: "Schmerz", icon: "heart" },
-  { href: "/athlete/analytics", label: "Meine Werte", icon: "chart" },
 ];
 
 function isActive(pathname: string, href: string) {

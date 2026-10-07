@@ -14,6 +14,7 @@ import RedFlagsPanel from "@/components/RedFlagsPanel";
 import TodoCard from "@/components/TodoCard";
 import TeamSwitcher from "@/components/TeamSwitcher";
 import MiniCalendar from "@/components/MiniCalendar";
+import DeadlinesCard from "@/components/DeadlinesCard";
 
 /*
  * Coach-Dashboard nach dem Gesamtdesign: Leiste "Heute" mit
@@ -311,7 +312,7 @@ export default function CoachPage() {
             </Tile>
 
             {/* Trainingsumfang der Woche (Mo-So) */}
-            <Tile href={`/coach/wochenplan?week=${weekAnchor}`}>
+            <Tile href={`/coach/training?week=${weekAnchor}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[15px] font-bold text-app-heading">Umfang Woche</p>
@@ -359,7 +360,7 @@ export default function CoachPage() {
         {/* Wochenplan */}
         <Tile className="lg:col-span-12">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Link href={`/coach/wochenplan?week=${weekAnchor}`} className="text-[15px] font-bold text-app-heading hover:text-app-accent-soft">
+            <Link href={`/coach/training?week=${weekAnchor}`} className="text-[15px] font-bold text-app-heading hover:text-app-accent-soft">
               Wochenplan <span className="ml-1 text-[13px] font-semibold text-app-muted">KW {isoWeek(weekAnchor)}</span>
             </Link>
             <div className="flex items-center gap-1.5">
@@ -411,8 +412,9 @@ export default function CoachPage() {
           </ol>
         </Tile>
 
-        {/* To-do */}
-        <div className="lg:col-span-5">
+        {/* To-do und Fristen (Dokumente, die bald ablaufen) */}
+        <div className="space-y-3 sm:space-y-5 lg:col-span-5">
+          <DeadlinesCard />
           <TodoCard teamId={teamId} />
         </div>
 
