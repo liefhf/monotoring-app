@@ -36,7 +36,7 @@ export async function loadTeamSwimmersResult(teamId: string): Promise<{ swimmers
   if (ids.length === 0) return { swimmers: [], failed: false };
   const { data: swimmers, error: swimmerError } = await supabase
     .from("swimmers")
-    .select("id, first_name, last_name, birth_year, gender")
+    .select("id, first_name, last_name, birth_year, gender, profile_id")
     .in("id", ids);
   if (swimmerError) return { swimmers: [], failed: true };
   return { swimmers: sortSwimmers((swimmers ?? []) as Swimmer[]), failed: false };

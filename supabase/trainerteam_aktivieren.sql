@@ -209,3 +209,48 @@ end $$;
 -- Bewusst NICHT geteilt (bleibt beim jeweiligen Trainer): eigene Wettkaempfe und
 -- Wettkampf-Feedback, Pflichtzeiten-Listen, Staffeln, Anmeldelisten zu Terminen.
 -- Ergebnisse der Athleten (swimmer_results) sehen alle Trainer mit Zugriff auf den Athleten.
+
+-- 10) Gemeinsamer Arbeitsweg: nur LESEN, nur unter Trainern mit gemeinsamem Team.
+--     Schreiben bleibt beim jeweiligen Trainer.
+create or replace function public.shares_team_with(p_coach_id uuid)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select p_coach_id = auth.uid() or exists (
+    select 1 from public.teams t
+    where public.is_team_staff(t.id) and public.team_has_staff(t.id, p_coach_id)
+  );
+$$;
+revoke all on function public.shares_team_with(uuid) from public, anon;
+grant execute on function public.shares_team_with(uuid) to authenticated;
+
+-- Wettkampfstarts (Ergebnisse, Feedback) der Athleten, auf die man Zugriff hat
+drop policy if exists "Team staff read starts" on public.competition_starts;
+create policy "Team staff read starts"
+  on public.competition_starts for select to authenticated
+  using (public.coach_can_access_swimmer(swimmer_id));
+
+-- Pflichtzeiten-Listen von Trainern mit gemeinsamem Team
+drop policy if exists "Team staff read standards" on public.qualifying_standards;
+create policy "Team staff read standards"
+  on public.qualifying_standards for select to authenticated
+  using (public.shares_team_with(coach_id));
+
+drop policy if exists "Team staff read qualifying times" on public.qualifying_times;
+create policy "Team staff read qualifying times"
+  on public.qualifying_times for select to authenticated
+  using (exists (select 1 from public.qualifying_standards q where q.id = standard_id and public.shares_team_with(q.coach_id)));
+
+-- Anmeldelisten zu Team-Terminen
+create or replace function public.entry_registrations_for_coach(p_entry_id uuid)
+returns table (athlete_id uuid, first_name text, last_name text, note text, created_at timestamptz)
+language sql stable security definer set search_path = ''
+as $$
+  select r.athlete_id, p.first_name::text, p.last_name::text, r.note, r.created_at
+  from public.calendar_registrations r
+  join public.calendar_entries e on e.id = r.entry_id
+  join public.profiles p on p.id = r.athlete_id
+  where r.entry_id = p_entry_id
+    and (e.coach_id = auth.uid() or (e.team_id is not null and public.is_team_staff(e.team_id)))
+  order by r.created_at;
+$$;

@@ -8,6 +8,8 @@ import {
   useState,
 } from "react";
 import { supabase } from "@/lib/supabase";
+import { SetTimeRow } from "@/lib/setTimes";
+import { athleteSummary, seriesStats } from "@/lib/setAnalysis";
 import {
   PRACTICE_MODE_CLASS,
   PRACTICE_MODE_HINT,
@@ -827,6 +829,41 @@ export default function AthleteTrainingDetailPage() {
           {hasFeedback ? "Ändern" : "Bewerten"}
         </Link>
       </section>
+
+      <AthleteSessionTimes sessionId={trainingId} />
     </div>
+  );
+}
+
+/* Eigene Serienzeiten dieser Einheit - einfach und ohne Wertung (RLS: nur eigene Zeilen) */
+function AthleteSessionTimes({ sessionId }: { sessionId: string }) {
+  const [rows, setRows] = useState<SetTimeRow[] | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("training_set_times")
+      .select("*")
+      .eq("training_session_id", sessionId)
+      .then(({ data, error }) => !cancelled && setRows(error ? [] : ((data ?? []) as SetTimeRow[])));
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionId]);
+  const list = (rows ?? [])
+    .map((row) => ({ row, summary: athleteSummary(seriesStats({ times_ms: row.times_ms, missed_reps: row.missed_reps ?? [], target_ms: row.target_ms ?? null, repetitions: row.repetitions ?? row.times_ms.length })) }))
+    .filter((x) => x.summary);
+  if (!list.length) return null;
+  return (
+    <section className="mt-6 rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-5">
+      <p className="font-semibold text-app-heading">Deine Zeiten</p>
+      <ul className="mt-2 space-y-2">
+        {list.map(({ row, summary }) => (
+          <li key={row.set_label}>
+            <span className="block font-semibold text-app-heading">{row.set_label}</span>
+            <span className="block text-sm text-app-text">{summary}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

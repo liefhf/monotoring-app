@@ -14,7 +14,12 @@ exception when others then perform t.expect('team: C kann sich nicht selbst in f
 
 -- A (Haupttrainer TA) nimmt C auf
 select set_config('request.jwt.sub', :A, false);
-insert into team_coaches (team_id, coach_id) values ('a0000000-0000-0000-0000-000000000000', 'cccccccc-0000-0000-0000-000000000000');
+select t.expect('team: Haupttrainer fuegt C per E-Mail hinzu (App-Weg)', public.add_team_coach('a0000000-0000-0000-0000-000000000000', 'C@Verein.de') is not null);
+select t.expect('team: Trainerliste zeigt C', exists (select 1 from public.team_coach_list('a0000000-0000-0000-0000-000000000000') where coach_id = 'cccccccc-0000-0000-0000-000000000000'));
+do $$ begin
+  perform public.add_team_coach('a0000000-0000-0000-0000-000000000000', 'x@verein.de');
+  perform t.expect('team: Athleten-Konto per E-Mail wird abgelehnt', false);
+exception when others then perform t.expect('team: Athleten-Konto per E-Mail wird abgelehnt', true); end $$;
 do $$ begin
   insert into team_coaches (team_id, coach_id) values ('a0000000-0000-0000-0000-000000000000', 'eeeeeeee-0000-0000-0000-000000000000');
   perform t.expect('team: Athleten-Konto kann nicht Trainer werden', false);
@@ -27,10 +32,22 @@ select t.expect('team: C sieht TB nicht', (select count(*) from teams where name
 select t.expect('team: Team-Inhalte von A fuer TA sichtbar (can_see_team_content)', public.can_see_team_content('aaaaaaaa-0000-0000-0000-000000000000', 'a0000000-0000-0000-0000-000000000000'));
 insert into training_set_times (training_session_id, swimmer_id, set_label) values ('5e000000-0000-0000-0000-000000000000','53000000-0000-0000-0000-000000000000','8x50');
 select t.expect('team: C erfasst Serienzeiten in TA', true);
+select t.expect('team: C liest Wettkampfstart von S1 (von A erfasst)', (select count(*) from competition_starts where swimmer_id = '51000000-0000-0000-0000-000000000000') = 1);
+select t.expect('team: C sieht keinen Start von S2 (TB)', (select count(*) from competition_starts where swimmer_id = '52000000-0000-0000-0000-000000000000') = 0);
+select t.expect('team: C liest Pflichtzeiten-Liste von A, nicht von B', (select string_agg(name, ',') from qualifying_standards) = 'LM A' and (select count(*) from qualifying_times) = 1);
+select t.expect('team: C sieht Anmeldungen zum Team-Termin von A', (select count(*) from public.entry_registrations_for_coach('ca000000-0000-0000-0000-000000000000')) = 1);
+do $$ declare n int; begin
+  update qualifying_standards set name = 'x'; get diagnostics n = row_count;
+  perform t.expect('team: C kann Pflichtzeiten von A nicht aendern', n = 0);
+end $$;
+do $$ begin
+  perform public.add_team_coach('a0000000-0000-0000-0000-000000000000', 'a@verein.de');
+  perform t.expect('team: weiterer Trainer kann keine Trainer hinzufuegen (RPC)', false);
+exception when others then perform t.expect('team: weiterer Trainer kann keine Trainer hinzufuegen (RPC)', true); end $$;
 select t.expect('team: C sieht Athleten S1 und S3 aus TA', (select count(*) from swimmers where first_name in ('S1','S3')) = 2);
 select t.expect('team: C sieht Notizen und Gesundheit von S1', (select count(*) from athlete_notes where body = 'Notiz S1') = 1 and (select count(*) from health_events) = 2);
 select t.expect('team: C sieht S2 (TB) nicht', (select count(*) from swimmers where first_name = 'S2') = 0);
-select t.expect('team: C sieht Einheit von TA', (select count(*) from training_sessions where title = 'TA Montag') = 1);
+select t.expect('team: C sieht Einheit von TA', (select count(*) from training_sessions where id = '5e000000-0000-0000-0000-000000000000') = 1);
 select t.expect('team: C sieht Befinden des Athleten', (select count(*) from befinden_entries) = 1);
 do $$ declare n int; begin
   update swimmers set first_name = 'geaendert' where first_name = 'S1'; get diagnostics n = row_count;
@@ -70,8 +87,9 @@ update team_coaches set revoked_at = now() where coach_id = 'cccccccc-0000-0000-
 select set_config('request.jwt.sub', :C, false);
 select t.expect('team: nach Entzug sieht C keine Athletendaten mehr (auch keine alten)',
   (select count(*) from athlete_notes) + (select count(*) from health_events) + (select count(*) from training_attendance) + (select count(*) from befinden_entries) = 0);
+select t.expect('team: nach Entzug keine Starts/Pflichtzeiten von A', (select count(*) from competition_starts) = 0 and (select count(*) from qualifying_standards) = 0);
 select t.expect('team: nach Entzug ist TA nicht mehr in my_teams() von C', not exists (select 1 from public.my_teams() where name = 'TA'));
-select t.expect('team: nach Entzug sieht C die Einheiten von A nicht mehr', (select count(*) from training_sessions where title = 'TA Montag') = 0);
+select t.expect('team: nach Entzug sieht C die Einheiten von A nicht mehr', (select count(*) from training_sessions where id = '5e000000-0000-0000-0000-000000000000') = 0);
 
 -- Teamwechsel: C wieder aktiv, S1 verlaesst TA
 select set_config('request.jwt.sub', :A, false);

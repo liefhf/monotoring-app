@@ -450,6 +450,8 @@ function TrainingEditor() {
     setMessage("");
     /* Stand beim Oeffnen merken: so faellt auf, wenn die Einheit inzwischen anderswo gespeichert wurde */
     loadedContent.current = await collectContentIds(sessionId);
+    const versionRes = await supabase.from("training_sessions").select("content_version").eq("id", sessionId).maybeSingle();
+    loadedVersion.current = versionRes.error ? undefined : ((versionRes.data as { content_version: number | null } | null)?.content_version ?? 0);
 
     const {
       data: sessionData,
@@ -1423,6 +1425,60 @@ function TrainingEditor() {
 
   const saveLock = useRef(false);
   const loadedContent = useRef<{ sections: string[]; land: string[]; warmup: string[] } | null>(null);
+  /* Version beim Oeffnen (Skript 27); undefined = Datenbank kennt noch kein atomares Speichern */
+  const loadedVersion = useRef<number | undefined>(undefined);
+
+  /* Inhalt der Einheit fuer das atomare Speichern (gleiche Felder wie die Einzel-Inserts) */
+  function buildContentPayload(filledLandRows: LandRow[]) {
+    const text = (value: string) => (value.trim() === "" ? null : value.trim());
+    if (trainingType === "Land") {
+      return {
+        sections: [],
+        land: filledLandRows.map((row, index) => ({ exercise: row.exercise.trim(), sets: text(row.sets), repetitions: text(row.repetitions), weight: text(row.weight), material: text(row.material), intensity: text(row.intensity), sort_order: index })),
+        warmup: [],
+      };
+    }
+    return {
+      sections: waterSections.map((section, index) => ({
+        section_key: section.id,
+        section_name: section.name,
+        practice_mode: section.mode,
+        sort_order: index,
+        rows: section.rows.map((row, rowIndex) => ({
+          repetitions: row.repetitions,
+          distance: row.distance,
+          exercise: text(row.exercise),
+          style: row.style,
+          materials: row.materials,
+          zone: row.zone || null,
+          interval_type: row.intervalType,
+          interval_time: text(row.intervalTime),
+          sort_order: rowIndex,
+        })),
+      })),
+      land: [],
+      warmup: warmUpLand
+        .filter((row) => row.exercise.trim() !== "")
+        .map((row, index) => ({ exercise: row.exercise.trim(), sets: text(row.sets), repetitions: text(row.repetitions), material: text(row.material), intensity: text(row.intensity), sort_order: index })),
+    };
+  }
+
+  /* Atomar speichern. "fallback" = Funktion fehlt (Skript 27 nicht ausgefuehrt) -> bisheriger Weg */
+  async function saveAtomic(sessionId: string, expected: number, sessionValues: Record<string, unknown>, filledLandRows: LandRow[]) {
+    const payload = buildContentPayload(filledLandRows);
+    const { data, error } = await supabase.rpc("save_training_content", {
+      p_session_id: sessionId,
+      p_expected_version: expected,
+      p_session: sessionValues,
+      p_sections: payload.sections,
+      p_land: payload.land,
+      p_warmup: payload.warmup,
+    });
+    if (!error) return { ok: true as const, version: data as number };
+    if (error.code === "PGRST202" || error.code === "42883") return { ok: false as const, reason: "fallback" as const };
+    if (error.code === "40001" || /version_conflict/.test(error.message)) return { ok: false as const, reason: "conflict" as const };
+    return { ok: false as const, reason: "error" as const, message: error.message };
+  }
 
   /* Doppelklick oder Enter + Klick speichern nur einmal */
   async function handleSaveTraining() {
@@ -1543,8 +1599,29 @@ function TrainingEditor() {
       isEditing &&
       sessionFromUrl
     ) {
+      /* Bevorzugt: in einer Datenbank-Transaktion mit Versionsvergleich (Skript 27) */
+      if (loadedVersion.current !== undefined) {
+        const result = await saveAtomic(sessionFromUrl, loadedVersion.current, sessionValues, filledLandRows);
+        if (result.ok) {
+          loadedVersion.current = result.version;
+          setMessage(trainingType === "Land" ? "Landtraining wurde aktualisiert ✅" : "Wassertraining inklusive Warm Up am Land wurde aktualisiert ✅");
+          setSaving(false);
+          return;
+        }
+        if (result.reason === "conflict") {
+          setMessage("Diese Einheit wurde inzwischen an anderer Stelle gespeichert. Es wurde nichts überschrieben. Bitte Seite neu laden – deine Eingaben gehen dabei verloren, ggf. vorher abschreiben.");
+          setSaving(false);
+          return;
+        }
+        if (result.reason === "error") {
+          setMessage(`Training konnte nicht gespeichert werden: ${result.message}. Es wurde nichts geändert – deine Eingaben sind noch da.`);
+          setSaving(false);
+          return;
+        }
+      }
+
       /*
-       * Bearbeiten ohne Datenverlust: zuerst den neuen Inhalt anlegen,
+       * Ohne Skript 27: Bearbeiten ohne Datenverlust: zuerst den neuen Inhalt anlegen,
        * erst danach den alten entfernen. Schlaegt etwas fehl, bleibt die
        * bisherige Fassung vollstaendig erhalten.
        */
@@ -1641,6 +1718,21 @@ function TrainingEditor() {
 
     const trainingId =
       savedTraining.id;
+
+    /* Inhalt der neuen Einheit atomar anlegen (Skript 27); sonst bisheriger Weg */
+    const atomic = await saveAtomic(trainingId, 0, sessionValues, filledLandRows);
+    if (atomic.ok || atomic.reason !== "fallback") {
+      if (!atomic.ok) {
+        await supabase.from("training_sessions").delete().eq("id", trainingId);
+        setMessage(`Training konnte nicht gespeichert werden${atomic.reason === "error" ? `: ${atomic.message}` : ""}. Deine Eingaben sind noch da.`);
+        setSaving(false);
+        return;
+      }
+      setMessage(trainingType === "Land" ? "Landtraining inklusive aller Übungen wurde gespeichert ✅" : "Training inklusive Wasser-Serien und Warm Up am Land wurde gespeichert ✅");
+      clearDraft();
+      setSaving(false);
+      return;
+    }
 
     if (
       trainingType === "Land"

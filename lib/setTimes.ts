@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { checkWrite, classifyError, writeErrorText } from "@/lib/loadState";
 import { formatTime, parseSwimTimeToMs } from "@/lib/swim";
 
 /*
@@ -15,7 +16,82 @@ export type SetTimeRow = {
   interval_seconds: number | null;
   times_ms: (number | null)[];
   note: string | null;
+  /* Kontext (Skript 27, optional) */
+  distance?: number | null;
+  repetitions?: number | null;
+  pool_length?: number | null;
+  zone?: string | null;
+  interval_type?: string | null;
+  target_ms?: number | null;
+  missed_reps?: number[] | null;
+  plan_key?: string | null;
+  materials?: string[] | null;
+  updated_at?: string;
 };
+
+/* Geplante Serie aus dem Trainingsplan */
+export type PlannedSeries = {
+  plan_key: string;
+  label: string;
+  distance: number;
+  repetitions: number;
+  stroke: string | null;
+  zone: string | null;
+  interval_type: string | null;
+  interval_seconds: number | null;
+  materials: string[];
+};
+
+/* "8×200 Kraul GA2 @3:00" */
+export function seriesLabel(row: { repetitions: number; distance: number; style?: string | null; zone?: string | null; interval_type?: string | null; interval_time?: string | null }) {
+  const parts = [`${row.repetitions > 1 ? `${row.repetitions}×` : ""}${row.distance}`];
+  if (row.style && row.style !== "Beliebig") parts.push(row.style);
+  if (row.zone) parts.push(row.zone);
+  if (row.interval_time) parts.push(`${row.interval_type === "@" ? "@" : "P "}${row.interval_time}`);
+  return parts.join(" ");
+}
+
+/* Abgang/Pause "3:00" -> 180 s; "20" (Pause in s) -> 20 */
+export function intervalToSeconds(value: string | null | undefined) {
+  if (!value) return null;
+  const m = /^(\d{1,2}):(\d{2})$/.exec(value.trim());
+  if (m) return Number(m[1]) * 60 + Number(m[2]);
+  const n = Number(value.replace(",", "."));
+  return Number.isFinite(n) && n > 0 ? Math.round(n) : null;
+}
+
+/* Wasser-Serien einer Einheit (nur Serien mit mindestens 2 Wiederholungen) */
+export async function loadPlannedSeries(sessionId: string): Promise<{ series: PlannedSeries[]; failed: boolean }> {
+  const sections = await supabase.from("training_sections").select("id, sort_order").eq("training_session_id", sessionId).order("sort_order");
+  if (sections.error) return { series: [], failed: true };
+  const list = (sections.data ?? []) as { id: string; sort_order: number }[];
+  if (!list.length) return { series: [], failed: false };
+  const rows = await supabase
+    .from("training_rows")
+    .select("section_id, repetitions, distance, style, zone, interval_type, interval_time, materials, sort_order")
+    .in("section_id", list.map((x) => x.id))
+    .order("sort_order");
+  if (rows.error) return { series: [], failed: true };
+  const order = new Map(list.map((x) => [x.id, x.sort_order]));
+  const typed = (rows.data ?? []) as { section_id: string; repetitions: number; distance: number; style: string | null; zone: string | null; interval_type: string | null; interval_time: string | null; materials: string[] | null; sort_order: number }[];
+  return {
+    failed: false,
+    series: typed
+      .filter((row) => row.repetitions >= 2 && row.distance > 0)
+      .sort((a, b) => (order.get(a.section_id) ?? 0) - (order.get(b.section_id) ?? 0) || a.sort_order - b.sort_order)
+      .map((row) => ({
+        plan_key: `${order.get(row.section_id) ?? 0}.${row.sort_order}`,
+        label: seriesLabel(row),
+        distance: row.distance,
+        repetitions: row.repetitions,
+        stroke: row.style && row.style !== "Beliebig" ? row.style : null,
+        zone: row.zone,
+        interval_type: row.interval_type,
+        interval_seconds: intervalToSeconds(row.interval_time),
+        materials: row.materials ?? [],
+      })),
+  };
+}
 
 export type SetStats = {
   count: number;
@@ -77,11 +153,24 @@ export function setStats(times: (number | null)[], intervalSeconds: number | nul
 }
 
 export async function loadSessionSetTimes(sessionId: string) {
+  // "*": Kontextspalten aus Skript 27 sind optional
+  const { data, error } = await supabase.from("training_set_times").select("*").eq("training_session_id", sessionId);
+  const kind = classifyError(error);
+  return { rows: (data ?? []) as SetTimeRow[], missingTable: kind === "missing", failed: kind === "error" };
+}
+
+/* Fruehere Serien derselben Athleten mit gleicher Strecke (Vergleich wird danach geprueft) */
+export async function loadEarlierSeries(swimmerIds: string[], distance: number, beforeDate: string) {
+  if (!swimmerIds.length) return { rows: [] as (SetTimeRow & { date: string })[], failed: false };
   const { data, error } = await supabase
     .from("training_set_times")
-    .select("training_session_id, swimmer_id, set_label, stroke, interval_seconds, times_ms, note")
-    .eq("training_session_id", sessionId);
-  return { rows: (data ?? []) as SetTimeRow[], missingTable: Boolean(error) };
+    .select("*, training_sessions!inner(session_date, pool_length)")
+    .in("swimmer_id", swimmerIds)
+    .eq("distance", distance)
+    .lt("training_sessions.session_date", beforeDate);
+  if (error) return { rows: [], failed: classifyError(error) === "error" };
+  const rows = (data ?? []) as unknown as (SetTimeRow & { training_sessions: { session_date: string; pool_length: number | null } })[];
+  return { rows: rows.map((row) => ({ ...row, pool_length: row.pool_length ?? row.training_sessions.pool_length, date: row.training_sessions.session_date })), failed: false };
 }
 
 /* Je Athlet + Serie der zuletzt davor geschwommene Eintrag (fruehere Einheit) */
@@ -105,9 +194,22 @@ export async function loadPreviousSetTimes(swimmerIds: string[], labels: string[
   return [...latest.values()].map((row) => ({ ...row, date: row.training_sessions.session_date }));
 }
 
+const LEGACY_COLUMNS = ["training_session_id", "swimmer_id", "set_label", "stroke", "interval_seconds", "times_ms", "note"] as const;
+
+/* Speichert eine Athletenzeile. null = gespeichert, sonst Fehlertext. 0 Zeilen = Fehler. */
 export async function saveSetTimes(row: SetTimeRow) {
-  const { error } = await supabase
-    .from("training_set_times")
-    .upsert({ ...row, updated_at: new Date().toISOString() }, { onConflict: "training_session_id,swimmer_id,set_label" });
-  return error?.message ?? null;
+  const { updated_at: _ignored, ...clean } = row;
+  void _ignored;
+  const attempt = (values: Record<string, unknown>) =>
+    supabase
+      .from("training_set_times")
+      .upsert({ ...values, updated_at: new Date().toISOString() }, { onConflict: "training_session_id,swimmer_id,set_label" })
+      .select("swimmer_id");
+  let res = await attempt(clean);
+  // Kontextspalten fehlen noch (Skript 27): ohne sie speichern, Zeiten gehen nicht verloren
+  if (res.error && (res.error.code === "PGRST204" || res.error.code === "42703")) {
+    res = await attempt(Object.fromEntries(LEGACY_COLUMNS.map((key) => [key, (clean as Record<string, unknown>)[key] ?? null])));
+  }
+  const check = checkWrite(res);
+  return check.ok ? null : writeErrorText(check, "Serienzeiten");
 }

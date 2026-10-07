@@ -81,3 +81,18 @@ as $$
     or (p_team_id is null and public.athlete_has_coach(p_coach_id))
     or (p_team_id is not null and public.is_team_member(p_team_id));
 $$;
+
+drop policy if exists "Team staff read starts" on public.competition_starts;
+drop policy if exists "Team staff read standards" on public.qualifying_standards;
+drop policy if exists "Team staff read qualifying times" on public.qualifying_times;
+create or replace function public.entry_registrations_for_coach(p_entry_id uuid)
+returns table (athlete_id uuid, first_name text, last_name text, note text, created_at timestamptz)
+language sql stable security definer set search_path = ''
+as $$
+  select r.athlete_id, p.first_name::text, p.last_name::text, r.note, r.created_at
+  from public.calendar_registrations r
+  join public.calendar_entries e on e.id = r.entry_id
+  join public.profiles p on p.id = r.athlete_id
+  where r.entry_id = p_entry_id and e.coach_id = auth.uid()
+  order by r.created_at;
+$$;

@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import TeamCoaches from "@/components/TeamCoaches";
 import { Swimmer, getSwimmerName } from "@/lib/swim";
 import { Icon } from "@/components/icons";
 import {
@@ -257,7 +258,7 @@ export default function TeamsPage() {
             const withLogin = members.filter((member) => member.profile_id).length;
 
             return (
-              <section key={team.id} className="flex flex-col rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 shadow-app">
+              <section key={team.id} className="flex flex-col rounded-2xl border border-app-border bg-app-surface p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h2 className="truncate text-lg font-semibold">{team.name}</h2>
@@ -286,6 +287,8 @@ export default function TeamsPage() {
                   )}
                   {members.length > 14 && <span className="px-1 py-1 text-xs text-app-muted">+{members.length - 14} weitere</span>}
                 </div>
+
+                <TeamCoaches teamId={team.id} />
 
                 <div className="mt-4 flex gap-2 border-t border-app-border pt-4">
                   <button type="button" onClick={() => openTeam(team)} className={`${buttonSecondary} flex-1`}>

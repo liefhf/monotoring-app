@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LatestRequest } from "@/lib/loadState";
+import SeriesHistory from "@/components/SeriesHistory";
 import { useParams, useSearchParams } from "next/navigation";
 import {
   CartesianGrid,
@@ -77,7 +78,7 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "ueberblick" | "ziele" | "befinden" | "gesundheit" | "tests" | "dokumente" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
+type Tab = "ueberblick" | "ziele" | "befinden" | "serien" | "gesundheit" | "tests" | "dokumente" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
 
 /* Tabs in fuenf Gruppen - die Seite war mit 11 Tabs nebeneinander unuebersichtlich */
 /*
@@ -88,7 +89,7 @@ type Tab = "ueberblick" | "ziele" | "befinden" | "gesundheit" | "tests" | "dokum
  */
 const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
   { label: "Überblick", tabs: ["ueberblick"] },
-  { label: "Training", tabs: ["befinden", "form"] },
+  { label: "Training", tabs: ["befinden", "serien", "form"] },
   { label: "Bestzeiten & Ziele", tabs: ["bestzeiten", "ziele", "pflichtzeiten"] },
   { label: "Ergebnisse", tabs: ["bahn", "entwicklung", "wettkaempfe", "staffel"] },
   { label: "Gesundheit", tabs: ["gesundheit"] },
@@ -99,6 +100,7 @@ const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
 const TABS: { value: Tab; label: string }[] = [
   { value: "ueberblick", label: "Überblick" },
   { value: "befinden", label: "Befinden & Rückmeldungen" },
+  { value: "serien", label: "Serienzeiten" },
   { value: "form", label: "Formkurve" },
   { value: "gesundheit", label: "Gesundheit" },
   { value: "bestzeiten", label: "Bestzeiten" },
@@ -940,6 +942,14 @@ export default function SchwimmerDetailPage() {
 
         {tab === "laktat" && <LactatePanel swimmerId={swimmerId} />}
 
+        {tab === "serien" && (
+          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface px-4 py-3.5 sm:px-5">
+            <h2 className="text-base font-bold text-app-heading">Serienzeiten im Verlauf</h2>
+            <div className="mt-2">
+              <SeriesHistory swimmerId={swimmerId} />
+            </div>
+          </section>
+        )}
         {tab === "form" && <FormCurvePanel swimmerId={swimmerId} />}
 
         {tab === "fokus" && (
