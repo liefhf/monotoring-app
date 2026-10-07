@@ -424,6 +424,7 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     await go(page, "/coach/training/session/s3");
     await see(page, /Auswertung 8×200 Kraul GA2/);
     await see(page, /letzte Drittel war im Schnitt .* langsamer/);
+    await page.getByText("Einordnung & nächste Schritte").first().click();
     await see(page, /Prüfe, ob das Tempo absichtlich verändert wurde/);
     await see(page, /Sollzeit 2:36,00: 4\/7 getroffen/);
     await see(page, /Nicht vergleichbar mit .*Beckenlänge anders/);
