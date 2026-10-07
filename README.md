@@ -7,6 +7,16 @@ Athlete-Monitoring für den leistungsorientierten Schwimmsport. Die App hat zwei
 
 Technik: Next.js 16 (App Router), React 19, TypeScript (strict), Tailwind CSS v4, Supabase (`@supabase/supabase-js`, RLS), Vitest.
 
+## Ausprobieren ohne Datenbank (Demo)
+
+```bash
+npm install
+npm run demo         # baut und startet: http://localhost:3100/demo
+```
+
+Die Demo nutzt Testdaten im Browser (keine echte Datenbank, keine `.env.local`). Einstieg als Trainerin oder Athletin,
+direkte Links zu Dashboard, Einheit mit Serienzeiten und Athletenprofil; „Testdaten zurücksetzen“ auf `/demo`.
+
 ## Starten
 
 ```bash

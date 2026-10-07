@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Demo-Fassung baut in einen eigenen Ordner (scripts/demo.mjs)
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   // Zugriff vom Handy im lokalen WLAN während der Entwicklung
   allowedDevOrigins: ["192.168.178.64"],
   // kein Entwicklungs-Symbol in Screenshots/Produktbildern

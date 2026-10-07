@@ -75,3 +75,35 @@ Die Schwellen sind **pragmatische Setzungen**, keine validierten Grenzwerte. Sie
 9. Hellard P, et al. Assessing the limitations of the Banister model in monitoring training. *J Sports Sci.* 2006;24(5):509–520.
 10. Hopkins WG. Measures of reliability in sports medicine and science. *Sports Med.* 2000;30(1):1–15.
 11. Bourdon PC, et al. Monitoring athlete training loads: consensus statement. *Int J Sports Physiol Perform.* 2017;12(Suppl 2):S2161–S2170.
+
+## Serienzeiten im Training
+
+Erfasst wird je Athlet und Wiederholung einer **geplanten** Serie (z. B. 8×200 Kraul GA2 @3:00). Gespeichert werden
+Millisekunden; gerundet wird nur in der Anzeige. Mit jeder Zeitenzeile wird der Serienkontext abgelegt (Strecke, Anzahl,
+Lage, Beckenlänge, Abgang bzw. Pause, Zone, Hilfsmittel, Sollzeit). Leer = noch nicht erfasst, „x“ = nicht geschwommen.
+
+**Zeiteingabe:** 1:12,40 · 1:12.40 · 32,85 werden direkt übernommen. 5–6 Ziffern ohne Zeichen (11240) gelten als
+m ss hh und werden sichtbar gedeutet („= 1:12,40“). Mehrdeutiges (152, 3285, 112,4) wird abgelehnt statt umgedeutet.
+Unplausible Zeiten für die Strecke (schneller als 0:45 oder langsamer als 4:00 je 100 m) werden markiert, nicht verworfen.
+
+**Abgang ≠ Sollzeit.** @3:00 ist die Abgangszeit. Eine Sollzeit gibt es nur, wenn sie ausdrücklich eingetragen wird.
+
+**Trainingszeiten sind keine Wettkampfzeiten.** Sie stehen in einer eigenen Tabelle (`training_set_times`) und fließen
+nicht in Bestzeiten, Ziele oder Pflichtzeiten ein.
+
+| Kennzahl | Definition | ab |
+|---|---|---|
+| Durchschnitt, schnellste/langsamste | nur gültige Zeiten; fehlende oder nicht geschwommene zählen nie als 0 | 1 Zeit |
+| Gleichmäßigkeit | Standardabweichung in % des Mittels | 3 Zeiten |
+| Verlauf | Mittel letztes Drittel − Mittel erstes Drittel (positiv = langsamer) | 6 Zeiten |
+| Auffällige Wiederholung | > 3 % vom Median; ausdrücklich „Einzelwert – kein Trend“ | 4 Zeiten |
+| Sollzeit getroffen | Zeit ≤ hinterlegte Sollzeit | Sollzeit vorhanden |
+| Vergleich mit früher | nur bei gleicher Strecke, Anzahl, Lage, Beckenlänge, Abgang/Pause und Hilfsmitteln; sonst „nicht vergleichbar“ mit Grund | frühere Serie |
+
+Rückschlüsse stehen immer in drei Teilen: **Beobachtung** („Das letzte Drittel war im Schnitt 5,1 s langsamer als das
+erste.“), **Einordnung** (womit verglichen, wie viele Zeiten) und **was zu prüfen ist** („Prüfe, ob das Tempo absichtlich
+verändert wurde oder die Serie zu anspruchsvoll war.“). Die berichtete Anstrengung der Einheit wird daneben gezeigt, ein
+Zusammenhang wird nicht behauptet. Fehlende Informationen (nicht erfasste Wiederholungen, keine Sollzeit, Becken unbekannt,
+keine frühere vergleichbare Serie) werden ausdrücklich genannt. Die Schwellen 1,5 % und 3 % sind Setzungen zur
+Orientierung. Athleten sehen nur „Deine schnellste Zeit“ und „x von y in deiner Zielzeit“. Berechnungen:
+`lib/setAnalysis.ts` (Tests in `lib/setAnalysis.test.ts`).

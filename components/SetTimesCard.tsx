@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { loadTeamSwimmersResult } from "@/lib/attendance";
@@ -358,8 +359,8 @@ export default function SetTimesCard({ sessionId, teamId, sessionDate }: { sessi
           {current && (
             <>
               {/* Kontext */}
-              <div className="flex flex-wrap items-end gap-x-4 gap-y-2 border-b border-app-border px-4 py-3 text-[13px] text-app-text">
-                <p className="min-w-0 flex-1">
+              <div className="flex flex-col gap-2 border-b border-app-border px-4 py-3 text-[13px] text-app-text sm:flex-row sm:items-end sm:gap-4">
+                <p className="min-w-0 sm:flex-1">
                   {current.distance ? `${repCount} × ${current.distance} m` : `${repCount} Wiederholungen`}
                   {current.stroke ? ` · ${current.stroke}` : ""}
                   {current.zone ? ` · ${current.zone}` : ""}
@@ -567,8 +568,13 @@ export default function SetTimesCard({ sessionId, teamId, sessionDate }: { sessi
                   <ul className="mt-2 space-y-3">
                     {analysis.map(({ swimmer, stats, findings, gaps, previous, row }) => (
                       <li key={swimmer.id} className="border-t border-app-border/70 pt-2">
-                        <p className="text-[15px] font-semibold text-app-heading">
-                          {swimmer.first_name} {swimmer.last_name ?? ""}
+                        <p className="flex flex-wrap items-baseline gap-x-3">
+                          <span className="text-[15px] font-semibold text-app-heading">
+                            {swimmer.first_name} {swimmer.last_name ?? ""}
+                          </span>
+                          <Link href={`/coach/schwimmer/${swimmer.id}?tab=serien`} className="inline-flex min-h-11 items-center text-[13px] font-semibold text-app-accent-soft hover:underline">
+                            Verlauf und Notizen im Profil →
+                          </Link>
                         </p>
                         <p className="num text-sm text-app-text">
                           {stats.valid ? (

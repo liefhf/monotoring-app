@@ -32,6 +32,7 @@ select t.expect('team: C sieht TB nicht', (select count(*) from teams where name
 select t.expect('team: Team-Inhalte von A fuer TA sichtbar (can_see_team_content)', public.can_see_team_content('aaaaaaaa-0000-0000-0000-000000000000', 'a0000000-0000-0000-0000-000000000000'));
 insert into training_set_times (training_session_id, swimmer_id, set_label) values ('5e000000-0000-0000-0000-000000000000','53000000-0000-0000-0000-000000000000','8x50');
 select t.expect('team: C erfasst Serienzeiten in TA', true);
+select t.expect('team: C sieht Serienzeiten von S1 und S3 (TA)', (select count(*) from training_set_times where swimmer_id in ('51000000-0000-0000-0000-000000000000','53000000-0000-0000-0000-000000000000')) >= 2);
 select t.expect('team: C liest Wettkampfstart von S1 (von A erfasst)', (select count(*) from competition_starts where swimmer_id = '51000000-0000-0000-0000-000000000000') = 1);
 select t.expect('team: C sieht keinen Start von S2 (TB)', (select count(*) from competition_starts where swimmer_id = '52000000-0000-0000-0000-000000000000') = 0);
 select t.expect('team: C liest Pflichtzeiten-Liste von A, nicht von B', (select string_agg(name, ',') from qualifying_standards) = 'LM A' and (select count(*) from qualifying_times) = 1);
@@ -86,7 +87,7 @@ select set_config('request.jwt.sub', :A, false);
 update team_coaches set revoked_at = now() where coach_id = 'cccccccc-0000-0000-0000-000000000000';
 select set_config('request.jwt.sub', :C, false);
 select t.expect('team: nach Entzug sieht C keine Athletendaten mehr (auch keine alten)',
-  (select count(*) from athlete_notes) + (select count(*) from health_events) + (select count(*) from training_attendance) + (select count(*) from befinden_entries) = 0);
+  (select count(*) from athlete_notes) + (select count(*) from health_events) + (select count(*) from training_attendance) + (select count(*) from befinden_entries) + (select count(*) from training_set_times) = 0);
 select t.expect('team: nach Entzug keine Starts/Pflichtzeiten von A', (select count(*) from competition_starts) = 0 and (select count(*) from qualifying_standards) = 0);
 select t.expect('team: nach Entzug ist TA nicht mehr in my_teams() von C', not exists (select 1 from public.my_teams() where name = 'TA'));
 select t.expect('team: nach Entzug sieht C die Einheiten von A nicht mehr', (select count(*) from training_sessions where id = '5e000000-0000-0000-0000-000000000000') = 0);

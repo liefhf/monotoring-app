@@ -139,3 +139,17 @@ Navigation: **Heute · Training · Fortschritt · Termine · Mehr**.
 - **Check-in:** 5 Fragen mit Gesichtern in Alltagssprache. Antippen springt automatisch weiter. Danach eine kurze Rückmeldung statt einer Punktzahl.
 - **Fortschritt:** zuerst „Neue Bestzeiten – x Sekunden schneller“ und „Meine Ziele – noch x Sekunden“, darunter die Details.
 - Darstellung und Abmelden liegen unter „Mehr“, damit die Kopfzeile ruhig bleibt.
+
+
+## Arbeitswege (Stand Abnahme)
+
+| Weg | Klicks |
+|---|---|
+| Training vorbereiten | Training → Woche → „+ Einheit“ oder „Kopieren“ → Serien (Schnelleingabe) → speichern |
+| Training durchführen | Start → „Anwesenheit“ an der Einheit (Einschränkungen stehen am Namen) → darunter **Serienzeiten** |
+| Training auswerten | Einheit → Serienzeiten → Auswertung je Athlet (Verlauf, Sollzeit, Vergleich) → „Verlauf und Notizen im Profil“ |
+| Wettkampf vorbereiten | Athleten → Profil → Bestzeiten & Ziele (offizielle Zeiten, Ziele, Pflichtzeiten) → Ergebnisse |
+| Trainer im Team | Mehr/Athleten → Teams → „Weitere Trainer“ (E-Mail, Zugriff entziehen) |
+
+Serienzeiten werden **in der Einheit** erfasst und ausgewertet; der Verlauf über Wochen steht im Profil unter
+Training → Serienzeiten. Es gibt keine zweite Erfassungsstelle.

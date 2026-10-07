@@ -35,16 +35,27 @@ do $$ begin
 exception when insufficient_privilege then perform t.expect(current_setting('t.phase') || ': ungueltiger Ordner wird abgelehnt (ohne Absturz)', true);
           when others then perform t.expect(current_setting('t.phase') || ': ungueltiger Ordner wird abgelehnt (ohne Absturz)', false); end $$;
 
+select t.expect(current_setting('t.phase') || ': A sieht Serienzeiten seines Athleten S1', (select count(*) from training_set_times where swimmer_id = '51000000-0000-0000-0000-000000000000') = 1);
+do $$ begin
+  insert into training_set_times (training_session_id, swimmer_id, set_label, times_ms) values ('5e000000-0000-0000-0000-000000000000', '52000000-0000-0000-0000-000000000000', 'fremd', array[1]);
+  perform t.expect(current_setting('t.phase') || ': A kann keine Serienzeiten fuer fremden Athleten S2 anlegen', false);
+exception when others then perform t.expect(current_setting('t.phase') || ': A kann keine Serienzeiten fuer fremden Athleten S2 anlegen', true); end $$;
+
 -- Trainer C ohne Zuordnung
 select set_config('request.jwt.sub', :C, false);
 select t.expect(current_setting('t.phase') || ': C ohne Zuordnung sieht keine Athletendaten',
-  (select count(*) from athlete_notes) + (select count(*) from health_events) + (select count(*) from training_attendance) = 0);
+  (select count(*) from athlete_notes) + (select count(*) from health_events) + (select count(*) from training_attendance) + (select count(*) from training_set_times) = 0);
 
 -- Athlet X (Login von S1)
 select set_config('request.jwt.sub', :X, false);
 select t.expect(current_setting('t.phase') || ': Athlet sieht keine Trainernotizen', (select count(*) from athlete_notes) = 0);
 select t.expect(current_setting('t.phase') || ': Athlet sieht nur sichtbare eigene Gesundheit', (select string_agg(title, ',') from health_events) = 'Schulter');
 select t.expect(current_setting('t.phase') || ': Athlet liest eigene Anwesenheit (krank)', (select status from training_attendance limit 1) = 'krank');
+select t.expect(current_setting('t.phase') || ': Athlet liest nur eigene Serienzeiten', (select count(*) from training_set_times) = 1 and (select count(*) from training_set_times where swimmer_id = '51000000-0000-0000-0000-000000000000') = 1);
+do $$ declare n int; begin
+  update training_set_times set times_ms = array[1]; get diagnostics n = row_count;
+  perform t.expect(current_setting('t.phase') || ': Athlet kann Serienzeiten nicht aendern', n = 0);
+end $$;
 do $$ declare n int; begin
   update training_attendance set status = 'anwesend'; get diagnostics n = row_count;
   perform t.expect(current_setting('t.phase') || ': Athlet kann Anwesenheit nicht aendern', n = 0);
@@ -65,5 +76,5 @@ exception when check_violation then perform t.expect(current_setting('t.phase') 
 -- Nicht angemeldet
 reset role; set role anon; select set_config('request.jwt.sub', '', false);
 select t.expect(current_setting('t.phase') || ': anon sieht nichts',
-  (select count(*) from athlete_notes) + (select count(*) from health_events) + (select count(*) from training_attendance) + (select count(*) from team_coaches) = 0);
+  (select count(*) from athlete_notes) + (select count(*) from health_events) + (select count(*) from training_attendance) + (select count(*) from team_coaches) + (select count(*) from training_set_times) = 0);
 reset role;

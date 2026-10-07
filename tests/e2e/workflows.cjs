@@ -70,7 +70,7 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
   await test("1 Hinweis auf dem Dashboard fuehrt zur Ursache", async (b) => {
     const { page } = await open(b, "coach");
     await go(page, "/coach");
-    await see(page, /Trainingspause: Schulter rechts/);
+    await see(page, /Eingeschränkt: Schulter rechts/);
     await see(page, /Sportattest läuft in \d+ Tagen ab/);
     await shot(page, "dashboard");
     await page.getByRole("link", { name: /Mia Schulz/ }).first().click();
@@ -232,21 +232,20 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     await go(page, "/athlete");
     await see(page, "GA1 Kraul"); // heute 23:00 = naechstes Training, nicht das Fruehtraining
     await see(page, "Wie anstrengend war dein Training?");
-    await see(page, /Frühtraining|Gestern Ausdauer/);
+    await see(page, /Frühtraining/);
     await shot(page, "athlet-heute");
     await go(page, "/athlete/feedback/s1");
     await see(page, /noch nicht vorbei/);
-    await go(page, "/athlete/feedback/s3");
+    await go(page, "/athlete/feedback/s0");
     await page.getByRole("button", { name: /^6/ }).first().click();
     await page.getByRole("button", { name: "Feedback speichern" }).click();
     await page.waitForTimeout(800);
-    if (!mock.db.training_feedback.some((f) => f.training_session_id === "s3")) throw new Error("nicht gespeichert");
+    if (!mock.db.training_feedback.some((f) => f.training_session_id === "s0")) throw new Error("nicht gespeichert");
   });
 
   await test("7b Krank gemeldet -> keine Rueckmeldung erfragt", async (b) => {
     const { page, mock } = await open(b, "athlete");
     mock.db.training_attendance.push({ id: "x", training_session_id: "s0", swimmer_id: "w1", status: "krank" });
-    mock.db.training_attendance.find((a) => a.id === "att1").status = "krank";
     await go(page, "/athlete");
     await see(page, "GA1 Kraul");
     await notSee(page, "Wie anstrengend war dein Training?");
@@ -316,11 +315,11 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
   await test("10 Schneller Teamwechsel zeigt nur das neue Team", async (b) => {
     const { page } = await open(b, "coach", { faults: { delay: { befinden_entries: 1500 } } });
     await go(page, "/coach");
-    await see(page, /Trainingspause: Schulter rechts/);
+    await see(page, /Eingeschränkt: Schulter rechts/);
     await page.getByRole("button", { name: /Team wechseln/ }).first().click();
     await page.getByRole("button", { name: "Masters" }).first().click();
     await page.waitForTimeout(2500);
-    await notSee(page, /Trainingspause: Schulter rechts/);
+    await notSee(page, /Eingeschränkt: Schulter rechts/);
     await see(page, "Masters Abend");
   });
 
@@ -360,6 +359,111 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     if (!page.url().includes("/w2")) throw new Error("falsche Seite");
     await notSee(page, "Physio Do");
     await notSee(page, "Schulter rechts");
+  });
+
+  /* 12 Serienzeiten: Erfassung am Beckenrand, Pruefung der Eingaben, Speichern, Neuladen */
+  await test("12 Serienzeiten erfassen, Mehrdeutiges ablehnen, speichern, nach Neuladen da", async (b) => {
+    const { page, mock } = await open(b, "coach");
+    await go(page, "/coach/training/session/s3");
+    await see(page, "8×200 Kraul GA2 @3:00");
+    if (W < 768) {
+      // Handy: nach Wiederholung
+      await page.getByRole("button", { name: /Wiederholung 5,/ }).click();
+      await see(page, "Wiederholung 5 von 8");
+      const mia = page.locator("#t-w1-5");
+      if ((await mia.inputValue()) !== "") throw new Error("nicht erfasst soll leer sein");
+      await mia.fill("2:37,10");
+      await mia.press("Enter");
+      const max = page.locator("#t-w3-5");
+      if (!(await max.evaluate((el) => el === document.activeElement))) throw new Error("Enter springt nicht weiter");
+      await max.fill("152");
+      await see(page, /nicht eindeutig/);
+      await page.getByRole("button", { name: "Zeiten speichern" }).click();
+      await see(page, /Bitte zuerst korrigieren/);
+      await page.getByRole("button", { name: /Maximiliane-Charlotte: Wiederholung 5 nicht geschwommen/ }).click();
+    } else {
+      // Desktop: Tabelle
+      const cell = page.getByLabel("Mia Wiederholung 5");
+      await cell.fill("23710");
+      await see(page, "= 2:37,10");
+      await page.getByLabel("Maximiliane-Charlotte Wiederholung 5").fill("x");
+    }
+    await see(page, /Ungespeichert: Mia/);
+    await page.getByRole("button", { name: "Zeiten speichern" }).click();
+    await see(page, /Gespeichert \(2 Athleten\)/);
+    const mia = mock.db.training_set_times.find((r) => r.swimmer_id === "w1" && r.training_session_id === "s3");
+    const max = mock.db.training_set_times.find((r) => r.swimmer_id === "w3" && r.training_session_id === "s3");
+    if (mia.times_ms[4] !== 157100) throw new Error("Zeit falsch " + mia.times_ms[4]);
+    if (!max.missed_reps.includes(5) || max.times_ms[4] !== null) throw new Error("nicht geschwommen falsch");
+    if (mia.distance !== 200 || mia.pool_length !== 25 || mia.interval_seconds !== 180) throw new Error("Kontext fehlt");
+    await page.reload({ waitUntil: "networkidle" });
+    await see(page, "8×200 Kraul GA2 @3:00");
+    if (W < 768) {
+      await page.getByRole("button", { name: /Wiederholung 5,/ }).click();
+      if ((await page.locator("#t-w1-5").inputValue()) !== "2:37,10") throw new Error("nach Neuladen weg");
+    } else if ((await page.getByLabel("Mia Wiederholung 5").inputValue()) !== "2:37,10") throw new Error("nach Neuladen weg");
+  });
+
+  await test("12b Serienzeiten: Speicherfehler behaelt Eingaben", async (b) => {
+    const { page } = await open(b, "coach", { faults: { writeError: new Set(["training_set_times"]) } });
+    await go(page, "/coach/training/session/s3");
+    await see(page, "8×200 Kraul GA2 @3:00");
+    if (W < 768) {
+      await page.getByRole("button", { name: /Wiederholung 5,/ }).click();
+      await page.locator("#t-w1-5").fill("2:37,10");
+    } else await page.getByLabel("Mia Wiederholung 5").fill("2:37,10");
+    await page.getByRole("button", { name: "Zeiten speichern" }).click();
+    await see(page, /Nicht gespeichert für: Mia/);
+    await see(page, /Ungespeichert: Mia/);
+  });
+
+  await test("12c Auswertung: Verlauf, Sollzeit, Vergleich nur bei gleichen Bedingungen", async (b) => {
+    const { page, mock } = await open(b, "coach");
+    // fruehere Serie mit anderem Becken -> darf nicht als Entwicklung gelten
+    mock.db.training_set_times.find((r) => r.id === "st5").pool_length = 50;
+    await go(page, "/coach/training/session/s3");
+    await see(page, /Auswertung 8×200 Kraul GA2/);
+    await see(page, /letzte Drittel war im Schnitt .* langsamer/);
+    await see(page, /Prüfe, ob das Tempo absichtlich verändert wurde/);
+    await see(page, /Sollzeit 2:36,00: 4\/7 getroffen/);
+    await see(page, /Nicht vergleichbar mit .*Beckenlänge anders/);
+    await notSee(page, /als bei der vergleichbaren Serie/);
+    await see(page, /1 Wiederholung nicht erfasst/);
+  });
+
+  /* 13 Training gleichzeitig bearbeitet: Versionskonflikt, nichts ueberschrieben */
+  await test("13 Training: paralleles Speichern wird als Konflikt erkannt", async (b) => {
+    const { page, mock } = await open(b, "coach");
+    await go(page, "/coach/training/new?session=s1");
+    await page.getByRole("button", { name: "Änderungen speichern" }).waitFor({ timeout: 20000 });
+    const rowsBefore = mock.db.training_rows.length;
+    mock.db.training_sessions.find((s) => s.id === "s1").content_version = 7; // anderer Trainer hat inzwischen gespeichert
+    await page.getByRole("button", { name: "Änderungen speichern" }).click();
+    await see(page, /inzwischen an anderer Stelle gespeichert/);
+    if (mock.db.training_rows.length !== rowsBefore) throw new Error("Inhalt veraendert");
+  });
+
+  await test("13b Training: normales Speichern atomar mit neuer Version", async (b) => {
+    const { page, mock } = await open(b, "coach");
+    await go(page, "/coach/training/new?session=s1");
+    await page.getByRole("button", { name: "Änderungen speichern" }).waitFor({ timeout: 20000 });
+    await page.getByRole("button", { name: "Änderungen speichern" }).click();
+    await see(page, /wurde aktualisiert/);
+    if (!wrote(mock, "RPC save_training_content s1")) throw new Error("nicht atomar gespeichert");
+    if (mock.db.training_sessions.find((s) => s.id === "s1").content_version !== 2) throw new Error("Version nicht erhoeht");
+    if (mock.db.training_rows.filter((r) => mock.db.training_sections.some((x) => x.id === r.section_id && x.training_session_id === "s1")).length !== 1) throw new Error("Serien doppelt/verloren");
+  });
+
+  /* 14 Trainer im Team verwalten */
+  await test("14 Haupttrainer fuegt weiteren Trainer per E-Mail hinzu und entzieht Zugriff", async (b) => {
+    const { page, mock } = await open(b, "coach");
+    await go(page, "/coach/teams");
+    await page.getByLabel("E-Mail des Trainer-Kontos").first().fill("tom@demo.verein");
+    await page.getByRole("button", { name: "Hinzufügen" }).first().click();
+    await see(page, /Tom Berger arbeitet jetzt in diesem Team mit/);
+    await page.getByRole("button", { name: "Zugriff entziehen" }).first().click();
+    await see(page, "Zugriff entzogen.");
+    if (!mock.db.team_coaches[0].revoked_at) throw new Error("nicht entzogen");
   });
 
   console.log(`\n${passed} bestanden, ${failed} fehlgeschlagen`);

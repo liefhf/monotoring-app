@@ -45,3 +45,4 @@ supabase/daten_*.sql
 supabase/serienzeiten_*.sql
 
 .vercel
+/.next-demo/

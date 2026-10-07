@@ -3,6 +3,7 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { DEMO } from "@/lib/demo/demoFetch";
 import { LogoMark } from "@/components/Logo";
 
 type RoleGuardProps = {
@@ -26,7 +27,7 @@ export default function RoleGuard({
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        router.replace("/login");
+        router.replace(DEMO ? "/demo" : "/login");
         return;
       }
 
@@ -37,7 +38,7 @@ export default function RoleGuard({
         .single();
 
       if (profileError || !profile) {
-        router.replace("/login");
+        router.replace(DEMO ? "/demo" : "/login");
         return;
       }
 
@@ -52,7 +53,7 @@ export default function RoleGuard({
           return;
         }
 
-        router.replace("/login");
+        router.replace(DEMO ? "/demo" : "/login");
         return;
       }
 

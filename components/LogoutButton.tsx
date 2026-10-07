@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { DEMO } from "@/lib/demo/demoFetch";
 
 type LogoutButtonProps = {
   className?: string;
@@ -37,7 +38,7 @@ export default function LogoutButton({
       });
     }
 
-    router.replace("/login");
+    router.replace(DEMO ? "/demo" : "/login");
     router.refresh();
   }
 

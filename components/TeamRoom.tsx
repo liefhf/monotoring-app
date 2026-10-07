@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { DEMO } from "@/lib/demo/demoFetch";
 import { TeamFile, TeamMessage, formatFileSize, formatRelative } from "@/lib/community";
 import { Icon } from "@/components/icons";
 import { Card, EmptyState, Notice, RichText, buttonGhost, buttonPrimary, buttonSecondary, inputClass } from "@/components/ui";
@@ -63,7 +64,8 @@ export default function TeamRoom({ teamId, isCoach }: { teamId: string; isCoach:
     loadMessages();
     loadFiles();
 
-    /* Neue Nachrichten live anzeigen */
+    /* Neue Nachrichten live anzeigen (nicht in der Demo: kein Server) */
+    if (DEMO) return;
     const channel = supabase
       .channel(`team-room-${teamId}`)
       .on(

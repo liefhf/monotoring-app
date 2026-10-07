@@ -61,9 +61,8 @@ Nur der Stammtrainer sieht Athletendaten (`coach_owns_swimmer`). Teaminhalte sie
 ### Übergang
 1. Skript 25 ausführen. Es zeigt am Ende, in welchen Teams Athleten mit *anderem* Stammtrainer sind – diese sieht der Haupttrainer nach Skript 26 zusätzlich. Liste ansehen.
 2. Datensicherung, dann Skript 26.
-3. Weitere Trainer eintragen (bis es dafür einen Dialog gibt, im SQL-Editor als Haupttrainer-Aktion):
-   `insert into public.team_coaches (team_id, coach_id) values ('<team-id>', '<profil-id des Trainers>');`
-   Entziehen: `update public.team_coaches set revoked_at = now() where team_id = '<team-id>' and coach_id = '<profil-id>';`
+3. Weitere Trainer eintragen: in der App unter **Teams → Weitere Trainer** per Anmelde-E-Mail (Skript 27);
+   dort auch „Zugriff entziehen“.
 
 ### Getestet
 `bash tests/rls/run.sh` – Wegwerf-Datenbank, eingeschränkte Rollen `authenticated`/`anon`, 73 Prüfungen in drei Phasen
@@ -78,3 +77,21 @@ Die App lädt erst die Datei, dann den Eintrag; schlägt der Eintrag fehl, wird 
 wird erst der Eintrag gelöscht, dann die Datei; schlägt das Entfernen der Datei fehl, bietet die App „Datei erneut
 löschen“ an. Ein Athlet mit hochgeladenen Dateien kann erst gelöscht werden, wenn seine Dokumente gelöscht sind –
 so bleiben keine Dateien ohne Eintrag zurück. Bestehende Dateien werden nie automatisch aufgeräumt.
+
+
+## Serienzeiten und Speichern von Trainings (Skript 27)
+
+- `training_set_times`: eine Zeile je Einheit, Athlet und Serie (`set_label`). `times_ms[i]` = Wiederholung i
+  (leer = nicht erfasst), `missed_reps` = nicht geschwommen. Kontext als Kopie: `distance`, `repetitions`, `stroke`,
+  `pool_length`, `interval_seconds`, `interval_type`, `zone`, `materials`, `target_ms`, `plan_key`. Bewusst **keine**
+  Fremdschlüssel auf die geplanten Serien, weil diese beim Bearbeiten einer Einheit neu angelegt werden.
+  Alte Einträge (vor Skript 27, ohne `missed_reps`) werden wie früher gelesen: leere Zeit = nicht geschwommen.
+- Zugriff: Trainer über `coach_owns_swimmer` (mit Skript 26 auch weitere Trainer des Teams), Athleten lesen eigene.
+- `training_sessions.content_version` + `save_training_content(...)`: Kopf und Inhalt einer Einheit werden in einer
+  Transaktion ersetzt, nach Sperre der Einheit und Versionsvergleich. Gleichzeitiges Speichern: einer gewinnt, der
+  andere erhält „version_conflict“, nichts wird überschrieben oder verdoppelt. Ohne Skript 27 nutzt die App den
+  bisherigen Weg (erst neu anlegen, dann alt entfernen) – der schützt nicht vor gleichzeitigem Speichern.
+- Trainer im Team: `add_team_coach(team, e-mail)` und `team_coach_list(team)` (nur Haupttrainer), Entzug über
+  `revoked_at` in der App unter Teams.
+- Mit Skript 26 lesen Trainer mit gemeinsamem Team zusätzlich: Wettkampfstarts der zugänglichen Athleten,
+  Pflichtzeiten-Listen und Anmeldelisten zu Team-Terminen. Schreiben bleibt beim jeweiligen Trainer.

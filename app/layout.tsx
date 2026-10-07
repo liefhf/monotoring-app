@@ -3,6 +3,7 @@ import { Geist_Mono, Plus_Jakarta_Sans, Rubik } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import PageLoadingBar from "@/components/PageLoadingBar";
+import DemoBanner from "@/components/DemoBanner";
 
 const appSans = Plus_Jakarta_Sans({
   variable: "--font-app-sans",
@@ -44,6 +45,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-app-bg text-app-text">
         <PageLoadingBar />
+        <DemoBanner />
         {children}
         {/* beforeInteractive: laeuft vor dem ersten Zeichnen, landet im <head> */}
         <Script id="theme-init" strategy="beforeInteractive">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { DEMO } from "@/lib/demo/demoFetch";
 import { formatRelative } from "@/lib/community";
 import { Icon, IconName } from "@/components/icons";
 
@@ -56,7 +57,8 @@ export default function NotificationBell({ align = "right" }: { align?: "left" |
     load();
 
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user || !active) return;
+      // Demo: keine Live-Verbindung (es gibt keinen Server)
+      if (!data.user || !active || DEMO) return;
 
       channel = supabase
         .channel(`notifications-${data.user.id}-${Math.random().toString(36).slice(2)}`)

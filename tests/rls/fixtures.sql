@@ -31,3 +31,6 @@ insert into public.qualifying_times (standard_id, time_ms) values ('9a000000-000
 insert into public.calendar_entries (id, coach_id, team_id, title) values ('ca000000-0000-0000-0000-000000000000','aaaaaaaa-0000-0000-0000-000000000000','a0000000-0000-0000-0000-000000000000','Trainingslager');
 insert into public.calendar_registrations (entry_id, athlete_id) values ('ca000000-0000-0000-0000-000000000000','eeeeeeee-0000-0000-0000-000000000000');
 insert into auth.users values ('cccccccc-0000-0000-0000-000000000000','c@verein.de'),('eeeeeeee-0000-0000-0000-000000000000','x@verein.de'),('aaaaaaaa-0000-0000-0000-000000000000','a@verein.de');
+insert into public.training_set_times (training_session_id, swimmer_id, set_label, times_ms, distance, repetitions, pool_length, missed_reps) values
+ ('5e000000-0000-0000-0000-000000000000','51000000-0000-0000-0000-000000000000','8×200',array[150000,151000],200,8,25,array[]::int[]),
+ ('5e000000-0000-0000-0000-000000000000','53000000-0000-0000-0000-000000000000','8×200',array[150000],200,8,25,array[]::int[]);
