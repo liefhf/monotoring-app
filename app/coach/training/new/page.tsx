@@ -2342,7 +2342,7 @@ function TrainingEditor() {
                         "25"
                       )
                     }
-                    className={`rounded-xl px-4 py-2 text-sm ${
+                    className={`min-h-11 rounded-xl px-4 py-2 text-sm ${
                       poolLength ===
                       "25"
                         ? "bg-app-accent text-app-accent-ink"
@@ -2359,7 +2359,7 @@ function TrainingEditor() {
                         "50"
                       )
                     }
-                    className={`rounded-xl px-4 py-2 text-sm ${
+                    className={`min-h-11 rounded-xl px-4 py-2 text-sm ${
                       poolLength ===
                       "50"
                         ? "bg-app-accent text-app-accent-ink"
@@ -2400,7 +2400,7 @@ function TrainingEditor() {
                   onClick={() =>
                     toggleCoreGoal(goal.key)
                   }
-                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                  className={`min-h-11 rounded-full border px-3 py-1.5 text-xs transition ${
                     selected
                       ? "border-app-sand/60 bg-app-sand/15 text-app-sand"
                       : "border-app-border text-app-muted hover:bg-app-elevated"
@@ -2434,7 +2434,7 @@ function TrainingEditor() {
                   onClick={
                     addWarmUpLandRow
                   }
-                  className="rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
+                  className="min-h-11 rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
                 >
                   + Übung
                 </button>
@@ -2476,7 +2476,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="z. B. Mobilisation Schulter"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2495,7 +2495,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="2"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2514,7 +2514,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="10"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2533,7 +2533,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="Band"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2552,7 +2552,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="locker"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <button
@@ -2562,7 +2562,7 @@ function TrainingEditor() {
                                 row.id
                               )
                             }
-                            className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
+                            className="min-h-11 rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
                           >
                             Löschen
                           </button>
@@ -2624,7 +2624,7 @@ function TrainingEditor() {
                                 mode
                               )
                             }
-                            className={`px-3 py-2 text-xs transition ${
+                            className={`min-h-11 px-3 py-2 text-xs transition ${
                               section.mode ===
                               mode
                                 ? PRACTICE_MODE_CLASS[
@@ -2705,7 +2705,7 @@ function TrainingEditor() {
                                     )
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               />
 
                               <select
@@ -2726,7 +2726,7 @@ function TrainingEditor() {
                                     )
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               >
                                 {distanceOptions.map(
                                   (
@@ -2766,7 +2766,7 @@ function TrainingEditor() {
                                   )
                                 }
                                 placeholder="z. B. technisch sauber, lange Züge"
-                                className="min-w-0 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                                className="min-h-11 min-w-0 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                               />
 
                               <select
@@ -2785,7 +2785,7 @@ function TrainingEditor() {
                                       .value
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               >
                                 {styleOptions.map(
                                   (
@@ -2816,7 +2816,7 @@ function TrainingEditor() {
                                     }
                                   )
                                 }
-                                className={`rounded-lg border px-3 py-2 text-left text-xs transition ${
+                                className={`min-h-11 rounded-lg border px-3 py-2 text-left text-xs transition ${
                                   row
                                     .materials
                                     .length >
@@ -2855,7 +2855,7 @@ function TrainingEditor() {
                                       .value
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               >
                                 <option value="">– keine –</option>
                                 {zoneOptions.map(
@@ -2920,7 +2920,7 @@ function TrainingEditor() {
                                     )
                                   }
                                   placeholder="30s / 1:30"
-                                  className="min-w-0 flex-1 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                  className="min-h-11 min-w-0 flex-1 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                                 />
                               </div>
 
@@ -2942,7 +2942,7 @@ function TrainingEditor() {
                                     row.id
                                   )
                                 }
-                                className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad hover:bg-app-bad/10"
+                                className="min-h-11 rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad hover:bg-app-bad/10"
                               >
                                 Löschen
                               </button>
@@ -2997,7 +2997,7 @@ function TrainingEditor() {
               <button
                 type="button"
                 onClick={addLandRow}
-                className="rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
+                className="min-h-11 rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
               >
                 + Übung
               </button>
@@ -3038,7 +3038,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="Kniebeuge"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -3057,7 +3057,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="3"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -3076,7 +3076,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="8"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -3095,7 +3095,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="80 kg"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -3114,7 +3114,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="Langhantel"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -3133,7 +3133,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="RPE 7"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <button
@@ -3143,7 +3143,7 @@ function TrainingEditor() {
                               row.id
                             )
                           }
-                          className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
+                          className="min-h-11 rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
                         >
                           Löschen
                         </button>

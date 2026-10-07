@@ -141,9 +141,9 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
                   }
                 }}
                 placeholder="z. B. Sprint Kraul + Rückenwende, 90 min"
-                className="min-w-[240px] flex-1 rounded-lg border border-app-border bg-app-bg px-3 py-2 text-sm outline-none focus:border-app-accent"
+                className="min-w-[240px] flex-1 rounded-lg border border-app-border bg-app-bg min-h-11 px-3 py-2 text-sm outline-none focus:border-app-accent"
               />
-              <button type="button" onClick={makeSuggestion} className="rounded-lg bg-app-accent px-3 py-2 text-sm font-semibold text-app-accent-ink">
+              <button type="button" onClick={makeSuggestion} className="min-h-11 rounded-lg bg-app-accent px-3 py-2 text-sm font-semibold text-app-accent-ink">
                 Übungen vorschlagen
               </button>
             </div>

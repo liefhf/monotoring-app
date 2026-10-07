@@ -279,7 +279,7 @@ export default function TeamsPage() {
                       <Link
                         key={member.id}
                         href={`/coach/schwimmer/${member.id}`}
-                        className="inline-flex min-h-9 max-w-full items-center truncate rounded-full bg-app-elevated px-3 text-xs font-medium text-app-heading hover:bg-app-accent/12 hover:text-app-accent"
+                        className="inline-flex min-h-11 min-w-11 max-w-full items-center truncate rounded-full bg-app-elevated px-3 text-xs font-medium text-app-heading hover:bg-app-accent/12 hover:text-app-accent"
                       >
                         {getSwimmerName(member)}
                       </Link>
@@ -294,7 +294,7 @@ export default function TeamsPage() {
                   <button type="button" onClick={() => openTeam(team)} className={`${buttonSecondary} flex-1`}>
                     Athleten zuordnen
                   </button>
-                  <Link href={`/coach/gruppen/${team.id}`} className={buttonGhost} title="Gruppenraum">
+                  <Link href={`/coach/gruppen/${team.id}`} className={`${buttonGhost} min-w-11`} title="Gruppenraum" aria-label={`Gruppenraum ${team.name}`}>
                     <Icon name="chat" className="h-4 w-4" />
                   </Link>
                 </div>
