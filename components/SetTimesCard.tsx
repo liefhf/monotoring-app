@@ -11,6 +11,7 @@ import { LatestRequest } from "@/lib/loadState";
 import { PlannedSeries, SetTimeRow, loadEarlierSeries, loadPlannedSeries, loadSessionSetTimes, saveSetTimes } from "@/lib/setTimes";
 import { ParsedTime, parseRepTime, repInputValue } from "@/lib/setTimeInput";
 import { SeriesContext, comparability, seriesFindings, seriesGaps, seriesStats } from "@/lib/setAnalysis";
+import { Details } from "@/components/ui";
 
 /*
  * Serienzeiten einer Trainingseinheit: geplante Serie waehlen, Zeiten je
@@ -367,10 +368,9 @@ export default function SetTimesCard({ sessionId, teamId, sessionDate }: { sessi
                   {current.interval_seconds ? ` · ${current.interval_type === "@" ? "Abgang" : "Pause"} ${Math.floor(current.interval_seconds / 60)}:${String(current.interval_seconds % 60).padStart(2, "0")}` : ""}
                   {` · ${poolLength ? `${poolLength}-m-Becken` : "Becken unbekannt"}`}
                   {current.materials.length ? ` · ${current.materials.join(", ")}` : ""}
-                  <span className="block text-app-muted">Der Abgang ist keine Zielzeit. Eine Sollzeit nur eintragen, wenn sie vorgegeben ist.</span>
                 </p>
                 <label className="text-[13px]">
-                  <span className="block font-semibold text-app-heading">Sollzeit je Wdh. (optional)</span>
+                  <span className="block font-semibold text-app-heading" title="Der Abgang ist keine Zielzeit – nur eintragen, wenn vorgegeben.">Sollzeit je Wdh. (optional, nicht der Abgang)</span>
                   <input
                     value={target}
                     onChange={(e) => setTargetDraft((d) => ({ ...d, [active]: e.target.value }))}
@@ -594,13 +594,22 @@ export default function SetTimesCard({ sessionId, teamId, sessionDate }: { sessi
                         {findings.length > 0 && (
                           <ul className="mt-1 space-y-1.5">
                             {findings.map((f, i) => (
-                              <li key={i} className="text-sm">
-                                <span className="text-app-heading">{f.observation}</span>{" "}
-                                <span className="text-app-muted">{f.context}</span>
-                                <span className="block text-app-text">→ {f.action}</span>
+                              <li key={i} className="text-sm text-app-heading">
+                                {f.observation}
                               </li>
                             ))}
                           </ul>
+                        )}
+                        {findings.length > 0 && (
+                          <Details summary="Einordnung & nächste Schritte">
+                            <ul className="space-y-1">
+                              {findings.map((f, i) => (
+                                <li key={i}>
+                                  {f.context} <span className="text-app-text">→ {f.action}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </Details>
                         )}
                         {previous && !previous.comparable && previous.cmp.differences.length + previous.cmp.unknown.length > 0 && (
                           <p className="text-[13px] text-app-muted">

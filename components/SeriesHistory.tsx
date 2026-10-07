@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { classifyError } from "@/lib/loadState";
 import { formatTime } from "@/lib/swim";
 import { SetTimeRow } from "@/lib/setTimes";
+import { Details } from "@/components/ui";
 import { athleteSummary, seriesStats } from "@/lib/setAnalysis";
 
 /*
@@ -108,9 +109,9 @@ export default function SeriesHistory({ swimmerId, variant = "coach" }: { swimme
 
   return (
     <div className="space-y-4">
-      <p className="text-[13px] text-app-muted">
-        Vergleich nur innerhalb gleicher Bedingungen (Strecke, Anzahl, Lage, Becken, Abgang, Hilfsmittel). Ø = Mittel der gültigen Zeiten; Verlauf = letztes minus erstes Drittel. Trainingszeiten sind keine Bestzeiten.
-      </p>
+      <Details summary="So wird verglichen">
+        Nur gleiche Bedingungen (Strecke, Anzahl, Lage, Becken, Abgang, Hilfsmittel). Ø = Mittel der gültigen Zeiten; Verlauf = letztes minus erstes Drittel. Trainingszeiten sind keine Bestzeiten.
+      </Details>
       {[...groups.values()].map((list) => (
         <section key={groupKey(list[0])!}>
           <h3 className="text-[15px] font-bold text-app-heading">
