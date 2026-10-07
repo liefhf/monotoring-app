@@ -155,6 +155,10 @@ as $$
   select exists (select 1 from public.swimmers s where s.id = p_swimmer_id and s.coach_id = auth.uid());
 $$;
 
+-- Ordner-Pruefung aus Skript 23 nur fuer angemeldete Nutzer
+revoke all on function public.coach_owns_swimmer_folder(text) from public, anon;
+grant execute on function public.coach_owns_swimmer_folder(text) to authenticated;
+
 revoke all on function public.is_team_owner(uuid) from public, anon;
 revoke all on function public.is_team_staff(uuid) from public, anon;
 revoke all on function public.coach_can_access_swimmer(uuid) from public, anon;

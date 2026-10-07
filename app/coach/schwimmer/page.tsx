@@ -3,7 +3,7 @@
 import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { isMissingTable, supabase } from "@/lib/supabase";
 import { fetchAll } from "@/lib/fetchAll";
 import { Gender, Swimmer, formatGender, getSwimmerName } from "@/lib/swim";
 import { Icon } from "@/components/icons";
@@ -182,18 +182,33 @@ export default function AthletenPage() {
   }
 
   async function handleDelete(athlete: Athlete) {
+    /* Hochgeladene Dateien wuerden beim Loeschen im Speicher zurueckbleiben (ohne Eintrag).
+       Deshalb erst die Dokumente im Profil loeschen lassen. */
+    const files = await supabase.from("athlete_documents").select("id").eq("swimmer_id", athlete.id).not("file_path", "is", null);
+    if (files.error && !isMissingTable(files.error.code)) {
+      setMessage({ tone: "bad", text: "Löschen abgebrochen: Dokumente des Athleten konnten nicht geprüft werden." });
+      return;
+    }
+    if (files.data?.length) {
+      setMessage({
+        tone: "bad",
+        text: `${getSwimmerName(athlete)} hat noch ${files.data.length} hochgeladene ${files.data.length === 1 ? "Datei" : "Dateien"}. Bitte zuerst im Profil unter Stammdaten → Dokumente löschen.`,
+      });
+      return;
+    }
+
     if (
       !window.confirm(
-        `${getSwimmerName(athlete)} wirklich löschen? Alle Zeiten und das Wettkampf-Feedback werden ebenfalls gelöscht. Ein eigener Login bleibt bestehen.`
+        `${getSwimmerName(athlete)} wirklich löschen? Alle Zeiten, Gesundheit, Ziele, Notizen und das Wettkampf-Feedback werden ebenfalls gelöscht. Tipp: vorher Einstellungen → Datensicherung. Ein eigener Login bleibt bestehen.`
       )
     ) {
       return;
     }
 
-    const { error } = await supabase.from("swimmers").delete().eq("id", athlete.id);
+    const { data: deleted, error } = await supabase.from("swimmers").delete().eq("id", athlete.id).select("id");
 
-    if (error) {
-      setMessage({ tone: "bad", text: `Athlet konnte nicht gelöscht werden: ${error.message}` });
+    if (error || !deleted?.length) {
+      setMessage({ tone: "bad", text: error ? `Athlet konnte nicht gelöscht werden: ${error.message}` : "Athlet wurde nicht gelöscht (keine Berechtigung)." });
       return;
     }
 

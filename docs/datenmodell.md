@@ -32,12 +32,49 @@ calendar_entries, calendar_tasks, news_posts, team_messages, notifications
 
 - **Neu (Skript 24):** `athlete_goals`. Athleten lesen sichtbare eigene Ziele. `athlete_notes` ist nur für Trainer sichtbar.
 
-## Berechtigungsmodell (geprüft am 07.10.2026)
+## Berechtigungsmodell (Stand 07.10.2026, Korrekturphase)
 
-- **Zuständigkeit:** Ein Athlet (`swimmers`) gehört genau einem Coach (`swimmers.coach_id`). Ein Team gehört genau einem Coach (`teams.coach_id`). Alle neuen Tabellen (Skripte 23/24) prüfen über `coach_owns_swimmer`. Wechselt ein Athlet den Coach (`coach_id` ändert sich), wandern Gesundheit, Ziele, Notizen und Dokumente automatisch mit, und der alte Coach sieht sie nicht mehr.
-- **Mehrere Trainer pro Team** kennt das Datenmodell bisher nicht. Ein Co-Trainer bräuchte heute ein eigenes Team bzw. eigene Athleten. Eine Erweiterung (Tabelle `team_coaches`) wäre eine Produktentscheidung.
-- **Athleten** lesen nur eigene Einträge über `swimmers.profile_id = auth.uid()`: Gesundheit (nur `visible_to_athlete`), Ziele (nur sichtbare) und Dokumentliste. Ändern dürfen sie nichts. **Trainernotizen** haben keine Regel für Athleten und sind damit für sie unsichtbar.
-- **Nicht angemeldet:** Alle Regeln gelten nur für die Rolle `authenticated`.
-- **Dateien** (`athlete-documents`) sind privat. Zugriff gibt es nur für den zuständigen Coach über `coach_owns_swimmer_folder` (Textvergleich statt uuid-Cast, damit fremde Ordnernamen nie zu Fehlern führen).
-- **Getestet** mit einem lokalen PostgreSQL 16 und nachgebildetem `auth.uid()`/Storage: Jeder Coach sieht nur eigene Daten, kann nicht in fremde Athleten schreiben und keine eigenen Einträge auf fremde Athleten umhängen. Der Athlet sieht keine Notizen und nichts Unsichtbares und kann nichts schreiben. Wer nicht angemeldet ist, sieht nichts. Beide Skripte lassen sich zweimal hintereinander ausführen.
-- **Löschverhalten:** Wird ein Athlet gelöscht, werden seine Einträge in den neuen Tabellen mitgelöscht (`on delete cascade`), wie bei Ergebnissen und Tests. Das Löschen eines Athleten fragt in der App vorher nach.
+### Rollen
+| Wer | Bedeutung | Gespeichert in |
+|---|---|---|
+| Stammtrainer | zuständig für einen Athleten, pflegt Stammdaten, nimmt ihn in Teams auf | `swimmers.coach_id` |
+| Haupttrainer | Besitzer eines Teams, fügt weitere Trainer hinzu und entzieht sie | `teams.coach_id` |
+| weiterer Trainer | arbeitet in einem Team mit (Skript 25/26) | `team_coaches` (`revoked_at` = entzogen) |
+| Athlet | sieht nur Eigenes | `swimmers.profile_id` = Login |
+
+Athleten werden **nie dupliziert**. Ein Athlet kann in mehreren Teams sein (`team_swimmers`).
+`team_coaches` startet leer – vorhandene Zuordnungen bleiben über `teams.coach_id`/`swimmers.coach_id`
+gültig, es werden keine Daten übertragen.
+
+### Wer sieht was – heute (bis Skript 25)
+Nur der Stammtrainer sieht Athletendaten (`coach_owns_swimmer`). Teaminhalte sieht nur der Haupttrainer.
+
+### Wer sieht was – nach Skript 26 (optional)
+- **Stammtrainer:** wie bisher, alles zu seinen Athleten.
+- **Haupttrainer:** zusätzlich alle Athleten, die *aktuell* in seinen Teams sind.
+- **weiterer Trainer:** Athleten der Teams, denen er aktiv zugeordnet ist; Einheiten, Anwesenheit und Feedback dieser Teams. Stammdaten nur lesen.
+- **Historische Daten:** Wer Zugriff auf einen Athleten hat, sieht auch dessen Vorgeschichte (Zeiten, Befinden, Gesundheit) – es ist dieselbe Person. Endet die Zuordnung (Entzug, Athlet verlässt das Team), endet der Zugriff **sofort und vollständig**, auch auf alte Daten. Einheiten, die ein entzogener Trainer selbst angelegt hat, sieht er weiter, aber ohne Athletendaten.
+- **Weitergabe verhindert:** Athleten in Teams aufnehmen darf nur der Stammtrainer. Ein weiterer Trainer kann einen Athleten also nicht in ein eigenes Team „mitnehmen“ und so anderen Zugriff verschaffen. Neue Trainer trägt nur der Haupttrainer ein; nur Konten mit Rolle `coach`.
+- **Rolle:** Seit Skript 25 kann niemand seine eigene Rolle über die App ändern (Trigger `profiles_protect_role`).
+- **Rückweg:** `trainerteam_zuruecksetzen.sql` stellt den Zustand vor 26 wieder her.
+
+### Übergang
+1. Skript 25 ausführen. Es zeigt am Ende, in welchen Teams Athleten mit *anderem* Stammtrainer sind – diese sieht der Haupttrainer nach Skript 26 zusätzlich. Liste ansehen.
+2. Datensicherung, dann Skript 26.
+3. Weitere Trainer eintragen (bis es dafür einen Dialog gibt, im SQL-Editor als Haupttrainer-Aktion):
+   `insert into public.team_coaches (team_id, coach_id) values ('<team-id>', '<profil-id des Trainers>');`
+   Entziehen: `update public.team_coaches set revoked_at = now() where team_id = '<team-id>' and coach_id = '<profil-id>';`
+
+### Getestet
+`bash tests/rls/run.sh` – Wegwerf-Datenbank, eingeschränkte Rollen `authenticated`/`anon`, 73 Prüfungen in drei Phasen
+(vorher, Trainerteam aktiv, nach dem Rückweg): fremde Athleten, Umhängen auf fremde Athleten, fremde Ordner, ungültige
+Ordner, Rolle selbst ändern, sich selbst als Trainer eintragen, Entzug, Teamwechsel, Weitergabe über ein zweites Team.
+**Grenze:** Die Regeln der Kern-Tabellen (Trainings, Profile, Teams) stehen nicht im Projekt und sind im Test *angenommen*.
+Ob die echte Datenbank so aussieht, zeigen erst `regeln_anzeigen.sql` und `sicherheitscheck.sql`.
+
+### Dateien
+`athlete-documents` ist privat. Zugriff nur über `coach_owns_swimmer_folder` (Textvergleich, kein uuid-Cast).
+Die App lädt erst die Datei, dann den Eintrag; schlägt der Eintrag fehl, wird die Datei wieder entfernt. Beim Löschen
+wird erst der Eintrag gelöscht, dann die Datei; schlägt das Entfernen der Datei fehl, bietet die App „Datei erneut
+löschen“ an. Ein Athlet mit hochgeladenen Dateien kann erst gelöscht werden, wenn seine Dokumente gelöscht sind –
+so bleiben keine Dateien ohne Eintrag zurück. Bestehende Dateien werden nie automatisch aufgeräumt.

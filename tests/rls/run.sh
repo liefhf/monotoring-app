@@ -17,7 +17,7 @@ trap cleanup EXIT
 run "$BIN/initdb -D $WORK/data -A trust -U postgres" >/dev/null
 run "$BIN/pg_ctl -D $WORK/data -o '-k $WORK -p $PORT -c listen_addresses=' -l $WORK/log start -w" >/dev/null
 PSQL="psql -X -q -h $WORK -p $PORT -U postgres -d postgres -v ON_ERROR_STOP=1"
-cp "$ROOT"/tests/rls/*.sql "$ROOT"/supabase/{anwesenheit,gesundheit_dokumente,ziele_notizen,sicherheit_trainerteam,trainerteam_aktivieren,trainerteam_zuruecksetzen}.sql "$WORK"/
+cp "$ROOT"/tests/rls/*.sql "$ROOT"/supabase/{anwesenheit,gesundheit_dokumente,ziele_notizen,sicherheit_trainerteam,trainerteam_aktivieren,trainerteam_zuruecksetzen,sicherheitscheck,regeln_anzeigen}.sql "$WORK"/
 chmod 644 "$WORK"/*.sql
 $PSQL -f "$WORK/stub.sql"
 for f in anwesenheit gesundheit_dokumente ziele_notizen sicherheit_trainerteam; do $PSQL -o /dev/null -f "$WORK/$f.sql"; done
@@ -31,4 +31,7 @@ $PSQL -o /dev/null -f "$WORK/checks_team.sql" 2>&1 | sed -n -e "s/.*NOTICE:  //p
 $PSQL -f "$WORK/trainerteam_zuruecksetzen.sql" >/dev/null
 echo "== Phase 3: nach Rueckweg (wieder wie Phase 1)"
 $PSQL -o /dev/null -v phase=3 -f "$WORK/checks_base.sql" 2>&1 | sed -n -e "s/.*NOTICE:  //p" -e "/ERROR/p"
+echo "== Pruefskripte laufen fehlerfrei (Ausgabe des Sicherheitschecks auf der Testdatenbank):"
+$PSQL -f "$WORK/sicherheitscheck.sql"
+$PSQL -o /dev/null -f "$WORK/regeln_anzeigen.sql"
 $PSQL -f "$WORK/summary.sql"

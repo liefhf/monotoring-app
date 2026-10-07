@@ -3,7 +3,8 @@
 --
 -- Nur lesen - aendert nichts. Im Supabase SQL-Editor ausfuehren,
 -- das Ergebnis erscheint unter "Results" als Tabelle.
--- Fehlt etwas aus 12-21 (oder 1): alles_aktualisieren.sql ausfuehren.
+-- Fehlt etwas aus 1 oder 12-25: alles_aktualisieren.sql ausfuehren.
+-- 26 ist optional und wird bewusst einzeln ausgefuehrt (siehe README).
 -- =====================================================================
 
 with checks(nr, skript, ok) as (
@@ -31,7 +32,9 @@ with checks(nr, skript, ok) as (
     (21, 'testbatterie.sql',                to_regclass('public.fitness_tests') is not null),
     (22, 'mein_fortschritt.sql',            to_regprocedure('public.my_results()') is not null),
     (23, 'gesundheit_dokumente.sql',        to_regclass('public.athlete_documents') is not null),
-    (24, 'ziele_notizen.sql',               to_regclass('public.athlete_notes') is not null)
+    (24, 'ziele_notizen.sql',               to_regclass('public.athlete_notes') is not null),
+    (25, 'sicherheit_trainerteam.sql',      to_regclass('public.team_coaches') is not null),
+    (26, 'trainerteam_aktivieren.sql (optional)', exists (select 1 from pg_policies where policyname = 'Primary coach adds to own teams'))
 )
 select nr, skript, case when ok then '✓ eingespielt' else '✗ fehlt' end as status
 from checks

@@ -38,7 +38,7 @@ create function public.coach_has_athlete(p_athlete_id uuid) returns boolean lang
   select exists (select 1 from public.team_members tm join public.teams t on t.id = tm.team_id where tm.athlete_id = p_athlete_id and t.coach_id = auth.uid()) $$;
 
 -- Supabase-Speicher
-create table storage.buckets (id text primary key, name text, public boolean);
+create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
 create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
 create function storage.foldername(name text) returns text[] language sql immutable as $$ select (string_to_array(name, '/'))[1:array_length(string_to_array(name, '/'), 1) - 1] $$;
 
@@ -65,3 +65,5 @@ grant usage on schema public, auth, storage to authenticated, anon;
 grant all on all tables in schema public to authenticated, anon;
 grant all on all tables in schema storage to authenticated, anon;
 alter default privileges in schema public grant all on tables to authenticated, anon;
+revoke all on function public.coach_owns_swimmer(uuid), public.is_team_coach(uuid), public.coach_has_athlete(uuid) from public, anon;
+grant execute on function public.coach_owns_swimmer(uuid), public.is_team_coach(uuid), public.coach_has_athlete(uuid) to authenticated;

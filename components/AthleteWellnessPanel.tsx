@@ -30,6 +30,7 @@ type Entry = {
   mood: number;
   sleep_hours: number | null;
   has_pain: boolean | null;
+  pain_answer?: string | null;
   pain_area: string | null;
   comment: string | null;
 };
@@ -61,7 +62,7 @@ export default function AthleteWellnessPanel({ profileId }: { profileId: string 
     Promise.all([
       supabase
         .from("befinden_entries")
-        .select("id, entry_date, sleep_quality, energy, muscle_feeling, stress, mood, sleep_hours, has_pain, pain_area, comment")
+        .select("*") /* * statt Spaltenliste: pain_answer (Skript 25) ist optional */
         .eq("athlete_id", profileId)
         .gte("entry_date", since)
         .order("entry_date", { ascending: false }),
@@ -170,7 +171,7 @@ export default function AthleteWellnessPanel({ profileId }: { profileId: string 
                 <span className="min-w-0 flex-1 text-[13px] text-app-text">
                   {[
                     entry.sleep_hours != null ? `${String(entry.sleep_hours).replace(".", ",")} h Schlaf` : null,
-                    entry.has_pain ? `Schmerz${entry.pain_area ? `: ${entry.pain_area}` : ""}` : null,
+                    entry.has_pain ? `Schmerz${entry.pain_area ? `: ${entry.pain_area}` : ""}` : entry.pain_answer === "keine_angabe" ? "Schmerz: weiß nicht" : null,
                     readiness.hints.filter((hint) => !hint.startsWith("wenig Schlaf") && hint !== "Schmerzen gemeldet").join(" · ") || null,
                   ]
                     .filter(Boolean)

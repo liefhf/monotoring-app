@@ -31,7 +31,13 @@ Leitfrage für jede Kennzahl: **Kann ein Schwimmtrainer daraus eine Entscheidung
 | Start-/Wendenanalyse, Zugfrequenz, Unterwasserphase | Technik-Teilzeiten | braucht Video oder Messsysteme | **bewusst nicht eingeführt**. Ohne Video- oder Sensorintegration wäre der Erfassungsaufwand am Beckenrand zu hoch. Technikfehler werden in der Wettkampfauswertung schon per Klick je Abschnitt erfasst. |
 | Wachstum (Größe, Gewicht) | biologische Entwicklung | exakt | **behalten** (im Profil unter „Befinden & Training“). Relevant für Jugendliche in der Wachstumsphase [8]. |
 
-Fünf Fragen genügen: Fitness/Müdigkeit, Laune, Muskelgefühl, Entspannung und Schlaf decken die Bereiche ab, die in Studien am empfindlichsten auf Belastung reagieren [7]. Motivation ist bewusst keine eigene Frage, weil sie bei Kindern stark mit der Laune zusammenfällt. Schmerzen werden gezielt am Körpermodell gemeldet. Fünf Antwortstufen statt zehn sind für Kinder eindeutiger. Gespeichert wird weiter auf der 1–10-Skala, damit alte Einträge vergleichbar bleiben.
+Fünf Fragen genügen: Fitness/Müdigkeit, Laune, Muskelgefühl, Entspannung und Schlaf decken die Bereiche ab, die in Studien am empfindlichsten auf Belastung reagieren [7]. Motivation ist bewusst keine eigene Frage, weil sie bei Kindern stark mit der Laune zusammenfällt. Schmerzen werden gezielt am Körpermodell gemeldet. Fünf Antwortstufen statt zehn sind für Kinder eindeutiger. Gespeichert wird weiter auf der 1–10-Skala (2/4/6/8/10).
+
+**Vergleichbarkeit:** Die 5-Gesichter-Antworten sind *nicht* statistisch gleichwertig mit den alten 10-Stufen-Antworten. Eine 6 aus „😐 mittel“ ist nicht dasselbe wie eine früher frei gewählte 6, und Zwischenwerte (5, 7) kommen nicht mehr vor. Deshalb gilt:
+- Verläufe über den Wechsel hinweg nur grob lesen; Vergleiche gegen den *eigenen* Durchschnitt brauchen nach dem Wechsel ein paar Wochen neue Werte.
+- Die App zeigt Athleten keine Punktzahl. Der Befindenswert für Trainer ist eine Orientierung in groben Stufen, keine Messung auf eine Kommastelle.
+
+**Schmerzfrage:** „Ja“, „Nein“ oder „Weiß nicht“ – ohne Voreinstellung. „Weiß nicht“ wird getrennt gespeichert (`pain_answer`, Skript 25) und nicht als „keine Schmerzen“ gezählt. Alte Einträge ohne diese Angabe bleiben leer.
 
 ## Ziele
 Zeitziele werden automatisch mit der Bestzeit verglichen (gleiche Strecke, Lage und Bahn). Es gilt überall dieselbe Bestzeit-Regel wie im Bestzeiten-Tab (`findBestResult`): Offizielle Zwischenzeiten zählen mit. Eine „neue Bestzeit“ ist eine Zeit, die schneller ist als alle Zeiten davor auf derselben Strecke und Bahn. Die erste Zeit auf einer Strecke zählt nicht als neue Bestzeit. Athleten sehen „noch x Sekunden“ und keine Prozentwerte oder Prognosen.

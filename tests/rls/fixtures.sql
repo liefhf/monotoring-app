@@ -24,4 +24,4 @@ insert into public.athlete_notes (swimmer_id, body) values ('51000000-0000-0000-
 insert into public.health_events (swimmer_id, title, visible_to_athlete) values ('51000000-0000-0000-0000-000000000000','Schulter',true),('51000000-0000-0000-0000-000000000000','intern',false);
 insert into public.training_attendance (training_session_id, swimmer_id, status) values ('5e000000-0000-0000-0000-000000000000','51000000-0000-0000-0000-000000000000','krank');
 insert into public.befinden_entries (athlete_id, entry_date, has_pain) values ('eeeeeeee-0000-0000-0000-000000000000','2026-10-05',false);
-insert into storage.buckets values ('athlete-documents','athlete-documents',false) on conflict do nothing;
+insert into storage.buckets (id, name, public) values ('athlete-documents','athlete-documents',false) on conflict do nothing;
