@@ -43,19 +43,26 @@ function Report() {
     checkIns: { athlete_id: string; entry_date: string }[];
     results: SwimmerResult[];
     flags: Row[];
+    key: string;
   } | null>(null);
+  const [failedKey, setFailedKey] = useState<string | null>(null);
+  const key = `${teamId}|${week}`;
 
 
   useEffect(() => {
     if (!teamId) return;
     const sunday = shiftDays(week, 6);
+    let cancelled = false;
+    const requestKey = `${teamId}|${week}`;
     async function load() {
-      setData(null);
-      const memberIds = (((await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId!)).data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id);
+      const memberRes = await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId!);
+      if (memberRes.error) throw new Error("team");
+      const memberIds = ((memberRes.data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id);
       const [swimmerRes, sessionRes] = await Promise.all([
         memberIds.length ? supabase.from("swimmers").select("id, first_name, last_name, profile_id").in("id", memberIds) : Promise.resolve({ data: [] }),
         supabase.from("training_sessions").select("*").eq("team_id", teamId!).gte("session_date", week).lte("session_date", sunday),
       ]);
+      if (("error" in swimmerRes && swimmerRes.error) || sessionRes.error) throw new Error("grunddaten");
       const swimmers = (swimmerRes.data ?? []) as Swimmer[];
       const sessions = (sessionRes.data ?? []) as ReportSession[];
       const sessionIds = sessions.map((session) => session.id);
@@ -71,7 +78,10 @@ function Report() {
           : Promise.resolve({ data: [] }),
         loadRows(today, teamId),
       ]);
+      for (const res of [attendanceRes, feedbackRes, checkInRes, resultRes] as { error?: unknown }[]) if (res.error) throw new Error("teildaten");
+      if (cancelled) return;
       setData({
+        key: requestKey,
         swimmers,
         sessions,
         attendance: (attendanceRes.data ?? []) as ReportAttendance[],
@@ -81,19 +91,25 @@ function Report() {
         flags: flags.filter((row) => row.flags.length),
       });
     }
-    load();
+    load().catch(() => !cancelled && setFailedKey(requestKey));
+    return () => {
+      cancelled = true;
+    };
   }, [teamId, week, today]);
+  /* nie den Bericht eines anderen Teams oder einer anderen Woche zeigen */
+  const current = data && data.key === key ? data : null;
+  const failed = failedKey === key && !current;
 
   const sunday = shiftDays(week, 6);
   const nameOf = (id: string, key: "id" | "profile_id" = "id") => {
-    const swimmer = data?.swimmers.find((item) => item[key] === id);
+    const swimmer = current?.swimmers.find((item) => item[key] === id);
     return swimmer ? `${swimmer.first_name} ${swimmer.last_name ?? ""}`.trim() : "Athlet";
   };
 
-  const training = data ? trainingSummary(data.sessions, data.feedback) : null;
-  const attendance = data ? attendanceSummary(data.attendance, data.swimmers.map((swimmer) => swimmer.id)) : null;
-  const checkIns = data ? checkInSummary(data.checkIns, data.swimmers.map((swimmer) => swimmer.profile_id).filter(Boolean) as string[]) : null;
-  const bests = data ? newPersonalBests(data.results, week, sunday) : [];
+  const training = current ? trainingSummary(current.sessions, current.feedback) : null;
+  const attendance = current ? attendanceSummary(current.attendance, current.swimmers.map((swimmer) => swimmer.id)) : null;
+  const checkIns = current ? checkInSummary(current.checkIns, current.swimmers.map((swimmer) => swimmer.profile_id).filter(Boolean) as string[]) : null;
+  const bests = current ? newPersonalBests(current.results, week, sunday) : [];
   const teamName = teams.find((team) => team.id === teamId)?.name ?? "";
 
   return (
@@ -123,7 +139,11 @@ function Report() {
         </p>
       )}
 
-      {teamHint ? null : !data || !training || !attendance || !checkIns ? (
+      {teamHint ? null : failed ? (
+        <p role="alert" className="rounded-[14px] border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-text">
+          Der Wochenbericht konnte nicht vollständig geladen werden. Es wird nichts angezeigt, damit keine falschen Zahlen entstehen. Bitte Seite neu laden.
+        </p>
+      ) : !current || !training || !attendance || !checkIns ? (
         <Loader />
       ) : (
         <>
@@ -178,11 +198,11 @@ function Report() {
 
           <section className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">
             <h2 className="text-[15px] font-bold text-app-heading">Aktuelle Hinweise</h2>
-            {data.flags.length === 0 ? (
+            {current.flags.length === 0 ? (
               <p className="mt-2 text-sm text-app-muted">Keine Auffälligkeiten.</p>
             ) : (
               <ul className="mt-2 divide-y divide-app-border/60">
-                {data.flags.map((row) => (
+                {current.flags.map((row) => (
                   <li key={row.id} className="py-2.5">
                     <Link href={`/coach/schwimmer/${row.id}`} className="font-bold text-app-heading hover:text-app-accent-soft">
                       {row.name}

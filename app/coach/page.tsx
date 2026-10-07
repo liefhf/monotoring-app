@@ -49,23 +49,34 @@ export default function CoachDashboard() {
   const [today] = useState(() => toDateKey(new Date()));
   const { teams, teamId, chooseTeam, status: teamStatus } = useSelectedTeam();
   const teamHint = teamNotice(teamStatus, teamId);
-  const [todaySessions, setTodaySessions] = useState<Session[]>([]);
-  const [weekEvents, setWeekEvents] = useState<CalendarEntry[]>([]);
-  const [competition, setCompetition] = useState<CalendarEntry | null>(null);
-  const [swimmers, setSwimmers] = useState<Swimmer[]>([]);
-  const [checkedIn, setCheckedIn] = useState<Set<string>>(new Set());
-  const [attendanceRate, setAttendanceRate] = useState<number | null>(null);
-  const [bests, setBests] = useState<{ result: SwimmerResult; previous: number }[]>([]);
-
+  type DashData = {
+    key: string;
+    swimmers: Swimmer[];
+    todaySessions: Session[];
+    weekEvents: CalendarEntry[];
+    competition: CalendarEntry | null;
+    checkedIn: Set<string> | null;
+    attendance: { rate: number; recorded: number; past: number } | null;
+    bests: { result: SwimmerResult; previous: number }[];
+    failed: string[];
+  };
+  const [data, setData] = useState<DashData | null>(null);
+  const key = `${teamId}|${today}`;
 
   useEffect(() => {
     if (!teamId) return;
+    let cancelled = false;
+    const requestKey = `${teamId}|${today}`;
     async function load() {
-      const memberIds = (((await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId!)).data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id);
-      const [swimmerRes, sessionRes, recentRes, eventRes, upcoming] = await Promise.all([
-        memberIds.length ? supabase.from("swimmers").select("id, first_name, last_name, profile_id").in("id", memberIds) : Promise.resolve({ data: [] }),
+      const failed: string[] = [];
+      const memberRes = await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId!);
+      if (memberRes.error) failed.push("Team");
+      const memberIds = ((memberRes.data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id);
+      const [swimmerRes, sessionRes, pastRes, eventRes, upcoming] = await Promise.all([
+        memberIds.length ? supabase.from("swimmers").select("id, first_name, last_name, profile_id").in("id", memberIds) : Promise.resolve({ data: [], error: null }),
         supabase.from("training_sessions").select("id, title, session_date, start_time, total_meters, training_type").eq("team_id", teamId!).eq("session_date", today).order("start_time"),
-        supabase.from("training_sessions").select("id").eq("team_id", teamId!).gte("session_date", addDays(today, -28)).lte("session_date", today),
+        /* Anwesenheitsquote: nur VERGANGENE Einheiten der letzten 4 Wochen (heute zaehlt nicht) */
+        supabase.from("training_sessions").select("id").eq("team_id", teamId!).gte("session_date", addDays(today, -28)).lt("session_date", today),
         supabase
           .from("calendar_entries")
           .select(CALENDAR_COLUMNS)
@@ -74,33 +85,59 @@ export default function CoachDashboard() {
           .order("starts_at"),
         loadUpcomingCompetitions(),
       ]);
+      if (swimmerRes.error) failed.push("Athleten");
+      if (sessionRes.error || pastRes.error) failed.push("Trainings");
       const team = (swimmerRes.data ?? []) as Swimmer[];
-      setSwimmers(team);
-      setTodaySessions((sessionRes.data ?? []) as Session[]);
-      setWeekEvents(((eventRes.data ?? []) as CalendarEntry[]).filter((entry) => !entry.team_id || entry.team_id === teamId));
       const relevant = upcoming.filter((entry) => !entry.team_id || entry.team_id === teamId);
-      setCompetition(relevant.find((entry) => competitionPriority(entry) === "A") ?? relevant[0] ?? null);
 
       const profileIds = team.map((swimmer) => swimmer.profile_id).filter(Boolean) as string[];
-      const recentIds = ((recentRes.data ?? []) as { id: string }[]).map((row) => row.id);
+      const pastIds = ((pastRes.data ?? []) as { id: string }[]).map((row) => row.id);
       const [checkInRes, attendanceRes, resultRes] = await Promise.all([
-        profileIds.length ? supabase.from("befinden_entries").select("athlete_id").in("athlete_id", profileIds).eq("entry_date", today) : Promise.resolve({ data: [] }),
-        recentIds.length ? supabase.from("training_attendance").select("status").in("training_session_id", recentIds) : Promise.resolve({ data: [] }),
+        profileIds.length ? supabase.from("befinden_entries").select("athlete_id").in("athlete_id", profileIds).eq("entry_date", today) : Promise.resolve({ data: [], error: null }),
+        pastIds.length ? supabase.from("training_attendance").select("training_session_id, status").in("training_session_id", pastIds) : Promise.resolve({ data: [], error: null }),
         team.length
-          ? fetchAll(() => supabase.from("swimmer_results").select(RESULT_COLUMNS).in("swimmer_id", team.map((swimmer) => swimmer.id)).eq("kind", "einzel"))
-          : Promise.resolve({ data: [] }),
+          ? fetchAll(() => supabase.from("swimmer_results").select(RESULT_COLUMNS).in("swimmer_id", team.map((swimmer) => swimmer.id)).eq("kind", "einzel").order("id"))
+          : Promise.resolve({ data: [], error: null }),
       ]);
-      setCheckedIn(new Set(((checkInRes.data ?? []) as { athlete_id: string }[]).map((row) => row.athlete_id)));
-      const attendance = (attendanceRes.data ?? []) as { status: string }[];
-      setAttendanceRate(attendance.length ? Math.round((attendance.filter((row) => row.status === "anwesend").length / attendance.length) * 100) : null);
-      setBests(newPersonalBests((resultRes.data ?? []) as SwimmerResult[], addDays(today, -7), today).slice(0, 5));
+      if (cancelled) return;
+      const attendanceRows = (attendanceRes.data ?? []) as { training_session_id: string; status: string }[];
+      setData({
+        key: requestKey,
+        swimmers: team,
+        todaySessions: (sessionRes.data ?? []) as Session[],
+        weekEvents: ((eventRes.data ?? []) as CalendarEntry[]).filter((entry) => !entry.team_id || entry.team_id === teamId),
+        competition: relevant.find((entry) => competitionPriority(entry) === "A") ?? relevant[0] ?? null,
+        checkedIn: checkInRes.error ? null : new Set(((checkInRes.data ?? []) as { athlete_id: string }[]).map((row) => row.athlete_id)),
+        attendance:
+          attendanceRes.error || !attendanceRows.length
+            ? null
+            : {
+                rate: Math.round((attendanceRows.filter((row) => row.status === "anwesend").length / attendanceRows.length) * 100),
+                recorded: new Set(attendanceRows.map((row) => row.training_session_id)).size,
+                past: pastIds.length,
+              },
+        bests: resultRes.error ? [] : newPersonalBests((resultRes.data ?? []) as SwimmerResult[], addDays(today, -7), today).slice(0, 5),
+        failed: [...failed, ...(checkInRes.error ? ["Check-ins"] : []), ...(attendanceRes.error ? ["Anwesenheit"] : []), ...(resultRes.error ? ["Bestzeiten"] : [])],
+      });
     }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [teamId, today]);
+
+  /* Teamwechsel: Werte des vorherigen Teams nie anzeigen */
+  const current = data && data.key === key ? data : null;
+  const swimmers = current?.swimmers ?? [];
+  const todaySessions = current?.todaySessions ?? [];
+  const weekEvents = current?.weekEvents ?? [];
+  const competition = current?.competition ?? null;
+  const checkedIn = current?.checkedIn ?? null;
+  const bests = current?.bests ?? [];
 
   const todayLabel = new Date(`${today}T12:00:00`).toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" });
   const withLogin = swimmers.filter((swimmer) => swimmer.profile_id);
-  const missingCheckIn = withLogin.filter((swimmer) => !checkedIn.has(swimmer.profile_id!));
+  const missingCheckIn = checkedIn ? withLogin.filter((swimmer) => !checkedIn.has(swimmer.profile_id!)) : [];
   const nameOf = (id: string) => {
     const swimmer = swimmers.find((item) => item.id === id);
     return swimmer ? `${swimmer.first_name} ${swimmer.last_name ?? ""}`.trim() : "Athlet";
@@ -125,9 +162,18 @@ export default function CoachDashboard() {
         </p>
       )}
 
+      {current && current.failed.length > 0 && (
+        <p role="alert" className="rounded-[14px] border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-text">
+          Nicht alles konnte geladen werden ({current.failed.join(", ")}). Betroffene Zahlen fehlen unten bewusst – bitte Seite neu laden.
+        </p>
+      )}
+
       <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12 [&>*]:min-w-0">
-        {/* 1. Aufmerksamkeit heute */}
-        <div className="lg:col-span-7">{teamId && <RedFlagsPanel teamId={teamId} variant="summary" />}</div>
+        {/* 1. Aufmerksamkeit heute: Hinweise und Fristen */}
+        <div className="space-y-4 sm:space-y-5 lg:col-span-7">
+          {teamId && <RedFlagsPanel teamId={teamId} variant="summary" />}
+          {teamId && <DeadlinesCard teamId={teamId} />}
+        </div>
 
         {/* 2. Heute */}
         <div className="space-y-4 sm:space-y-5 lg:col-span-5">
@@ -201,23 +247,47 @@ export default function CoachDashboard() {
         {/* 3. Team */}
         <div className="lg:col-span-4">
           <Section title="Team">
-            <dl className="grid grid-cols-2 gap-2">
-              <div className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
-                <dt className="label-caps">Check-ins heute</dt>
-                <dd className="num mt-1 text-xl font-semibold text-app-heading">
-                  {checkedIn.size}/{withLogin.length}
-                </dd>
-              </div>
-              <div className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
-                <dt className="label-caps">Anwesenheit 4 Wo.</dt>
-                <dd className="num mt-1 text-xl font-semibold text-app-heading">{attendanceRate === null ? "–" : `${attendanceRate} %`}</dd>
-              </div>
-            </dl>
-            {missingCheckIn.length > 0 && withLogin.length > 0 && (
-              <p className="mt-3 text-[13px] text-app-muted">
-                Noch kein Check-in: {missingCheckIn.slice(0, 6).map((swimmer) => swimmer.first_name).join(", ")}
-                {missingCheckIn.length > 6 ? ` und ${missingCheckIn.length - 6} weitere` : ""}
-              </p>
+            {!current ? (
+              <div className="h-24 animate-pulse rounded-[14px] bg-app-elevated" aria-label="Wird geladen" />
+            ) : (
+              <>
+                <dl className="grid grid-cols-2 gap-2">
+                  <div className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
+                    <dt className="label-caps">Check-ins heute</dt>
+                    <dd className="num mt-1 text-xl font-semibold text-app-heading">
+                      {checkedIn === null ? "–" : withLogin.length ? `${checkedIn.size}/${withLogin.length}` : "–"}
+                    </dd>
+                    <dd className="text-[12px] text-app-muted">
+                      {checkedIn === null ? "nicht geladen" : swimmers.length > withLogin.length ? `${swimmers.length - withLogin.length} ohne Login` : "alle mit Login"}
+                    </dd>
+                  </div>
+                  <div className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
+                    <dt className="label-caps">Anwesenheit</dt>
+                    <dd className="num mt-1 text-xl font-semibold text-app-heading">{current.attendance ? `${current.attendance.rate} %` : "–"}</dd>
+                    <dd className="text-[12px] text-app-muted">
+                      {current.attendance
+                        ? `letzte 4 Wochen, ${current.attendance.recorded} von ${current.attendance.past} Einheiten erfasst`
+                        : current.failed.includes("Anwesenheit")
+                          ? "nicht geladen"
+                          : "noch nichts erfasst"}
+                    </dd>
+                  </div>
+                </dl>
+                {missingCheckIn.length > 0 && (
+                  <p className="mt-3 text-[13px] text-app-muted">
+                    Noch kein Check-in:{" "}
+                    {missingCheckIn.slice(0, 8).map((swimmer, index) => (
+                      <span key={swimmer.id}>
+                        {index > 0 && ", "}
+                        <Link href={`/coach/schwimmer/${swimmer.id}?tab=befinden`} className="font-semibold text-app-heading underline decoration-app-border underline-offset-2 hover:text-app-accent-soft">
+                          {swimmer.first_name}
+                        </Link>
+                      </span>
+                    ))}
+                    {missingCheckIn.length > 8 ? ` und ${missingCheckIn.length - 8} weitere` : ""}
+                  </p>
+                )}
+              </>
             )}
             <div className="mt-3 flex flex-wrap gap-3 text-[13px] font-semibold">
               <Link href="/coach/anwesenheit" className="text-app-accent-soft hover:underline">Anwesenheit →</Link>
@@ -229,7 +299,9 @@ export default function CoachDashboard() {
         {/* 4. Entwicklung */}
         <div className="lg:col-span-4">
           <Section title="Neue Bestzeiten" meta={<span className="text-[13px] text-app-muted">letzte 7 Tage</span>}>
-            {bests.length === 0 ? (
+            {current?.failed.includes("Bestzeiten") ? (
+              <p className="text-sm text-app-bad">Bestzeiten konnten nicht geladen werden.</p>
+            ) : bests.length === 0 ? (
               <p className="text-sm text-app-muted">Keine neuen Bestzeiten.</p>
             ) : (
               <ul className="divide-y divide-app-border/60">
@@ -250,7 +322,6 @@ export default function CoachDashboard() {
 
         {/* Fristen und Aufgaben */}
         <div className="space-y-4 sm:space-y-5 lg:col-span-4">
-          <DeadlinesCard />
           <TodoCard teamId={teamId} />
         </div>
       </div>

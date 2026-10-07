@@ -1,5 +1,6 @@
 "use client";
 
+import { classifyError } from "@/lib/loadState";
 import { toDateKey } from "@/lib/community";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -30,22 +31,41 @@ export type Row = {
 const DAY = 86_400_000;
 const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
+/*
+ * Wie loadRowsChecked, aber nur die Zeilen (fuer Berichte).
+ * Wirft bei Ladefehlern der Grunddaten.
+ */
 export async function loadRows(today: string, teamId: string | null, swimmerId: string | null = null): Promise<Row[]> {
+  return (await loadRowsChecked(today, teamId, swimmerId)).rows;
+}
+
+/*
+ * incomplete: Quellen, die nicht geladen werden konnten. Dann ist
+ * "keine Hinweise" NICHT dasselbe wie "unauffaellig" - die Oberflaeche
+ * muss das sagen. Fehlen die Grunddaten (Team, Athleten, Einheiten),
+ * wird ein Fehler geworfen.
+ */
+export async function loadRowsChecked(
+  today: string,
+  teamId: string | null,
+  swimmerId: string | null = null
+): Promise<{ rows: Row[]; incomplete: string[] }> {
   const since35 = isoDay(Date.parse(today) - 35 * DAY);
   const since28 = isoDay(Date.parse(today) - 28 * DAY);
   const since3 = new Date(Date.parse(today) - 3 * DAY).toISOString();
   const since21 = isoDay(Date.parse(today) - 21 * DAY);
 
   /* Optional nur eine Mannschaft: ihre Athleten und ihre Einheiten */
-  const memberIds = teamId
-    ? new Set((((await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId)).data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id))
-    : null;
+  const memberRes = teamId ? await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId) : null;
+  if (memberRes?.error) throw new Error("team");
+  const memberIds = memberRes ? new Set(((memberRes.data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id)) : null;
   const sessionQuery = supabase.from("training_sessions").select("*").gte("session_date", since35).lte("session_date", today);
   const swimmerQuery = supabase.from("swimmers").select("*");
   const [swimmerRes, sessionRes] = await Promise.all([
     swimmerId ? swimmerQuery.eq("id", swimmerId) : swimmerQuery,
     teamId ? sessionQuery.eq("team_id", teamId) : sessionQuery,
   ]);
+  if (swimmerRes.error || sessionRes.error) throw new Error("grunddaten");
   const swimmers = ((swimmerRes.data ?? []) as { id: string }[]).filter((swimmer) => !memberIds || memberIds.has(swimmer.id)) as { id: string; first_name: string; last_name: string | null; profile_id?: string | null }[];
   const sessions = (sessionRes.data ?? []) as { id: string; session_date: string; duration_minutes: number | null; planned_rpe?: number | null }[];
   const sessionIds = sessions.map((session) => session.id);
@@ -71,6 +91,18 @@ export async function loadRows(today: string, teamId: string | null, swimmerId: 
       : Promise.resolve({ data: [] }),
   ]);
   const health = (healthRes.data ?? []) as HealthEvent[];
+  /* fehlende Tabelle (Skript nicht ausgefuehrt) ist kein Ladefehler */
+  const incomplete = (
+    [
+      ["Rückmeldungen", feedbackRes],
+      ["Anwesenheit", attendanceRes],
+      ["Befinden", wellnessRes],
+      ["Schmerzmeldungen", painRes],
+      ["Gesundheit", healthRes],
+    ] as [string, { error?: { code?: string } | null }][]
+  )
+    .filter(([, res]) => classifyError(res.error) === "error")
+    .map(([label]) => label);
 
   const feedback = (feedbackRes.data ?? []) as { training_session_id: string; athlete_id: string; rpe: number | null; completed: boolean | null }[];
   const attendance = (attendanceRes.data ?? []) as { training_session_id: string; swimmer_id: string; status: AttendanceStatus }[];
@@ -78,7 +110,7 @@ export async function loadRows(today: string, teamId: string | null, swimmerId: 
   const pain = (painRes.data ?? []) as { athlete_id: string; created_at: string; pain_level: number; spot_label: string | null; body_region: string | null }[];
   const sessionById = new Map(sessions.map((session) => [session.id, session]));
 
-  return swimmers.map((swimmer) => {
+  const rows = swimmers.map((swimmer) => {
     const loads: LoadEntry[] = [];
     for (const session of sessions) {
       const own = feedback.find((item) => item.training_session_id === session.id && item.athlete_id === swimmer.profile_id);
@@ -126,6 +158,7 @@ export async function loadRows(today: string, teamId: string | null, swimmerId: 
       attendanceRate,
     };
   });
+  return { rows, incomplete };
 }
 
 function groupOf(row: Row) {
@@ -133,6 +166,19 @@ function groupOf(row: Row) {
   if (row.flags.length) return "gelb";
   const hasData = row.acwr.ratio !== null || row.readiness !== null || row.painMax !== null || row.attendanceRate !== null;
   return hasData ? "ok" : "leer";
+}
+
+/* Direkter Weg zur Ursache eines Hinweises */
+export function flagHref(swimmerId: string, flag?: Flag) {
+  const tab: Record<Flag["kind"], string> = {
+    acwr: "befinden",
+    schmerz: "gesundheit",
+    befinden: "befinden",
+    checkin: "befinden",
+    anwesenheit: "ueberblick",
+    gesundheit: "gesundheit",
+  };
+  return `/coach/schwimmer/${swimmerId}${flag ? `?tab=${tab[flag.kind]}` : ""}`;
 }
 
 /* Hinweis mit Erklaerung: was, warum, was pruefen */
@@ -160,14 +206,34 @@ function FlagLine({ flag, compact = false }: { flag: Flag; compact?: boolean }) 
  * variant "table": vollstaendige Tabelle aller Athleten
  */
 export default function RedFlagsPanel({ teamId = null, variant = "table" }: { teamId?: string | null; variant?: "summary" | "table" }) {
-  const [rows, setRows] = useState<Row[] | null>(null);
   const [today] = useState(() => toDateKey(new Date()));
+  const key = `${teamId ?? "alle"}|${today}`;
+  const [result, setResult] = useState<{ key: string; rows: Row[] | null; incomplete: string[] } | null>(null);
 
   useEffect(() => {
-    loadRows(today, teamId).then(setRows);
-  }, [today, teamId]);
+    let cancelled = false;
+    loadRowsChecked(today, teamId)
+      .then((loaded) => !cancelled && setResult({ key, rows: loaded.rows, incomplete: loaded.incomplete }))
+      .catch(() => !cancelled && setResult({ key, rows: null, incomplete: [] }));
+    return () => {
+      cancelled = true;
+    };
+  }, [today, teamId, key]);
 
-  if (rows === null) return null;
+  /* Teamwechsel: nie die Werte des vorherigen Teams zeigen */
+  if (!result || result.key !== key) {
+    return <div className="h-40 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
+  }
+  if (result.rows === null) {
+    return (
+      <section className="rounded-[20px] border border-app-bad/40 bg-app-surface p-4 shadow-app sm:p-[22px]">
+        <h2 className="text-[15px] font-bold text-app-heading">Team heute</h2>
+        <p className="mt-2 text-sm text-app-bad">Hinweise konnten nicht geladen werden. Es ist unbekannt, ob jemand Aufmerksamkeit braucht – bitte Seite neu laden.</p>
+      </section>
+    );
+  }
+  const rows = result.rows;
+  const incomplete = result.incomplete;
 
   const sorted = [...rows].sort(
     (x, y) =>
@@ -214,15 +280,26 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
           <span className="font-semibold text-app-warn">{counts.gelb} beachten</span> · {counts.ok} unauffällig
           {counts.leer > 0 && ` · ${counts.leer} ohne Daten`}
         </p>
+        {incomplete.length > 0 && (
+          <p className="mt-2 rounded-xl bg-app-warn/10 px-3 py-2 text-[13px] text-app-text" role="status">
+            Unvollständig: {incomplete.join(", ")} konnten nicht geladen werden. Fehlende Hinweise heißen hier nicht „unauffällig“.
+          </p>
+        )}
         {attention.length === 0 ? (
           <p className="mt-6 text-sm text-app-muted">
-            {rows.length === 0 ? "Noch keine Athleten in diesem Team." : "Keine Auffälligkeiten – heute muss niemand genauer angeschaut werden."}
+            {rows.length === 0
+              ? "Noch keine Athleten in diesem Team."
+              : incomplete.length
+                ? "Keine Hinweise in den geladenen Daten."
+                : counts.leer === rows.length
+                  ? "Noch keine Daten (Check-ins, Rückmeldungen, Anwesenheit) – es gibt nichts zu bewerten."
+                  : `Keine Auffälligkeiten bei ${counts.ok} Athleten mit Daten.${counts.leer ? ` ${counts.leer} ohne Daten.` : ""}`}
           </p>
         ) : (
           <ul className="mt-3 divide-y divide-app-border/60">
             {attention.map((row) => (
               <li key={row.id}>
-                <Link href={`/coach/schwimmer/${row.id}`} className="-mx-2 block rounded-xl px-2 py-2.5 transition hover:bg-app-elevated/60">
+                <Link href={flagHref(row.id, row.flags[0])} className="-mx-2 block rounded-xl px-2 py-2.5 transition hover:bg-app-elevated/60">
                   <span className="mb-1 block text-[15px] font-bold text-app-heading">{row.name}</span>
                   <ul className="space-y-1">
                     {row.flags.slice(0, 2).map((flag) => (
@@ -269,7 +346,7 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
                 </td>
                 {(["acwr", "schmerz", "befinden", "anwesenheit"] as Flag["kind"][]).map((kind) => cell(row, kind))}
                 <td className="px-5 py-3 text-right">
-                  <Link href={`/coach/schwimmer/${row.id}`} className="text-sm font-semibold text-app-accent-soft">
+                  <Link href={flagHref(row.id, row.flags[0])} className="text-sm font-semibold text-app-accent-soft">
                     Öffnen
                   </Link>
                 </td>
@@ -298,12 +375,19 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
  * dieselben Hinweise wie im Athleten-Check, mit Erklaerung.
  */
 export function AthleteStatusCard({ swimmerId }: { swimmerId: string }) {
-  const [row, setRow] = useState<Row | null | undefined>(undefined);
   const [today] = useState(() => toDateKey(new Date()));
+  const [entry, setEntry] = useState<{ id: string; row: Row | null | "error"; incomplete: string[] } | null>(null);
 
   useEffect(() => {
-    loadRows(today, null, swimmerId).then((rows) => setRow(rows[0] ?? null));
+    let cancelled = false;
+    loadRowsChecked(today, null, swimmerId)
+      .then((loaded) => !cancelled && setEntry({ id: swimmerId, row: loaded.rows[0] ?? null, incomplete: loaded.incomplete }))
+      .catch(() => !cancelled && setEntry({ id: swimmerId, row: "error", incomplete: [] }));
+    return () => {
+      cancelled = true;
+    };
   }, [today, swimmerId]);
+  const row = entry && entry.id === swimmerId ? entry.row : undefined;
 
   const stat = (label: string, value: string, tone = "text-app-heading") => (
     <div className="min-w-0 rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
@@ -316,6 +400,9 @@ export function AthleteStatusCard({ swimmerId }: { swimmerId: string }) {
     return <div className="h-40 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Status wird geladen" />;
   }
   if (row === null) return null;
+  if (row === "error") {
+    return <p className="rounded-[20px] border border-app-bad/40 bg-app-surface p-4 text-sm text-app-bad">Status konnte nicht geladen werden – Hinweise sind unbekannt.</p>;
+  }
 
   const toneOf = (kind: Flag["kind"]) => {
     const flag = row.flags.find((item) => item.kind === kind);

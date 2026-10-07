@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { isMissingTable, supabase } from "@/lib/supabase";
 import { toDateKey } from "@/lib/community";
 import { DOC_TYPE_LABELS, DOC_WARN_DAYS, DocType, documentStatus } from "@/lib/health";
 
@@ -14,29 +14,54 @@ import { DOC_TYPE_LABELS, DOC_WARN_DAYS, DocType, documentStatus } from "@/lib/h
 
 type Row = { id: string; swimmer_id: string; doc_type: DocType; title: string; valid_until: string; swimmers: { first_name: string; last_name: string | null } | null };
 
-export default function DeadlinesCard() {
-  const [rows, setRows] = useState<Row[]>([]);
+export default function DeadlinesCard({ teamId = null }: { teamId?: string | null }) {
   const [today] = useState(() => toDateKey(new Date()));
+  const key = `${teamId ?? "alle"}|${today}`;
+  const [result, setResult] = useState<{ key: string; rows: Row[] | null } | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
     const until = toDateKey(new Date(Date.parse(`${today}T12:00:00`) + DOC_WARN_DAYS * 86_400_000));
-    supabase
-      .from("athlete_documents")
-      .select("id, swimmer_id, doc_type, title, valid_until, swimmers(first_name, last_name)")
-      .not("valid_until", "is", null)
-      .lte("valid_until", until)
-      .order("valid_until")
-      .limit(8)
-      .then(({ data, error }) => {
-        if (!error) setRows((data ?? []) as unknown as Row[]);
-      });
-  }, [today]);
+    async function load() {
+      /* Nur Athleten des gewaehlten Teams */
+      let ids: string[] | null = null;
+      if (teamId) {
+        const members = await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId);
+        if (members.error) return null;
+        ids = ((members.data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id);
+        if (!ids.length) return [];
+      }
+      const query = supabase
+        .from("athlete_documents")
+        .select("id, swimmer_id, doc_type, title, valid_until, swimmers(first_name, last_name)")
+        .not("valid_until", "is", null)
+        .lte("valid_until", until)
+        .order("valid_until")
+        .limit(8);
+      const { data, error } = await (ids ? query.in("swimmer_id", ids) : query);
+      if (error) return isMissingTable(error.code) ? [] : null;
+      return (data ?? []) as unknown as Row[];
+    }
+    load().then((rows) => !cancelled && setResult({ key, rows }));
+    return () => {
+      cancelled = true;
+    };
+  }, [today, teamId, key]);
 
+  if (!result || result.key !== key) return null;
+  if (result.rows === null) {
+    return (
+      <p className="rounded-[20px] border border-app-bad/40 bg-app-surface p-4 text-sm text-app-bad">
+        Dokument-Fristen konnten nicht geladen werden – ob ein Attest abläuft, ist gerade unbekannt.
+      </p>
+    );
+  }
+  const rows = result.rows;
   if (rows.length === 0) return null;
 
   return (
     <section aria-label="Fristen" className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">
-      <h2 className="text-[15px] font-bold text-app-heading">Fristen</h2>
+      <h2 className="text-[15px] font-bold text-app-heading">Fristen: Dokumente</h2>
       <ul className="mt-2 divide-y divide-app-border/60">
         {rows.map((row) => {
           const { status, daysLeft } = documentStatus(row, today);
