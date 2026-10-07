@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -20,7 +21,7 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
   const [error, setError] = useState("");
-  const [today] = useState(() => iso(Date.now()));
+  const [today] = useState(() => toDateKey(new Date()));
 
   const load = useCallback(async () => {
     const { data } = await supabase

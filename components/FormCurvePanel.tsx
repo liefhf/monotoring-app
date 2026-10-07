@@ -1,7 +1,7 @@
 "use client";
 
 import Loader from "@/components/Loader";
-import { localDateOf, CalendarEntry, formatEntryWhen } from "@/lib/community";
+import { localDateOf, CalendarEntry, formatEntryWhen, toDateKey } from "@/lib/community";
 import { useEffect, useMemo, useState } from "react";
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
@@ -19,7 +19,7 @@ const DAY = 86_400_000;
 const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
 export default function FormCurvePanel({ swimmerId }: { swimmerId: string }) {
-  const [today] = useState(() => iso(Date.now()));
+  const [today] = useState(() => toDateKey(new Date()));
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
   const [loads, setLoads] = useState<DailyLoad[] | null>(null);
   const [targetId, setTargetId] = useState("");

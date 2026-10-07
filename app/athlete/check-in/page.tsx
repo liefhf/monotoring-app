@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useBusy } from "@/lib/loadState";
+import { PainAnswer, painAnswerFromEntry, withoutPainAnswer } from "@/lib/checkIn";
 import { readinessScore, wellnessScore } from "@/lib/monitoring";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
@@ -17,7 +19,8 @@ type BefindenEntry = {
   stress: number;
   mood: number;
   sleep_hours: number | null;
-  has_pain: boolean;
+  has_pain: boolean | null;
+  pain_answer?: PainAnswer | null;
   pain_area: string | null;
   comment: string | null;
 };
@@ -32,12 +35,12 @@ type ScaleOption = {
  * Gespeichert wird weiter auf der Skala 1-10 (2/4/6/8/10), damit alle
  * Auswertungen und alte Eintraege unveraendert funktionieren.
  */
-const scaleOptions: ScaleOption[] = [
-  { value: 2, label: "😣" },
-  { value: 4, label: "🙁" },
-  { value: 6, label: "😐" },
-  { value: 8, label: "🙂" },
-  { value: 10, label: "😄" },
+const scaleOptions: (ScaleOption & { word: string })[] = [
+  { value: 2, label: "😣", word: "sehr schlecht" },
+  { value: 4, label: "🙁", word: "eher schlecht" },
+  { value: 6, label: "😐", word: "mittel" },
+  { value: 8, label: "🙂", word: "gut" },
+  { value: 10, label: "😄", word: "sehr gut" },
 ];
 
 function getLocalDateString(date: Date) {
@@ -75,8 +78,12 @@ export default function DailyCheckInPage() {
   const [sleepHours, setSleepHours] =
     useState("");
 
-  const [hasPain, setHasPain] =
-    useState(false);
+  /* Schmerzfrage ohne Voreinstellung: null = noch nicht beantwortet */
+  const [painAnswer, setPainAnswer] =
+    useState<PainAnswer | null>(null);
+  const hasPain = painAnswer === "ja";
+  const [showExtras, setShowExtras] = useState(false);
+  const { busy: saving, run } = useBusy();
 
   const [painArea, setPainArea] =
     useState("");
@@ -86,9 +93,6 @@ export default function DailyCheckInPage() {
 
   const [loading, setLoading] =
     useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
 
   const [message, setMessage] =
     useState("");
@@ -127,27 +131,14 @@ export default function DailyCheckInPage() {
       error,
     } = await supabase
       .from("befinden_entries")
-      .select(`
-        id,
-        athlete_id,
-        entry_date,
-        sleep_quality,
-        energy,
-        muscle_feeling,
-        stress,
-        mood,
-        sleep_hours,
-        has_pain,
-        pain_area,
-        comment
-      `)
+      .select("*")
       .eq("athlete_id", user.id)
       .eq("entry_date", today)
       .maybeSingle();
 
     if (error) {
       setMessage(
-        `Check-in konnte nicht geladen werden: ${error.message}`
+        "Dein heutiger Check-in konnte nicht geladen werden. Du kannst ihn trotzdem ausfüllen – beim Speichern wird er ersetzt."
       );
 
       setLoading(false);
@@ -174,9 +165,8 @@ export default function DailyCheckInPage() {
           : ""
       );
 
-      setHasPain(
-        entry.has_pain
-      );
+      setPainAnswer(painAnswerFromEntry(entry));
+      if (entry.sleep_hours !== null || entry.comment) setShowExtras(true);
 
       setPainArea(
         entry.pain_area ?? ""
@@ -351,6 +341,10 @@ export default function DailyCheckInPage() {
   }
 
   async function submitCheckIn() {
+    await run(saveCheckIn);
+  }
+
+  async function saveCheckIn() {
     if (
       energy === null ||
       mood === null ||
@@ -359,13 +353,17 @@ export default function DailyCheckInPage() {
       sleepQuality === null
     ) {
       setMessage(
-        "Bitte beantworte alle fünf Fragen."
+        "Bitte beantworte alle Fragen."
       );
 
       return;
     }
 
-    setSaving(true);
+    if (painAnswer === null) {
+      setMessage("Bitte sag uns noch, ob dir etwas wehtut.");
+      return;
+    }
+
     setMessage("");
 
     const {
@@ -375,10 +373,9 @@ export default function DailyCheckInPage() {
 
     if (userError || !user) {
       setMessage(
-        "Athlet konnte nicht geladen werden."
+        "Du bist nicht mehr angemeldet. Bitte neu anmelden – deine Antworten gehen dabei verloren."
       );
 
-      setSaving(false);
       return;
     }
 
@@ -406,7 +403,6 @@ export default function DailyCheckInPage() {
         "Bitte gib eine gültige Schlafdauer zwischen 0 und 24 Stunden ein."
       );
 
-      setSaving(false);
       return;
     }
 
@@ -429,6 +425,7 @@ export default function DailyCheckInPage() {
         parsedSleepHours,
       has_pain:
         hasPain,
+      pain_answer: painAnswer,
       pain_area:
         hasPain &&
         painArea.trim()
@@ -440,24 +437,26 @@ export default function DailyCheckInPage() {
           : null,
     };
 
-    const {
-      error,
-    } = await supabase
+    let saveResult = await supabase
       .from("befinden_entries")
-      .upsert(
-        payload,
-        {
-          onConflict:
-            "athlete_id,entry_date",
-        }
-      );
+      .upsert(payload, { onConflict: "athlete_id,entry_date" })
+      .select("id");
 
-    if (error) {
+    /* Spalte pain_answer fehlt (Skript 25 noch nicht ausgefuehrt): ohne sie speichern */
+    if (saveResult.error && withoutPainAnswer(saveResult.error)) {
+      const { pain_answer: _ignored, ...legacy } = payload;
+      void _ignored;
+      saveResult = await supabase
+        .from("befinden_entries")
+        .upsert(legacy, { onConflict: "athlete_id,entry_date" })
+        .select("id");
+    }
+
+    if (saveResult.error || !saveResult.data?.length) {
       setMessage(
-        `Check-in konnte nicht gespeichert werden: ${error.message}`
+        "Check-in konnte nicht gespeichert werden. Deine Antworten sind noch da – bitte gleich nochmal auf „Speichern“ tippen."
       );
 
-      setSaving(false);
       return;
     }
 
@@ -483,7 +482,6 @@ export default function DailyCheckInPage() {
     setReadinessBaseline(previousRows.length >= 3 ? previousRows.reduce((sum, row) => sum + wellnessScore(row), 0) / previousRows.length : null);
 
     setSuccess(true);
-    setSaving(false);
   }
 
   if (loading) {
@@ -572,7 +570,7 @@ export default function DailyCheckInPage() {
           </h1>
 
           <p className="mt-1 text-sm text-app-muted">
-            Tippe einfach auf ein Gesicht.
+            Tippe auf ein Gesicht. Mit „Zurück“ kannst du jede Antwort ändern.
           </p>
         </header>
 
@@ -603,7 +601,7 @@ export default function DailyCheckInPage() {
           {step === 1 && (
             <>
               <QuestionHeader
-                eyebrow="Frage 1 von 5"
+                eyebrow="Frage 1 von 6"
                 title="Wie fit fühlst du dich?"
                 leftLabel="sehr müde"
                 rightLabel="super fit"
@@ -619,7 +617,7 @@ export default function DailyCheckInPage() {
           {step === 2 && (
             <>
               <QuestionHeader
-                eyebrow="Frage 2 von 5"
+                eyebrow="Frage 2 von 6"
                 title="Wie ist deine Laune?"
                 leftLabel="schlecht"
                 rightLabel="super"
@@ -635,7 +633,7 @@ export default function DailyCheckInPage() {
           {step === 3 && (
             <>
               <QuestionHeader
-                eyebrow="Frage 3 von 5"
+                eyebrow="Frage 3 von 6"
                 title="Wie fühlen sich deine Muskeln an?"
                 leftLabel="schwer, Muskelkater"
                 rightLabel="locker"
@@ -653,7 +651,7 @@ export default function DailyCheckInPage() {
           {step === 4 && (
             <>
               <QuestionHeader
-                eyebrow="Frage 4 von 5"
+                eyebrow="Frage 4 von 6"
                 title="Wie entspannt bist du?"
                 leftLabel="viel Stress"
                 rightLabel="ganz entspannt"
@@ -669,7 +667,7 @@ export default function DailyCheckInPage() {
           {step === 5 && (
             <>
               <QuestionHeader
-                eyebrow="Frage 5 von 5"
+                eyebrow="Frage 5 von 6"
                 title="Wie hast du geschlafen?"
                 leftLabel="schlecht"
                 rightLabel="sehr gut"
@@ -686,133 +684,91 @@ export default function DailyCheckInPage() {
 
           {step === 6 && (
             <div>
-              <p className="text-xs text-app-faint">
-                Zusatzangaben
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold">
-                Noch etwas ergänzen?
-              </h2>
-
-              <p className="mt-1 text-sm text-app-muted">
-                Diese Angaben sind optional.
-              </p>
-
-              <div className="mt-5">
-                <label
-                  htmlFor="sleep-hours"
-                  className="text-sm font-medium text-app-text"
-                >
-                  Schlafdauer
-                </label>
-
-                <div className="mt-2 flex items-center gap-2">
-                  <input
-                    id="sleep-hours"
-                    type="text"
-                    inputMode="decimal"
-                    value={sleepHours}
-                    onChange={(
-                      event
-                    ) =>
-                      setSleepHours(
-                        event.target.value
-                      )
-                    }
-                    placeholder="z. B. 7,5"
-                    className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
-                  />
-
-                  <span className="shrink-0 text-sm text-app-faint">
-                    Std.
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-5 rounded-xl border border-app-border bg-app-bg/50 p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-medium">
-                      Beschwerden
-                    </p>
-
-                    <p className="mt-0.5 text-xs text-app-faint">
-                      Hast du aktuell Schmerzen oder Beschwerden?
-                    </p>
-                  </div>
-
+              <p className="text-xs text-app-faint">Frage 6 von 6</p>
+              <h2 className="mt-1 text-2xl font-extrabold">Tut dir gerade etwas weh?</h2>
+              <div className="mt-5 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Tut dir gerade etwas weh?">
+                {([
+                  ["nein", "Nein"],
+                  ["ja", "Ja"],
+                  ["keine_angabe", "Weiß nicht"],
+                ] as [PainAnswer, string][]).map(([value, label]) => (
                   <button
+                    key={value}
                     type="button"
-                    onClick={() =>
-                      setHasPain(
-                        (current) =>
-                          !current
-                      )
-                    }
-                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
-                      hasPain
-                        ? "bg-app-bad/15 text-app-bad"
-                        : "bg-app-elevated text-app-text"
+                    role="radio"
+                    aria-checked={painAnswer === value}
+                    onClick={() => {
+                      setPainAnswer(value);
+                      setMessage("");
+                    }}
+                    className={`min-h-14 rounded-2xl border text-base font-bold transition ${
+                      painAnswer === value ? "border-app-accent bg-app-accent text-app-accent-ink" : "border-app-border bg-app-bg text-app-text"
                     }`}
                   >
-                    {hasPain
-                      ? "Ja"
-                      : "Nein"}
+                    {painAnswer === value ? "✓ " : ""}
+                    {label}
                   </button>
+                ))}
+              </div>
+
+              {hasPain && (
+                <div className="mt-4">
+                  <label htmlFor="pain-area" className="text-sm font-medium text-app-text">
+                    Wo? <span className="text-app-faint">(optional)</span>
+                  </label>
+                  <input
+                    id="pain-area"
+                    type="text"
+                    maxLength={150}
+                    value={painArea}
+                    onChange={(event) => setPainArea(event.target.value)}
+                    placeholder="z. B. Schulter"
+                    className="mt-2 w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-base outline-none transition placeholder:text-app-faint focus:border-app-accent"
+                  />
+                  <Link href="/athlete/pain" className="mt-2 inline-block text-sm font-semibold text-app-accent underline">
+                    Genauer am Körper zeigen
+                  </Link>
                 </div>
+              )}
 
-                {hasPain && (
-                  <div className="mt-4">
-                    <label
-                      htmlFor="pain-area"
-                      className="text-xs text-app-faint"
-                    >
-                      Wo hast du Beschwerden?
+              {!showExtras ? (
+                <button type="button" onClick={() => setShowExtras(true)} className="mt-5 min-h-11 text-sm font-semibold text-app-accent">
+                  + Schlafstunden oder Nachricht an den Trainer (optional)
+                </button>
+              ) : (
+                <div className="mt-5 grid gap-4">
+                  <div>
+                    <label htmlFor="sleep-hours" className="text-sm font-medium text-app-text">
+                      Wie viele Stunden geschlafen?
                     </label>
-
-                    <input
-                      id="pain-area"
-                      type="text"
-                      maxLength={150}
-                      value={painArea}
-                      onChange={(
-                        event
-                      ) =>
-                        setPainArea(
-                          event.target.value
-                        )
-                      }
-                      placeholder="z. B. Schulter"
-                      className="mt-2 w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        id="sleep-hours"
+                        type="text"
+                        inputMode="decimal"
+                        value={sleepHours}
+                        onChange={(event) => setSleepHours(event.target.value)}
+                        placeholder="z. B. 8"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-base outline-none transition placeholder:text-app-faint focus:border-app-accent"
+                      />
+                      <span className="shrink-0 text-sm text-app-faint">Std.</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="comment" className="text-sm font-medium text-app-text">
+                      Nachricht an deinen Trainer
+                    </label>
+                    <textarea
+                      id="comment"
+                      value={comment}
+                      onChange={(event) => setComment(event.target.value)}
+                      maxLength={500}
+                      rows={2}
+                      className="mt-2 w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 text-base outline-none transition placeholder:text-app-faint focus:border-app-accent"
                     />
                   </div>
-                )}
-              </div>
-
-              <div className="mt-5">
-                <label
-                  htmlFor="comment"
-                  className="text-sm font-medium text-app-text"
-                >
-                  Kommentar
-                </label>
-
-                <textarea
-                  id="comment"
-                  value={comment}
-                  onChange={(
-                    event
-                  ) =>
-                    setComment(
-                      event.target.value
-                    )
-                  }
-                  maxLength={500}
-                  rows={3}
-                  placeholder="Optionaler Hinweis für deinen Coach..."
-                  className="mt-2 w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
-                />
-              </div>
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -915,14 +871,16 @@ function ScaleGrid({
                   option.value
                 )
               }
-              aria-label={`${option.value / 2} von 5`}
-              className={`flex min-h-16 items-center justify-center rounded-2xl border text-4xl transition ${
+              aria-label={option.word}
+              aria-pressed={active}
+              className={`flex min-h-20 flex-col items-center justify-center gap-1 rounded-2xl border text-4xl transition ${
                 active
                   ? "border-app-accent bg-app-accent text-app-accent-ink"
                   : "border-app-border bg-app-bg text-app-muted hover:border-app-border hover:text-app-heading"
               }`}
             >
-              {option.label}
+              <span aria-hidden="true">{option.label}</span>
+              <span className="text-[11px] font-semibold leading-tight">{option.word}</span>
             </button>
           );
         }

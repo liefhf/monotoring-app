@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
-import { isMissingTable, supabase } from "@/lib/supabase";
+import { FormEvent, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { LoadResult, checkWrite, toLoadResult, useBusy, useKeyedLoad, writeErrorText } from "@/lib/loadState";
 import { toDateKey } from "@/lib/community";
 import {
   AVAILABILITY_LABELS,
@@ -55,68 +56,63 @@ const emptyDraft = (today: string): Draft => ({
 });
 
 
+async function fetchHealth(swimmerId: string): Promise<LoadResult<HealthEvent[]>> {
+  const res = await supabase.from("health_events").select("*").eq("swimmer_id", swimmerId).order("start_date", { ascending: false });
+  return toLoadResult(res as { data: HealthEvent[] | null; error: { code?: string } | null }, []);
+}
+
 export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
   const [today] = useState(() => toDateKey(new Date()));
-  const [events, setEvents] = useState<HealthEvent[] | null>(null);
-  const [missing, setMissing] = useState(false);
-  const [loadError, setLoadError] = useState(false);
+  const { state, reload } = useKeyedLoad(swimmerId, fetchHealth);
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Draft>(() => emptyDraft(today));
-  const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    const { data, error } = await supabase.from("health_events").select("*").eq("swimmer_id", swimmerId).order("start_date", { ascending: false });
-    if (error) {
-      setMissing(isMissingTable(error.code));
-      setLoadError(!isMissingTable(error.code));
-      setEvents([]);
-      return;
-    }
-    setEvents((data ?? []) as HealthEvent[]);
-  }, [swimmerId]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
-    load();
-  }, [load]);
+  const { busy: saving, run } = useBusy();
 
   async function handleSave(event: FormEvent) {
     event.preventDefault();
     if (!draft.title.trim()) return;
-    setSaving(true);
-    const { error } = await supabase.from("health_events").insert({
-      swimmer_id: swimmerId,
-      kind: draft.kind,
-      title: draft.title.trim(),
-      body_region: draft.body_region.trim() || null,
-      availability: draft.availability,
-      restriction: draft.restriction.trim() || null,
-      start_date: draft.start_date,
-      clearance: draft.clearance,
-      note: draft.note.trim() || null,
-      visible_to_athlete: draft.visible_to_athlete,
+    await run(async () => {
+      const res = await supabase
+        .from("health_events")
+        .insert({
+          swimmer_id: swimmerId,
+          kind: draft.kind,
+          title: draft.title.trim(),
+          body_region: draft.body_region.trim() || null,
+          availability: draft.availability,
+          restriction: draft.restriction.trim() || null,
+          start_date: draft.start_date,
+          clearance: draft.clearance,
+          note: draft.note.trim() || null,
+          visible_to_athlete: draft.visible_to_athlete,
+        })
+        .select("id");
+      const check = checkWrite(res);
+      if (!check.ok) {
+        // Dialog bleibt offen, Eingaben bleiben erhalten
+        setMessage({ tone: "bad", text: writeErrorText(check, "Gesundheitseintrag") });
+        return;
+      }
+      setOpen(false);
+      setDraft(emptyDraft(today));
+      setMessage({ tone: "good", text: "Eintrag gespeichert." });
+      await reload();
     });
-    setSaving(false);
-    if (error) {
-      setMessage({ tone: "bad", text: "Eintrag konnte nicht gespeichert werden." });
-      return;
-    }
-    setOpen(false);
-    setDraft(emptyDraft(today));
-    setMessage({ tone: "good", text: "Eintrag gespeichert." });
-    load();
   }
 
   async function update(id: string, patch: Partial<HealthEvent>, done: string) {
-    const { error } = await supabase.from("health_events").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id);
-    setMessage(error ? { tone: "bad", text: "Änderung konnte nicht gespeichert werden." } : { tone: "good", text: done });
-    if (!error) load();
+    await run(async () => {
+      const res = await supabase.from("health_events").update({ ...patch, updated_at: new Date().toISOString() }).eq("id", id).select("id");
+      const check = checkWrite(res);
+      setMessage(check.ok ? { tone: "good", text: done } : { tone: "bad", text: writeErrorText(check, "Änderung") });
+      await reload();
+    });
   }
 
-  if (events === null) return <div className="mt-6 h-32 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
+  if (state.status === "loading") return <div className="mt-6 h-32 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
 
-  if (missing) {
+  if (state.status === "missing") {
     return (
       <div className="mt-6">
         <Notice tone="warn">
@@ -124,16 +120,20 @@ export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
         </Notice>
       </div>
     );
-  
-  if (loadError) {
+  }
+
+  if (state.status === "error") {
     return (
-      <div className="mt-6">
-        <Notice tone="bad">Gesundheit konnten gerade nicht geladen werden. Bitte die Seite neu laden.</Notice>
+      <div className="mt-6 space-y-3">
+        <Notice tone="bad">Gesundheitsstatus konnte nicht geladen werden. Es ist unbekannt, ob Einschränkungen bestehen.</Notice>
+        <button type="button" className={buttonSecondary} onClick={() => void reload()}>
+          Erneut laden
+        </button>
       </div>
     );
   }
-}
 
+  const events = state.data;
   const status = currentAvailability(events, today);
   const active = events.filter((item) => isActive(item, today) || item.clearance === "offen");
   const past = events.filter((item) => !active.includes(item));
@@ -180,17 +180,17 @@ export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
                   {item.note && <p className="mt-1 text-[13px] text-app-muted">{item.note}</p>}
                   <div className="mt-3 flex flex-wrap gap-2">
                     {isActive(item, today) && item.availability === "pause" && (
-                      <button type="button" className={buttonSecondary} onClick={() => update(item.id, { availability: "eingeschraenkt" }, "Auf „eingeschränkt“ gesetzt.")}>
+                      <button type="button" disabled={saving} className={buttonSecondary} onClick={() => update(item.id, { availability: "eingeschraenkt" }, "Auf „eingeschränkt“ gesetzt.")}>
                         Wieder eingeschränkt im Training
                       </button>
                     )}
                     {isActive(item, today) && (
-                      <button type="button" className={buttonSecondary} onClick={() => update(item.id, { end_date: today, availability: "voll" }, "Als beendet eingetragen – wieder voll trainingsfähig.")}>
+                      <button type="button" disabled={saving} className={buttonSecondary} onClick={() => update(item.id, { end_date: today, availability: "voll" }, "Als beendet eingetragen – wieder voll trainingsfähig.")}>
                         Beendet (heute)
                       </button>
                     )}
                     {item.clearance === "offen" && (
-                      <button type="button" className={buttonSecondary} onClick={() => update(item.id, { clearance: "erteilt" }, "Freigabe eingetragen.")}>
+                      <button type="button" disabled={saving} className={buttonSecondary} onClick={() => update(item.id, { clearance: "erteilt" }, "Freigabe eingetragen.")}>
                         Freigabe erteilt
                       </button>
                     )}
@@ -270,6 +270,11 @@ export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
           <FormField label="Notiz" className="sm:col-span-2">
             <textarea className={`${inputClass} min-h-20`} value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} />
           </FormField>
+          {message?.tone === "bad" && (
+            <div className="sm:col-span-2">
+              <Notice tone="bad">{message.text}</Notice>
+            </div>
+          )}
           <p className="text-xs text-app-faint sm:col-span-2">Keine Diagnosen eintragen – nur, was fürs Training wichtig ist.</p>
           <button type="submit" disabled={saving} className={`${buttonPrimary} sm:col-span-2`}>
             {saving ? "Speichern …" : "Speichern"}

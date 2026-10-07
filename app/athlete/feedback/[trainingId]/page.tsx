@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { sessionPhase } from "@/lib/sessionTiming";
 import { supabase } from "@/lib/supabase";
 
 type TrainingSession = {
@@ -162,6 +163,9 @@ export default function TrainingFeedbackPage() {
     setStreak,
   ] = useState<number | null>(null);
 
+  const saveLock = useRef(false);
+  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
+
   async function loadPage() {
     setLoading(true);
     setMessage("");
@@ -223,6 +227,7 @@ export default function TrainingFeedbackPage() {
     setTraining(
       trainingData as TrainingSession
     );
+    setLoadedAt(new Date());
 
     const {
       data: feedbackData,
@@ -531,6 +536,16 @@ export default function TrainingFeedbackPage() {
   }
 
   async function saveFeedback() {
+    if (saveLock.current) return; // Doppel-Tipp
+    saveLock.current = true;
+    try {
+      await saveFeedbackOnce();
+    } finally {
+      saveLock.current = false;
+    }
+  }
+
+  async function saveFeedbackOnce() {
     if (!rpe) {
       setMessage(
         "Bitte wähle zuerst aus, wie anstrengend das Training war."
@@ -564,6 +579,7 @@ export default function TrainingFeedbackPage() {
       existingFeedback
     ) {
       const {
+        data: updated,
         error,
       } =
         await supabase
@@ -584,11 +600,12 @@ export default function TrainingFeedbackPage() {
           .eq(
             "athlete_id",
             user.id
-          );
+          )
+          .select("id");
 
-      if (error) {
+      if (error || !updated?.length) {
         setMessage(
-          `Feedback konnte nicht gespeichert werden: ${error.message}`
+          "Feedback konnte nicht gespeichert werden. Deine Auswahl ist noch da – bitte nochmal versuchen."
         );
 
         setSaving(false);
@@ -622,16 +639,18 @@ export default function TrainingFeedbackPage() {
           `)
           .single();
 
-      if (error) {
+      if (error || !data) {
         setMessage(
-          `Feedback konnte nicht gespeichert werden: ${error.message}`
+          error?.code === "23505"
+            ? "Du hast für dieses Training schon eine Rückmeldung gegeben (z. B. auf einem anderen Gerät). Bitte Seite neu laden, um sie zu ändern."
+            : "Feedback konnte nicht gespeichert werden. Deine Auswahl ist noch da – bitte nochmal versuchen."
         );
 
         setSaving(false);
         return;
       }
 
-      if (data) {
+      {
         setExistingFeedback(
           data as ExistingFeedback
         );
@@ -1004,6 +1023,12 @@ export default function TrainingFeedbackPage() {
           </p>
         </section>
 
+        {training && loadedAt && sessionPhase(training, loadedAt) !== "finished" && !existingFeedback && (
+          <p className="mt-4 rounded-xl bg-app-elevated p-3 text-center text-sm text-app-text">
+            Das Training ist noch nicht vorbei. Gib deine Rückmeldung bitte danach.
+          </p>
+        )}
+
         {existingFeedback && (
           <p className="mt-4 text-center text-xs text-app-faint">
             Du kannst dein bestehendes Feedback ändern und erneut speichern.
@@ -1017,7 +1042,8 @@ export default function TrainingFeedbackPage() {
           }
           disabled={
             saving ||
-            rpe === null
+            rpe === null ||
+            Boolean(training && loadedAt && sessionPhase(training, loadedAt) !== "finished" && !existingFeedback)
           }
           className="mt-5 w-full rounded-2xl bg-app-accent px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         >

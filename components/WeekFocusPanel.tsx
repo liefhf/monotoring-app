@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchAll } from "@/lib/fetchAll";
-import { CalendarEntry } from "@/lib/community";
+import { CalendarEntry, toDateKey } from "@/lib/community";
 import {
   NonFinish,
   QualifyingStandard,
@@ -42,7 +42,7 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
   const [competitionFaults, setCompetitionFaults] = useState<{ name: string; code: string }[]>([]);
   const [open, setOpen] = useState(true);
   const [inserted, setInserted] = useState<string[]>([]);
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
   const [request, setRequest] = useState("");
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [picked, setPicked] = useState<number[]>([]);
@@ -64,7 +64,7 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
       setNonFinishes((await loadNonFinishes()).rows);
       setUpcoming(await loadUpcomingCompetitions());
       /* Technikfehler aus Wettkaempfen der letzten 4 Wochen (Spalte faults evtl. noch nicht angelegt) */
-      const since = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10);
+      const since = new Date(Date.parse(today) - 28 * 86_400_000).toISOString().slice(0, 10);
       const faultRes = await supabase.from("competition_starts").select("swimmer_id, faults").gte("start_date", since);
       const names = new Map(rows.map((row) => [row.id as string, row.first_name as string]));
       setCompetitionFaults(

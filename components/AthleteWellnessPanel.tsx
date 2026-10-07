@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -50,7 +51,7 @@ const fmt = (date: string) => new Date(`${date}T12:00:00`).toLocaleDateString("d
 const LEVEL_TONE = { bereit: "bg-app-good", vorsicht: "bg-app-warn", regeneration: "bg-app-bad" } as const;
 
 export default function AthleteWellnessPanel({ profileId }: { profileId: string | null }) {
-  const [today] = useState(() => isoDay(Date.now()));
+  const [today] = useState(() => toDateKey(new Date()));
   const [entries, setEntries] = useState<Entry[] | null>(null);
   const [feedback, setFeedback] = useState<(Feedback & { session: Session | null })[]>([]);
 

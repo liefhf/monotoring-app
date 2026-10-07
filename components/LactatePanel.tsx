@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/lib/supabase";
@@ -14,7 +15,7 @@ import { Card, FormField, Notice, buttonPrimary, buttonSecondary, inputClass } f
 
 type StepDraft = { time: string; lactate: string; heartRate: string };
 const emptySteps = (): StepDraft[] => Array.from({ length: 5 }, () => ({ time: "", lactate: "", heartRate: "" }));
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => toDateKey(new Date());
 const num = (value: string) => (value.trim() ? Number(value.replace(",", ".")) : NaN);
 
 export default function LactatePanel({ swimmerId }: { swimmerId: string }) {

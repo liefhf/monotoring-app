@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -39,7 +40,7 @@ export default function WettkampfTagPage() {
   const [routineMissing, setRoutineMissing] = useState(false);
   const [message, setMessage] = useState("");
   const [startTimes, setStartTimes] = useState<Record<string, string>>({});
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
 
   useEffect(() => {
     async function load() {

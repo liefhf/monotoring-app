@@ -5,6 +5,7 @@ import {
   Suspense,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { parseSetBlock, parseSetLine } from "@/lib/setParser";
@@ -1158,6 +1159,48 @@ function TrainingEditor() {
     );
   }
 
+  type ContentIds = { sections: string[]; land: string[]; warmup: string[] };
+
+  async function collectContentIds(sessionId: string): Promise<ContentIds | null> {
+    const [sections, land, warmup] = await Promise.all([
+      supabase.from("training_sections").select("id").eq("training_session_id", sessionId),
+      supabase.from("training_land_rows").select("id").eq("training_session_id", sessionId),
+      supabase.from("training_warmup_land_rows").select("id").eq("training_session_id", sessionId),
+    ]);
+    if (sections.error || land.error || warmup.error) return null;
+    const ids = (rows: { id: string }[] | null) => (rows ?? []).map((row) => row.id);
+    return { sections: ids(sections.data), land: ids(land.data), warmup: ids(warmup.data) };
+  }
+
+  /* Entfernt genau die angegebenen Inhalts-Zeilen (Serien haengen an ihren Abschnitten). */
+  async function removeContent(content: ContentIds) {
+    if (content.sections.length) {
+      const { error } = await supabase.from("training_rows").delete().in("section_id", content.sections);
+      if (error) return error;
+    }
+    for (const [table, ids] of [
+      ["training_sections", content.sections],
+      ["training_land_rows", content.land],
+      ["training_warmup_land_rows", content.warmup],
+    ] as const) {
+      if (!ids.length) continue;
+      const { error } = await supabase.from(table).delete().in("id", ids);
+      if (error) return error;
+    }
+    return null;
+  }
+
+  /* Ausgleich nach Fehler: nur die gerade neu angelegten Zeilen wieder entfernen. */
+  async function removeContentExcept(sessionId: string, keep: ContentIds) {
+    const now = await collectContentIds(sessionId);
+    if (!now) return;
+    await removeContent({
+      sections: now.sections.filter((id) => !keep.sections.includes(id)),
+      land: now.land.filter((id) => !keep.land.includes(id)),
+      warmup: now.warmup.filter((id) => !keep.warmup.includes(id)),
+    });
+  }
+
   async function saveLandDetails(
     trainingId: string,
     filledLandRows: LandRow[]
@@ -1377,7 +1420,20 @@ function TrainingEditor() {
     return rowError;
   }
 
+  const saveLock = useRef(false);
+
+  /* Doppelklick oder Enter + Klick speichern nur einmal */
   async function handleSaveTraining() {
+    if (saveLock.current) return;
+    saveLock.current = true;
+    try {
+      await saveTrainingOnce();
+    } finally {
+      saveLock.current = false;
+    }
+  }
+
+  async function saveTrainingOnce() {
     setMessage("");
 
     if (!title.trim()) {
@@ -1485,133 +1541,60 @@ function TrainingEditor() {
       isEditing &&
       sessionFromUrl
     ) {
-      const { error: updateError } =
+      /*
+       * Bearbeiten ohne Datenverlust: zuerst den neuen Inhalt anlegen,
+       * erst danach den alten entfernen. Schlaegt etwas fehl, bleibt die
+       * bisherige Fassung vollstaendig erhalten.
+       */
+      const oldContent = await collectContentIds(sessionFromUrl);
+      if (!oldContent) {
+        setMessage("Training konnte nicht gelesen werden. Es wurde nichts geändert – deine Eingaben sind noch da.");
+        setSaving(false);
+        return;
+      }
+
+      const { data: updatedRows, error: updateError } =
         await supabase
           .from("training_sessions")
           .update(sessionValues)
           .eq(
             "id",
             sessionFromUrl
-          );
+          )
+          .select("id");
 
-      if (updateError) {
+      if (updateError || !updatedRows?.length) {
         setMessage(
-          `Training konnte nicht aktualisiert werden: ${updateError.message}`
+          updateError
+            ? `Training konnte nicht aktualisiert werden: ${updateError.message}`
+            : "Training wurde nicht geändert (keine Berechtigung oder inzwischen gelöscht). Bitte Seite neu laden."
         );
         setSaving(false);
         return;
       }
 
-      const {
-        error:
-          deleteSectionsError,
-      } = await supabase
-        .from("training_sections")
-        .delete()
-        .eq(
-          "training_session_id",
-          sessionFromUrl
-        );
-
-      if (deleteSectionsError) {
-        setMessage(
-          `Alte Wasserblöcke konnten nicht entfernt werden: ${deleteSectionsError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
-      const {
-        error: deleteLandError,
-      } = await supabase
-        .from("training_land_rows")
-        .delete()
-        .eq(
-          "training_session_id",
-          sessionFromUrl
-        );
-
-      if (deleteLandError) {
-        setMessage(
-          `Alte Landübungen konnten nicht entfernt werden: ${deleteLandError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
-      const {
-        error: deleteWarmUpError,
-      } = await supabase
-        .from("training_warmup_land_rows")
-        .delete()
-        .eq(
-          "training_session_id",
-          sessionFromUrl
-        );
-
-      if (deleteWarmUpError) {
-        setMessage(
-          `Alte Warm-up-Übungen konnten nicht entfernt werden: ${deleteWarmUpError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
-      if (
+      const contentError =
         trainingType === "Land"
-      ) {
-        const landError =
-          await saveLandDetails(
-            sessionFromUrl,
-            filledLandRows
-          );
+          ? await saveLandDetails(sessionFromUrl, filledLandRows)
+          : (await saveWaterDetails(sessionFromUrl)) ?? (await saveWarmUpDetails(sessionFromUrl));
 
-        if (landError) {
-          setMessage(
-            `Landübungen konnten nicht aktualisiert werden: ${landError.message}`
-          );
-          setSaving(false);
-          return;
-        }
-
+      if (contentError) {
+        await removeContentExcept(sessionFromUrl, oldContent);
         setMessage(
-          "Landtraining wurde aktualisiert ✅"
-        );
-
-        setSaving(false);
-        return;
-      }
-
-      const waterError =
-        await saveWaterDetails(
-          sessionFromUrl
-        );
-
-      if (waterError) {
-        setMessage(
-          `Wassertraining konnte nicht vollständig aktualisiert werden: ${waterError.message}`
+          `Inhalt konnte nicht gespeichert werden: ${contentError.message}. Die bisherige Fassung ist unverändert, deine Eingaben sind noch da.`
         );
         setSaving(false);
         return;
       }
 
-      const warmUpError =
-        await saveWarmUpDetails(
-          sessionFromUrl
-        );
-
-      if (warmUpError) {
-        setMessage(
-          `Warm-up-Übungen konnten nicht aktualisiert werden: ${warmUpError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
+      const cleanupError = await removeContent(oldContent);
       setMessage(
-        "Wassertraining inklusive Warm Up am Land wurde aktualisiert ✅"
+        cleanupError
+          ? "Gespeichert, aber die alte Fassung konnte nicht entfernt werden – Serien könnten doppelt erscheinen. Bitte Seite neu laden und prüfen."
+          : trainingType === "Land"
+            ? "Landtraining wurde aktualisiert ✅"
+            : "Wassertraining inklusive Warm Up am Land wurde aktualisiert ✅"
       );
-
       setSaving(false);
       return;
     }

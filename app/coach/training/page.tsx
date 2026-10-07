@@ -11,7 +11,8 @@ import { toDateKey } from "@/lib/community";
 import { isoWeek, weekStart } from "@/lib/dashboardStats";
 import { PageHeader, buttonPrimary, buttonSecondary } from "@/components/ui";
 import TeamSwitcher from "@/components/TeamSwitcher";
-import { copyTraining } from "@/lib/trainingPlan";
+import { copyTraining, isValidDateKey } from "@/lib/trainingPlan";
+import { checkWrite, writeErrorText } from "@/lib/loadState";
 
 /*
  * Training: EINE Seite fuer die Trainingswoche einer Mannschaft (frueher
@@ -107,12 +108,13 @@ function WochenplanView() {
     const suggestion = toDateKey(new Date(Date.parse(`${session.session_date}T12:00:00`) + 7 * DAY));
     const target = window.prompt("Kopieren auf welches Datum? (JJJJ-MM-TT)", suggestion);
     if (!target) return;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(target)) {
-      setNotice("Bitte das Datum als JJJJ-MM-TT eingeben.");
+    if (!isValidDateKey(target.trim())) {
+      setNotice("Bitte ein gültiges Datum als JJJJ-MM-TT eingeben.");
       return;
     }
+    if (copying) return;
     setCopying(session.id);
-    const result = await copyTraining(session.id, target);
+    const result = await copyTraining(session.id, target.trim());
     setCopying(null);
     if ("error" in result) {
       setNotice(result.error);
@@ -125,14 +127,18 @@ function WochenplanView() {
   /* Einheit verschieben (z. B. Hallenzeit faellt aus): nur das Datum aendert sich */
   async function moveSession(session: Session) {
     const target = window.prompt("Auf welches Datum verschieben? (JJJJ-MM-TT)", session.session_date);
-    if (!target || target === session.session_date) return;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(target)) {
-      setNotice("Bitte das Datum als JJJJ-MM-TT eingeben.");
+    if (!target || target.trim() === session.session_date) return;
+    if (!isValidDateKey(target.trim())) {
+      setNotice("Bitte ein gültiges Datum als JJJJ-MM-TT eingeben.");
       return;
     }
-    const { error } = await supabase.from("training_sessions").update({ session_date: target }).eq("id", session.id);
-    setNotice(error ? "Verschieben fehlgeschlagen." : `„${session.title}“ liegt jetzt am ${fmt(target)}.`);
-    if (!error) setReloadKey((key) => key + 1);
+    if (copying) return;
+    setCopying(session.id);
+    const res = await supabase.from("training_sessions").update({ session_date: target.trim() }).eq("id", session.id).select("id");
+    setCopying(null);
+    const check = checkWrite(res);
+    setNotice(check.ok ? `„${session.title}“ liegt jetzt am ${fmt(target.trim())}.` : writeErrorText(check, "Verschieben"));
+    setReloadKey((key) => key + 1);
   }
 
   const shift = (count: number) => setWeek(toDateKey(new Date(Date.parse(`${week}T12:00:00`) + count * 7 * DAY)));
@@ -257,7 +263,7 @@ function WochenplanView() {
                   <button type="button" onClick={() => copySession(session)} disabled={copying === session.id} className="text-app-muted hover:text-app-heading disabled:opacity-50">
                     {copying === session.id ? "Kopiert …" : "Kopieren"}
                   </button>
-                  <button type="button" onClick={() => moveSession(session)} className="text-app-muted hover:text-app-heading">
+                  <button type="button" onClick={() => moveSession(session)} disabled={copying === session.id} className="text-app-muted hover:text-app-heading disabled:opacity-50">
                     Verschieben
                   </button>
                 </div>

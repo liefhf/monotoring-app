@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
-import { isMissingTable, supabase } from "@/lib/supabase";
+import { FormEvent, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { LoadResult, checkWrite, classifyError, useBusy, useKeyedLoad, writeErrorText } from "@/lib/loadState";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { GOAL_KIND_LABELS, Goal, GoalKind, goalLabel, goalProgress, sortGoals } from "@/lib/goals";
@@ -13,11 +14,28 @@ import { FormField, Modal, Notice, buttonGhost, buttonPrimary, inputClass } from
  * automatisch mit der Bestzeit verglichen. compact = Kurzfassung fuer
  * den Ueberblick (nur offene Ziele, ohne Bearbeiten).
  */
+type GoalData = { goals: Goal[]; results: SwimmerResult[]; resultsFailed: boolean };
+
+async function fetchGoals(swimmerId: string): Promise<LoadResult<GoalData>> {
+  const [goalRes, resultRes] = await Promise.all([
+    supabase.from("athlete_goals").select("*").eq("swimmer_id", swimmerId).order("created_at", { ascending: false }),
+    fetchAll(() => supabase.from("swimmer_results").select(RESULT_COLUMNS).eq("swimmer_id", swimmerId).eq("kind", "einzel").order("id")),
+  ]);
+  const kind = classifyError(goalRes.error);
+  if (kind) return { status: kind };
+  return {
+    status: "ready",
+    data: {
+      goals: (goalRes.data ?? []) as Goal[],
+      // Ergebnisse unvollstaendig -> lieber keinen Fortschritt zeigen als einen falschen
+      results: resultRes.error ? [] : ((resultRes.data ?? []) as SwimmerResult[]),
+      resultsFailed: Boolean(resultRes.error),
+    },
+  };
+}
+
 export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: string; compact?: boolean }) {
-  const [goals, setGoals] = useState<Goal[] | null>(null);
-  const [results, setResults] = useState<SwimmerResult[]>([]);
-  const [missing, setMissing] = useState(false);
-  const [loadError, setLoadError] = useState(false);
+  const { state, reload } = useKeyedLoad(swimmerId, fetchGoals);
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<GoalKind>("zeit");
   const [distance, setDistance] = useState("100");
@@ -27,26 +45,8 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
   const [title, setTitle] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    const [goalRes, resultRes] = await Promise.all([
-      supabase.from("athlete_goals").select("*").eq("swimmer_id", swimmerId).order("created_at", { ascending: false }),
-      fetchAll(() => supabase.from("swimmer_results").select(RESULT_COLUMNS).eq("swimmer_id", swimmerId).eq("kind", "einzel")),
-    ]);
-    if (goalRes.error) {
-      setMissing(isMissingTable(goalRes.error.code));
-      setLoadError(!isMissingTable(goalRes.error.code));
-      setGoals([]);
-      return;
-    }
-    setGoals((goalRes.data ?? []) as Goal[]);
-    setResults((resultRes.data ?? []) as SwimmerResult[]);
-  }, [swimmerId]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
-    load();
-  }, [load]);
+  const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
+  const { busy, run } = useBusy();
 
   async function handleSave(event: FormEvent) {
     event.preventDefault();
@@ -60,55 +60,74 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
       setError("Bitte das Ziel kurz beschreiben.");
       return;
     }
-    const { error: saveError } = await supabase.from("athlete_goals").insert({
-      swimmer_id: swimmerId,
-      kind,
-      title: kind === "zeit" ? null : title.trim(),
-      distance: kind === "zeit" ? Number(distance) : null,
-      stroke: kind === "zeit" ? stroke : null,
-      pool_length: kind === "zeit" && pool ? Number(pool) : null,
-      target_ms: targetMs,
-      due_date: dueDate || null,
+    await run(async () => {
+      const res = await supabase
+        .from("athlete_goals")
+        .insert({
+          swimmer_id: swimmerId,
+          kind,
+          title: kind === "zeit" ? null : title.trim(),
+          distance: kind === "zeit" ? Number(distance) : null,
+          stroke: kind === "zeit" ? stroke : null,
+          pool_length: kind === "zeit" && pool ? Number(pool) : null,
+          target_ms: targetMs,
+          due_date: dueDate || null,
+        })
+        .select("id");
+      const check = checkWrite(res);
+      if (!check.ok) {
+        setError(writeErrorText(check, "Ziel"));
+        return;
+      }
+      setOpen(false);
+      setTarget("");
+      setTitle("");
+      setMessage({ tone: "good", text: "Ziel gespeichert." });
+      await reload();
     });
-    if (saveError) {
-      setError("Ziel konnte nicht gespeichert werden.");
-      return;
-    }
-    setOpen(false);
-    setTarget("");
-    setTitle("");
-    load();
   }
 
   async function markAchieved(goal: Goal) {
-    await supabase.from("athlete_goals").update({ achieved_at: toDateKey(new Date()) }).eq("id", goal.id);
-    load();
+    await run(async () => {
+      const res = await supabase.from("athlete_goals").update({ achieved_at: toDateKey(new Date()) }).eq("id", goal.id).select("id");
+      const check = checkWrite(res);
+      setMessage(check.ok ? { tone: "good", text: "Als erreicht markiert." } : { tone: "bad", text: writeErrorText(check, "Ziel") });
+      await reload();
+    });
   }
 
   async function remove(goal: Goal) {
     if (!window.confirm(`Ziel „${goalLabel(goal)}“ löschen?`)) return;
-    await supabase.from("athlete_goals").delete().eq("id", goal.id);
-    load();
+    await run(async () => {
+      const res = await supabase.from("athlete_goals").delete().eq("id", goal.id).select("id");
+      const check = checkWrite(res);
+      setMessage(check.ok ? { tone: "good", text: "Ziel gelöscht." } : { tone: "bad", text: writeErrorText(check, "Löschen") });
+      await reload();
+    });
   }
 
-  if (goals === null) return <div className="h-24 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
+  if (state.status === "loading") return <div className="h-24 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
 
-  if (missing) {
+  if (state.status === "missing") {
     return compact ? null : (
       <Notice tone="warn">
         Ziele sind noch nicht eingerichtet. Bitte <b>supabase/ziele_notizen.sql</b> ausführen (Skript 24).
       </Notice>
     );
-  
-  if (loadError) {
+  }
+
+  if (state.status === "error") {
     return (
-      <div className="">
-        <Notice tone="bad">Ziele konnten gerade nicht geladen werden. Bitte die Seite neu laden.</Notice>
+      <div className="space-y-2">
+        <Notice tone="bad">Ziele konnten nicht geladen werden.</Notice>
+        <button type="button" className={buttonGhost} onClick={() => void reload()}>
+          Erneut laden
+        </button>
       </div>
     );
   }
-}
 
+  const { goals, results, resultsFailed } = state.data;
   const sorted = sortGoals(goals, results);
   const shown = compact ? sorted.filter((goal) => !goalProgress(goal, results).reached).slice(0, 3) : sorted;
 
@@ -120,8 +139,18 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
           + Ziel
         </button>
       </div>
+      {resultsFailed && (
+        <div className="mt-2">
+          <Notice tone="warn">Bestzeiten konnten nicht geladen werden – der Abstand zum Ziel ist gerade unbekannt.</Notice>
+        </div>
+      )}
+      {message && (
+        <div className="mt-2">
+          <Notice tone={message.tone}>{message.text}</Notice>
+        </div>
+      )}
       {shown.length === 0 ? (
-        <p className="mt-2 text-sm text-app-muted">{goals.length ? "Alle Ziele erreicht 🎉" : "Noch keine Ziele. Ein klares Ziel macht Fortschritt sichtbar – auch für den Athleten."}</p>
+        <p className="mt-2 text-sm text-app-muted">{goals.length && !resultsFailed ? "Alle Ziele erreicht 🎉" : "Noch keine Ziele. Ein klares Ziel macht Fortschritt sichtbar – auch für den Athleten."}</p>
       ) : (
         <ul className="mt-2 divide-y divide-app-border/60">
           {shown.map((goal) => {
@@ -143,12 +172,12 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
                   <span className="num rounded-full bg-app-elevated px-2.5 py-1 text-xs font-bold text-app-heading">noch {formatTimeDifference(progress.remainingMs).replace("+", "")}</span>
                 ) : null}
                 {!compact && !progress.reached && goal.kind !== "zeit" && (
-                  <button type="button" onClick={() => markAchieved(goal)} className={buttonGhost}>
+                  <button type="button" disabled={busy} onClick={() => markAchieved(goal)} className={buttonGhost}>
                     Erreicht
                   </button>
                 )}
                 {!compact && (
-                  <button type="button" onClick={() => remove(goal)} className={`${buttonGhost} hover:text-app-bad`}>
+                  <button type="button" disabled={busy} onClick={() => remove(goal)} className={`${buttonGhost} hover:text-app-bad`}>
                     Löschen
                   </button>
                 )}
@@ -218,8 +247,8 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
               <Notice tone="bad">{error}</Notice>
             </div>
           )}
-          <button type="submit" className={`${buttonPrimary} sm:col-span-2`}>
-            Speichern
+          <button type="submit" disabled={busy} className={`${buttonPrimary} sm:col-span-2`}>
+            {busy ? "Speichern …" : "Speichern"}
           </button>
         </form>
       </Modal>

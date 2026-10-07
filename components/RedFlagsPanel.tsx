@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
@@ -160,7 +161,7 @@ function FlagLine({ flag, compact = false }: { flag: Flag; compact?: boolean }) 
  */
 export default function RedFlagsPanel({ teamId = null, variant = "table" }: { teamId?: string | null; variant?: "summary" | "table" }) {
   const [rows, setRows] = useState<Row[] | null>(null);
-  const [today] = useState(() => isoDay(Date.now()));
+  const [today] = useState(() => toDateKey(new Date()));
 
   useEffect(() => {
     loadRows(today, teamId).then(setRows);
@@ -298,7 +299,7 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
  */
 export function AthleteStatusCard({ swimmerId }: { swimmerId: string }) {
   const [row, setRow] = useState<Row | null | undefined>(undefined);
-  const [today] = useState(() => isoDay(Date.now()));
+  const [today] = useState(() => toDateKey(new Date()));
 
   useEffect(() => {
     loadRows(today, null, swimmerId).then((rows) => setRow(rows[0] ?? null));

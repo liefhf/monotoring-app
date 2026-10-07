@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { checkWrite, classifyError, writeErrorText } from "@/lib/loadState";
 import { Swimmer } from "@/lib/swim";
 
 /*
@@ -24,14 +25,25 @@ export type AttendanceEntry = {
 
 /* Athleten des Teams einer Einheit (ueber team_swimmers) */
 export async function loadTeamSwimmers(teamId: string) {
-  const { data } = await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId);
+  return (await loadTeamSwimmersResult(teamId)).swimmers;
+}
+
+/* wie loadTeamSwimmers, meldet aber Ladefehler (failed) statt still "leer" */
+export async function loadTeamSwimmersResult(teamId: string): Promise<{ swimmers: Swimmer[]; failed: boolean }> {
+  const { data, error } = await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId);
+  if (error) return { swimmers: [], failed: true };
   const ids = ((data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id);
-  if (ids.length === 0) return [];
-  const { data: swimmers } = await supabase
+  if (ids.length === 0) return { swimmers: [], failed: false };
+  const { data: swimmers, error: swimmerError } = await supabase
     .from("swimmers")
     .select("id, first_name, last_name, birth_year, gender")
     .in("id", ids);
-  return ((swimmers ?? []) as Swimmer[]).sort(
+  if (swimmerError) return { swimmers: [], failed: true };
+  return { swimmers: sortSwimmers((swimmers ?? []) as Swimmer[]), failed: false };
+}
+
+function sortSwimmers(list: Swimmer[]) {
+  return list.sort(
     (a, b) => (a.last_name ?? "").localeCompare(b.last_name ?? "", "de") || a.first_name.localeCompare(b.first_name, "de")
   );
 }
@@ -41,25 +53,32 @@ export async function loadAttendance(sessionId: string) {
     .from("training_attendance")
     .select("training_session_id, swimmer_id, status, note")
     .eq("training_session_id", sessionId);
-  return { rows: (data ?? []) as AttendanceEntry[], missingTable: Boolean(error) };
+  const kind = classifyError(error);
+  return { rows: (data ?? []) as AttendanceEntry[], missingTable: kind === "missing", failed: kind === "error" };
 }
 
+/* Gibt null bei Erfolg zurueck, sonst einen verstaendlichen Fehlertext. 0 betroffene Zeilen = Fehler. */
 export async function saveAttendance(sessionId: string, swimmerId: string, status: AttendanceStatus | null) {
   if (status === null) {
-    const { error } = await supabase
+    const res = await supabase
       .from("training_attendance")
       .delete()
       .eq("training_session_id", sessionId)
-      .eq("swimmer_id", swimmerId);
-    return error?.message ?? null;
+      .eq("swimmer_id", swimmerId)
+      .select("swimmer_id");
+    // Zuruecksetzen eines Eintrags, der schon weg ist, ist kein Fehler
+    const check = checkWrite(res, false);
+    return check.ok ? null : writeErrorText(check, "Anwesenheit");
   }
-  const { error } = await supabase
+  const res = await supabase
     .from("training_attendance")
     .upsert(
       { training_session_id: sessionId, swimmer_id: swimmerId, status, updated_at: new Date().toISOString() },
       { onConflict: "training_session_id,swimmer_id" }
-    );
-  return error?.message ?? null;
+    )
+    .select("swimmer_id");
+  const check = checkWrite(res);
+  return check.ok ? null : writeErrorText(check, "Anwesenheit");
 }
 
 /* Quote: anwesend / (alle erfassten Einheiten); entschuldigt/krank separat ausgewiesen */

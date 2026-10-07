@@ -66,6 +66,21 @@ export function currentAvailability(events: HealthEvent[], today: string): Avail
   return "voll";
 }
 
+/*
+ * Text fuer den Gesundheitsstatus. Bei Ladefehler oder fehlender
+ * Tabelle NIE "voll trainingsfaehig" - der Status ist dann unbekannt.
+ */
+export function healthStatusLabel(
+  state: { status: "loading" } | { status: "missing" } | { status: "error" } | { status: "ready"; data: HealthEvent[] },
+  today: string
+): { text: string; availability: Availability | null } {
+  if (state.status === "loading") return { text: "wird geladen …", availability: null };
+  if (state.status === "missing") return { text: "nicht eingerichtet", availability: null };
+  if (state.status === "error") return { text: "Gesundheitsstatus konnte nicht geladen werden", availability: null };
+  const availability = currentAvailability(state.data, today);
+  return { text: AVAILABILITY_LABELS[availability], availability };
+}
+
 export type HealthFlag = { level: "rot" | "gelb"; text: string; reason: string; check: string };
 
 export function healthFlags(events: HealthEvent[], today: string): HealthFlag[] {

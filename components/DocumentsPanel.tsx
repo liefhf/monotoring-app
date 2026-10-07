@@ -1,10 +1,11 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
-import { isMissingTable, supabase } from "@/lib/supabase";
+import { FormEvent, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { LoadResult, checkWrite, toLoadResult, useBusy, useKeyedLoad, writeErrorText } from "@/lib/loadState";
 import { toDateKey } from "@/lib/community";
 import { AthleteDocument, DOC_TYPE_LABELS, DocType, documentStatus } from "@/lib/health";
-import { EmptyState, FormField, Modal, Notice, buttonGhost, buttonPrimary, inputClass } from "@/components/ui";
+import { EmptyState, FormField, Modal, Notice, buttonGhost, buttonPrimary, buttonSecondary, inputClass } from "@/components/ui";
 
 /*
  * Dokumente je Athlet: Sportattest, Einverstaendnisse, Startpass ...
@@ -22,89 +23,137 @@ const STATUS_STYLE = {
   unbefristet: "bg-app-elevated text-app-muted",
 } as const;
 
+/* Grenzen wie in Skript 23 (Bucket-Einstellung) */
+export const MAX_FILE_BYTES = 10 * 1024 * 1024;
+export const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp", "image/heic"];
+
+export function validateFile(file: { size: number; type: string }): string | null {
+  if (file.size > MAX_FILE_BYTES) return "Die Datei ist größer als 10 MB.";
+  if (!ALLOWED_TYPES.includes(file.type)) return "Nur PDF oder Foto (JPG, PNG, WebP, HEIC) sind erlaubt.";
+  return null;
+}
+
+async function fetchDocs(swimmerId: string): Promise<LoadResult<AthleteDocument[]>> {
+  const res = await supabase.from("athlete_documents").select("*").eq("swimmer_id", swimmerId).order("created_at", { ascending: false });
+  return toLoadResult(res as { data: AthleteDocument[] | null; error: { code?: string } | null }, []);
+}
+
 export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
   const [today] = useState(() => toDateKey(new Date()));
-  const [docs, setDocs] = useState<AthleteDocument[] | null>(null);
-  const [missing, setMissing] = useState(false);
-  const [loadError, setLoadError] = useState(false);
-  const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
+  const { state, reload } = useKeyedLoad(swimmerId, fetchDocs);
+  const [message, setMessage] = useState<{ tone: "good" | "bad" | "warn"; text: string } | null>(null);
   const [open, setOpen] = useState(false);
   const [docType, setDocType] = useState<DocType>("sportattest");
   const [title, setTitle] = useState("");
   const [validUntil, setValidUntil] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [saving, setSaving] = useState(false);
-
-  const load = useCallback(async () => {
-    const { data, error } = await supabase.from("athlete_documents").select("*").eq("swimmer_id", swimmerId).order("created_at", { ascending: false });
-    if (error) {
-      setMissing(isMissingTable(error.code));
-      setLoadError(!isMissingTable(error.code));
-      setDocs([]);
-      return;
-    }
-    setDocs((data ?? []) as AthleteDocument[]);
-  }, [swimmerId]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
-    load();
-  }, [load]);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [missingFiles, setMissingFiles] = useState<string[]>([]);
+  // Datei, deren Eintrag geloescht wurde, deren Entfernen aber fehlschlug
+  const [leftover, setLeftover] = useState<string | null>(null);
+  const { busy: saving, run } = useBusy();
 
   async function handleSave(event: FormEvent) {
     event.preventDefault();
-    setSaving(true);
-    let filePath: string | null = null;
+    setFormError(null);
     if (file) {
-      const safeName = file.name.replace(/[^\w.-]+/g, "_");
-      filePath = `${swimmerId}/${Date.now()}-${safeName}`;
-      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(filePath, file);
-      if (uploadError) {
-        setSaving(false);
-        setMessage({ tone: "bad", text: "Datei konnte nicht hochgeladen werden. Ist Skript 23 ausgeführt?" });
+      const invalid = validateFile(file);
+      if (invalid) {
+        setFormError(invalid);
         return;
       }
     }
-    const { error } = await supabase.from("athlete_documents").insert({
-      swimmer_id: swimmerId,
-      doc_type: docType,
-      title: title.trim() || DOC_TYPE_LABELS[docType],
-      valid_until: validUntil || null,
-      file_path: filePath,
+    await run(async () => {
+      let filePath: string | null = null;
+      if (file) {
+        const safeName = file.name.replace(/[^\w.-]+/g, "_").slice(-80);
+        filePath = `${swimmerId}/${Date.now()}-${safeName}`;
+        const { error: uploadError } = await supabase.storage.from(BUCKET).upload(filePath, file, { contentType: file.type, upsert: false });
+        if (uploadError) {
+          setFormError("Datei konnte nicht hochgeladen werden. Es wurde nichts gespeichert. (Skript 23 ausgeführt? Berechtigung?)");
+          return;
+        }
+      }
+      const res = await supabase
+        .from("athlete_documents")
+        .insert({
+          swimmer_id: swimmerId,
+          doc_type: docType,
+          title: title.trim() || DOC_TYPE_LABELS[docType],
+          valid_until: validUntil || null,
+          file_path: filePath,
+        })
+        .select("id");
+      const check = checkWrite(res);
+      if (!check.ok) {
+        // Ausgleich: gerade hochgeladene Datei wieder entfernen, damit keine verwaiste Datei bleibt
+        let cleaned = true;
+        if (filePath) {
+          const { error: removeError } = await supabase.storage.from(BUCKET).remove([filePath]);
+          cleaned = !removeError;
+        }
+        setFormError(
+          `${writeErrorText(check, "Dokument")}${cleaned ? "" : " Die hochgeladene Datei konnte nicht wieder entfernt werden (sie bleibt privat gespeichert)."}`
+        );
+        return;
+      }
+      setOpen(false);
+      setTitle("");
+      setValidUntil("");
+      setFile(null);
+      setMessage({ tone: "good", text: "Dokument gespeichert." });
+      await reload();
     });
-    setSaving(false);
-    if (error) {
-      setMessage({ tone: "bad", text: "Dokument konnte nicht gespeichert werden." });
-      return;
-    }
-    setOpen(false);
-    setTitle("");
-    setValidUntil("");
-    setFile(null);
-    setMessage({ tone: "good", text: "Dokument gespeichert." });
-    load();
   }
 
   async function openFile(path: string) {
     const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 60);
     if (error || !data) {
-      setMessage({ tone: "bad", text: "Datei konnte nicht geöffnet werden." });
+      const notFound = /not.?found|404|object/i.test(error?.message ?? "");
+      if (notFound) setMissingFiles((list) => [...list, path]);
+      setMessage({
+        tone: "bad",
+        text: notFound ? "Die Datei fehlt im Speicher. Der Eintrag ist noch da – bitte die Datei neu hochladen." : "Datei konnte nicht geöffnet werden. Bitte erneut versuchen.",
+      });
       return;
     }
     window.open(data.signedUrl, "_blank", "noopener");
   }
 
-  async function remove(doc: AthleteDocument) {
-    if (!window.confirm(`„${doc.title}“ wirklich löschen?`)) return;
-    if (doc.file_path) await supabase.storage.from(BUCKET).remove([doc.file_path]);
-    const { error } = await supabase.from("athlete_documents").delete().eq("id", doc.id);
-    setMessage(error ? { tone: "bad", text: "Löschen fehlgeschlagen." } : { tone: "good", text: "Dokument gelöscht." });
-    if (!error) load();
+  async function removeFile(path: string) {
+    const { error } = await supabase.storage.from(BUCKET).remove([path]);
+    if (error) {
+      setLeftover(path);
+      return false;
+    }
+    setLeftover(null);
+    return true;
   }
 
-  if (docs === null) return <div className="mt-6 h-32 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
+  async function remove(doc: AthleteDocument) {
+    if (!window.confirm(`„${doc.title}“ wirklich löschen?`)) return;
+    await run(async () => {
+      // Zuerst den Eintrag: schlaegt das fehl, bleibt alles unveraendert.
+      const res = await supabase.from("athlete_documents").delete().eq("id", doc.id).select("id");
+      const check = checkWrite(res);
+      if (!check.ok) {
+        setMessage({ tone: "bad", text: writeErrorText(check, "Löschen") });
+        await reload();
+        return;
+      }
+      const fileOk = doc.file_path ? await removeFile(doc.file_path) : true;
+      setMessage(
+        fileOk
+          ? { tone: "good", text: "Dokument gelöscht." }
+          : { tone: "warn", text: "Eintrag gelöscht, aber die Datei konnte nicht entfernt werden. Bitte „Datei erneut löschen“ tippen." }
+      );
+      await reload();
+    });
+  }
 
-  if (missing) {
+  if (state.status === "loading") return <div className="mt-6 h-32 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
+
+  if (state.status === "missing") {
     return (
       <div className="mt-6">
         <Notice tone="warn">
@@ -112,15 +161,20 @@ export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
         </Notice>
       </div>
     );
-  
-  if (loadError) {
+  }
+
+  if (state.status === "error") {
     return (
-      <div className="mt-6">
-        <Notice tone="bad">Dokumente konnten gerade nicht geladen werden. Bitte die Seite neu laden.</Notice>
+      <div className="mt-6 space-y-3">
+        <Notice tone="bad">Dokumente konnten nicht geladen werden.</Notice>
+        <button type="button" className={buttonSecondary} onClick={() => void reload()}>
+          Erneut laden
+        </button>
       </div>
     );
   }
-}
+
+  const docs = state.data;
 
   return (
     <section className="mt-6 rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">
@@ -134,6 +188,14 @@ export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
         <div className="mt-3">
           <Notice tone={message.tone}>{message.text}</Notice>
         </div>
+      )}
+      {leftover && (
+        <button type="button" disabled={saving} className={`${buttonSecondary} mt-3`} onClick={() => void run(async () => {
+          const ok = await removeFile(leftover);
+          setMessage(ok ? { tone: "good", text: "Datei entfernt." } : { tone: "bad", text: "Datei konnte wieder nicht entfernt werden. Später erneut versuchen." });
+        })}>
+          Datei erneut löschen
+        </button>
       )}
       {docs.length === 0 ? (
         <EmptyState icon="paperclip" title="Keine Dokumente">
@@ -155,12 +217,13 @@ export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
                 <span className={`rounded-full px-2.5 py-1 text-xs font-extrabold ${STATUS_STYLE[status]}`}>
                   {status === "abgelaufen" ? "abgelaufen" : status === "laeuft_ab" ? `noch ${daysLeft} Tage` : status === "gueltig" ? "gültig" : "unbefristet"}
                 </span>
-                {doc.file_path && (
+                {doc.file_path && !missingFiles.includes(doc.file_path) && (
                   <button type="button" onClick={() => openFile(doc.file_path!)} className={buttonGhost}>
                     Öffnen
                   </button>
                 )}
-                <button type="button" onClick={() => remove(doc)} className={`${buttonGhost} hover:text-app-bad`}>
+                {doc.file_path && missingFiles.includes(doc.file_path) && <span className="text-xs font-bold text-app-bad">Datei fehlt</span>}
+                <button type="button" disabled={saving} onClick={() => remove(doc)} className={`${buttonGhost} hover:text-app-bad`}>
                   Löschen
                 </button>
               </li>
@@ -186,9 +249,14 @@ export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
           <FormField label="Bezeichnung" className="sm:col-span-2">
             <input className={inputClass} value={title} onChange={(e) => setTitle(e.target.value)} placeholder={DOC_TYPE_LABELS[docType]} />
           </FormField>
-          <FormField label="Datei (optional)" className="sm:col-span-2" hint="PDF oder Foto, nur für dich sichtbar">
-            <input type="file" accept="application/pdf,image/*" className={inputClass} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          <FormField label="Datei (optional)" className="sm:col-span-2" hint="PDF oder Foto, max. 10 MB, privat gespeichert">
+            <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp,image/heic" className={inputClass} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
           </FormField>
+          {formError && (
+            <div className="sm:col-span-2">
+              <Notice tone="bad">{formError}</Notice>
+            </div>
+          )}
           <button type="submit" disabled={saving} className={`${buttonPrimary} sm:col-span-2`}>
             {saving ? "Speichern …" : "Speichern"}
           </button>

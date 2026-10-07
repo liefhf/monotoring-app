@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -56,6 +57,7 @@ export default function StoppuhrPage() {
   const [now, setNow] = useState(() => Date.now());
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
   const [restored, setRestored] = useState(false);
+  const savingLanes = useRef(new Set<number | string>());
   const wakeLock = useRef<{ release: () => Promise<void> } | null>(null);
 
   /* Daten + gespeicherten Stand laden */
@@ -131,14 +133,16 @@ export default function StoppuhrPage() {
   }
 
   async function save(lane: Lane) {
+    if (savingLanes.current.has(lane.id) || lane.saved) return; // nicht doppelt speichern
     if (!lane.swimmerId || lane.finalMs === null || !competition) {
       setMessage({ tone: "bad", text: "Bitte Athlet wählen und die Uhr mit „Ziel“ stoppen." });
       return;
     }
+    savingLanes.current.add(lane.id);
     const { error } = await supabase.from("competition_starts").insert({
       competition_id: competitionId,
       swimmer_id: lane.swimmerId,
-      start_date: new Date().toISOString().slice(0, 10) < competition.start_date ? competition.start_date : new Date().toISOString().slice(0, 10),
+      start_date: toDateKey(new Date()) < competition.start_date ? competition.start_date : toDateKey(new Date()),
       pool_length: pool,
       distance: lane.distance,
       stroke: lane.stroke,
@@ -146,8 +150,9 @@ export default function StoppuhrPage() {
       split_times_ms: lane.splits,
       status: "ok",
     });
+    savingLanes.current.delete(lane.id);
     if (error) {
-      setMessage({ tone: "bad", text: `Konnte nicht gespeichert werden: ${error.message}` });
+      setMessage({ tone: "bad", text: `Konnte nicht gespeichert werden: ${error.message}. Die Zeit bleibt auf der Uhr – bitte erneut speichern.` });
       return;
     }
     update(lane.id, (current) => ({ ...current, saved: true }));

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentAvailability, documentStatus, healthFlags, HealthEvent } from "@/lib/health";
+import { currentAvailability, healthStatusLabel, documentStatus, healthFlags, HealthEvent } from "@/lib/health";
 
 const base: HealthEvent = {
   id: "1",
@@ -45,5 +45,18 @@ describe("health", () => {
     expect(documentStatus({ valid_until: "2026-10-20" }, "2026-10-07")).toEqual({ status: "laeuft_ab", daysLeft: 13 });
     expect(documentStatus({ valid_until: "2026-10-01" }, "2026-10-07").status).toBe("abgelaufen");
     expect(documentStatus({ valid_until: "2027-03-01" }, "2026-10-07").status).toBe("gueltig");
+  });
+});
+
+describe("healthStatusLabel", () => {
+  it("zeigt bei Ladefehler nie 'voll trainingsfaehig'", () => {
+    const label = healthStatusLabel({ status: "error" }, "2026-10-07");
+    expect(label.availability).toBeNull();
+    expect(label.text).toBe("Gesundheitsstatus konnte nicht geladen werden");
+    expect(healthStatusLabel({ status: "missing" }, "2026-10-07").availability).toBeNull();
+    expect(healthStatusLabel({ status: "loading" }, "2026-10-07").availability).toBeNull();
+  });
+  it("leere Liste nach erfolgreichem Laden = voll", () => {
+    expect(healthStatusLabel({ status: "ready", data: [] }, "2026-10-07").availability).toBe("voll");
   });
 });

@@ -12,7 +12,7 @@ import {
   AttendanceStatus,
   attendanceStats,
   loadAttendance,
-  loadTeamSwimmers,
+  loadTeamSwimmersResult,
   saveAttendance,
 } from "@/lib/attendance";
 
@@ -30,42 +30,60 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
   const [loading, setLoading] = useState(true);
   const [health, setHealth] = useState<HealthEvent[]>([]);
 
+  const [pending, setPending] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
+    let cancelled = false;
     async function load() {
-      const [team, attendance] = await Promise.all([loadTeamSwimmers(teamId), loadAttendance(sessionId)]);
-      setSwimmers(team);
+      const [team, attendance] = await Promise.all([loadTeamSwimmersResult(teamId), loadAttendance(sessionId)]);
+      if (cancelled) return;
+      setSwimmers(team.swimmers);
       setStatus(Object.fromEntries(attendance.rows.map((row) => [row.swimmer_id, row.status])));
       setMissingTable(attendance.missingTable);
+      setError(team.failed || attendance.failed ? "Anwesenheit konnte nicht geladen werden. Bitte Seite neu laden – bitte jetzt nichts eintragen." : "");
       setLoading(false);
-      if (team.length) {
+      const teamList = team.swimmers;
+      if (teamList.length) {
         const today = toDateKey(new Date());
         const { data } = await supabase
           .from("health_events")
           .select("*")
-          .in("swimmer_id", team.map((swimmer) => swimmer.id))
+          .in("swimmer_id", teamList.map((swimmer) => swimmer.id))
           .or(`end_date.is.null,end_date.gte.${today}`);
+        if (cancelled) return;
         setHealth(((data ?? []) as HealthEvent[]).filter((event) => isActive(event, today) && event.availability !== "voll"));
       }
     }
     load();
+    return () => {
+      cancelled = true;
+    };
   }, [sessionId, teamId]);
 
-  async function change(swimmerId: string, next: AttendanceStatus) {
-    const value = status[swimmerId] === next ? null : next;
-    const previous = status;
+  function setOne(swimmerId: string, value: AttendanceStatus | null | undefined) {
     setStatus((current) => {
       const copy = { ...current };
       if (value) copy[swimmerId] = value;
       else delete copy[swimmerId];
       return copy;
     });
+  }
+
+  async function change(swimmerId: string, next: AttendanceStatus) {
+    if (pending[swimmerId]) return; // Doppel-Tipp ignorieren, bis gespeichert ist
+    const before = status[swimmerId];
+    const value = before === next ? null : next;
+    setPending((current) => ({ ...current, [swimmerId]: true }));
+    setOne(swimmerId, value);
     const message = await saveAttendance(sessionId, swimmerId, value);
+    // nur diesen Athleten zuruecksetzen, nicht die ganze Liste
     if (message) {
-      setStatus(previous);
-      setError(`Anwesenheit konnte nicht gespeichert werden: ${message}`);
+      setOne(swimmerId, before);
+      setError(message);
     } else {
       setError("");
     }
+    setPending((current) => ({ ...current, [swimmerId]: false }));
   }
 
   async function allPresent() {
@@ -123,6 +141,7 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
                     type="button"
                     title={option.label}
                     onClick={() => change(swimmer.id, option.value)}
+                    disabled={Boolean(pending[swimmer.id])}
                     aria-label={option.label}
                     aria-pressed={status[swimmer.id] === option.value}
                     className={`h-11 min-w-11 rounded-xl px-2 text-sm font-bold transition ${

@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
-import { isMissingTable, supabase } from "@/lib/supabase";
+import { FormEvent, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { LoadResult, checkWrite, toLoadResult, useBusy, useKeyedLoad, writeErrorText } from "@/lib/loadState";
 import { buttonGhost, buttonPrimary, inputClass } from "@/components/ui";
 
 /*
@@ -12,57 +13,67 @@ import { buttonGhost, buttonPrimary, inputClass } from "@/components/ui";
 
 type Note = { id: string; body: string; pinned: boolean; created_at: string };
 
+async function fetchNotes(swimmerId: string): Promise<LoadResult<Note[]>> {
+  const res = await supabase
+    .from("athlete_notes")
+    .select("id, body, pinned, created_at")
+    .eq("swimmer_id", swimmerId)
+    .order("pinned", { ascending: false })
+    .order("created_at", { ascending: false });
+  return toLoadResult(res as { data: Note[] | null; error: { code?: string } | null }, []);
+}
+
 export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; limit?: number }) {
-  const [notes, setNotes] = useState<Note[] | null>(null);
-  const [missing, setMissing] = useState(false);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const { state, reload } = useKeyedLoad(swimmerId, fetchNotes);
   const [text, setText] = useState("");
   const [showAll, setShowAll] = useState(false);
-
-  const load = useCallback(async () => {
-    const { data, error } = await supabase
-      .from("athlete_notes")
-      .select("id, body, pinned, created_at")
-      .eq("swimmer_id", swimmerId)
-      .order("pinned", { ascending: false })
-      .order("created_at", { ascending: false });
-    if (error) {
-      setMissing(isMissingTable(error.code));
-      if (!isMissingTable(error.code)) setLoadFailed(true);
-      setNotes([]);
-      return;
-    }
-    setNotes((data ?? []) as Note[]);
-  }, [swimmerId]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
-    load();
-  }, [load]);
+  const [error, setError] = useState<string | null>(null);
+  const { busy, run } = useBusy();
 
   async function add(event: FormEvent) {
     event.preventDefault();
     if (!text.trim()) return;
-    const { error } = await supabase.from("athlete_notes").insert({ swimmer_id: swimmerId, body: text.trim() });
-    if (!error) {
+    await run(async () => {
+      const res = await supabase.from("athlete_notes").insert({ swimmer_id: swimmerId, body: text.trim() }).select("id");
+      const check = checkWrite(res);
+      if (!check.ok) {
+        setError(writeErrorText(check, "Notiz"));
+        return;
+      }
+      setError(null);
       setText("");
-      load();
-    }
+      await reload();
+    });
   }
 
   async function togglePin(note: Note) {
-    await supabase.from("athlete_notes").update({ pinned: !note.pinned }).eq("id", note.id);
-    load();
+    await run(async () => {
+      const check = checkWrite(await supabase.from("athlete_notes").update({ pinned: !note.pinned }).eq("id", note.id).select("id"));
+      setError(check.ok ? null : writeErrorText(check, "Notiz"));
+      await reload();
+    });
   }
 
   async function remove(note: Note) {
     if (!window.confirm("Notiz löschen?")) return;
-    await supabase.from("athlete_notes").delete().eq("id", note.id);
-    load();
+    await run(async () => {
+      const check = checkWrite(await supabase.from("athlete_notes").delete().eq("id", note.id).select("id"));
+      setError(check.ok ? null : writeErrorText(check, "Löschen"));
+      await reload();
+    });
   }
 
-  if (notes === null || missing) return null;
-  if (loadFailed) return <p className="text-sm text-app-bad">Trainernotizen konnten gerade nicht geladen werden.</p>;
+  if (state.status === "loading" || state.status === "missing") return null;
+  if (state.status === "error")
+    return (
+      <p className="text-sm text-app-bad">
+        Trainernotizen konnten nicht geladen werden.{" "}
+        <button type="button" className="underline" onClick={() => void reload()}>
+          Erneut laden
+        </button>
+      </p>
+    );
+  const notes = state.data;
 
   const shown = limit && !showAll ? notes.slice(0, limit) : notes;
 
@@ -72,10 +83,11 @@ export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; li
       <p className="text-[13px] text-app-muted">nur für Trainer sichtbar</p>
       <form onSubmit={add} className="mt-3 flex gap-2">
         <input className={inputClass} value={text} onChange={(e) => setText(e.target.value)} placeholder="z. B. Wende Brust verbessern" aria-label="Neue Notiz" />
-        <button type="submit" className={buttonPrimary} disabled={!text.trim()}>
+        <button type="submit" className={buttonPrimary} disabled={busy || !text.trim()} aria-label="Notiz speichern">
           +
         </button>
       </form>
+      {error && <p className="mt-2 text-sm text-app-bad" role="alert">{error}</p>}
       {shown.length > 0 && (
         <ul className="mt-3 divide-y divide-app-border/60">
           {shown.map((note) => (
@@ -85,10 +97,10 @@ export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; li
                 {note.body}
                 <span className="block text-xs text-app-faint">{new Date(note.created_at).toLocaleDateString("de-DE")}</span>
               </span>
-              <button type="button" onClick={() => togglePin(note)} className={`${buttonGhost} min-h-11 text-xs`}>
+              <button type="button" disabled={busy} onClick={() => togglePin(note)} className={`${buttonGhost} min-h-11 text-xs`}>
                 {note.pinned ? "Lösen" : "Anheften"}
               </button>
-              <button type="button" onClick={() => remove(note)} className={`${buttonGhost} min-h-11 min-w-11 text-xs hover:text-app-bad`} aria-label="Notiz löschen">
+              <button type="button" disabled={busy} onClick={() => remove(note)} className={`${buttonGhost} min-h-11 min-w-11 text-xs hover:text-app-bad`} aria-label="Notiz löschen">
                 ✕
               </button>
             </li>

@@ -5,7 +5,7 @@ import { newPersonalBests } from "@/lib/weeklyReport";
 import { Goal, goalLabel, goalProgress, sortGoals } from "@/lib/goals";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { localDateOf, CalendarEntry } from "@/lib/community";
+import { localDateOf, CalendarEntry, toDateKey } from "@/lib/community";
 import {
   QualifyingStandard,
   QualifyingTime,
@@ -43,7 +43,7 @@ export default function MeinFortschrittPage() {
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
   const [standardId, setStandardId] = useState("");
   const [state, setState] = useState<"loading" | "ok" | "missing" | "unlinked">("loading");
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
 
   useEffect(() => {
     async function load() {
@@ -211,7 +211,7 @@ export default function MeinFortschrittPage() {
  */
 function ProgressHighlights({ results }: { results: SwimmerResult[] }) {
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
 
   useEffect(() => {
     supabase

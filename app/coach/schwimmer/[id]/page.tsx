@@ -304,10 +304,16 @@ export default function SchwimmerDetailPage() {
   /* ---------- Infos bearbeiten ---------- */
 
   async function handleCountBothPools(standard: QualifyingStandard, checked: boolean) {
-    const { error } = await supabase
+    const { data: changed, error } = await supabase
       .from("qualifying_standards")
       .update({ count_both_pools: checked })
-      .eq("id", standard.id);
+      .eq("id", standard.id)
+      .select("id");
+
+    if (!error && !changed?.length) {
+      setMessage("Einstellung wurde nicht gespeichert (keine Berechtigung für diese Pflichtzeiten-Liste).");
+      return;
+    }
 
     if (error) {
       setMessage(`Einstellung konnte nicht gespeichert werden: ${error.message} – wurde pflichtzeiten_beide_bahnen.sql schon ausgeführt?`);
@@ -355,7 +361,7 @@ export default function SchwimmerDetailPage() {
 
     const clean = (value: string) => value.trim() || null;
 
-    const { error } = await supabase
+    const { data: savedRows, error } = await supabase
       .from("swimmers")
       .update({
         first_name: draft.first_name.trim(),
@@ -369,10 +375,12 @@ export default function SchwimmerDetailPage() {
         club_id: clean(draft.club_id),
         club_since: draft.club_since || null,
       })
-      .eq("id", swimmerId);
+      .eq("id", swimmerId)
+      .select("id");
 
-    if (error) {
-      setMessage(`Änderungen konnten nicht gespeichert werden: ${error.message}`);
+    if (error || !savedRows?.length) {
+      // Formular bleibt offen, Eingaben bleiben erhalten
+      setMessage(error ? `Änderungen konnten nicht gespeichert werden: ${error.message}` : "Änderungen wurden nicht gespeichert (keine Berechtigung). Bitte Seite neu laden.");
       return;
     }
 
@@ -477,6 +485,7 @@ export default function SchwimmerDetailPage() {
       );
     }
 
+    if (savingEntries) return;
     setSavingEntries(true);
     setMessage("");
 
@@ -505,10 +514,11 @@ export default function SchwimmerDetailPage() {
       return;
     }
 
-    const { error } = await supabase.from("swimmer_results").delete().eq("id", id);
+    const { data: deleted, error } = await supabase.from("swimmer_results").delete().eq("id", id).select("id");
 
-    if (error) {
-      setMessage(`Ergebnis konnte nicht gelöscht werden: ${error.message}`);
+    if (error || !deleted?.length) {
+      setMessage(error ? `Ergebnis konnte nicht gelöscht werden: ${error.message}` : "Ergebnis wurde nicht gelöscht (keine Berechtigung oder schon gelöscht).");
+      await loadData();
       return;
     }
 
