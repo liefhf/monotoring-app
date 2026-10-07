@@ -48,7 +48,7 @@ export default function FormCurvePanel({ swimmerId }: { swimmerId: string }) {
     <div className="mt-6 space-y-6">
       <Card
         title="Formkurve"
-        description="Fitness-Fatigue-Modell: Fitness (42 Tage) minus Ermüdung (7 Tage) = Form. Belastung = RPE × Minuten; zukünftige Einheiten mit der geplanten Belastung."
+        description="Fitness-Fatigue-Modell: Fitness (42 Tage) minus Ermüdung (7 Tage) = Form. Belastung = RPE × Minuten; zukünftige Einheiten mit der geplanten Belastung. Modell mit Standardwerten, nicht individuell kalibriert – zur Orientierung bei Belastungsverlauf und Tapering, nicht als Leistungsprognose."
       >
         <div className="flex flex-wrap items-center gap-2 border-b border-app-border px-4 py-3">
           <span className="text-sm text-app-muted">Ziel:</span>

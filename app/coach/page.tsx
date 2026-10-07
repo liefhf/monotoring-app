@@ -9,7 +9,7 @@ import { CalendarEntry, formatEntryWhen, localDateOf, toDateKey } from "@/lib/co
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { daysUntilDate, isoWeek, weekDays, weekStart } from "@/lib/dashboardStats";
 import { AttendanceStatus } from "@/lib/attendance";
-import { Icon, IconName } from "@/components/icons";
+import { Icon } from "@/components/icons";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
 import TodoCard from "@/components/TodoCard";
 import TeamSwitcher from "@/components/TeamSwitcher";
@@ -26,14 +26,6 @@ type Session = { id: string; title: string; session_date: string; start_time: st
 const DAY = 86_400_000;
 const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
-const QUICK: { href: string; label: string; icon: IconName }[] = [
-  { href: "/coach/training/new", label: "Training", icon: "plus" },
-  { href: "/coach/schwimmer", label: "Athleten", icon: "athlete" },
-  { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
-  { href: "/coach/analytics/wettkampf", label: "Auswertung", icon: "trophy" },
-  { href: "/coach/meldehilfe", label: "Meldehilfe", icon: "stopwatch" },
-  { href: "/coach/tests", label: "Tests", icon: "chart" },
-];
 
 /* Farben passend zur Palette (Pink/Lila), "fehlt" gedaempft statt Signalrot */
 const ATTENDANCE_COLORS: Record<AttendanceStatus, string> = {
@@ -180,18 +172,6 @@ export default function CoachPage() {
             {athleteCount !== null && <span className="num text-[13px] text-app-muted">{athleteCount} Athleten</span>}
           </div>
         </div>
-        <nav aria-label="Schnellzugriff" className="-mx-4 flex w-[calc(100%+2rem)] gap-2 overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:flex-wrap sm:px-0">
-          {QUICK.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-app-elevated px-3.5 text-[13px] font-bold text-app-heading transition hover:bg-app-border/70"
-            >
-              <Icon name={item.icon} className="h-4 w-4 text-app-accent-soft" />
-              {item.label}
-            </Link>
-          ))}
-        </nav>
       </div>
 
       {/* Heute: naechste Einheit + Schnellaktionen (Design: Dashboard oben) */}

@@ -62,7 +62,7 @@ export default function ForecastCard({
   return (
     <Card
       title="Prognose zum Saisonhöhepunkt"
-      description="Trend aus den Monatsbestzeiten der letzten 12 Monate – vorsichtig gerechnet (max. 1 % Verbesserung pro Monat)."
+      description="Trend aus den Monatsbestzeiten der letzten 12 Monate – vorsichtig gerechnet (max. 1 % Verbesserung pro Monat). Eine Orientierung, keine Vorhersage: Wachstum, Technik und Tagesform sind darin nicht enthalten."
     >
       <div className="flex flex-wrap gap-2 border-b border-app-border px-4 py-3">
         <select value={target?.id ?? ""} onChange={(e) => setTargetId(e.target.value)} className={`${inputClass} w-auto py-1.5 text-sm`}>
@@ -95,7 +95,7 @@ export default function ForecastCard({
                 <th className="px-3 py-2 text-right font-medium">Prognose</th>
                 <th className="px-3 py-2 text-right font-medium">Spanne</th>
                 {standard && <th className="px-3 py-2 text-right font-medium">Pflicht</th>}
-                {standard && <th className="px-4 py-2 text-right font-medium">Chance</th>}
+                {standard && <th className="px-4 py-2 text-right font-medium">Einschätzung</th>}
               </tr>
             </thead>
             <tbody>
@@ -122,7 +122,8 @@ export default function ForecastCard({
                         chance === null ? "text-app-faint" : chance >= 70 ? "text-app-good" : chance >= 30 ? "text-app-warn" : "text-app-bad"
                       }`}
                     >
-                      {chance === null ? "–" : chance === 100 && forecast!.best.time_ms <= (required?.time_ms ?? 0) ? "✓ erfüllt" : `${chance} %`}
+                      {/* Bewusst keine Prozentzahl: die Trendrechnung ist dafuer nicht genau genug */}
+                      {chance === null ? "–" : forecast!.best.time_ms <= (required?.time_ms ?? 0) ? "✓ erfüllt" : chance >= 70 ? "realistisch" : chance >= 30 ? "möglich" : "eher nicht"}
                     </td>
                   )}
                 </tr>

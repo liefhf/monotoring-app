@@ -242,6 +242,15 @@ export default function DailyCheckInPage() {
     );
   }
 
+  /* Antippen = Wert setzen und automatisch weiter (Check-in in unter 30 Sekunden) */
+  function pick(setter: (value: number) => void) {
+    return (value: number) => {
+      setter(value);
+      setMessage("");
+      window.setTimeout(() => setStep((current) => Math.min(6, current + 1) as Step), 180);
+    };
+  }
+
   function goBack() {
     setMessage("");
 
@@ -597,7 +606,7 @@ export default function DailyCheckInPage() {
 
               <ScaleGrid
                 selected={energy}
-                onSelect={setEnergy}
+                onSelect={pick(setEnergy)}
               />
             </>
           )}
@@ -613,7 +622,7 @@ export default function DailyCheckInPage() {
 
               <ScaleGrid
                 selected={mood}
-                onSelect={setMood}
+                onSelect={pick(setMood)}
               />
             </>
           )}
@@ -631,9 +640,7 @@ export default function DailyCheckInPage() {
                 selected={
                   muscleFeeling
                 }
-                onSelect={
-                  setMuscleFeeling
-                }
+                onSelect={pick(setMuscleFeeling)}
               />
             </>
           )}
@@ -649,7 +656,7 @@ export default function DailyCheckInPage() {
 
               <ScaleGrid
                 selected={stress}
-                onSelect={setStress}
+                onSelect={pick(setStress)}
               />
             </>
           )}
@@ -667,9 +674,7 @@ export default function DailyCheckInPage() {
                 selected={
                   sleepQuality
                 }
-                onSelect={
-                  setSleepQuality
-                }
+                onSelect={pick(setSleepQuality)}
               />
             </>
           )}
@@ -907,7 +912,7 @@ function ScaleGrid({
               }
               className={`flex min-h-12 items-center justify-center rounded-xl border text-sm font-semibold transition ${
                 active
-                  ? "border-app-warn bg-app-warn/10 text-app-warn"
+                  ? "border-app-accent bg-app-accent text-app-accent-ink"
                   : "border-app-border bg-app-bg text-app-muted hover:border-app-border hover:text-app-heading"
               }`}
             >

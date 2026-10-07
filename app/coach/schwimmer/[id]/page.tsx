@@ -19,6 +19,7 @@ import AthleteLinkCard from "@/components/AthleteLinkCard";
 import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import PainPanel from "@/components/PainPanel";
+import { AthleteStatusCard } from "@/components/RedFlagsPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
 import LactatePanel from "@/components/LactatePanel";
 import FormCurvePanel from "@/components/FormCurvePanel";
@@ -69,10 +70,11 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
+type Tab = "ueberblick" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
 
 /* Tabs in fuenf Gruppen - die Seite war mit 11 Tabs nebeneinander unuebersichtlich */
 const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
+  { label: "Überblick", tabs: ["ueberblick"] },
   { label: "Profil", tabs: ["infos", "fokus"] },
   { label: "Ergebnisse", tabs: ["bahn", "bestzeiten", "staffel", "wettkaempfe"] },
   { label: "Entwicklung", tabs: ["entwicklung", "pflichtzeiten"] },
@@ -81,6 +83,7 @@ const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
 ];
 
 const TABS: { value: Tab; label: string }[] = [
+  { value: "ueberblick", label: "Überblick" },
   { value: "infos", label: "Infos" },
   { value: "bahn", label: "25 & 50m Bahn" },
   { value: "staffel", label: "Staffeln & Freiwasser" },
@@ -194,7 +197,7 @@ export default function SchwimmerDetailPage() {
 
   /* ?tab=schmerzen oeffnet direkt einen Tab (z. B. aus einem Hinweis) */
   const searchParams = useSearchParams();
-  const initialTab = TABS.find((item) => item.value === searchParams.get("tab"))?.value ?? "infos";
+  const initialTab = TABS.find((item) => item.value === searchParams.get("tab"))?.value ?? "ueberblick";
   const [tab, setTab] = useState<Tab>(initialTab);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [standardId, setStandardId] = useState("");
@@ -585,14 +588,15 @@ export default function SchwimmerDetailPage() {
           </select>
         </div>
 
-        <nav className="mt-4 flex flex-wrap gap-1.5">
+        <nav aria-label="Bereiche" className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
           {TAB_GROUPS.map((group) => (
             <button
               key={group.label}
               type="button"
               onClick={() => setTab(group.tabs[0])}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                group.tabs.includes(tab) ? "bg-app-accent text-app-accent-ink" : "bg-app-elevated text-app-text hover:bg-app-border"
+              aria-pressed={group.tabs.includes(tab)}
+              className={`flex h-9 shrink-0 items-center rounded-full px-4 text-[13px] font-bold transition ${
+                group.tabs.includes(tab) ? "bg-app-heading text-app-bg" : "bg-app-elevated text-app-muted hover:text-app-heading"
               }`}
             >
               {group.label}
@@ -600,22 +604,66 @@ export default function SchwimmerDetailPage() {
           ))}
         </nav>
 
-        <nav className="mt-3 flex flex-wrap gap-1 border-b border-app-border">
+        {(TAB_GROUPS.find((group) => group.tabs.includes(tab))?.tabs.length ?? 0) > 1 && (
+        <nav aria-label="Unterbereiche" className="mt-3 flex gap-5 overflow-x-auto border-b border-app-border/60">
           {TABS.filter((item) => TAB_GROUPS.find((group) => group.tabs.includes(tab))?.tabs.includes(item.value)).map((item) => (
             <button
               key={item.value}
               type="button"
               onClick={() => setTab(item.value)}
-              className={`-mb-px rounded-t-xl border px-4 py-2.5 text-sm transition ${
-                tab === item.value
-                  ? "border-app-border border-b-app-bg bg-app-bg font-semibold text-app-heading"
-                  : "border-transparent text-app-accent hover:text-app-accent"
+              aria-current={tab === item.value ? "page" : undefined}
+              className={`-mb-px min-h-11 shrink-0 whitespace-nowrap border-b-2 text-sm transition ${
+                tab === item.value ? "border-app-accent-soft font-bold text-app-heading" : "border-transparent text-app-muted hover:text-app-heading"
               }`}
             >
               {item.label}
             </button>
           ))}
         </nav>
+        )}
+
+        {tab === "ueberblick" && (
+          <div className="mt-6 grid gap-4 lg:grid-cols-2 lg:gap-5">
+            <div className="lg:col-span-2">
+              <AthleteStatusCard swimmerId={swimmerId} />
+            </div>
+            <Card
+              title="Fokus-Strecken"
+              action={
+                <button type="button" onClick={() => setTab("fokus")} className="text-sm font-semibold text-app-accent-soft hover:underline">
+                  bearbeiten
+                </button>
+              }
+            >
+              <InfoRow label="Hauptstrecken" value={focusList(athleteFocus, "haupt")} />
+              <InfoRow label="Nebenstrecken" value={focusList(athleteFocus, "neben")} />
+              <InfoRow label="Notiz" value={athleteFocus.note ?? null} />
+            </Card>
+            <Card title="Anwesenheit Training">
+              <AttendanceSummary swimmerId={swimmer.id} />
+            </Card>
+            <div className="flex flex-wrap gap-2 lg:col-span-2">
+              {(
+                [
+                  ["bestzeiten", "Bestzeiten"],
+                  ["pflichtzeiten", "Pflichtzeiten"],
+                  ["entwicklung", "Entwicklung"],
+                  ["schmerzen", "Schmerzen"],
+                  ["laktat", "Laktat"],
+                ] as [Tab, string][]
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setTab(value)}
+                  className="flex h-9 items-center rounded-full bg-app-elevated px-3.5 text-[13px] font-bold text-app-heading hover:bg-app-border/70"
+                >
+                  {label} →
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {tab === "infos" && (
           editingInfos && draft ? (
