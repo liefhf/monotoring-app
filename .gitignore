@@ -46,3 +46,4 @@ supabase/serienzeiten_*.sql
 
 .vercel
 /.next-demo/
+/.next-check/
