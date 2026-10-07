@@ -256,14 +256,14 @@ function WochenplanView() {
                   {session.focus && <p className="mt-1 text-xs text-app-text">{session.focus}</p>}
                   {session.planned_rpe ? <p className="mt-1 text-[11px] text-app-faint">geplant RPE {session.planned_rpe}</p> : null}
                 </Link>
-                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 text-xs font-semibold">
-                  <Link href={`/coach/training/new?session=${session.id}`} className="text-app-muted hover:text-app-heading">
+                <div className="mt-1 flex flex-wrap gap-x-1 text-xs font-semibold">
+                  <Link href={`/coach/training/new?session=${session.id}`} className="inline-flex min-h-11 items-center px-1.5 text-app-muted hover:text-app-heading">
                     Bearbeiten
                   </Link>
-                  <button type="button" onClick={() => copySession(session)} disabled={copying === session.id} className="text-app-muted hover:text-app-heading disabled:opacity-50">
+                  <button type="button" onClick={() => copySession(session)} disabled={copying === session.id} className="inline-flex min-h-11 items-center px-1.5 text-app-muted hover:text-app-heading disabled:opacity-50">
                     {copying === session.id ? "Kopiert …" : "Kopieren"}
                   </button>
-                  <button type="button" onClick={() => moveSession(session)} disabled={copying === session.id} className="text-app-muted hover:text-app-heading disabled:opacity-50">
+                  <button type="button" onClick={() => moveSession(session)} disabled={copying === session.id} className="inline-flex min-h-11 items-center px-1.5 text-app-muted hover:text-app-heading disabled:opacity-50">
                     Verschieben
                   </button>
                 </div>

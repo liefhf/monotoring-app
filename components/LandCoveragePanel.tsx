@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import {
   CORE_GOALS,
   MIN_LAND_SESSIONS_PER_WEEK,
@@ -105,11 +106,7 @@ export default function LandCoveragePanel() {
         return;
       }
 
-      const { data: teamData } = await supabase
-        .from("teams")
-        .select("id, name")
-        .eq("coach_id", user.id)
-        .order("name");
+      const { data: teamData } = await loadCoachTeams();
 
       const loadedTeams = (teamData ?? []) as Team[];
 

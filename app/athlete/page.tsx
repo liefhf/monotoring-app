@@ -230,7 +230,7 @@ export default function AthleteToday() {
               <span className="text-app-faint" aria-hidden="true">→</span>
             </Link>
             {moreThisWeek > 0 && (
-              <Link href="/athlete/training" className="mt-2 block text-sm font-semibold text-app-accent-soft">
+              <Link href="/athlete/training" className="mt-1 flex min-h-11 items-center text-sm font-semibold text-app-accent-soft">
                 Diese Woche noch {moreThisWeek} weitere{moreThisWeek === 1 ? "s Training" : " Trainings"} →
               </Link>
             )}
@@ -305,7 +305,7 @@ export default function AthleteToday() {
         </Link>
       )}
 
-      <Link href="/athlete/pain" className="block py-2 text-center text-sm font-semibold text-app-muted">
+      <Link href="/athlete/pain" className="flex min-h-11 items-center justify-center text-sm font-semibold text-app-muted">
         Etwas tut weh? Hier melden →
       </Link>
     </main>

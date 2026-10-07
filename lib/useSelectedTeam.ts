@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 
 /*
  * Die gewaehlte Mannschaft gilt app-weit (Dashboard, Training,
@@ -17,11 +17,7 @@ export function useSelectedTeam() {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
-    supabase
-      .from("teams")
-      .select("id, name")
-      .order("name")
-      .then(({ data, error }) => {
+    loadCoachTeams().then(({ data, error }) => {
         if (error) {
           setStatus("error");
           return;

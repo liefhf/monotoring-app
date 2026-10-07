@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Zugriff vom Handy im lokalen WLAN während der Entwicklung
   allowedDevOrigins: ["192.168.178.64"],
+  // kein Entwicklungs-Symbol in Screenshots/Produktbildern
+  devIndicators: false,
   /*
    * Alte Adressen nach der Zusammenlegung von Seiten (Lesezeichen,
    * Links in Hinweisen). Es gehen keine Daten verloren - nur die Seiten

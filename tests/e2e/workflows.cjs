@@ -54,7 +54,7 @@ async function test(name, fn) {
 }
 
 const go = (page, path) => page.goto(BASE + path, { waitUntil: "networkidle", timeout: 120000 });
-const see = (page, text, timeout = 15000) => page.getByText(text).first().waitFor({ timeout }).catch((e) => { throw new Error(`nicht gefunden: ${text}`); });
+const see = (page, text, timeout = 15000) => page.getByText(text).first().waitFor({ timeout }).catch(() => { throw new Error(`nicht gefunden: ${text}`); });
 async function notSee(page, text) {
   if (await page.getByText(text).count()) throw new Error(`soll nicht sichtbar sein: ${text}`);
 }
@@ -346,6 +346,19 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     await page.clock.runFor(3 * 60_000); // 00:01
     await page.waitForTimeout(1500);
     await see(page, "Wie geht es dir heute?"); // neuer Tag -> neuer Check-in
+  });
+
+  /* 11 Spaete Antwort beim Wechsel zwischen Athleten (App-Navigation ohne Neuladen) */
+  await test("11 Athletenwechsel: spaete Antwort des ersten Athleten erscheint nicht", async (b) => {
+    const { page } = await open(b, "coach", { faults: { delay: { health_events: 2500 } } });
+    await go(page, "/coach/schwimmer/w2");
+    await page.evaluate(() => window.next.router.push("/coach/schwimmer/w1?tab=gesundheit"));
+    await page.waitForTimeout(300);
+    await page.evaluate(() => window.next.router.push("/coach/schwimmer/w2?tab=gesundheit"));
+    await page.waitForTimeout(4000);
+    if (!page.url().includes("/w2")) throw new Error("falsche Seite");
+    await notSee(page, "Physio Do");
+    await notSee(page, "Schulter rechts");
   });
 
   console.log(`\n${passed} bestanden, ${failed} fehlgeschlagen`);

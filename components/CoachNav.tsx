@@ -271,8 +271,6 @@ export default function CoachNav() {
 
         <div className="flex items-center gap-2">
           <NotificationBell />
-          <ContrastToggle />
-          <ThemeToggle />
         </div>
       </div>
 
@@ -313,6 +311,11 @@ export default function CoachNav() {
                 <Icon name="settings" className="h-[18px] w-[18px]" />
                 Einstellungen
               </Link>
+              <p className="mt-2 px-1 text-[13px] text-app-muted">Darstellung</p>
+              <div className="mt-1 flex flex-wrap gap-2">
+                <ThemeToggle withLabel />
+                <ContrastToggle withLabel />
+              </div>
               <LogoutButton className="mt-2 w-full" />
             </div>
           </div>
@@ -322,17 +325,21 @@ export default function CoachNav() {
       {/* Handy: Leiste unten mit "+" in der Mitte */}
       <nav
         aria-label="Schnellnavigation"
-        className="fixed inset-x-3 bottom-3 z-30 flex items-center rounded-[22px] border border-app-border/60 bg-app-sidebar/95 px-2 pb-[env(safe-area-inset-bottom)] shadow-app backdrop-blur lg:hidden print:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex items-center border-t border-app-border bg-app-sidebar/95 px-1 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden print:hidden"
       >
         {mobileTabs.slice(0, 2).map((tab) => (
           <MobileTab key={tab.href} tab={tab} active={isTabActive(pathname, tab.group)} />
         ))}
+        {/* Neue Einheit: gut erreichbar, aber ohne die taeglichen Aktionen zu ueberstrahlen */}
         <Link
           href="/coach/training/new"
-          aria-label="Neue Einheit planen"
-          className="bg-highlight -mt-6 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg"
+          aria-current={pathname === "/coach/training/new" ? "page" : undefined}
+          className={`flex h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-bold ${pathname === "/coach/training/new" ? "text-app-heading" : "text-app-faint"}`}
         >
-          <Icon name="plus" className="h-7 w-7" />
+          <span className="flex h-[22px] w-[22px] items-center justify-center rounded-md border-2 border-current">
+            <Icon name="plus" className="h-3.5 w-3.5" />
+          </span>
+          Neue Einheit
         </Link>
         {mobileTabs.slice(2).map((tab) => (
           <MobileTab key={tab.href} tab={tab} active={isTabActive(pathname, tab.group)} />

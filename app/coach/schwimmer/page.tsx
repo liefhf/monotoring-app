@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isMissingTable, supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import { fetchAll } from "@/lib/fetchAll";
 import { Gender, Swimmer, formatGender, getSwimmerName } from "@/lib/swim";
 import { Icon } from "@/components/icons";
@@ -54,11 +55,10 @@ export default function AthletenPage() {
   const firstNameInput = useRef<HTMLInputElement>(null);
 
   const loadData = useCallback(async () => {
-    const { data: userData } = await supabase.auth.getUser();
 
     const [athleteResponse, teamResponse, membershipResponse, resultResponse] = await Promise.all([
       supabase.from("swimmers").select("id, first_name, last_name, birth_year, gender, profile_id").order("first_name"),
-      supabase.from("teams").select("id, name").eq("coach_id", userData.user?.id ?? "").order("name"),
+      loadCoachTeams(),
       supabase.from("team_swimmers").select("team_id, swimmer_id"),
       fetchAll(() => supabase.from("swimmer_results").select("swimmer_id")),
     ]);
@@ -297,7 +297,7 @@ export default function AthletenPage() {
               type="button"
               onClick={() => setFilter(chip.filter)}
               aria-pressed={isActive(chip.filter)}
-              className={`flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13px] font-bold transition ${
+              className={`flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13px] font-bold transition ${
                 isActive(chip.filter) ? "bg-app-heading text-app-bg" : "bg-app-elevated text-app-muted hover:text-app-heading"
               }`}
             >

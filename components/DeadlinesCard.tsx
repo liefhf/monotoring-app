@@ -14,7 +14,7 @@ import { DOC_TYPE_LABELS, DOC_WARN_DAYS, DocType, documentStatus } from "@/lib/h
 
 type Row = { id: string; swimmer_id: string; doc_type: DocType; title: string; valid_until: string; swimmers: { first_name: string; last_name: string | null } | null };
 
-export default function DeadlinesCard({ teamId = null }: { teamId?: string | null }) {
+export default function DeadlinesCard({ teamId = null, embedded = false }: { teamId?: string | null; embedded?: boolean }) {
   const [today] = useState(() => toDateKey(new Date()));
   const key = `${teamId ?? "alle"}|${today}`;
   const [result, setResult] = useState<{ key: string; rows: Row[] | null } | null>(null);
@@ -51,13 +51,37 @@ export default function DeadlinesCard({ teamId = null }: { teamId?: string | nul
   if (!result || result.key !== key) return null;
   if (result.rows === null) {
     return (
-      <p className="rounded-[20px] border border-app-bad/40 bg-app-surface p-4 text-sm text-app-bad">
+      <p className={embedded ? "mt-2 text-sm text-app-bad" : "rounded-[20px] border border-app-bad/40 bg-app-surface p-4 text-sm text-app-bad"}>
         Dokument-Fristen konnten nicht geladen werden – ob ein Attest abläuft, ist gerade unbekannt.
       </p>
     );
   }
   const rows = result.rows;
   if (rows.length === 0) return null;
+
+  /* Im Dashboard-Bereich "Aufmerksamkeit": gleiche Zeilenform wie die Hinweise */
+  if (embedded) {
+    return (
+      <ul className="divide-y divide-app-border/70 border-t border-app-border/70">
+        {rows.map((row) => {
+          const { status, daysLeft } = documentStatus(row, today);
+          const name = row.swimmers ? `${row.swimmers.first_name} ${row.swimmers.last_name ?? ""}`.trim() : "Athlet";
+          return (
+            <li key={row.id}>
+              <Link href={`/coach/schwimmer/${row.swimmer_id}?tab=dokumente`} className="group flex gap-3 py-2.5">
+                <span aria-hidden="true" className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${status === "abgelaufen" ? "bg-app-bad" : "bg-app-soon"}`} />
+                <span className="min-w-0 flex-1 text-[15px] text-app-heading">
+                  <span className="font-bold">{name}</span> · {row.title || DOC_TYPE_LABELS[row.doc_type]}{" "}
+                  {status === "abgelaufen" ? "abgelaufen" : `läuft in ${daysLeft} ${daysLeft === 1 ? "Tag" : "Tagen"} ab`}
+                  <span className="mt-0.5 block text-[13px] font-semibold text-app-accent-soft group-hover:underline">Dokument ansehen →</span>
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  }
 
   return (
     <section aria-label="Fristen" className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">

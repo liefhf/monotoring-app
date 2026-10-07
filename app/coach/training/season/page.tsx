@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { LatestRequest } from "@/lib/loadState";
 import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import {
   EntryCategory,
   categoryToSeasonType,
@@ -552,11 +553,7 @@ export default function SeasonPlanningPage() {
       return;
     }
 
-    const { data: teamData, error: teamError } = await supabase
-      .from("teams")
-      .select("id, name")
-      .eq("coach_id", user.id)
-      .order("name");
+    const { data: teamData, error: teamError } = await loadCoachTeams();
 
     if (stale()) return;
     if (teamError) {

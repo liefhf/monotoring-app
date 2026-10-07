@@ -14,7 +14,7 @@ import { supabase } from "@/lib/supabase";
 type Task = { id: string; title: string; description: string | null; due_date: string | null; completed: boolean; team_id: string | null };
 
 
-export default function TodoCard({ teamId }: { teamId: string | null }) {
+export default function TodoCard({ teamId, compact = false }: { teamId: string | null; compact?: boolean }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
@@ -82,8 +82,20 @@ export default function TodoCard({ teamId }: { teamId: string | null }) {
 
   const open = tasks.filter((task) => !task.completed).length;
 
+  /* Dashboard: nichts offen -> nur eine kurze Zeile statt einer leeren Karte */
+  if (compact && open === 0 && !adding) {
+    return (
+      <p className="flex items-center justify-between gap-3 px-1 text-sm text-app-muted">
+        Keine offenen Aufgaben.
+        <button type="button" onClick={() => setAdding(true)} className="inline-flex min-h-11 items-center font-semibold text-app-accent-soft hover:underline">
+          + Aufgabe
+        </button>
+      </p>
+    );
+  }
+
   return (
-    <section className="flex h-full flex-col rounded-[20px] border border-app-border bg-app-surface p-5 shadow-app">
+    <section className={compact ? "rounded-2xl border border-app-border bg-app-surface px-4 py-3.5 sm:px-5" : "flex h-full flex-col rounded-[20px] border border-app-border bg-app-surface p-5 shadow-app"}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <Link href="/coach/training/season" className="text-lg font-bold text-app-heading hover:text-app-accent">

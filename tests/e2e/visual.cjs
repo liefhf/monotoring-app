@@ -12,7 +12,7 @@ const NOW = new Date(2026, 9, 7, 12, 0, 0);
 const SHOTS = process.env.SHOTS || "";
 const SIZES = [[320, 640], [390, 844], [768, 1024], [1280, 900]];
 const PAGES = {
-  coach: ["/coach", "/coach/schwimmer", "/coach/schwimmer/w3", "/coach/schwimmer/w1?tab=gesundheit", "/coach/training", "/coach/training/session/s0", "/coach/bericht", "/coach/settings"],
+  coach: ["/coach", "/coach/schwimmer/w1", "/coach/schwimmer", "/coach/schwimmer/w3", "/coach/schwimmer/w1?tab=gesundheit", "/coach/training", "/coach/training/session/s0", "/coach/bericht", "/coach/settings"],
   athlete: ["/athlete", "/athlete/check-in", "/athlete/fortschritt"],
 };
 let problems = 0;
@@ -33,7 +33,8 @@ let problems = 0;
         const page = await ctx.newPage();
         await page.clock.install({ time: NOW });
         for (const path of paths) {
-          await page.goto(BASE + path, { waitUntil: "networkidle", timeout: 120000 });
+          // Dev-Server kompiliert manchmal neu -> einmal wiederholen
+          await page.goto(BASE + path, { waitUntil: "networkidle", timeout: 120000 }).catch(() => page.goto(BASE + path, { waitUntil: "networkidle", timeout: 120000 }));
           await page.waitForTimeout(600);
           const report = await page.evaluate(() => {
             const out = [];
@@ -62,7 +63,7 @@ let problems = 0;
             problems += report.length;
             console.log(`${theme} ${w}px ${path}: ${report.join(" · ")}`);
           }
-          if (SHOTS) await page.screenshot({ path: `${SHOTS}/v-${theme}-${w}${path.replace(/[/?=]/g, "_")}.png`, fullPage: false });
+          if (SHOTS) await page.screenshot({ path: `${SHOTS}/v-${theme}-${w}${path.replace(/[/?=]/g, "_")}.png`, fullPage: true });
         }
         await ctx.close();
       }

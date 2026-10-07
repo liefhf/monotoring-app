@@ -107,8 +107,8 @@ export default function AthleteNav() {
               })}
             </div>
             <div className="mt-3 flex items-center gap-2">
-              <ThemeToggle />
-              <ContrastToggle />
+              <ThemeToggle withLabel />
+              <ContrastToggle withLabel />
               <LogoutButton className="flex-1" />
             </div>
           </div>

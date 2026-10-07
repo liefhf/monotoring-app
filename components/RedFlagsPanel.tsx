@@ -6,8 +6,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, wellnessScore } from "@/lib/monitoring";
-import { attendanceStats, AttendanceStatus } from "@/lib/attendance";
+import { attendanceStats, AttendanceStatus, MIN_ATTENDANCE_BASIS } from "@/lib/attendance";
 import { HealthEvent, healthFlags } from "@/lib/health";
+import { attentionItems, dataGaps } from "@/lib/attention";
 
 /*
  * Athleten-Check fuer den Coach: wer braucht heute Aufmerksamkeit?
@@ -26,6 +27,9 @@ export type Row = {
   readiness: number | null;
   painMax: number | null;
   attendanceRate: number | null;
+  /* fuer die Zusammenfassung: fehlende Daten konkret benennen */
+  hasLogin: boolean;
+  checkInToday: boolean;
 };
 
 const DAY = 86_400_000;
@@ -141,13 +145,16 @@ export async function loadRowsChecked(
     })();
     /* letzter Check-in innerhalb von 3 Wochen; nur bei Athleten mit Login sinnvoll */
     const lastCheckIn = swimmer.profile_id ? (readinessList[0]?.entry_date ?? null) : null;
-    const attendanceRate = ownAttendance.length >= 3 ? attendanceStats(ownAttendance).rate : null;
+    /* gleiche Grundlage wie die Anzeige: erst ab MIN_ATTENDANCE_BASIS erfassten Eintraegen */
+    const attendanceRate = ownAttendance.length >= MIN_ATTENDANCE_BASIS ? attendanceStats(ownAttendance).rate : null;
     const flags = [
       ...healthFlags(health.filter((item) => item.swimmer_id === swimmer.id), today).map((flag) => ({ ...flag, kind: "gesundheit" as const })),
       ...buildFlags({ acwr: load, painReports: ownPain, wellness: readinessList, attendanceRate, lastCheckIn, today }),
     ].sort((a, b) => (a.level === b.level ? 0 : a.level === "rot" ? -1 : 1));
     const latestReadiness = readinessList.find((item) => (Date.parse(today) - Date.parse(item.entry_date)) / DAY <= 2);
     return {
+      hasLogin: Boolean(swimmer.profile_id),
+      checkInToday: Boolean(swimmer.profile_id) && readinessList[0]?.entry_date === today,
       id: swimmer.id,
       name: `${swimmer.first_name} ${swimmer.last_name ?? ""}`.trim(),
       acwr: load,
@@ -161,12 +168,6 @@ export async function loadRowsChecked(
   return { rows, incomplete };
 }
 
-function groupOf(row: Row) {
-  if (row.flags.some((flag) => flag.level === "rot")) return "rot";
-  if (row.flags.length) return "gelb";
-  const hasData = row.acwr.ratio !== null || row.readiness !== null || row.painMax !== null || row.attendanceRate !== null;
-  return hasData ? "ok" : "leer";
-}
 
 /* Direkter Weg zur Ursache eines Hinweises */
 export function flagHref(swimmerId: string, flag?: Flag) {
@@ -222,15 +223,10 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
 
   /* Teamwechsel: nie die Werte des vorherigen Teams zeigen */
   if (!result || result.key !== key) {
-    return <div className="h-40 animate-pulse rounded-[20px] bg-app-elevated" aria-label="Wird geladen" />;
+    return <div className="h-16 animate-pulse rounded-xl bg-app-elevated" aria-label="Wird geladen" />;
   }
   if (result.rows === null) {
-    return (
-      <section className="rounded-[20px] border border-app-bad/40 bg-app-surface p-4 shadow-app sm:p-[22px]">
-        <h2 className="text-[15px] font-bold text-app-heading">Team heute</h2>
-        <p className="mt-2 text-sm text-app-bad">Hinweise konnten nicht geladen werden. Es ist unbekannt, ob jemand Aufmerksamkeit braucht – bitte Seite neu laden.</p>
-      </section>
-    );
+    return <p className="text-sm text-app-bad">Hinweise konnten nicht geladen werden. Es ist unbekannt, ob jemand Aufmerksamkeit braucht – bitte Seite neu laden.</p>;
   }
   const rows = result.rows;
   const incomplete = result.incomplete;
@@ -264,55 +260,48 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
   const flaggedCount = rows.filter((row) => row.flags.length).length;
 
   if (variant === "summary") {
-    const counts = { rot: 0, gelb: 0, ok: 0, leer: 0 };
-    for (const row of rows) counts[groupOf(row)] += 1;
-    const attention = sorted.filter((row) => row.flags.length).slice(0, 5);
+    /* Inhalt fuer den Dashboard-Bereich "Aufmerksamkeit" (Rahmen liefert das Dashboard) */
+    const items = attentionItems(rows);
+    const gaps = dataGaps(rows, incomplete);
+    const shownItems = items.slice(0, 4);
     return (
-      <section aria-label="Team heute" className="flex h-full flex-col rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">
-        <div className="flex items-center gap-3">
-          <h2 className="flex-1 text-[15px] font-bold text-app-heading">Team heute</h2>
-          <Link href="/coach/athleten-check" className="text-[13px] font-semibold text-app-accent-soft hover:underline">
-            Alle ansehen →
-          </Link>
-        </div>
-        <p className="mt-1 text-[13px] text-app-muted">
-          <span className="font-semibold text-app-bad">{counts.rot} kritisch</span> ·{" "}
-          <span className="font-semibold text-app-warn">{counts.gelb} beachten</span> · {counts.ok} unauffällig
-          {counts.leer > 0 && ` · ${counts.leer} ohne Daten`}
-        </p>
-        {incomplete.length > 0 && (
-          <p className="mt-2 rounded-xl bg-app-warn/10 px-3 py-2 text-[13px] text-app-text" role="status">
-            Unvollständig: {incomplete.join(", ")} konnten nicht geladen werden. Fehlende Hinweise heißen hier nicht „unauffällig“.
-          </p>
-        )}
-        {attention.length === 0 ? (
-          <p className="mt-6 text-sm text-app-muted">
-            {rows.length === 0
-              ? "Noch keine Athleten in diesem Team."
-              : incomplete.length
-                ? "Keine Hinweise in den geladenen Daten."
-                : counts.leer === rows.length
-                  ? "Noch keine Daten (Check-ins, Rückmeldungen, Anwesenheit) – es gibt nichts zu bewerten."
-                  : `Keine Auffälligkeiten bei ${counts.ok} Athleten mit Daten.${counts.leer ? ` ${counts.leer} ohne Daten.` : ""}`}
-          </p>
+      <div>
+        {rows.length === 0 ? (
+          <p className="text-sm text-app-muted">Noch keine Athleten in diesem Team.</p>
+        ) : items.length === 0 ? (
+          <p className="text-sm text-app-text">{incomplete.length ? "Keine Hinweise in den geladenen Daten." : "Keine Hinweise."}</p>
         ) : (
-          <ul className="mt-3 divide-y divide-app-border/60">
-            {attention.map((row) => (
-              <li key={row.id}>
-                <Link href={flagHref(row.id, row.flags[0])} className="-mx-2 block rounded-xl px-2 py-2.5 transition hover:bg-app-elevated/60">
-                  <span className="mb-1 block text-[15px] font-bold text-app-heading">{row.name}</span>
-                  <ul className="space-y-1">
-                    {row.flags.slice(0, 2).map((flag) => (
-                      <FlagLine key={flag.kind + flag.text} flag={flag} compact />
-                    ))}
-                  </ul>
-                  {row.flags[0] && <span className="mt-1 block pl-[18px] text-[13px] text-app-muted">→ {row.flags[0].check}</span>}
+          <ul className="divide-y divide-app-border/70">
+            {shownItems.map((item) => (
+              <li key={item.id}>
+                <Link href={item.href} className="group flex gap-3 py-2.5">
+                  <span aria-hidden="true" className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${item.level === "rot" ? "bg-app-bad" : "bg-app-warn"}`} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] text-app-heading">
+                      <span className="font-bold">{item.name}</span>
+                      <span className="sr-only">{item.level === "rot" ? " (dringend)" : " (beachten)"}</span>
+                      {" · "}
+                      {item.headline}
+                    </span>
+                    {item.details.length > 0 && <span className="block text-[13px] text-app-text">{item.details.join(" · ")}</span>}
+                    <span className="mt-0.5 block text-[13px] font-semibold text-app-accent-soft group-hover:underline">{item.linkLabel} →</span>
+                  </span>
                 </Link>
               </li>
             ))}
           </ul>
         )}
-      </section>
+        {items.length > shownItems.length && (
+          <Link href="/coach/athleten-check" className="mt-1 inline-flex min-h-11 items-center text-sm font-semibold text-app-accent-soft hover:underline">
+            Alle {items.length} Hinweise ansehen →
+          </Link>
+        )}
+        {gaps.length > 0 && (
+          <p className="mt-2 border-t border-app-border/70 pt-2 text-[13px] text-app-text">
+            <span className="font-semibold">Fehlende Daten (keine Entwarnung):</span> {gaps.join(" · ")}
+          </p>
+        )}
+      </div>
     );
   }
 

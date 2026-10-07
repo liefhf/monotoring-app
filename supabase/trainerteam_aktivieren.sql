@@ -162,3 +162,50 @@ drop policy if exists "Team staff read feedback" on public.training_feedback;
 create policy "Team staff read feedback"
   on public.training_feedback for select to authenticated
   using (public.is_session_staff(training_session_id) and public.coach_has_athlete(athlete_id));
+
+-- 7) Teams: weitere Trainer sehen ihre Teams (Umschalter, Berichte)
+drop policy if exists "Team staff read teams" on public.teams;
+create policy "Team staff read teams"
+  on public.teams for select to authenticated
+  using (public.is_team_staff(id));
+
+create or replace function public.my_teams()
+returns table (id uuid, name text, is_coach boolean)
+language sql stable security definer set search_path = ''
+as $$
+  select t.id, t.name::text, true
+  from public.teams t
+  where public.is_team_staff(t.id)
+  union
+  select t.id, t.name::text, false
+  from public.teams t
+  join public.team_members tm on tm.team_id = t.id
+  where tm.athlete_id = auth.uid()
+  order by 2;
+$$;
+
+-- 8) Team-Inhalte (Kalender, News) des Haupttrainers sehen auch weitere Trainer
+create or replace function public.can_see_team_content(p_coach_id uuid, p_team_id uuid)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select
+    p_coach_id = auth.uid()
+    or (p_team_id is null and public.athlete_has_coach(p_coach_id))
+    or (p_team_id is not null and (public.is_team_member(p_team_id) or public.is_team_staff(p_team_id)));
+$$;
+
+-- 9) Serienzeiten je Einheit
+do $$
+begin
+  if to_regclass('public.training_set_times') is not null then
+    execute 'drop policy if exists "Team staff manage set times" on public.training_set_times';
+    execute 'create policy "Team staff manage set times" on public.training_set_times for all to authenticated
+      using (public.is_session_staff(training_session_id) and public.coach_can_access_swimmer(swimmer_id))
+      with check (public.is_session_staff(training_session_id) and public.coach_can_access_swimmer(swimmer_id))';
+  end if;
+end $$;
+
+-- Bewusst NICHT geteilt (bleibt beim jeweiligen Trainer): eigene Wettkaempfe und
+-- Wettkampf-Feedback, Pflichtzeiten-Listen, Staffeln, Anmeldelisten zu Terminen.
+-- Ergebnisse der Athleten (swimmer_results) sehen alle Trainer mit Zugriff auf den Athleten.

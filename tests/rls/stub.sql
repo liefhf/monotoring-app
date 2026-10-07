@@ -37,6 +37,17 @@ create function public.is_team_coach(p_team_id uuid) returns boolean language sq
 create function public.coach_has_athlete(p_athlete_id uuid) returns boolean language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.team_members tm join public.teams t on t.id = tm.team_id where tm.athlete_id = p_athlete_id and t.coach_id = auth.uid()) $$;
 
+create table public.training_set_times (id uuid primary key default gen_random_uuid(), training_session_id uuid references public.training_sessions(id) on delete cascade, swimmer_id uuid references public.swimmers(id) on delete cascade, set_label text);
+create function public.is_team_member(p_team_id uuid) returns boolean language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.team_members tm where tm.team_id = p_team_id and tm.athlete_id = auth.uid()) $$;
+create function public.athlete_has_coach(p_coach_id uuid) returns boolean language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.team_members tm join public.teams t on t.id = tm.team_id where tm.athlete_id = auth.uid() and t.coach_id = p_coach_id) $$;
+create function public.my_teams() returns table (id uuid, name text, is_coach boolean) language sql stable security definer set search_path = '' as $$
+  select t.id, t.name::text, true from public.teams t where t.coach_id = auth.uid()
+  union select t.id, t.name::text, false from public.teams t join public.team_members tm on tm.team_id = t.id where tm.athlete_id = auth.uid() order by 2 $$;
+create function public.can_see_team_content(p_coach_id uuid, p_team_id uuid) returns boolean language sql stable security definer set search_path = '' as $$
+  select p_coach_id = auth.uid() or (p_team_id is null and public.athlete_has_coach(p_coach_id)) or (p_team_id is not null and public.is_team_member(p_team_id)) $$;
+
 -- Supabase-Speicher
 create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
 create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
@@ -44,7 +55,7 @@ create function storage.foldername(name text) returns text[] language sql immuta
 
 -- Angenommene Grundregeln der Kern-Tabellen
 do $$ declare r text; begin
-  foreach r in array array['profiles','teams','swimmers','team_swimmers','team_members','training_sessions','training_sections','training_rows','training_land_rows','training_warmup_land_rows','training_feedback','befinden_entries'] loop
+  foreach r in array array['profiles','teams','swimmers','team_swimmers','team_members','training_sessions','training_sections','training_rows','training_land_rows','training_warmup_land_rows','training_feedback','befinden_entries','training_set_times'] loop
     execute format('alter table public.%I enable row level security', r);
   end loop;
 end $$;
@@ -58,6 +69,7 @@ create policy own_sessions on public.training_sessions for all to authenticated 
 create policy own_sections on public.training_sections for all to authenticated using (exists (select 1 from public.training_sessions s where s.id = training_session_id and s.coach_id = auth.uid()));
 create policy own_rows on public.training_rows for all to authenticated using (exists (select 1 from public.training_sections x join public.training_sessions s on s.id = x.training_session_id where x.id = section_id and s.coach_id = auth.uid()));
 create policy athlete_feedback on public.training_feedback for all to authenticated using (athlete_id = auth.uid()) with check (athlete_id = auth.uid());
+create policy own_set_times on public.training_set_times for all to authenticated using (public.coach_owns_swimmer(swimmer_id) and exists (select 1 from public.training_sessions s where s.id = training_session_id and s.coach_id = auth.uid()));
 create policy athlete_befinden on public.befinden_entries for all to authenticated using (athlete_id = auth.uid()) with check (athlete_id = auth.uid());
 create policy coach_befinden on public.befinden_entries for select to authenticated using (public.coach_has_athlete(athlete_id));
 
@@ -65,5 +77,5 @@ grant usage on schema public, auth, storage to authenticated, anon;
 grant all on all tables in schema public to authenticated, anon;
 grant all on all tables in schema storage to authenticated, anon;
 alter default privileges in schema public grant all on tables to authenticated, anon;
-revoke all on function public.coach_owns_swimmer(uuid), public.is_team_coach(uuid), public.coach_has_athlete(uuid) from public, anon;
-grant execute on function public.coach_owns_swimmer(uuid), public.is_team_coach(uuid), public.coach_has_athlete(uuid) to authenticated;
+revoke all on function public.coach_owns_swimmer(uuid), public.is_team_coach(uuid), public.coach_has_athlete(uuid), public.is_team_member(uuid), public.athlete_has_coach(uuid), public.my_teams(), public.can_see_team_content(uuid, uuid) from public, anon;
+grant execute on function public.coach_owns_swimmer(uuid), public.is_team_coach(uuid), public.coach_has_athlete(uuid), public.is_team_member(uuid), public.athlete_has_coach(uuid), public.my_teams(), public.can_see_team_content(uuid, uuid) to authenticated;

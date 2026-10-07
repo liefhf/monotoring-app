@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { teamNotice, useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
-import { ATTENDANCE_STATUS, AttendanceStatus, attendanceStats, loadTeamSwimmers } from "@/lib/attendance";
+import { ATTENDANCE_STATUS, AttendanceStatus, attendanceDisplay, attendanceStats, loadTeamSwimmers } from "@/lib/attendance";
 import { Swimmer } from "@/lib/swim";
 import { PageHeader } from "@/components/ui";
 import TeamSwitcher from "@/components/TeamSwitcher";
@@ -119,8 +119,8 @@ export default function AnwesenheitPage() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <div className="rounded-[20px] border border-app-border bg-app-surface p-4 shadow-app">
-          <p className="text-3xl font-bold text-app-heading">{total.rate === null ? "–" : `${total.rate}%`}</p>
-          <p className="text-xs text-app-muted">anwesend gesamt</p>
+          <p className="text-3xl font-bold text-app-heading">{attendanceDisplay(total.present, total.total).main}</p>
+          <p className="text-xs text-app-muted">{attendanceDisplay(total.present, total.total).sub} (nur erfasste Einträge)</p>
         </div>
         {ATTENDANCE_STATUS.map((item) => (
           <div key={item.value} className="rounded-[20px] border border-app-border bg-app-surface p-4 shadow-app">
@@ -149,8 +149,8 @@ export default function AnwesenheitPage() {
                   <span className="text-xs text-app-muted">
                     {stats.present}/{stats.total}
                   </span>
-                  <span className={`num w-12 text-right font-bold ${stats.rate !== null && stats.rate < 70 ? "text-app-warn" : "text-app-heading"}`}>
-                    {stats.rate === null ? "–" : `${stats.rate} %`}
+                  <span className={`num w-24 text-right text-sm font-bold ${attendanceDisplay(stats.present, stats.total).enough && (stats.rate ?? 100) < 70 ? "text-app-warn" : "text-app-heading"}`}>
+                    {attendanceDisplay(stats.present, stats.total).enough ? `${stats.rate} %` : "wenig Daten"}
                   </span>
                 </Link>
               </li>
@@ -180,7 +180,7 @@ export default function AnwesenheitPage() {
                         {swimmer.last_name}, {swimmer.first_name}
                       </Link>
                     </td>
-                    <td className="px-3 py-2.5 text-right font-bold tabular-nums">{stats.rate === null ? "–" : `${stats.rate}%`}</td>
+                    <td className="px-3 py-2.5 text-right font-bold tabular-nums">{attendanceDisplay(stats.present, stats.total).enough ? `${stats.rate} %` : <span className="text-xs font-semibold text-app-muted">{stats.present}/{stats.total}</span>}</td>
                     {sessions.map((session) => {
                       const status = statusOf.get(`${swimmer.id}|${session.id}`);
                       return (

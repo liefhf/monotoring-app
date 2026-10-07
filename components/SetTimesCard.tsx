@@ -160,7 +160,7 @@ export default function SetTimesCard({ sessionId, teamId, sessionDate }: { sessi
               placeholder="z. B. 10x100 Hauptlage"
               className={`${input} w-48`}
             />
-            <button type="button" onClick={addSet} className="rounded-lg border border-app-border px-3 py-1.5 text-sm font-medium hover:bg-app-elevated">
+            <button type="button" onClick={addSet} className="min-h-11 rounded-lg border border-app-border px-3 text-sm font-medium hover:bg-app-elevated">
               + Serie
             </button>
           </div>

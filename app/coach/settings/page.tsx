@@ -23,8 +23,8 @@ export default function CoachSettingsPage() {
 
       <Card title="Darstellung" description="Hell/Dunkel und Sonnen-Modus mit maximalem Kontrast für den Beckenrand.">
         <div className="flex flex-wrap items-center gap-3 px-4 pb-4 sm:px-[22px] sm:pb-5">
-          <ThemeToggle />
-          <ContrastToggle />
+          <ThemeToggle withLabel />
+          <ContrastToggle withLabel />
         </div>
       </Card>
 

@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { teamNotice, useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
-import { CalendarEntry, CALENDAR_COLUMNS, formatEntryWhen, localDateOf, toDateKey } from "@/lib/community";
+import { CalendarEntry, formatEntryWhen, localDateOf, toDateKey } from "@/lib/community";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { daysUntilDate } from "@/lib/dashboardStats";
-import { RESULT_COLUMNS, SwimmerResult, formatEventShort, formatTime, formatTimeDifference } from "@/lib/swim";
+import { RESULT_COLUMNS, SwimmerResult, formatEvent, formatTime } from "@/lib/swim";
+import { attendanceDisplay } from "@/lib/attendance";
 import { newPersonalBests } from "@/lib/weeklyReport";
 import { Icon } from "@/components/icons";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
@@ -33,11 +34,14 @@ type Swimmer = { id: string; first_name: string; last_name: string | null; profi
 const DAY = 86_400_000;
 const addDays = (date: string, days: number) => toDateKey(new Date(Date.parse(`${date}T12:00:00`) + days * DAY));
 
-function Section({ title, meta, children }: { title: string; meta?: React.ReactNode; children: React.ReactNode }) {
+/* Ruhiger Bereich: Linie statt Schatten, moderate Rundung */
+function Section({ title, meta, children, id }: { title: string; meta?: React.ReactNode; children: React.ReactNode; id?: string }) {
   return (
-    <section className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">
-      <div className="mb-3 flex items-baseline gap-3">
-        <h2 className="flex-1 text-[15px] font-bold text-app-heading">{title}</h2>
+    <section aria-labelledby={id} className="rounded-2xl border border-app-border bg-app-surface px-4 py-3.5 sm:px-5 sm:py-4">
+      <div className="mb-1.5 flex items-baseline gap-3">
+        <h2 id={id} className="flex-1 text-base font-bold text-app-heading">
+          {title}
+        </h2>
         {meta}
       </div>
       {children}
@@ -53,10 +57,9 @@ export default function CoachDashboard() {
     key: string;
     swimmers: Swimmer[];
     todaySessions: Session[];
-    weekEvents: CalendarEntry[];
     competition: CalendarEntry | null;
     checkedIn: Set<string> | null;
-    attendance: { rate: number; recorded: number; past: number } | null;
+    attendance: { present: number; entries: number; recordedSessions: number; pastSessions: number } | null;
     bests: { result: SwimmerResult; previous: number }[];
     failed: string[];
   };
@@ -72,17 +75,11 @@ export default function CoachDashboard() {
       const memberRes = await supabase.from("team_swimmers").select("swimmer_id").eq("team_id", teamId!);
       if (memberRes.error) failed.push("Team");
       const memberIds = ((memberRes.data ?? []) as { swimmer_id: string }[]).map((row) => row.swimmer_id);
-      const [swimmerRes, sessionRes, pastRes, eventRes, upcoming] = await Promise.all([
+      const [swimmerRes, sessionRes, pastRes, upcoming] = await Promise.all([
         memberIds.length ? supabase.from("swimmers").select("id, first_name, last_name, profile_id").in("id", memberIds) : Promise.resolve({ data: [], error: null }),
         supabase.from("training_sessions").select("id, title, session_date, start_time, total_meters, training_type").eq("team_id", teamId!).eq("session_date", today).order("start_time"),
-        /* Anwesenheitsquote: nur VERGANGENE Einheiten der letzten 4 Wochen (heute zaehlt nicht) */
-        supabase.from("training_sessions").select("id").eq("team_id", teamId!).gte("session_date", addDays(today, -28)).lt("session_date", today),
-        supabase
-          .from("calendar_entries")
-          .select(CALENDAR_COLUMNS)
-          .gte("starts_at", `${today}T00:00:00`)
-          .lte("starts_at", `${addDays(today, 7)}T23:59:59`)
-          .order("starts_at"),
+        /* Anwesenheit: Einheiten der letzten 4 Wochen bis heute; gezaehlt werden nur erfasste Eintraege */
+        supabase.from("training_sessions").select("id").eq("team_id", teamId!).gte("session_date", addDays(today, -27)).lte("session_date", today),
         loadUpcomingCompetitions(),
       ]);
       if (swimmerRes.error) failed.push("Athleten");
@@ -105,17 +102,16 @@ export default function CoachDashboard() {
         key: requestKey,
         swimmers: team,
         todaySessions: (sessionRes.data ?? []) as Session[],
-        weekEvents: ((eventRes.data ?? []) as CalendarEntry[]).filter((entry) => !entry.team_id || entry.team_id === teamId),
         competition: relevant.find((entry) => competitionPriority(entry) === "A") ?? relevant[0] ?? null,
         checkedIn: checkInRes.error ? null : new Set(((checkInRes.data ?? []) as { athlete_id: string }[]).map((row) => row.athlete_id)),
-        attendance:
-          attendanceRes.error || !attendanceRows.length
-            ? null
-            : {
-                rate: Math.round((attendanceRows.filter((row) => row.status === "anwesend").length / attendanceRows.length) * 100),
-                recorded: new Set(attendanceRows.map((row) => row.training_session_id)).size,
-                past: pastIds.length,
-              },
+        attendance: attendanceRes.error
+          ? null
+          : {
+              present: attendanceRows.filter((row) => row.status === "anwesend").length,
+              entries: attendanceRows.length,
+              recordedSessions: new Set(attendanceRows.map((row) => row.training_session_id)).size,
+              pastSessions: pastIds.length,
+            },
         bests: resultRes.error ? [] : newPersonalBests((resultRes.data ?? []) as SwimmerResult[], addDays(today, -7), today).slice(0, 5),
         failed: [...failed, ...(checkInRes.error ? ["Check-ins"] : []), ...(attendanceRes.error ? ["Anwesenheit"] : []), ...(resultRes.error ? ["Bestzeiten"] : [])],
       });
@@ -130,7 +126,6 @@ export default function CoachDashboard() {
   const current = data && data.key === key ? data : null;
   const swimmers = current?.swimmers ?? [];
   const todaySessions = current?.todaySessions ?? [];
-  const weekEvents = current?.weekEvents ?? [];
   const competition = current?.competition ?? null;
   const checkedIn = current?.checkedIn ?? null;
   const bests = current?.bests ?? [];
@@ -144,138 +139,90 @@ export default function CoachDashboard() {
   };
   const countdown = competition ? daysUntilDate(localDateOf(competition.starts_at), today) : null;
 
+  const noLogin = swimmers.filter((swimmer) => !swimmer.profile_id);
+  const attendanceShown = current?.attendance ? attendanceDisplay(current.attendance.present, current.attendance.entries) : null;
+  const teamName = teams.find((team) => team.id === teamId)?.name ?? "";
+
   return (
-    <div className="mx-auto w-full max-w-[1400px] space-y-4 sm:space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[13px] text-app-muted">{todayLabel}</p>
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">Guten Tag</h1>
-            {teams.length > 0 && teamId && <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} />}
-          </div>
-        </div>
+    <div className="mx-auto w-full max-w-[1400px] space-y-3 sm:space-y-4">
+      {/* Orientierung: Heute, Datum, Team */}
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <h1 className="text-xl font-extrabold tracking-tight text-app-heading sm:text-2xl">
+          Heute <span className="font-semibold text-app-muted">· {todayLabel}</span>
+        </h1>
+        {teams.length > 0 && teamId && <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} />}
       </div>
 
       {teamHint && (
-        <p role="status" className="rounded-[14px] border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
+        <p role="status" className="rounded-xl border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
           {teamHint}
         </p>
       )}
 
       {current && current.failed.length > 0 && (
-        <p role="alert" className="rounded-[14px] border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-text">
+        <p role="alert" className="rounded-xl border border-app-bad/40 bg-app-bad/10 px-4 py-3 text-sm text-app-text">
           Nicht alles konnte geladen werden ({current.failed.join(", ")}). Betroffene Zahlen fehlen unten bewusst – bitte Seite neu laden.
         </p>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12 [&>*]:min-w-0">
-        {/* 1. Aufmerksamkeit heute: Hinweise und Fristen */}
-        <div className="space-y-4 sm:space-y-5 lg:col-span-7">
-          {teamId && <RedFlagsPanel teamId={teamId} variant="summary" />}
-          {teamId && <DeadlinesCard teamId={teamId} />}
+      <div className="grid grid-cols-1 items-start gap-3 sm:gap-4 lg:grid-cols-12 [&>*]:min-w-0">
+        {/* 1. Aufmerksamkeit: Hinweise und Dokument-Fristen */}
+        <div className="lg:col-span-7">
+          <Section title="Aufmerksamkeit" id="aufmerksamkeit" meta={<Link href="/coach/athleten-check" className="text-[13px] font-semibold text-app-accent-soft hover:underline">Athleten-Check →</Link>}>
+            {teamId && <RedFlagsPanel teamId={teamId} variant="summary" />}
+            {teamId && <DeadlinesCard teamId={teamId} embedded />}
+          </Section>
         </div>
 
-        {/* 2. Heute */}
-        <div className="space-y-4 sm:space-y-5 lg:col-span-5">
-          <Section title="Heute" meta={<Link href="/coach/training" className="text-[13px] font-semibold text-app-accent-soft hover:underline">Trainingswoche →</Link>}>
-            {todaySessions.length === 0 ? (
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm text-app-muted">Kein Training geplant.</p>
-                <Link href={`/coach/training/new?day=${today}`} className="inline-flex min-h-11 items-center rounded-xl bg-app-elevated px-4 text-sm font-bold text-app-heading hover:bg-app-border/70">
-                  + Einheit
+        <div className="space-y-3 sm:space-y-4 lg:col-span-5">
+          {/* 2. Heutiges Training mit direkter Anwesenheit */}
+          <Section title="Training heute" id="training-heute" meta={<Link href="/coach/training" className="text-[13px] font-semibold text-app-accent-soft hover:underline">Woche →</Link>}>
+            {!current ? (
+              <div className="h-12 animate-pulse rounded-xl bg-app-elevated" aria-label="Wird geladen" />
+            ) : todaySessions.length === 0 ? (
+              <p className="text-sm text-app-text">
+                Kein Training geplant.{" "}
+                <Link href={`/coach/training/new?day=${today}`} className="inline-flex min-h-11 items-center font-semibold text-app-accent-soft underline-offset-2 hover:underline">
+                  Einheit planen
                 </Link>
-              </div>
+              </p>
             ) : (
-              <ul className="space-y-2">
+              <ul className="divide-y divide-app-border/70">
                 {todaySessions.map((session) => (
-                  <li key={session.id} className="rounded-[14px] bg-app-elevated/60 p-3">
-                    <Link href={`/coach/training/session/${session.id}`} className="block">
-                      <span className="num text-[13px] text-app-accent-soft">{session.start_time?.slice(0, 5) ?? "–"}</span>{" "}
-                      <span className="font-bold text-app-heading">{session.title}</span>
-                      <span className="block text-[13px] text-app-muted">
+                  <li key={session.id} className="flex items-center gap-3 py-2">
+                    <Link href={`/coach/training/session/${session.id}`} className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-bold text-app-heading">
+                        <span className="num font-semibold text-app-muted">{session.start_time?.slice(0, 5) ?? "–"}</span> {session.title}
+                      </span>
+                      <span className="block text-[13px] text-app-text">
                         {session.training_type === "land" ? "Land" : session.total_meters ? `${(session.total_meters / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 })} km` : "Wasser"}
                       </span>
                     </Link>
-                    <div className="mt-2 flex gap-2">
-                      <Link
-                        href={`/coach/training/session/${session.id}#anwesenheit`}
-                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-app-accent px-4 text-sm font-bold text-app-accent-ink hover:brightness-110"
-                      >
-                        <Icon name="check" className="h-4 w-4" /> Anwesenheit
-                      </Link>
-                      <Link href={`/coach/training/session/${session.id}`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-app-surface px-4 text-sm font-bold text-app-heading">
-                        Öffnen
-                      </Link>
-                    </div>
+                    <Link
+                      href={`/coach/training/session/${session.id}#anwesenheit`}
+                      className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-xl bg-app-accent px-3.5 text-sm font-bold text-app-accent-ink hover:brightness-110"
+                    >
+                      <Icon name="check" className="h-4 w-4" /> Anwesenheit
+                    </Link>
                   </li>
                 ))}
               </ul>
             )}
-            {weekEvents.length > 0 && (
-              <div className="mt-4">
-                <p className="label-caps mb-1.5">Nächste 7 Tage</p>
-                <ul className="space-y-1.5 text-sm">
-                  {weekEvents.slice(0, 4).map((entry) => (
-                    <li key={entry.id} className="flex gap-3">
-                      <span className="w-24 shrink-0 text-[13px] text-app-muted">{formatEntryWhen(entry)}</span>
-                      <span className="min-w-0 flex-1 truncate text-app-heading">{entry.title}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </Section>
 
-          {competition && countdown !== null && (
-            <Link href="/coach/competitions" className="bg-highlight flex items-center gap-4 rounded-[20px] p-5 text-white">
-              <span className="min-w-0 flex-1">
-                <span className="block text-[11px] font-extrabold uppercase tracking-wider text-white/85">Nächster Wettkampf</span>
-                <span className="block truncate text-lg font-extrabold">{competition.title}</span>
-                <span className="block truncate text-[13px] text-white/90">
-                  {formatEntryWhen(competition)}
-                  {competition.location ? ` · ${competition.location}` : ""}
-                </span>
-              </span>
-              <span className="text-center">
-                <span className="num block text-[40px] font-semibold leading-none">{countdown}</span>
-                <span className="text-[11px] font-extrabold uppercase">{countdown === 1 ? "Tag" : "Tage"}</span>
-              </span>
-            </Link>
-          )}
-        </div>
-
-        {/* 3. Team */}
-        <div className="lg:col-span-4">
-          <Section title="Team">
+          {/* 3. Check-ins */}
+          <Section title="Check-ins heute" id="checkins" meta={<span className="num text-sm font-semibold text-app-heading">{checkedIn === null ? "–" : `${checkedIn.size} von ${withLogin.length}`}</span>}>
             {!current ? (
-              <div className="h-24 animate-pulse rounded-[14px] bg-app-elevated" aria-label="Wird geladen" />
+              <div className="h-8 animate-pulse rounded-xl bg-app-elevated" aria-label="Wird geladen" />
+            ) : checkedIn === null ? (
+              <p className="text-sm text-app-bad">Check-ins konnten nicht geladen werden.</p>
             ) : (
-              <>
-                <dl className="grid grid-cols-2 gap-2">
-                  <div className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
-                    <dt className="label-caps">Check-ins heute</dt>
-                    <dd className="num mt-1 text-xl font-semibold text-app-heading">
-                      {checkedIn === null ? "–" : withLogin.length ? `${checkedIn.size}/${withLogin.length}` : "–"}
-                    </dd>
-                    <dd className="text-[12px] text-app-muted">
-                      {checkedIn === null ? "nicht geladen" : swimmers.length > withLogin.length ? `${swimmers.length - withLogin.length} ohne Login` : "alle mit Login"}
-                    </dd>
-                  </div>
-                  <div className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
-                    <dt className="label-caps">Anwesenheit</dt>
-                    <dd className="num mt-1 text-xl font-semibold text-app-heading">{current.attendance ? `${current.attendance.rate} %` : "–"}</dd>
-                    <dd className="text-[12px] text-app-muted">
-                      {current.attendance
-                        ? `letzte 4 Wochen, ${current.attendance.recorded} von ${current.attendance.past} Einheiten erfasst`
-                        : current.failed.includes("Anwesenheit")
-                          ? "nicht geladen"
-                          : "noch nichts erfasst"}
-                    </dd>
-                  </div>
-                </dl>
-                {missingCheckIn.length > 0 && (
-                  <p className="mt-3 text-[13px] text-app-muted">
-                    Noch kein Check-in:{" "}
+              <div className="space-y-1.5 text-sm text-app-text">
+                {missingCheckIn.length === 0 ? (
+                  <p>{withLogin.length ? "Alle mit Login haben eingecheckt." : "Noch niemand im Team hat einen eigenen Login."}</p>
+                ) : (
+                  <p>
+                    Fehlt noch:{" "}
                     {missingCheckIn.slice(0, 8).map((swimmer, index) => (
                       <span key={swimmer.id}>
                         {index > 0 && ", "}
@@ -287,31 +234,56 @@ export default function CoachDashboard() {
                     {missingCheckIn.length > 8 ? ` und ${missingCheckIn.length - 8} weitere` : ""}
                   </p>
                 )}
-              </>
+                {noLogin.length > 0 && (
+                  <p className="text-[13px]">
+                    Ohne eigenen Login (können nicht einchecken):{" "}
+                    {noLogin.slice(0, 5).map((swimmer, index) => (
+                      <span key={swimmer.id}>
+                        {index > 0 && ", "}
+                        <Link href={`/coach/schwimmer/${swimmer.id}?tab=infos`} className="font-semibold text-app-heading underline decoration-app-border underline-offset-2 hover:text-app-accent-soft">
+                          {swimmer.first_name}
+                        </Link>
+                      </span>
+                    ))}
+                    {noLogin.length > 5 ? ` und ${noLogin.length - 5} weitere` : ""} – Login im Profil unter Stammdaten verknüpfen.
+                  </p>
+                )}
+              </div>
             )}
-            <div className="mt-3 flex flex-wrap gap-3 text-[13px] font-semibold">
-              <Link href="/coach/anwesenheit" className="text-app-accent-soft hover:underline">Anwesenheit →</Link>
-              <Link href="/coach/bericht" className="text-app-accent-soft hover:underline">Wochenbericht →</Link>
-            </div>
           </Section>
+
+          {competition && countdown !== null && (
+            <Link href="/coach/competitions" className="flex items-center gap-3 rounded-2xl border border-app-border bg-app-surface px-4 py-3">
+              <Icon name="trophy" className="h-5 w-5 shrink-0 text-app-soon" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-[15px] font-bold text-app-heading">{competition.title}</span>
+                <span className="block truncate text-[13px] text-app-text">
+                  {formatEntryWhen(competition)}
+                  {competition.location ? ` · ${competition.location}` : ""}
+                </span>
+              </span>
+              <span className="num shrink-0 text-sm font-bold text-app-heading">{countdown === 0 ? "heute" : `in ${countdown} ${countdown === 1 ? "Tag" : "Tagen"}`}</span>
+            </Link>
+          )}
         </div>
 
-        {/* 4. Entwicklung */}
-        <div className="lg:col-span-4">
-          <Section title="Neue Bestzeiten" meta={<span className="text-[13px] text-app-muted">letzte 7 Tage</span>}>
+        {/* 4. Entwicklung und weitere Informationen */}
+        <div className="space-y-3 sm:space-y-4 lg:col-span-7">
+          <Section title="Neue Bestzeiten" id="bestzeiten" meta={<span className="text-[13px] text-app-muted">letzte 7 Tage</span>}>
             {current?.failed.includes("Bestzeiten") ? (
               <p className="text-sm text-app-bad">Bestzeiten konnten nicht geladen werden.</p>
             ) : bests.length === 0 ? (
-              <p className="text-sm text-app-muted">Keine neuen Bestzeiten.</p>
+              <p className="text-sm text-app-text">Keine neuen Bestzeiten.</p>
             ) : (
-              <ul className="divide-y divide-app-border/60">
+              <ul className="divide-y divide-app-border/70">
                 {bests.map(({ result, previous }) => (
                   <li key={result.id}>
-                    <Link href={`/coach/schwimmer/${result.swimmer_id}`} className="flex items-baseline gap-2 py-2 text-sm hover:text-app-accent-soft">
-                      <span className="min-w-0 flex-1 truncate font-semibold text-app-heading">{nameOf(result.swimmer_id)}</span>
-                      <span className="text-app-muted">{formatEventShort(result)}</span>
-                      <span className="num font-semibold text-app-heading">{formatTime(result.time_ms)}</span>
-                      <span className="num text-app-good">{formatTimeDifference(result.time_ms - previous)}</span>
+                    <Link href={`/coach/schwimmer/${result.swimmer_id}?tab=bestzeiten`} className="block py-2 text-sm hover:text-app-accent-soft">
+                      <span className="font-semibold text-app-heading">{nameOf(result.swimmer_id)}</span>
+                      <span className="text-app-text">
+                        {" "}· {formatEvent(result)} · <span className="num font-semibold text-app-heading">{formatTime(result.time_ms)}</span> ·{" "}
+                        <span className="text-app-good">{((previous - result.time_ms) / 1000).toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} s schneller</span>
+                      </span>
                     </Link>
                   </li>
                 ))}
@@ -320,9 +292,25 @@ export default function CoachDashboard() {
           </Section>
         </div>
 
-        {/* Fristen und Aufgaben */}
-        <div className="space-y-4 sm:space-y-5 lg:col-span-4">
-          <TodoCard teamId={teamId} />
+        <div className="space-y-3 sm:space-y-4 lg:col-span-5">
+          <Section title="Anwesenheit" id="anwesenheit" meta={<Link href="/coach/anwesenheit" className="text-[13px] font-semibold text-app-accent-soft hover:underline">Übersicht →</Link>}>
+            {!current ? null : !attendanceShown ? (
+              <p className="text-sm text-app-bad">Anwesenheit konnte nicht geladen werden.</p>
+            ) : (
+              <p className="text-sm text-app-text">
+                <span className="num text-base font-bold text-app-heading">{attendanceShown.main}</span> {attendanceShown.sub}
+                <span className="block text-[13px] text-app-muted">
+                  Letzte 4 Wochen bis heute · {current.attendance!.recordedSessions} von {current.attendance!.pastSessions} Einheiten erfasst · nicht erfasste zählen nicht mit
+                </span>
+              </p>
+            )}
+            <p className="mt-1 text-[13px]">
+              <Link href="/coach/bericht" className="inline-flex min-h-11 items-center font-semibold text-app-accent-soft hover:underline">
+                Wochenbericht{teamName ? ` ${teamName}` : ""} →
+              </Link>
+            </p>
+          </Section>
+          <TodoCard teamId={teamId} compact />
         </div>
       </div>
     </div>

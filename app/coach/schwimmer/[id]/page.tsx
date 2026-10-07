@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { LatestRequest } from "@/lib/loadState";
 import { useParams, useSearchParams } from "next/navigation";
 import {
   CartesianGrid,
@@ -234,7 +235,10 @@ export default function SchwimmerDetailPage() {
   const [entryRows, setEntryRows] = useState<EntryRow[]>([createEntryRow(1)]);
   const [savingEntries, setSavingEntries] = useState(false);
 
+  /* Wechsel zwischen Athleten: nur die Antwort der juengsten Anfrage zaehlt */
+  const dataRequests = useRef(new LatestRequest());
   const loadData = useCallback(async () => {
+    const token = dataRequests.current.begin();
     const [swimmerResponse, resultResponse, standardResponse, timeResponse] =
       await Promise.all([
         supabase.from("swimmers").select(SWIMMER_DETAIL_COLUMNS).eq("id", swimmerId).single(),
@@ -251,6 +255,7 @@ export default function SchwimmerDetailPage() {
           .from("qualifying_times")
           .select("id, standard_id, gender, birth_year_from, birth_year_to, distance, stroke, time_ms"),
       ]);
+    if (!dataRequests.current.isLatest(token)) return;
 
     if (swimmerResponse.error || !swimmerResponse.data) {
       setMessage(
@@ -274,6 +279,7 @@ export default function SchwimmerDetailPage() {
     setStandards((standardResponse.data ?? []) as QualifyingStandard[]);
     setQualifyingTimes((timeResponse.data ?? []) as QualifyingTime[]);
     const loadedFocus = await loadAthleteFocus(swimmerId);
+    if (!dataRequests.current.isLatest(token)) return;
     setAthleteFocus(loadedFocus.focus);
     setFocusMissing(loadedFocus.missingColumns);
     setLoading(false);
@@ -529,7 +535,8 @@ export default function SchwimmerDetailPage() {
 
   /* ---------- Anzeige ---------- */
 
-  if (loading) {
+  /* nie die Daten des vorher geoeffneten Athleten zeigen */
+  if (loading || (swimmer && swimmer.id !== swimmerId)) {
     return (
       <main className="mx-auto max-w-6xl">
         <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
@@ -555,7 +562,7 @@ export default function SchwimmerDetailPage() {
 
   return (
     <FocusContext.Provider value={athleteFocus}>
-    <main>
+    <main key={swimmerId}>
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -652,7 +659,7 @@ export default function SchwimmerDetailPage() {
               type="button"
               onClick={() => setTab(group.tabs[0])}
               aria-pressed={group.tabs.includes(tab)}
-              className={`flex h-9 shrink-0 items-center rounded-full px-4 text-[13px] font-bold transition ${
+              className={`flex min-h-11 shrink-0 items-center rounded-full px-4 text-[13px] font-bold transition ${
                 group.tabs.includes(tab) ? "bg-app-heading text-app-bg" : "bg-app-elevated text-app-muted hover:text-app-heading"
               }`}
             >

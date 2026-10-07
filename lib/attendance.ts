@@ -104,5 +104,21 @@ export async function loadSwimmerAttendance(swimmerId: string) {
   const rows = ((data ?? []) as unknown as { status: AttendanceStatus; training_sessions: { session_date: string } | null }[]).map(
     (row) => ({ status: row.status, date: row.training_sessions?.session_date ?? "" })
   );
-  return { rows, missingTable: Boolean(error) };
+  const kind = classifyError(error);
+  return { rows, missingTable: kind === "missing", failed: kind === "error" };
+}
+
+/*
+ * Darstellungsregel Anwesenheit (ueberall gleich: Dashboard, Profil, Anwesenheitsseite):
+ * Grundlage = erfasste Eintraege vergangener Einheiten im Zeitraum. Nicht erfasste
+ * Einheiten zaehlen weder als anwesend noch als abwesend.
+ * Unter MIN_ATTENDANCE_BASIS Eintraegen wird KEINE Prozentzahl gross gezeigt,
+ * sondern "x von y anwesend · noch wenig Daten".
+ */
+export const MIN_ATTENDANCE_BASIS = 8;
+
+export function attendanceDisplay(present: number, recorded: number) {
+  if (recorded === 0) return { main: "–", sub: "noch nichts erfasst", enough: false };
+  if (recorded < MIN_ATTENDANCE_BASIS) return { main: `${present} von ${recorded}`, sub: "anwesend · noch wenig Daten", enough: false };
+  return { main: `${Math.round((present / recorded) * 100)} %`, sub: `${present} von ${recorded} erfassten Einträgen anwesend`, enough: true };
 }

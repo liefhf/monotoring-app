@@ -11,6 +11,7 @@ import {
 import { parseSetBlock, parseSetLine } from "@/lib/setParser";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import WeekFocusPanel from "@/components/WeekFocusPanel";
 import { SuggestedBlock } from "@/lib/weekFocus";
 import {
@@ -409,11 +410,7 @@ function TrainingEditor() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("teams")
-      .select("id, name")
-      .eq("coach_id", user.id)
-      .order("name");
+    const { data, error } = await loadCoachTeams();
 
     if (error) {
       setMessage(
@@ -451,6 +448,8 @@ function TrainingEditor() {
   ) {
     setLoadingTraining(true);
     setMessage("");
+    /* Stand beim Oeffnen merken: so faellt auf, wenn die Einheit inzwischen anderswo gespeichert wurde */
+    loadedContent.current = await collectContentIds(sessionId);
 
     const {
       data: sessionData,
@@ -780,6 +779,8 @@ function TrainingEditor() {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
       loadExistingTraining(sessionFromUrl);
     }
+    // geprueft: loadExistingTraining liest nur den uebergebenen Parameter, Setter und Refs - keine veralteten Werte
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionFromUrl]);
 
   const weekday = useMemo(() => {
@@ -1421,6 +1422,7 @@ function TrainingEditor() {
   }
 
   const saveLock = useRef(false);
+  const loadedContent = useRef<{ sections: string[]; land: string[]; warmup: string[] } | null>(null);
 
   /* Doppelklick oder Enter + Klick speichern nur einmal */
   async function handleSaveTraining() {
@@ -1553,26 +1555,20 @@ function TrainingEditor() {
         return;
       }
 
-      const { data: updatedRows, error: updateError } =
-        await supabase
-          .from("training_sessions")
-          .update(sessionValues)
-          .eq(
-            "id",
-            sessionFromUrl
-          )
-          .select("id");
-
-      if (updateError || !updatedRows?.length) {
-        setMessage(
-          updateError
-            ? `Training konnte nicht aktualisiert werden: ${updateError.message}`
-            : "Training wurde nicht geändert (keine Berechtigung oder inzwischen gelöscht). Bitte Seite neu laden."
-        );
+      /* Gleichzeitig anderswo gespeichert? Dann nichts ueberschreiben (sonst doppelte oder verlorene Serien). */
+      const sameAsLoaded = (x: string[], y: string[]) => x.length === y.length && x.every((id) => y.includes(id));
+      if (
+        loadedContent.current &&
+        !(sameAsLoaded(oldContent.sections, loadedContent.current.sections) &&
+          sameAsLoaded(oldContent.land, loadedContent.current.land) &&
+          sameAsLoaded(oldContent.warmup, loadedContent.current.warmup))
+      ) {
+        setMessage("Diese Einheit wurde inzwischen an anderer Stelle gespeichert. Es wurde nichts überschrieben. Bitte Seite neu laden – deine Eingaben gehen dabei verloren, ggf. vorher abschreiben.");
         setSaving(false);
         return;
       }
 
+      // 1. neuen Inhalt anlegen
       const contentError =
         trainingType === "Land"
           ? await saveLandDetails(sessionFromUrl, filledLandRows)
@@ -1587,7 +1583,27 @@ function TrainingEditor() {
         return;
       }
 
+      // 2. Kopfdaten der Einheit; scheitert das, neuen Inhalt wieder entfernen
+      const { data: updatedRows, error: updateError } = await supabase
+        .from("training_sessions")
+        .update(sessionValues)
+        .eq("id", sessionFromUrl)
+        .select("id");
+
+      if (updateError || !updatedRows?.length) {
+        await removeContentExcept(sessionFromUrl, oldContent);
+        setMessage(
+          updateError
+            ? `Training konnte nicht aktualisiert werden: ${updateError.message}. Die bisherige Fassung ist unverändert.`
+            : "Training wurde nicht geändert (keine Berechtigung oder inzwischen gelöscht). Bitte Seite neu laden."
+        );
+        setSaving(false);
+        return;
+      }
+
+      // 3. alte Fassung entfernen
       const cleanupError = await removeContent(oldContent);
+      loadedContent.current = await collectContentIds(sessionFromUrl);
       setMessage(
         cleanupError
           ? "Gespeichert, aber die alte Fassung konnte nicht entfernt werden – Serien könnten doppelt erscheinen. Bitte Seite neu laden und prüfen."
@@ -2541,7 +2557,7 @@ function TrainingEditor() {
                             section.id
                           )
                         }
-                        className="rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
+                        className="min-h-11 rounded-xl border border-app-border px-4 text-sm hover:bg-app-elevated"
                       >
                         + Serie
                       </button>
