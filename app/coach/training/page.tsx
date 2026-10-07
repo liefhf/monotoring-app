@@ -199,7 +199,7 @@ function WochenplanView() {
           { value: landCount, label: "davon Land" },
           { value: `${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, "0")} h`, label: "Trainingszeit" },
         ].map((kpi) => (
-          <div key={kpi.label} className="rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
+          <div key={kpi.label} className="rounded-[20px] border border-app-border/60 bg-app-surface px-3.5 py-3 shadow-app">
             <p className="label-caps">{kpi.label}</p>
             <p className="num mt-1 text-xl font-semibold text-app-heading">{kpi.value}</p>
           </div>
@@ -235,9 +235,9 @@ function WochenplanView() {
           day.list.length === 0 ? (
             <section
               key={day.date}
-              className={`flex items-center justify-between rounded-2xl border bg-app-surface px-3 xl:min-h-[220px] xl:flex-col xl:items-stretch xl:justify-start xl:py-3 ${day.date === today ? "border-app-accent" : "border-app-border"}`}
+              className={`flex items-center justify-between rounded-2xl border bg-app-surface/50 px-3 xl:min-h-[220px] xl:flex-col xl:items-stretch xl:justify-start xl:py-3 ${day.date === today ? "border-app-accent" : "border-app-border"}`}
             >
-              <p className={`px-1 text-sm font-bold ${day.date === today ? "text-app-soon" : "text-app-heading"}`}>
+              <p className={`px-1 text-sm font-bold ${day.date === today ? "text-app-accent-soft" : "text-app-heading"}`}>
                 {day.name} <span className="font-normal text-app-muted">{fmt(day.date)}</span>
                 <span className="font-normal text-app-muted xl:hidden"> · kein Training</span>
               </p>
@@ -251,26 +251,32 @@ function WochenplanView() {
           ) : (
           <section
             key={day.date}
-            className={`flex flex-col rounded-2xl border bg-app-surface p-3 xl:min-h-[220px] ${day.date === today ? "border-app-accent" : "border-app-border"}`}
+            className={`flex flex-col rounded-[20px] border bg-app-surface p-3 shadow-app xl:min-h-[220px] ${day.date === today ? "border-app-accent" : "border-app-border/60"}`}
           >
-            <p className={`px-1 text-sm font-bold ${day.date === today ? "text-app-soon" : "text-app-heading"}`}>
+            <p className={`px-1 text-sm font-bold ${day.date === today ? "text-app-accent-soft" : "text-app-heading"}`}>
               {day.name} <span className="font-normal text-app-muted">{fmt(day.date)}</span>
             </p>
             <div className="mt-2 flex-1 space-y-2">
               {day.list.map((session) => (
-                <div key={session.id} className="rounded-xl border border-app-border/70 p-3">
+                <div key={session.id} className="relative overflow-hidden rounded-xl bg-app-elevated/50 py-2.5 pl-4 pr-3">
+                <span aria-hidden="true" className={`absolute inset-y-0 left-0 w-1 ${session.training_type === "land" ? "bg-app-accent-2" : "bg-app-accent"}`} />
                 <Link href={`/coach/training/session/${session.id}`} className="block transition hover:text-app-accent-soft">
-                  <p className="text-sm font-semibold text-app-heading">{session.title}</p>
-                  <p className="mt-0.5 text-xs text-app-muted">
-                    {[
-                      session.start_time?.slice(0, 5),
-                      session.duration_minutes ? `${session.duration_minutes} min` : null,
-                      session.total_meters ? `${session.total_meters.toLocaleString("de-DE")} m` : null,
-                      session.training_type === "land" ? "Land" : null,
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
+                  <span className="flex flex-wrap items-start justify-between gap-x-2">
+                    <span className="min-w-0 flex-1 basis-28">
+                      <span className="block text-sm font-semibold text-app-heading">{session.title}</span>
+                      <span className="num mt-0.5 block text-xs text-app-muted">
+                        {[session.start_time?.slice(0, 5), session.duration_minutes ? `${session.duration_minutes} min` : null, session.training_type === "land" ? "Land" : null]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </span>
+                    </span>
+                    {session.total_meters ? (
+                      <span className="num whitespace-nowrap text-sm font-bold text-app-heading">
+                        {session.total_meters.toLocaleString("de-DE")}
+                        <span className="text-[11px] font-normal text-app-muted"> m</span>
+                      </span>
+                    ) : null}
+                  </span>
                   {session.focus && <p className="mt-1 text-xs text-app-text">{session.focus}</p>}
                   {session.planned_rpe ? <p className="mt-1 text-[11px] text-app-faint">geplant RPE {session.planned_rpe}</p> : null}
                 </Link>
