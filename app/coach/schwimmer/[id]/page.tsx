@@ -568,8 +568,10 @@ export default function SchwimmerDetailPage() {
     <main key={swimmerId}>
       <div className="mx-auto max-w-6xl">
         <Link href="/coach/schwimmer" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-app-muted hover:text-app-accent-soft">← Athleten</Link>
-        <header className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-5">
-          <div className="flex min-w-0 items-center gap-4">
+        {/* Breite Bildschirme: Profilkarte links (wie Vorlage), Inhalte rechts */}
+        <div className="xl:grid xl:grid-cols-[280px_minmax(0,1fr)] xl:items-start xl:gap-6">
+        <header className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-5 xl:sticky xl:top-6 xl:block xl:p-6 xl:text-center">
+          <div className="flex min-w-0 items-center gap-4 xl:flex-col xl:gap-3">
             <Avatar name={getSwimmerName(swimmer)} size="lg" />
             <div className="min-w-0">
               <h1 className="break-words text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{getSwimmerName(swimmer)}</h1>
@@ -577,12 +579,14 @@ export default function SchwimmerDetailPage() {
                 {swimmer.birth_year ? `Jg. ${swimmer.birth_year} · ${new Date().getFullYear() - swimmer.birth_year} J.` : "Jahrgang –"} · {formatGender(swimmer.gender)}
               </p>
               {focusList(athleteFocus, "haupt") && <p className="mt-0.5 text-sm font-semibold text-app-accent-soft">{focusList(athleteFocus, "haupt")}</p>}
-              <SwimmerTeamChips swimmerId={swimmerId} />
+              <div className="xl:flex xl:justify-center">
+                <SwimmerTeamChips swimmerId={swimmerId} />
+              </div>
             </div>
           </div>
 
           {/* Haeufige Aktionen direkt im Kopf - ohne erst den richtigen Bereich zu suchen */}
-          <div className="mt-4 flex flex-wrap gap-2 sm:mt-0">
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-0 xl:mt-5 xl:flex-col">
             <button
               type="button"
               onClick={() => setShowEntryForm((open) => !open)}
@@ -613,6 +617,7 @@ export default function SchwimmerDetailPage() {
           </div>
         </header>
 
+        <div className="min-w-0">
         {message && (
           <div className="mt-6 rounded-xl border border-app-border bg-app-surface p-4 text-sm text-app-text">
             {message}
@@ -658,7 +663,7 @@ export default function SchwimmerDetailPage() {
         </div>
         )}
 
-        <nav aria-label="Bereiche" className="-mx-4 mt-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
+        <nav aria-label="Bereiche" className="-mx-4 mt-4 xl:mt-0 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
           {TAB_GROUPS.map((group) => (
             <button
               key={group.label}
@@ -693,8 +698,8 @@ export default function SchwimmerDetailPage() {
         )}
 
         {tab === "ueberblick" && (
-          <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-5">
-            <div className="space-y-4 lg:col-span-2 lg:space-y-5">
+          <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-5 xl:grid-cols-1 2xl:grid-cols-3">
+            <div className="space-y-4 lg:col-span-2 lg:space-y-5 xl:col-span-1 2xl:col-span-2">
               <AthleteStatusCard swimmerId={swimmerId} />
               <Card
                 title="Aktuelle Bestzeiten"
@@ -983,6 +988,8 @@ export default function SchwimmerDetailPage() {
         )}
 
         <BackLink />
+        </div>
+        </div>
       </div>
     </main>
     </FocusContext.Provider>

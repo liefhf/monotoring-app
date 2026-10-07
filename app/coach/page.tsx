@@ -162,12 +162,10 @@ export default function CoachDashboard() {
   return (
     <div className="mx-auto w-full max-w-[1400px] space-y-3 sm:space-y-4">
       {/* Orientierung: Heute, Datum, Team */}
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-        <div>
-          <p className="label-caps text-app-muted">{todayLabel}</p>
-          <h1 className="text-2xl font-extrabold tracking-tight text-app-heading">Heute{teamName ? ` · ${teamName}` : ""}</h1>
-        </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[32px]">Dashboard</h1>
         {teams.length > 0 && teamId && <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} />}
+        <p className="label-caps w-full text-app-muted sm:ml-auto sm:w-auto">{todayLabel}</p>
       </div>
 
       {teamHint && (
@@ -183,11 +181,11 @@ export default function CoachDashboard() {
       )}
 
       {/* Heute: Einheiten mit direkter Anwesenheit */}
-      <section aria-label="Training heute" className={`${cardClass} p-2`}>
+      <section aria-label="Training heute" className="space-y-2">
         {!current ? (
-          <div className="h-14 animate-pulse rounded-2xl bg-app-elevated" aria-label="Wird geladen" />
+          <div className="h-16 animate-pulse rounded-[28px] bg-app-elevated" aria-label="Wird geladen" />
         ) : todaySessions.length === 0 ? (
-          <div className="flex min-h-14 flex-wrap items-center gap-3 px-2">
+          <div className={`${cardClass} flex min-h-16 flex-wrap items-center gap-3 rounded-[28px] px-3 py-2`}>
             <IconTile icon="training" tone="neutral" />
             <span className="flex-1 text-[15px] text-app-text">Heute kein Training geplant</span>
             <Link href={`/coach/training/new?day=${today}`} className="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-semibold text-app-accent-soft hover:bg-app-accent/10">
@@ -195,23 +193,22 @@ export default function CoachDashboard() {
             </Link>
           </div>
         ) : (
-          <ul className="divide-y divide-app-border/60">
+          <ul className="space-y-2">
             {todaySessions.map((session) => (
-              <li key={session.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-2 py-2">
-                <Link href={`/coach/training/session/${session.id}`} className="flex min-w-0 flex-1 basis-48 items-center gap-3">
-                  <span className="flex flex-col items-start">
-                    <span className="label-caps text-app-good">● Heute</span>
-                    <span className="num text-lg font-bold text-app-heading">{session.start_time?.slice(0, 5) ?? "–"}</span>
+              <li key={session.id} className={`${cardClass} flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[28px] px-3 py-2.5 sm:pl-5`}>
+                <Link href={`/coach/training/session/${session.id}`} className="flex min-w-0 flex-1 basis-56 flex-wrap items-center gap-x-3 gap-y-0.5">
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full bg-app-good ring-4 ring-app-good/20" />
+                    <span className="label-caps hidden text-app-accent-soft sm:inline">Heute</span>
+                    <span className="num text-[17px] font-bold text-app-heading">{session.start_time?.slice(0, 5) ?? "–"}</span>
                   </span>
-                  <span className="min-w-0">
-                    <span className="block truncate text-[15px] font-bold text-app-heading">{session.title}</span>
-                    <span className="num block text-[13px] text-app-muted">
-                      {session.training_type === "land" ? "Land" : session.total_meters ? `${km(session.total_meters)} km` : "Wasser"}
-                    </span>
+                  <span className="min-w-0 truncate text-[17px] font-bold text-app-heading">{session.title}</span>
+                  <span className="num text-[13px] text-app-muted">
+                    {session.training_type === "land" ? "Land" : session.total_meters ? `${km(session.total_meters)} km` : "Wasser"}
                   </span>
                 </Link>
                 <div className="flex items-center gap-2">
-                  <Link href={`/coach/training/session/${session.id}#serienzeiten`} aria-label={`Serienzeiten ${session.title}`} title="Serienzeiten" className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-app-border text-app-muted hover:border-app-accent/50 hover:text-app-accent-soft">
+                  <Link href={`/coach/training/session/${session.id}#serienzeiten`} aria-label={`Serienzeiten ${session.title}`} title="Serienzeiten" className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-app-elevated text-app-text hover:text-app-accent-soft">
                     <Icon name="stopwatch" className="h-5 w-5" />
                   </Link>
                   <Link
@@ -219,6 +216,9 @@ export default function CoachDashboard() {
                     className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-app-accent px-4 text-sm font-bold text-app-accent-ink shadow-app hover:brightness-110"
                   >
                     <Icon name="check" className="h-4 w-4" /> Anwesenheit
+                  </Link>
+                  <Link href={`/coach/training/session/${session.id}`} aria-label={`${session.title} öffnen`} className="hidden h-11 w-11 items-center justify-center rounded-full text-app-muted hover:text-app-accent-soft sm:inline-flex">
+                    <Icon name="chevron" className="h-5 w-5" />
                   </Link>
                 </div>
               </li>
@@ -230,7 +230,25 @@ export default function CoachDashboard() {
       <div className="grid grid-cols-1 items-start gap-3 sm:gap-4 lg:grid-cols-12 [&>*]:min-w-0">
         {/* Aufmerksamkeit: Hinweise, Fristen, fehlende Daten */}
         <div className="lg:col-span-7">
-          <Section title="Aufmerksamkeit" id="aufmerksamkeit" meta={<Link href="/coach/athleten-check" className="inline-flex min-h-11 items-center text-[13px] font-semibold text-app-accent-soft hover:underline">Alle →</Link>}>
+          <Section
+            title="Team heute"
+            id="aufmerksamkeit"
+            meta={
+              <Link href="/coach/athleten-check" className="num inline-flex min-h-11 items-center gap-1 text-[13px] text-app-muted hover:text-app-accent-soft">
+                {current && checkedIn === null && <span className="font-semibold text-app-bad">Check-ins nicht geladen</span>}
+                {checkedIn !== null && (
+                  <>
+                    <span className="font-bold text-app-heading">
+                      {checkedIn.size}/{withLogin.length}
+                    </span>{" "}
+                    Check-ins
+                  </>
+                )}
+                <span aria-hidden="true">↗</span>
+                <span className="sr-only">Athleten-Check öffnen</span>
+              </Link>
+            }
+          >
             {teamId && <RedFlagsPanel teamId={teamId} variant="summary" extra={<DeadlinesCard teamId={teamId} embedded />} />}
           </Section>
         </div>
@@ -248,37 +266,24 @@ export default function CoachDashboard() {
                   </span>
                 </span>
                 <span className="num shrink-0 text-right">
-                  <span className="block text-3xl font-extrabold leading-none">{countdown}</span>
-                  <span className="text-[13px] text-white/85">{countdown === 1 ? "Tag" : "Tage"}</span>
+                  <span className="block text-[44px] font-extrabold leading-none">{countdown}</span>
+                  <span className="label-caps text-white/85">{countdown === 1 ? "Tag" : "Tage"}</span>
                 </span>
               </span>
             </Link>
           )}
 
           {/* Kennzahlen: Check-ins und Anwesenheit */}
-          <div className="grid grid-cols-2 gap-3">
-            <Link href="/coach/athleten-check" className={`${cardClass} block p-4 hover:border-app-accent/40`}>
-              <span className="label-caps block text-app-muted">Check-ins heute</span>
-              {!current ? (
-                <span className="mt-2 block h-7 w-16 animate-pulse rounded bg-app-elevated" />
-              ) : checkedIn === null ? (
-                <span className="mt-1 block text-sm font-semibold text-app-bad">nicht geladen</span>
-              ) : (
-                <span className="num mt-1 block text-2xl font-bold text-app-heading">
-                  {checkedIn.size}
-                  <span className="text-base font-semibold text-app-muted">/{withLogin.length}</span>
-                </span>
-              )}
-            </Link>
+          <div>
             <Link href="/coach/anwesenheit" className={`${cardClass} block p-4 hover:border-app-accent/40`}>
-              <span className="label-caps block text-app-muted">Anwesenheit 4 Wo.</span>
+              <span className="label-caps block text-app-muted">Anwesenheit · letzte 4 Wochen</span>
               {!current ? (
                 <span className="mt-2 block h-7 w-16 animate-pulse rounded bg-app-elevated" />
               ) : !attendanceShown ? (
                 <span className="mt-1 block text-sm font-semibold text-app-bad">nicht geladen</span>
               ) : (
                 <>
-                  <span className="num mt-1 block text-2xl font-bold text-app-heading">{attendanceShown.main}</span>
+                  <span className="num mt-1 block text-[34px] font-bold leading-tight text-app-heading">{attendanceShown.main}</span>
                   <span className="num block text-[12px] text-app-muted">
                     {current.attendance!.recordedSessions}/{current.attendance!.pastSessions} Einheiten erfasst
                   </span>
@@ -354,7 +359,7 @@ export default function CoachDashboard() {
         <div className="space-y-3 sm:space-y-4 lg:col-span-5">
           {/* Geplanter Umfang dieser Woche – nur echte Planwerte */}
           {week && weekTotal > 0 && (
-            <Section title="Umfang diese Woche" id="umfang" meta={<span className="num text-sm font-bold text-app-heading">{km(weekTotal)} km</span>}>
+            <Section title="Umfang diese Woche" id="umfang" meta={<span className="num text-[28px] font-bold leading-none text-app-heading">{km(weekTotal)}<span className="text-sm font-semibold text-app-muted"> km</span></span>}>
               <div className="flex h-28 items-end gap-2" role="img" aria-label={`Geplanter Umfang: ${week.map((day) => `${new Date(`${day.date}T12:00:00`).toLocaleDateString("de-DE", { weekday: "short" })} ${km(day.meters)} km`).join(", ")}`}>
                 {week.map((day) => (
                   <div key={day.date} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
