@@ -17,27 +17,29 @@ import { Icon, IconName } from "@/components/icons";
  */
 type NavItem = { href: string; label: string; icon: IconName };
 
+/*
+ * Erste Ebene: die vier Arbeitsbereiche (Start, Athleten, Training,
+ * Wettkampf) plus "Mehr". Seltenere Seiten liegen eine Ebene tiefer und
+ * klappen auf, wenn man im Bereich ist oder den Pfeil antippt.
+ */
 type NavGroup = {
-  title: string | null;
+  title: string;
   icon: IconName;
   /* Farbe des Gruppen-Symbols (Design: jede Gruppe eine Farbe) */
   tone: string;
+  /* Hauptseite des Bereichs (null = nur Sammelpunkt) */
+  main: NavItem | null;
   items: NavItem[];
 };
 
 export const coachNavigation: NavGroup[] = [
+  { title: "Start", icon: "home", tone: "bg-app-elevated text-app-heading", main: { href: "/coach", label: "Start", icon: "home" }, items: [] },
   {
-    title: null,
-    icon: "home",
-    tone: "bg-app-elevated text-app-heading",
-    items: [{ href: "/coach", label: "Start", icon: "home" }],
-  },
-  {
-    title: "Team",
-    icon: "teams",
+    title: "Athleten",
+    icon: "athlete",
     tone: "bg-app-good/20 text-app-good",
+    main: { href: "/coach/schwimmer", label: "Athleten", icon: "athlete" },
     items: [
-      { href: "/coach/schwimmer", label: "Athleten", icon: "athlete" },
       { href: "/coach/athleten-check", label: "Athleten-Check", icon: "heart" },
       { href: "/coach/anwesenheit", label: "Anwesenheit", icon: "check" },
       { href: "/coach/bericht", label: "Wochenbericht", icon: "news" },
@@ -46,10 +48,10 @@ export const coachNavigation: NavGroup[] = [
   },
   {
     title: "Training",
-    icon: "calendar",
+    icon: "training",
     tone: "bg-app-accent-soft/20 text-app-accent-soft",
+    main: { href: "/coach/training", label: "Training", icon: "training" },
     items: [
-      { href: "/coach/training", label: "Trainingswoche", icon: "training" },
       { href: "/coach/training/season", label: "Saisonplanung", icon: "calendar" },
       { href: "/coach/analytics", label: "Belastungsverlauf", icon: "chart" },
       { href: "/coach/kalender", label: "Kalender", icon: "calendar" },
@@ -59,26 +61,20 @@ export const coachNavigation: NavGroup[] = [
     title: "Wettkampf",
     icon: "trophy",
     tone: "bg-app-soon/20 text-app-soon",
+    main: { href: "/coach/competitions", label: "Wettkampf", icon: "trophy" },
     items: [
-      { href: "/coach/competitions", label: "Wettkämpfe", icon: "trophy" },
       { href: "/coach/analytics/wettkampf", label: "Ergebnisse", icon: "chart" },
       { href: "/coach/meldehilfe", label: "Meldehilfe", icon: "stopwatch" },
-      { href: "/coach/dms", label: "DMS-Aufstellung", icon: "teams" },
-    ],
-  },
-  {
-    title: "Leistung",
-    icon: "chart",
-    tone: "bg-app-warn/20 text-app-warn",
-    items: [
       { href: "/coach/pflichtzeiten", label: "Pflichtzeiten", icon: "stopwatch" },
+      { href: "/coach/dms", label: "DMS-Aufstellung", icon: "teams" },
       { href: "/coach/tests", label: "Testbatterie", icon: "chart" },
     ],
   },
   {
-    title: "Kommunikation",
-    icon: "news",
+    title: "Mehr",
+    icon: "more",
     tone: "bg-app-info/20 text-app-info",
+    main: null,
     items: [
       { href: "/coach/news", label: "News", icon: "news" },
       { href: "/coach/gruppen", label: "Gruppenräume", icon: "chat" },
@@ -87,14 +83,15 @@ export const coachNavigation: NavGroup[] = [
   },
 ];
 
-/* Handy: feste Leiste unten (Design: Start · Team · + · Planung · Mehr) */
+/* Handy: feste Leiste unten (Start · Athleten · + · Training · Mehr) */
 const mobileTabs: { href: string; label: string; icon: IconName; group: string | null }[] = [
   { href: "/coach", label: "Start", icon: "home", group: null },
-  { href: "/coach/schwimmer", label: "Team", icon: "teams", group: "Team" },
+  { href: "/coach/schwimmer", label: "Athleten", icon: "athlete", group: "Athleten" },
   { href: "/coach/training", label: "Training", icon: "training", group: "Training" },
 ];
 
-const allHrefs = coachNavigation.flatMap((group) => group.items.map((item) => item.href)).concat("/coach/settings");
+const groupHrefs = (group: NavGroup) => (group.main ? [group.main, ...group.items] : group.items).map((item) => item.href);
+const allHrefs = coachNavigation.flatMap(groupHrefs).concat("/coach/settings");
 
 /*
  * Aktiv ist der Menuepunkt mit dem laengsten passenden Pfad - so ist auf
@@ -111,60 +108,80 @@ function isActive(pathname: string, href: string) {
 }
 
 function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  const [opened, setOpened] = useState<Record<string, boolean>>({});
   return (
     <nav aria-label="Hauptnavigation" className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
       {coachNavigation.map((group) => {
-        /* Startseite: eine einzelne Zeile ohne Unterpunkte */
-        if (!group.title) {
-          const item = group.items[0];
-          const active = isActive(pathname, item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onNavigate}
-              aria-current={active ? "page" : undefined}
-              className={`flex h-10 items-center gap-3 rounded-xl px-2.5 text-sm font-bold transition ${
-                active ? "bg-app-elevated text-app-heading" : "text-app-heading hover:bg-app-elevated/60"
-              }`}
-            >
-              <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${group.tone}`}>
-                <Icon name={item.icon} className="h-[17px] w-[17px]" />
-              </span>
-              {item.label}
-            </Link>
-          );
-        }
-
+        const inGroup = groupHrefs(group).some((href) => isActive(pathname, href));
+        const expanded = group.items.length > 0 && (opened[group.title] ?? inGroup);
+        const mainActive = group.main ? isActive(pathname, group.main.href) : false;
+        const listId = `nav-${group.title}`;
         return (
-          <div key={group.title} className="pt-2">
-            <p className="flex h-10 items-center gap-3 px-2.5 text-sm font-bold text-app-heading">
-              <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${group.tone}`}>
-                <Icon name={group.icon} className="h-[17px] w-[17px]" />
-              </span>
-              {group.title}
-            </p>
-            <div className="ml-[23px] border-l border-app-border/70 pl-3">
-              {group.items.map((item) => {
-                const active = isActive(pathname, item.href);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onNavigate}
-                    aria-current={active ? "page" : undefined}
-                    className={`-ml-[13px] flex min-h-9 items-center border-l-2 pl-[11px] text-sm transition ${
-                      active
-                        ? "border-app-good font-bold text-app-heading"
-                        : "border-transparent text-app-muted hover:text-app-heading"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
+          <div key={group.title}>
+            <div className="flex items-center gap-1">
+              {group.main ? (
+                <Link
+                  href={group.main.href}
+                  onClick={onNavigate}
+                  aria-current={mainActive ? "page" : undefined}
+                  className={`flex min-h-11 flex-1 items-center gap-3 rounded-xl px-2.5 text-sm font-bold transition ${
+                    mainActive ? "bg-app-elevated text-app-heading" : "text-app-heading hover:bg-app-elevated/60"
+                  }`}
+                >
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${group.tone}`}>
+                    <Icon name={group.icon} className="h-[17px] w-[17px]" />
+                  </span>
+                  {group.title}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setOpened((current) => ({ ...current, [group.title]: !expanded }))}
+                  aria-expanded={expanded}
+                  aria-controls={listId}
+                  className="flex min-h-11 flex-1 items-center gap-3 rounded-xl px-2.5 text-left text-sm font-bold text-app-heading hover:bg-app-elevated/60"
+                >
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${group.tone}`}>
+                    <Icon name={group.icon} className="h-[17px] w-[17px]" />
+                  </span>
+                  {group.title}
+                </button>
+              )}
+              {group.items.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setOpened((current) => ({ ...current, [group.title]: !expanded }))}
+                  aria-expanded={expanded}
+                  aria-controls={listId}
+                  aria-label={`${group.title}: weitere Seiten ${expanded ? "zuklappen" : "aufklappen"}`}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-app-muted hover:bg-app-elevated/60 hover:text-app-heading"
+                >
+                  <svg viewBox="0 0 20 20" className={`h-4 w-4 transition ${expanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M5 8l5 5 5-5" />
+                  </svg>
+                </button>
+              )}
             </div>
+            {expanded && (
+              <div id={listId} className="mb-1 ml-[23px] border-l border-app-border/70 pl-3">
+                {group.items.map((item) => {
+                  const active = isActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onNavigate}
+                      aria-current={active ? "page" : undefined}
+                      className={`-ml-[13px] flex min-h-10 items-center border-l-2 pl-[11px] text-sm transition ${
+                        active ? "border-app-good font-bold text-app-heading" : "border-transparent text-app-muted hover:text-app-heading"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         );
       })}
@@ -178,11 +195,11 @@ function isTabActive(pathname: string, group: string | null) {
     return pathname === "/coach";
   }
 
-  const owner = coachNavigation.find((g) => g.items.some((item) => isActive(pathname, item.href)));
-  const ownerTitle = owner?.title ?? (pathname === "/coach" ? null : "more");
+  const owner = coachNavigation.find((g) => groupHrefs(g).some((href) => isActive(pathname, href)));
+  const ownerTitle = pathname === "/coach" ? null : (owner?.title ?? "more");
 
   if (group === "more") {
-    return ownerTitle !== null && ownerTitle !== "Team" && ownerTitle !== "Training";
+    return ownerTitle !== null && ownerTitle !== "Athleten" && ownerTitle !== "Training";
   }
 
   return ownerTitle === group;
@@ -240,7 +257,7 @@ export default function CoachNav() {
 
   const currentLabel =
     coachNavigation
-      .flatMap((group) => group.items)
+      .flatMap((group) => (group.main ? [group.main, ...group.items] : group.items))
       .find((item) => isActive(pathname, item.href))?.label ?? "Coach";
 
   return (

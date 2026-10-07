@@ -61,11 +61,11 @@ async function fetchHealth(swimmerId: string): Promise<LoadResult<HealthEvent[]>
   return toLoadResult(res as { data: HealthEvent[] | null; error: { code?: string } | null }, []);
 }
 
-export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
+export default function HealthPanel({ swimmerId, startOpen = false }: { swimmerId: string; startOpen?: boolean }) {
   const [today] = useState(() => toDateKey(new Date()));
   const { state, reload } = useKeyedLoad(swimmerId, fetchHealth);
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(startOpen);
   const [draft, setDraft] = useState<Draft>(() => emptyDraft(today));
   const { busy: saving, run } = useBusy();
 

@@ -88,10 +88,11 @@ type Tab = "ueberblick" | "ziele" | "befinden" | "gesundheit" | "tests" | "dokum
 const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
   { label: "Überblick", tabs: ["ueberblick"] },
   { label: "Training", tabs: ["befinden", "form"] },
-  { label: "Leistung", tabs: ["bestzeiten", "ziele", "entwicklung", "pflichtzeiten", "bahn", "staffel", "wettkaempfe"] },
+  { label: "Bestzeiten & Ziele", tabs: ["bestzeiten", "ziele", "pflichtzeiten"] },
+  { label: "Ergebnisse", tabs: ["bahn", "entwicklung", "wettkaempfe", "staffel"] },
   { label: "Gesundheit", tabs: ["gesundheit"] },
   { label: "Diagnostik", tabs: ["tests", "laktat"] },
-  { label: "Stammdaten", tabs: ["infos", "fokus", "dokumente"] },
+  { label: "Stammdaten & Dokumente", tabs: ["infos", "dokumente", "fokus"] },
 ];
 
 const TABS: { value: Tab; label: string }[] = [
@@ -225,6 +226,7 @@ export default function SchwimmerDetailPage() {
   const [draft, setDraft] = useState<InfoDraft | null>(null);
 
   const [showEntryForm, setShowEntryForm] = useState(false);
+  const [healthRequest, setHealthRequest] = useState(0);
   const [entryKind, setEntryKind] = useState<ResultKind>("einzel");
   const [entryDate, setEntryDate] = useState(todayIso());
   const [entryLocation, setEntryLocation] = useState("");
@@ -566,13 +568,36 @@ export default function SchwimmerDetailPage() {
             <SwimmerTeamChips swimmerId={swimmerId} />
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowEntryForm((open) => !open)}
-            className="min-h-11 rounded-xl bg-app-accent px-[18px] text-sm font-bold text-app-accent-ink transition hover:brightness-110"
-          >
-            {showEntryForm ? "Eingabe schließen" : "+ Zeiten eintragen"}
-          </button>
+          {/* Haeufige Aktionen direkt im Kopf - ohne erst den richtigen Bereich zu suchen */}
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setShowEntryForm((open) => !open)}
+              className="min-h-11 rounded-xl bg-app-accent px-[18px] text-sm font-bold text-app-accent-ink transition hover:brightness-110"
+            >
+              {showEntryForm ? "Eingabe schließen" : "+ Zeiten"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("ueberblick");
+                window.setTimeout(() => document.getElementById("neue-notiz")?.focus(), 50);
+              }}
+              className="min-h-11 rounded-xl bg-app-elevated px-4 text-sm font-bold text-app-heading hover:bg-app-border/70"
+            >
+              + Notiz
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("gesundheit");
+                setHealthRequest((count) => count + 1);
+              }}
+              className="min-h-11 rounded-xl bg-app-elevated px-4 text-sm font-bold text-app-heading hover:bg-app-border/70"
+            >
+              + Einschränkung
+            </button>
+          </div>
         </header>
 
         {message && (
@@ -893,7 +918,7 @@ export default function SchwimmerDetailPage() {
 
         {tab === "gesundheit" && (
           <>
-            <HealthPanel swimmerId={swimmerId} />
+            <HealthPanel key={healthRequest} swimmerId={swimmerId} startOpen={healthRequest > 0} />
             <div className="mt-6">
               <PainPanel swimmerId={swimmerId} />
             </div>

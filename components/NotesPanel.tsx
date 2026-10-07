@@ -82,7 +82,7 @@ export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; li
       <h2 className="text-[15px] font-bold text-app-heading">Trainernotizen</h2>
       <p className="text-[13px] text-app-muted">nur für Trainer sichtbar</p>
       <form onSubmit={add} className="mt-3 flex gap-2">
-        <input className={inputClass} value={text} onChange={(e) => setText(e.target.value)} placeholder="z. B. Wende Brust verbessern" aria-label="Neue Notiz" />
+        <input className={inputClass} value={text} onChange={(e) => setText(e.target.value)} id="neue-notiz" placeholder="z. B. Wende Brust verbessern" aria-label="Neue Notiz" />
         <button type="submit" className={buttonPrimary} disabled={busy || !text.trim()} aria-label="Notiz speichern">
           +
         </button>
