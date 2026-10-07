@@ -76,7 +76,7 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
       );
     }
     load();
-  }, []);
+  }, [today]);
 
   const next = upcoming[0] ?? null;
   const standard = standards[0] ?? null;

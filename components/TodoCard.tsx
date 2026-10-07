@@ -13,7 +13,6 @@ import { supabase } from "@/lib/supabase";
 
 type Task = { id: string; title: string; description: string | null; due_date: string | null; completed: boolean; team_id: string | null };
 
-const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
 export default function TodoCard({ teamId }: { teamId: string | null }) {
   const [tasks, setTasks] = useState<Task[]>([]);
