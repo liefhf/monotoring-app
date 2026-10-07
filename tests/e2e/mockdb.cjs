@@ -163,6 +163,8 @@ function createMock({ now = new Date(), faults = {} } = {}) {
       if (f.readError.has(table)) return route.fulfill({ status: 500, json: { code: "XX000", message: "read failed" } });
       let rows = select(db[table] || [], url.searchParams);
       if (table === "profiles" && uid === ATH) rows = rows.filter((r) => r.id === ATH);
+      // wie RLS: Athletin sieht nur Einheiten ihres Teams
+      if (table === "training_sessions" && uid === ATH) rows = rows.filter((r) => r.team_id === "t1");
       if (single) return rows.length ? route.fulfill({ json: rows[0] }) : route.fulfill({ status: 406, json: { code: "PGRST116", message: "0 rows" } });
       return route.fulfill({ json: rows });
     }

@@ -241,6 +241,7 @@ export default function AthleteToday() {
       </section>
 
       {!mainIsFeedback && feedbackCard}
+      {mainIsFeedback && checkIn === "unknown" && checkInCard}
 
       {competition && (
         <Link href="/athlete/wettkampftag" className="flex items-center gap-4 rounded-[20px] border border-app-border/60 bg-app-surface p-5 shadow-app">

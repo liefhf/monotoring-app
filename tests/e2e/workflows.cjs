@@ -54,11 +54,13 @@ async function test(name, fn) {
 }
 
 const go = (page, path) => page.goto(BASE + path, { waitUntil: "networkidle", timeout: 120000 });
-const see = (page, text, timeout = 15000) => page.getByText(text).first().waitFor({ timeout });
+const see = (page, text, timeout = 15000) => page.getByText(text).first().waitFor({ timeout }).catch((e) => { throw new Error(`nicht gefunden: ${text}`); });
 async function notSee(page, text) {
   if (await page.getByText(text).count()) throw new Error(`soll nicht sichtbar sein: ${text}`);
 }
 const shot = async (page, name) => SHOTS && page.screenshot({ path: `${SHOTS}/${W}-${name}.png`, fullPage: true });
+/* Knopf "Kopieren" in der Karte einer bestimmten Einheit */
+const copyButton = (page, title) => page.locator("div, li, article").filter({ hasText: title }).filter({ has: page.getByRole("button", { name: "Kopieren" }) }).last().getByRole("button", { name: "Kopieren" });
 const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.startsWith(prefix));
 
 (async () => {
@@ -81,7 +83,7 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     const { page, mock } = await open(b, "coach", { prompt: key(new Date(2026, 9, 14)) });
     await go(page, "/coach/training");
     await see(page, "GA1 Kraul");
-    await page.getByRole("button", { name: "Kopieren" }).nth(1).click();
+    await copyButton(page, "GA1 Kraul").click();
     await see(page, /wurde auf den 14\.10\. kopiert/);
     const copy = mock.db.training_sessions.find((s) => s.session_date === "2026-10-14" && s.title === "GA1 Kraul");
     if (!copy) throw new Error("Kopie fehlt");
@@ -96,7 +98,7 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
   await test("2b Kopieren scheitert sauber ohne halbe Kopie", async (b) => {
     const { page, mock } = await open(b, "coach", { prompt: "2026-10-14", faults: { writeError: new Set(["training_rows"]) } });
     await go(page, "/coach/training");
-    await page.getByRole("button", { name: "Kopieren" }).nth(1).click();
+    await copyButton(page, "GA1 Kraul").click();
     await see(page, /Serien konnten nicht kopiert werden\. Es wurde nichts kopiert/);
     if (mock.db.training_sessions.some((s) => s.session_date === "2026-10-14")) throw new Error("halbe Kopie bleibt liegen");
   });
@@ -175,7 +177,7 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     await page.getByRole("button", { name: "Speichern" }).click();
     await see(page, "Eintrag gespeichert.");
     if (!mock.db.health_events.some((h) => h.swimmer_id === "w2" && h.title === "Knie links")) throw new Error("nicht gespeichert");
-    await page.reload({ waitUntil: "networkidle" });
+    await go(page, "/coach/schwimmer/w2?tab=gesundheit");
     await see(page, "Knie links");
   });
 
@@ -214,7 +216,8 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     const entry = mock.db.befinden_entries.find((e) => e.entry_date === "2026-10-07");
     if (!entry || entry.pain_answer !== "nein" || entry.has_pain !== false) throw new Error("falsch gespeichert " + JSON.stringify(entry));
     await go(page, "/athlete");
-    await see(page, "Check-in erledigt. Danke!");
+    await see(page, "Dein Training");
+    await notSee(page, "Wie geht es dir heute?"); // erledigt -> Hauptaktion ist jetzt die offene Rueckmeldung
   });
 
   await test("6b Check-in-Ladefehler heisst nicht 'offen'", async (b) => {
@@ -314,9 +317,8 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     const { page } = await open(b, "coach", { faults: { delay: { befinden_entries: 1500 } } });
     await go(page, "/coach");
     await see(page, /Trainingspause: Schulter rechts/);
-    await page.getByRole("combobox").first().selectOption({ label: "Masters" }).catch(async () => {
-      await page.getByRole("button", { name: /Masters/ }).first().click();
-    });
+    await page.getByRole("button", { name: /Team wechseln/ }).first().click();
+    await page.getByRole("button", { name: "Masters" }).first().click();
     await page.waitForTimeout(2500);
     await notSee(page, /Trainingspause: Schulter rechts/);
     await see(page, "Masters Abend");
