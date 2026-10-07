@@ -693,7 +693,7 @@ export default function SchwimmerDetailPage() {
               <Card
                 title="Aktuelle Bestzeiten"
                 action={
-                  <button type="button" onClick={() => setTab("bestzeiten")} className="min-h-11 px-2 text-sm font-semibold text-app-accent-soft hover:underline">
+                  <button type="button" onClick={() => setTab("bestzeiten")} className="min-h-11 min-w-11 px-2 text-sm font-semibold text-app-accent-soft hover:underline">
                     alle
                   </button>
                 }

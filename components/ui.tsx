@@ -19,7 +19,7 @@ export const buttonSecondary =
   "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-elevated px-[18px] py-2.5 text-sm font-bold text-app-heading transition hover:bg-app-border/70 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonGhost =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-app-muted transition hover:bg-app-elevated hover:text-app-heading";
+  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-app-muted transition hover:bg-app-elevated hover:text-app-heading";
 
 export function PageHeader({
   eyebrow,
