@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { LatestRequest } from "@/lib/loadState";
 import { supabase } from "@/lib/supabase";
 import {
   EntryCategory,
@@ -530,7 +531,12 @@ export default function SeasonPlanningPage() {
     setVisibleYear(current.getFullYear());
   }
 
+  const planningRequests = useRef(new LatestRequest());
+
   async function loadPlanning() {
+    /* spaete Antworten (schneller Saison-/Monatswechsel) verwerfen */
+    const token = planningRequests.current.begin();
+    const stale = () => !planningRequests.current.isLatest(token);
     setLoading(true);
     setMessage("");
 
@@ -539,6 +545,7 @@ export default function SeasonPlanningPage() {
       error: userError,
     } = await supabase.auth.getUser();
 
+    if (stale()) return;
     if (userError || !user) {
       setMessage("Coach konnte nicht geladen werden.");
       setLoading(false);
@@ -551,14 +558,17 @@ export default function SeasonPlanningPage() {
       .eq("coach_id", user.id)
       .order("name");
 
+    if (stale()) return;
     if (teamError) {
       setMessage(
         `Teams konnten nicht geladen werden: ${teamError.message}`
       );
 
+
       setLoading(false);
       return;
     }
+
 
     setTeams((teamData ?? []) as Team[]);
 
@@ -607,14 +617,17 @@ export default function SeasonPlanningPage() {
       created_at: entry.created_at,
     }));
 
+    if (stale()) return;
     if (eventError) {
       setMessage(
         `Termine konnten nicht geladen werden: ${eventError.message}`
       );
 
+
       setLoading(false);
       return;
     }
+
 
     setEvents(eventData as CalendarEvent[]);
 
@@ -641,14 +654,17 @@ export default function SeasonPlanningPage() {
         ascending: true,
       });
 
+    if (stale()) return;
     if (taskError) {
       setMessage(
         `Fristen konnten nicht geladen werden: ${taskError.message}`
       );
 
+
       setLoading(false);
       return;
     }
+
 
     setTasks((taskData ?? []) as CalendarTask[]);
     setLoading(false);
