@@ -71,7 +71,7 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
     const { page } = await open(b, "coach");
     await go(page, "/coach");
     await see(page, /Trainingspause: Schulter rechts/);
-    await see(page, /Fristen: Dokumente/);
+    await see(page, /Sportattest läuft in \d+ Tagen ab/);
     await shot(page, "dashboard");
     await page.getByRole("link", { name: /Mia Schulz/ }).first().click();
     await page.waitForURL(/schwimmer\/w1\?tab=gesundheit/);
@@ -335,7 +335,8 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
   await test("10c Dashboard: Ladefehler ist keine Entwarnung", async (b) => {
     const { page } = await open(b, "coach", { faults: { readError: new Set(["training_attendance", "befinden_entries"]) } });
     await go(page, "/coach");
-    await see(page, /Unvollständig: .*konnten nicht geladen werden/);
+    await see(page, /nicht geladen/);
+    await see(page, /keine Entwarnung/);
     await notSee(page, /Keine Auffälligkeiten/);
   });
 

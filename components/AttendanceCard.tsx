@@ -122,7 +122,7 @@ export default function AttendanceCard({ sessionId, teamId }: { sessionId: strin
           {swimmers.map((swimmer) => (
             <li key={swimmer.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5">
               <span className="min-w-0">
-                <Link href={`/coach/schwimmer/${swimmer.id}`} className="block text-[15px] font-semibold text-app-heading hover:text-app-accent-soft">
+                <Link href={`/coach/schwimmer/${swimmer.id}`} className="flex min-h-11 items-center text-[15px] font-semibold text-app-heading hover:text-app-accent-soft">
                   {swimmer.first_name} {swimmer.last_name ?? ""}
                 </Link>
                 {health

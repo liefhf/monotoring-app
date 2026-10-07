@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { attendanceDisplay } from "./attendance";
+import { attendanceDisplay } from "./attendanceDisplay";
 
 describe("attendanceDisplay", () => {
   it("zeigt bei wenig Grundlage keine Prozentzahl", () => {

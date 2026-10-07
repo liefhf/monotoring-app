@@ -121,7 +121,7 @@ export default function SetTimesCard({ sessionId, teamId, sessionDate }: { sessi
     [swimmers, rows, previous, active]
   );
 
-  const input = "rounded-lg border border-app-border bg-app-bg px-2 py-1.5 text-sm";
+  const input = "min-h-11 rounded-lg border border-app-border bg-app-bg px-2 text-base sm:text-sm";
 
   return (
     <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
