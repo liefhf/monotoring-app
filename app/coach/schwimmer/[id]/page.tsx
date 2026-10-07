@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LatestRequest } from "@/lib/loadState";
 import SeriesHistory from "@/components/SeriesHistory";
+import { Avatar } from "@/components/ui";
 import { useParams, useSearchParams } from "next/navigation";
 import {
   CartesianGrid,
@@ -566,19 +567,22 @@ export default function SchwimmerDetailPage() {
     <FocusContext.Provider value={athleteFocus}>
     <main key={swimmerId}>
       <div className="mx-auto max-w-6xl">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <Link href="/coach/schwimmer" className="text-sm text-app-muted hover:text-app-accent">Athleten</Link>
-            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{getSwimmerName(swimmer)}</h1>
-            <p className="mt-1 text-app-muted">
-              {swimmer.birth_year ? `Jahrgang ${swimmer.birth_year} (${new Date().getFullYear() - swimmer.birth_year} J.)` : "Jahrgang –"} · {formatGender(swimmer.gender)}
-              {focusList(athleteFocus, "haupt") ? ` · Hauptstrecken ${focusList(athleteFocus, "haupt")}` : ""}
-            </p>
-            <SwimmerTeamChips swimmerId={swimmerId} />
+        <Link href="/coach/schwimmer" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-app-muted hover:text-app-accent-soft">← Athleten</Link>
+        <header className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-5">
+          <div className="flex min-w-0 items-center gap-4">
+            <Avatar name={getSwimmerName(swimmer)} size="lg" />
+            <div className="min-w-0">
+              <h1 className="break-words text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{getSwimmerName(swimmer)}</h1>
+              <p className="num mt-0.5 text-sm text-app-muted">
+                {swimmer.birth_year ? `Jg. ${swimmer.birth_year} · ${new Date().getFullYear() - swimmer.birth_year} J.` : "Jahrgang –"} · {formatGender(swimmer.gender)}
+              </p>
+              {focusList(athleteFocus, "haupt") && <p className="mt-0.5 text-sm font-semibold text-app-accent-soft">{focusList(athleteFocus, "haupt")}</p>}
+              <SwimmerTeamChips swimmerId={swimmerId} />
+            </div>
           </div>
 
           {/* Haeufige Aktionen direkt im Kopf - ohne erst den richtigen Bereich zu suchen */}
-          <div className="flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-0">
             <button
               type="button"
               onClick={() => setShowEntryForm((open) => !open)}
@@ -662,7 +666,7 @@ export default function SchwimmerDetailPage() {
               onClick={() => setTab(group.tabs[0])}
               aria-pressed={group.tabs.includes(tab)}
               className={`flex min-h-11 shrink-0 items-center rounded-full px-4 text-[13px] font-bold transition ${
-                group.tabs.includes(tab) ? "bg-app-heading text-app-bg" : "bg-app-elevated text-app-muted hover:text-app-heading"
+                group.tabs.includes(tab) ? "bg-app-accent text-app-accent-ink shadow-app" : "bg-app-surface border border-app-border/60 text-app-muted hover:text-app-heading hover:border-app-accent/40"
               }`}
             >
               {group.label}

@@ -9,7 +9,7 @@ import { Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, w
 import { attendanceStats, AttendanceStatus, MIN_ATTENDANCE_BASIS } from "@/lib/attendance";
 import { HealthEvent, healthFlags } from "@/lib/health";
 import { attentionItems, dataGaps } from "@/lib/attention";
-import { Avatar } from "@/components/ui";
+import { Avatar, Details } from "@/components/ui";
 
 /*
  * Athleten-Check fuer den Coach: wer braucht heute Aufmerksamkeit?
@@ -194,9 +194,9 @@ function FlagLine({ flag, compact = false }: { flag: Flag; compact?: boolean }) 
           {flag.text}
         </span>
         {!compact && (
-          <span className="block text-[13px] text-app-muted">
+          <Details summary="Warum & was tun">
             {flag.reason} <span className="text-app-text">→ {flag.check}</span>
-          </span>
+          </Details>
         )}
       </span>
     </li>
