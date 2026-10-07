@@ -59,6 +59,7 @@ export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
   const [today] = useState(() => toDateKey(new Date()));
   const [events, setEvents] = useState<HealthEvent[] | null>(null);
   const [missing, setMissing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<Draft>(() => emptyDraft(today));
@@ -68,6 +69,7 @@ export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
     const { data, error } = await supabase.from("health_events").select("*").eq("swimmer_id", swimmerId).order("start_date", { ascending: false });
     if (error) {
       setMissing(isMissingTable(error.code));
+      setLoadError(!isMissingTable(error.code));
       setEvents([]);
       return;
     }
@@ -122,7 +124,15 @@ export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
         </Notice>
       </div>
     );
+  
+  if (loadError) {
+    return (
+      <div className="mt-6">
+        <Notice tone="bad">Gesundheit konnten gerade nicht geladen werden. Bitte die Seite neu laden.</Notice>
+      </div>
+    );
   }
+}
 
   const status = currentAvailability(events, today);
   const active = events.filter((item) => isActive(item, today) || item.clearance === "offen");
@@ -175,7 +185,7 @@ export default function HealthPanel({ swimmerId }: { swimmerId: string }) {
                       </button>
                     )}
                     {isActive(item, today) && (
-                      <button type="button" className={buttonSecondary} onClick={() => update(item.id, { end_date: today }, "Als beendet eingetragen.")}>
+                      <button type="button" className={buttonSecondary} onClick={() => update(item.id, { end_date: today, availability: "voll" }, "Als beendet eingetragen – wieder voll trainingsfähig.")}>
                         Beendet (heute)
                       </button>
                     )}

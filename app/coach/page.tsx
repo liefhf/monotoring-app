@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useSelectedTeam } from "@/lib/useSelectedTeam";
+import { teamNotice, useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { CalendarEntry, CALENDAR_COLUMNS, formatEntryWhen, localDateOf, toDateKey } from "@/lib/community";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
@@ -47,7 +47,8 @@ function Section({ title, meta, children }: { title: string; meta?: React.ReactN
 
 export default function CoachDashboard() {
   const [today] = useState(() => toDateKey(new Date()));
-  const { teams, teamId, chooseTeam } = useSelectedTeam();
+  const { teams, teamId, chooseTeam, status: teamStatus } = useSelectedTeam();
+  const teamHint = teamNotice(teamStatus, teamId);
   const [todaySessions, setTodaySessions] = useState<Session[]>([]);
   const [weekEvents, setWeekEvents] = useState<CalendarEntry[]>([]);
   const [competition, setCompetition] = useState<CalendarEntry | null>(null);
@@ -117,6 +118,12 @@ export default function CoachDashboard() {
           </div>
         </div>
       </div>
+
+      {teamHint && (
+        <p role="status" className="rounded-[14px] border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
+          {teamHint}
+        </p>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12 [&>*]:min-w-0">
         {/* 1. Aufmerksamkeit heute */}

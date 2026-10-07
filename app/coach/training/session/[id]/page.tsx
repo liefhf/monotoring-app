@@ -395,6 +395,7 @@ export default function CoachTrainingSessionPage() {
 
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     loadPage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [trainingId]);
 
   const athleteRows =

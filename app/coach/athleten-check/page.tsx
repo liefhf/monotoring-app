@@ -1,6 +1,6 @@
 "use client";
 
-import { useSelectedTeam } from "@/lib/useSelectedTeam";
+import { teamNotice, useSelectedTeam } from "@/lib/useSelectedTeam";
 import RedFlagsPanel from "@/components/RedFlagsPanel";
 import { PageHeader } from "@/components/ui";
 import TeamSwitcher from "@/components/TeamSwitcher";
@@ -11,7 +11,8 @@ import TeamSwitcher from "@/components/TeamSwitcher";
  * gewaehlte Mannschaft.
  */
 export default function AthletenCheckPage() {
-  const { teams, teamId, chooseTeam } = useSelectedTeam();
+  const { teams, teamId, chooseTeam, status: teamStatus } = useSelectedTeam();
+  const teamHint = teamNotice(teamStatus, teamId);
 
   return (
     <main className="mx-auto max-w-6xl space-y-6">
@@ -21,6 +22,12 @@ export default function AthletenCheckPage() {
         icon="heart"
         actions={teams.length > 1 && teamId ? <TeamSwitcher teams={teams} teamId={teamId} onChange={chooseTeam} /> : undefined}
       />
+
+      {teamHint && (
+        <p role="status" className="rounded-[14px] border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
+          {teamHint}
+        </p>
+      )}
       {teamId && <RedFlagsPanel teamId={teamId} variant="table" />}
     </main>
   );

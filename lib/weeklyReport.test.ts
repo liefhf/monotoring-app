@@ -46,13 +46,18 @@ describe("weeklyReport", () => {
     expect(checkInSummary(entries, ["p1", "p2", "p3"])).toEqual({ withLogin: 3, regular: 1, missing: ["p3"] });
   });
 
-  it("meldet nur echte neue Bestzeiten, je Strecke die schnellste der Woche", () => {
+  it("erkennt eine Bestzeit auch, wenn die alte Zeit im selben Zeitraum liegt", () => {
+    const bests = newPersonalBests([result("2026-08-10", 73000), result("2026-10-05", 71800)], "2026-07-10", "2026-10-07");
+    expect(bests).toHaveLength(1);
+    expect(bests[0].previous).toBe(73000);
+  });
+
+  it("meldet echte neue Bestzeiten, je Strecke die schnellste der Woche", () => {
     const results = [
       result("2026-09-01", 62000),
       result("2026-10-05", 61500),
       result("2026-10-06", 61000),
       result("2026-10-06", 30000, { distance: 50 }),
-      result("2026-10-06", 60000, { is_split: true }),
     ];
     const bests = newPersonalBests(results, "2026-10-05", "2026-10-11");
     expect(bests).toHaveLength(1);

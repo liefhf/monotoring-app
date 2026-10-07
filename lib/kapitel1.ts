@@ -150,13 +150,6 @@ export const CORE_GOALS = [
 export type CoreGoalKey =
   (typeof CORE_GOALS)[number]["key"];
 
-export function getCoreGoalLabel(key: string) {
-  return (
-    CORE_GOALS.find((goal) => goal.key === key)
-      ?.label ?? key
-  );
-}
-
 /* ------------------------------------------------------------------ */
 /* 1.5 Ueben vs. Training                                              */
 /* ------------------------------------------------------------------ */

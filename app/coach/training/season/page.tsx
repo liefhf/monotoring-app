@@ -441,6 +441,7 @@ export default function SeasonPlanningPage() {
 
   useEffect(() => {
     loadPlanning();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [seasonStartYear, visibleMonth, visibleYear]);
 
   function matchesTeamFilter(teamId: string | null) {
@@ -1134,6 +1135,7 @@ export default function SeasonPlanningPage() {
       allSeasonEvents.filter((event) =>
         matchesTeamFilter(event.team_id)
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
     [allSeasonEvents, selectedTeamId]
   );
 
@@ -1156,6 +1158,7 @@ export default function SeasonPlanningPage() {
       allSeasonTasks.filter((task) =>
         matchesTeamFilter(task.team_id)
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
     [allSeasonTasks, selectedTeamId]
   );
 
@@ -1366,6 +1369,7 @@ export default function SeasonPlanningPage() {
         lane,
       };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
   }, [seasonEvents, seasonStartYear]);
 
   const eventLaneCount =
@@ -1420,6 +1424,7 @@ export default function SeasonPlanningPage() {
         lane,
       };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
   }, [seasonTasks, seasonStartYear]);
 
   const taskLaneCount =

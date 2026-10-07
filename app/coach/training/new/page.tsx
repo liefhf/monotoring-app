@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { parseSetBlock } from "@/lib/setParser";
+import { parseSetBlock, parseSetLine } from "@/lib/setParser";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import WeekFocusPanel from "@/components/WeekFocusPanel";
@@ -442,6 +442,7 @@ function TrainingEditor() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     loadTeams();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, []);
 
   async function loadExistingTraining(
@@ -738,9 +739,8 @@ function TrainingEditor() {
                 row.style ?? "Kraul",
               materials:
                 row.materials ?? [],
-              zone:
-                row.zone ??
-                "BZ2 (GA1)",
+              /* keine Zone bleibt keine Zone (nicht still auf BZ2 setzen) */
+              zone: row.zone ?? "",
               intervalType:
                 row.interval_type === "@"
                   ? "@"
@@ -988,8 +988,9 @@ function TrainingEditor() {
           ...createWaterRow(nextId++),
           repetitions: set.repetitions,
           distance: set.distance,
-          style: set.style ?? "Kraul",
-          zone: set.zone ?? "BZ2 (GA1)",
+          /* nichts erfinden: unbekannte Lage = "Beliebig", unbekannte Zone = keine */
+          style: set.style ?? "Beliebig",
+          zone: set.zone ?? "",
           intervalType: set.intervalType ?? "P",
           intervalTime: set.intervalTime,
           exercise: set.exercise,
@@ -1344,7 +1345,7 @@ function TrainingEditor() {
               materials:
                 row.materials,
 
-              zone: row.zone,
+              zone: row.zone || null,
 
               interval_type:
                 row.intervalType,
@@ -2765,6 +2766,7 @@ function TrainingEditor() {
                                 }
                                 className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               >
+                                <option value="">– keine –</option>
                                 {zoneOptions.map(
                                   (
                                     zone
@@ -3149,13 +3151,16 @@ function QuickSetInput({ onAdd }: { onAdd: (text: string) => number }) {
   const [text, setText] = useState("");
   const [hint, setHint] = useState<string | null>(null);
 
+  /* Erkannte Zeilen werden uebernommen, nicht erkannte bleiben im Feld stehen */
   function submit() {
-    const added = onAdd(text);
-    if (added) {
-      setText("");
-      setHint(`${added} ${added === 1 ? "Serie" : "Serien"} übernommen`);
+    const lines = text.split(/\n|;/).map((line) => line.trim()).filter(Boolean);
+    const unknown = lines.filter((line) => !parseSetLine(line));
+    const added = onAdd(lines.filter((line) => parseSetLine(line)).join("\n"));
+    setText(unknown.join("\n"));
+    if (unknown.length) {
+      setHint(`${added ? `${added} übernommen. ` : ""}Nicht erkannt (bitte als Serie mit Strecke schreiben, z. B. 8x200 Kraul GA2 @3:00): ${unknown.length} Zeile${unknown.length === 1 ? "" : "n"}`);
     } else {
-      setHint("Nicht erkannt – Beispiel: 8x200 Kraul GA2 @3:00");
+      setHint(`${added} ${added === 1 ? "Serie" : "Serien"} übernommen`);
     }
   }
 

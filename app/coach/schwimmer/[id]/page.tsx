@@ -651,7 +651,7 @@ export default function SchwimmerDetailPage() {
               <Card
                 title="Aktuelle Bestzeiten"
                 action={
-                  <button type="button" onClick={() => setTab("bestzeiten")} className="text-sm font-semibold text-app-accent-soft hover:underline">
+                  <button type="button" onClick={() => setTab("bestzeiten")} className="min-h-11 px-2 text-sm font-semibold text-app-accent-soft hover:underline">
                     alle
                   </button>
                 }
@@ -1708,7 +1708,7 @@ function SwimmerTeamChips({ swimmerId }: { swimmerId: string }) {
 function OverviewBests({ results, focus }: { results: SwimmerResult[]; focus: AthleteFocus }) {
   const now = new Date();
   const seasonStart = `${now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1}-09-01`;
-  const valid = results.filter((result) => !result.is_split);
+  const valid = results;
   const focusEvents = (focus.events ?? []).map(parseFocusKey).filter((item) => item.role === "haupt").map((item) => item.event);
   const counted = new Map<string, { event: SwimEvent; count: number }>();
   for (const result of valid) {

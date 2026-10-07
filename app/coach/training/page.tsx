@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useSelectedTeam } from "@/lib/useSelectedTeam";
+import { teamNotice, useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { isoWeek, weekStart } from "@/lib/dashboardStats";
@@ -41,7 +41,8 @@ function WochenplanView() {
   const params = useSearchParams();
   const [today] = useState(() => toDateKey(new Date()));
   const [week, setWeek] = useState(() => weekStart(params.get("week") ?? toDateKey(new Date())));
-  const { teams, teamId, chooseTeam } = useSelectedTeam();
+  const { teams, teamId, chooseTeam, status: teamStatus } = useSelectedTeam();
+  const teamHint = teamNotice(teamStatus, teamId);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [zoneRows, setZoneRows] = useState<ZoneRow[]>([]);
   const [reloadKey, setReloadKey] = useState(0);
@@ -156,6 +157,12 @@ function WochenplanView() {
         }
       />
 
+      {teamHint && (
+        <p role="status" className="rounded-[14px] border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
+          {teamHint}
+        </p>
+      )}
+
       {notice && (
         <p role="status" className="rounded-[14px] border border-app-accent/30 bg-app-accent/10 px-4 py-3 text-sm text-app-text">
           {notice}
@@ -243,7 +250,7 @@ function WochenplanView() {
                   {session.focus && <p className="mt-1 text-xs text-app-text">{session.focus}</p>}
                   {session.planned_rpe ? <p className="mt-1 text-[11px] text-app-faint">geplant RPE {session.planned_rpe}</p> : null}
                 </Link>
-                <div className="mt-2 flex gap-3 text-xs font-semibold">
+                <div className="mt-2 flex flex-wrap gap-x-3 gap-y-2 text-xs font-semibold">
                   <Link href={`/coach/training/new?session=${session.id}`} className="text-app-muted hover:text-app-heading">
                     Bearbeiten
                   </Link>

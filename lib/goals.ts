@@ -1,8 +1,8 @@
-import { STROKES, Stroke, SwimmerResult } from "@/lib/swim";
+import { STROKES, Stroke, SwimmerResult, findBestResult } from "@/lib/swim";
 
 /*
  * Ziele je Athlet. Ein Zeitziel wird automatisch mit der Bestzeit
- * verglichen (gleiche Strecke, Lage, Bahn; keine Zwischenzeiten) -
+ * verglichen (gleiche Strecke, Lage, Bahn; Regel wie findBestResult) -
  * der Trainer muss "erreicht" nicht selbst pflegen.
  */
 
@@ -46,15 +46,9 @@ export type GoalProgress = {
 
 export function goalProgress(goal: Goal, results: SwimmerResult[]): GoalProgress {
   if (goal.kind !== "zeit" || !goal.target_ms) return { best: null, remainingMs: null, reached: Boolean(goal.achieved_at) };
-  const matching = results.filter(
-    (result) =>
-      !result.is_split &&
-      result.distance === goal.distance &&
-      result.stroke === goal.stroke &&
-      (goal.pool_length === null || result.pool_length === goal.pool_length)
-  );
-  if (!matching.length) return { best: null, remainingMs: null, reached: Boolean(goal.achieved_at) };
-  const best = matching.reduce((fastest, result) => (result.time_ms < fastest.time_ms ? result : fastest));
+  /* dieselbe Bestzeit-Regel wie ueberall in der App (findBestResult) */
+  const best = findBestResult(results, { distance: goal.distance!, stroke: goal.stroke! }, goal.pool_length);
+  if (!best) return { best: null, remainingMs: null, reached: Boolean(goal.achieved_at) };
   const remainingMs = best.time_ms - goal.target_ms;
   return { best, remainingMs, reached: remainingMs <= 0 || Boolean(goal.achieved_at) };
 }

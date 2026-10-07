@@ -132,7 +132,7 @@ export default function AthleteWettkaempfePage() {
 
   return (
     <main className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
-      <PageHeader icon="trophy" title="Meine Wettkämpfe" description="Feedback deines Trainers zu jedem Start – und deine eigene Einschätzung." />
+      <PageHeader icon="trophy" title="Meine Wettkämpfe" description="Rückmeldung deines Trainers zu jedem Start – und deine eigene Einschätzung." />
 
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
 
@@ -140,8 +140,8 @@ export default function AthleteWettkaempfePage() {
         <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : groups.length === 0 ? (
         <Card>
-          <EmptyState icon="trophy" title="Noch kein Wettkampf-Feedback">
-            Sobald dein Trainer dir Feedback zu einem Wettkampf gibt, erscheint es hier.
+          <EmptyState icon="trophy" title="Noch keine Rückmeldung">
+            Sobald dein Trainer dir etwas zu einem Wettkampf schreibt, steht es hier.
           </EmptyState>
         </Card>
       ) : (

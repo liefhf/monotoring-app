@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useSelectedTeam } from "@/lib/useSelectedTeam";
+import { teamNotice, useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { ATTENDANCE_STATUS, AttendanceStatus, attendanceStats, loadTeamSwimmers } from "@/lib/attendance";
@@ -24,7 +24,8 @@ const DAY = 86_400_000;
 const STYLE = Object.fromEntries(ATTENDANCE_STATUS.map((item) => [item.value, item]));
 
 export default function AnwesenheitPage() {
-  const { teams, teamId, chooseTeam } = useSelectedTeam();
+  const { teams, teamId, chooseTeam, status: teamStatus } = useSelectedTeam();
+  const teamHint = teamNotice(teamStatus, teamId);
   const [swimmers, setSwimmers] = useState<Swimmer[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -109,6 +110,12 @@ export default function AnwesenheitPage() {
           </div>
         }
       />
+
+      {teamHint && (
+        <p role="status" className="rounded-[14px] border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
+          {teamHint}
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         <div className="rounded-[20px] border border-app-border bg-app-surface p-4 shadow-app">

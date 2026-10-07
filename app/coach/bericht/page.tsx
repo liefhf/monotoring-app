@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { useSelectedTeam } from "@/lib/useSelectedTeam";
+import { teamNotice, useSelectedTeam } from "@/lib/useSelectedTeam";
 import { fetchAll } from "@/lib/fetchAll";
 import { toDateKey } from "@/lib/community";
 import { isoWeek, weekStart } from "@/lib/dashboardStats";
@@ -33,7 +33,8 @@ function Report() {
   const [today] = useState(() => toDateKey(new Date()));
   /* Standard: die zuletzt abgeschlossene Woche */
   const [week, setWeek] = useState(() => weekStart(params.get("week") ?? shiftDays(toDateKey(new Date()), -7)));
-  const { teams, teamId, chooseTeam } = useSelectedTeam();
+  const { teams, teamId, chooseTeam, status: teamStatus } = useSelectedTeam();
+  const teamHint = teamNotice(teamStatus, teamId);
   const [data, setData] = useState<{
     swimmers: Swimmer[];
     sessions: ReportSession[];
@@ -116,7 +117,13 @@ function Report() {
         }
       />
 
-      {!data || !training || !attendance || !checkIns ? (
+      {teamHint && (
+        <p role="status" className="rounded-[14px] border border-app-warn/40 bg-app-warn/10 px-4 py-3 text-sm text-app-text">
+          {teamHint}
+        </p>
+      )}
+
+      {teamHint ? null : !data || !training || !attendance || !checkIns ? (
         <Loader />
       ) : (
         <>

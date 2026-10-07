@@ -56,6 +56,8 @@ export function parseSetLine(line: string): ParsedSet | null {
 
   const volume = /^(?:(\d{1,3})\s*[x×*]\s*)?(\d{2,4})\s*m?\b/i.exec(text);
   if (!volume) return null;
+  /* "10 min locker" ist eine Zeit, keine Strecke - lieber nicht erkennen als falsch */
+  if (/^\s*(min|minuten|sek|sekunden|sec|s\b|h\b|std)/i.test(text.slice(volume[0].length)) && !/m$/i.test(volume[0].trim())) return null;
   const repetitions = volume[1] ? Number(volume[1]) : 1;
   const distance = Number(volume[2]);
   if (!repetitions || !distance) return null;

@@ -29,6 +29,12 @@ describe("health", () => {
     expect(healthFlags([ended], "2026-10-07").map((flag) => flag.text)).toEqual(["Freigabe ausstehend: Schulter rechts"]);
   });
 
+  it("ein heute beendeter Eintrag erzeugt keinen Hinweis mehr", () => {
+    const ended = { ...base, availability: "voll" as const, end_date: "2026-10-07" };
+    expect(healthFlags([ended], "2026-10-07")).toEqual([]);
+    expect(currentAvailability([ended], "2026-10-07")).toBe("voll");
+  });
+
   it("meldet eine Trainingspause rot mit Dauer", () => {
     const flags = healthFlags([{ ...base, availability: "pause" }], "2026-10-07");
     expect(flags[0]).toMatchObject({ level: "rot", text: "Trainingspause: Schulter rechts (seit 7 Tagen)" });

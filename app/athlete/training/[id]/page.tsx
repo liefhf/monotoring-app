@@ -105,6 +105,8 @@ export default function AthleteTrainingDetailPage() {
 
 
   const [rpe, setRpe] = useState(6);
+  /* true erst, wenn wirklich eine Rueckmeldung gespeichert ist */
+  const [hasFeedback, setHasFeedback] = useState(false);
 
   const [completed, setCompleted] =
     useState(false);
@@ -184,6 +186,8 @@ export default function AthleteTrainingDetailPage() {
     if (feedbackError) {
       setMessage("Vorhandene Rückmeldung konnte nicht geladen werden.");
     }
+
+    setHasFeedback(Boolean(feedbackData));
 
     if (feedbackData) {
       const loadedFeedback =
@@ -346,6 +350,7 @@ export default function AthleteTrainingDetailPage() {
 
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     loadTraining();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [trainingId]);
 
   const blocks =
@@ -461,7 +466,7 @@ export default function AthleteTrainingDetailPage() {
             href="/athlete/training"
             className="text-sm text-app-muted hover:text-app-heading"
           >
-            ← Zurück zum Trainingsplan
+            ← Zurück
           </Link>
 
           <div className="mt-6 rounded-2xl border border-app-bad/40 bg-app-bad/10 p-6">
@@ -485,7 +490,7 @@ export default function AthleteTrainingDetailPage() {
         href="/athlete/training"
         className="text-sm text-app-muted hover:text-app-heading"
       >
-        ← Zurück zum Trainingsplan
+        ← Zurück
       </Link>
 
       {/* Kopf */}
@@ -812,14 +817,14 @@ export default function AthleteTrainingDetailPage() {
         <div className="min-w-0 flex-1">
           <p className="font-semibold text-app-heading">Rückmeldung</p>
           <p className="text-sm text-app-muted">
-            {rpe ? `Abgegeben: Anstrengung ${rpe}/10${completed ? "" : " · nicht vollständig absolviert"}` : "Wie anstrengend war das Training? Dauert 10 Sekunden."}
+            {hasFeedback ? `Danke! Du hast ${rpe} von 10 gegeben${completed ? "" : " · nicht ganz geschafft"}` : "Wie anstrengend war das Training? Dauert 10 Sekunden."}
           </p>
         </div>
         <Link
           href={`/athlete/feedback/${trainingId}`}
           className="inline-flex min-h-11 items-center rounded-xl bg-app-accent px-[18px] text-sm font-bold text-app-accent-ink transition hover:brightness-110"
         >
-          {rpe ? "Ändern" : "Bewerten"}
+          {hasFeedback ? "Ändern" : "Bewerten"}
         </Link>
       </section>
     </div>

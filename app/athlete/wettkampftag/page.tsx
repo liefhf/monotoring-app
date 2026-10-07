@@ -160,7 +160,7 @@ export default function WettkampfTagPage() {
                 setRoutineText(routine.join("\n"));
                 setEditRoutine(!editRoutine);
               }}
-              className="text-sm text-app-accent"
+              className="min-h-11 px-2 text-sm font-semibold text-app-accent-soft"
             >
               {editRoutine ? "Abbrechen" : "anpassen"}
             </button>

@@ -23,9 +23,13 @@ const result = (time: number, extra: Partial<SwimmerResult> = {}) =>
 
 describe("goals", () => {
   it("vergleicht ein Zeitziel automatisch mit der Bestzeit", () => {
-    const progress = goalProgress(goal(), [result(72400), result(71900), result(60000, { is_split: true }), result(65000, { pool_length: 50 })]);
+    const progress = goalProgress(goal(), [result(72400), result(71900), result(65000, { pool_length: 50 })]);
     expect(progress).toMatchObject({ remainingMs: 2400, reached: false });
     expect(progress.best?.time_ms).toBe(71900);
+  });
+
+  it("zaehlt offizielle Zwischenzeiten wie der Bestzeiten-Tab", () => {
+    expect(goalProgress(goal(), [result(71900), result(69000, { is_split: true })]).reached).toBe(true);
   });
 
   it("erkennt ein erreichtes Ziel", () => {

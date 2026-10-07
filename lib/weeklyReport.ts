@@ -71,18 +71,23 @@ export function checkInSummary(entries: { athlete_id: string; entry_date: string
 
 /*
  * Neue persoenliche Bestzeiten in der Woche: Zeit in [from, to] schneller
- * als alles davor auf derselben Strecke und Bahn. Zwischenzeiten zaehlen
- * nicht. Erste Zeit auf einer Strecke ist keine "neue Bestzeit".
+ * als alles davor auf derselben Strecke und Bahn. Offizielle Zwischenzeiten
+ * zaehlen wie im Bestzeiten-Tab mit (findBestResult). Erste Zeit auf einer
+ * Strecke ist keine "neue Bestzeit".
  */
 export function newPersonalBests(results: SwimmerResult[], from: string, to: string) {
   const key = (result: SwimmerResult) => `${result.swimmer_id}|${result.pool_length}|${result.distance}|${result.stroke}`;
-  const valid = results.filter((result) => !result.is_split);
+  const valid = results;
   const bests: { result: SwimmerResult; previous: number }[] = [];
   for (const result of valid) {
     if (result.result_date < from || result.result_date > to) continue;
-    const earlier = valid.filter((other) => key(other) === key(result) && other.result_date < from);
+    /* Vergleich mit allem davor; angezeigt wird die Verbesserung gegenueber
+       dem Stand vor dem Zeitraum (falls vorhanden), sonst ggue. der Zeit davor */
+    const earlier = valid.filter((other) => key(other) === key(result) && other.result_date < result.result_date);
     if (!earlier.length) continue;
-    const previous = Math.min(...earlier.map((other) => other.time_ms));
+    const beforeWindow = earlier.filter((other) => other.result_date < from);
+    const previous = Math.min(...(beforeWindow.length ? beforeWindow : earlier).map((other) => other.time_ms));
+    if (result.time_ms >= Math.min(...earlier.map((other) => other.time_ms))) continue;
     const fasterInWeek = valid.some(
       (other) => key(other) === key(result) && other.result_date >= from && other.result_date <= to && other.time_ms < result.time_ms
     );

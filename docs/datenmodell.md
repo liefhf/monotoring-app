@@ -31,3 +31,13 @@ calendar_entries, calendar_tasks, news_posts, team_messages, notifications
 - Bekannter offener Punkt: Die Regel „Coaches can read athlete profiles“ erlaubt laut früherer Analyse jedem Coach, alle Athletenprofile zu lesen.
 
 - **Neu (Skript 24):** `athlete_goals`. Athleten lesen sichtbare eigene Ziele. `athlete_notes` ist nur für Trainer sichtbar.
+
+## Berechtigungsmodell (geprüft am 07.10.2026)
+
+- **Zuständigkeit:** Ein Athlet (`swimmers`) gehört genau einem Coach (`swimmers.coach_id`). Ein Team gehört genau einem Coach (`teams.coach_id`). Alle neuen Tabellen (Skripte 23/24) prüfen über `coach_owns_swimmer`. Wechselt ein Athlet den Coach (`coach_id` ändert sich), wandern Gesundheit, Ziele, Notizen und Dokumente automatisch mit, und der alte Coach sieht sie nicht mehr.
+- **Mehrere Trainer pro Team** kennt das Datenmodell bisher nicht. Ein Co-Trainer bräuchte heute ein eigenes Team bzw. eigene Athleten. Eine Erweiterung (Tabelle `team_coaches`) wäre eine Produktentscheidung.
+- **Athleten** lesen nur eigene Einträge über `swimmers.profile_id = auth.uid()`: Gesundheit (nur `visible_to_athlete`), Ziele (nur sichtbare) und Dokumentliste. Ändern dürfen sie nichts. **Trainernotizen** haben keine Regel für Athleten und sind damit für sie unsichtbar.
+- **Nicht angemeldet:** Alle Regeln gelten nur für die Rolle `authenticated`.
+- **Dateien** (`athlete-documents`) sind privat. Zugriff gibt es nur für den zuständigen Coach über `coach_owns_swimmer_folder` (Textvergleich statt uuid-Cast, damit fremde Ordnernamen nie zu Fehlern führen).
+- **Getestet** mit einem lokalen PostgreSQL 16 und nachgebildetem `auth.uid()`/Storage: Jeder Coach sieht nur eigene Daten, kann nicht in fremde Athleten schreiben und keine eigenen Einträge auf fremde Athleten umhängen. Der Athlet sieht keine Notizen und nichts Unsichtbares und kann nichts schreiben. Wer nicht angemeldet ist, sieht nichts. Beide Skripte lassen sich zweimal hintereinander ausführen.
+- **Löschverhalten:** Wird ein Athlet gelöscht, werden seine Einträge in den neuen Tabellen mitgelöscht (`on delete cascade`), wie bei Ergebnissen und Tests. Das Löschen eines Athleten fragt in der App vorher nach.

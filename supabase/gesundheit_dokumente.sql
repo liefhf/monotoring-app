@@ -100,20 +100,35 @@ insert into storage.buckets (id, name, public)
 values ('athlete-documents', 'athlete-documents', false)
 on conflict (id) do nothing;
 
+-- Ordnername (Text) statt uuid-Cast: ein Ordner, der keine uuid ist,
+-- fuehrt so nie zu einem Fehler, sondern einfach zu "kein Zugriff".
+create or replace function public.coach_owns_swimmer_folder(p_folder text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.swimmers s
+    where s.id::text = p_folder and s.coach_id = auth.uid()
+  );
+$$;
+
 drop policy if exists "Coaches read own athlete documents" on storage.objects;
 create policy "Coaches read own athlete documents"
   on storage.objects for select
   to authenticated
-  using (bucket_id = 'athlete-documents' and public.coach_owns_swimmer(((storage.foldername(name))[1])::uuid));
+  using (bucket_id = 'athlete-documents' and public.coach_owns_swimmer_folder((storage.foldername(name))[1]));
 
 drop policy if exists "Coaches upload own athlete documents" on storage.objects;
 create policy "Coaches upload own athlete documents"
   on storage.objects for insert
   to authenticated
-  with check (bucket_id = 'athlete-documents' and public.coach_owns_swimmer(((storage.foldername(name))[1])::uuid));
+  with check (bucket_id = 'athlete-documents' and public.coach_owns_swimmer_folder((storage.foldername(name))[1]));
 
 drop policy if exists "Coaches delete own athlete documents" on storage.objects;
 create policy "Coaches delete own athlete documents"
   on storage.objects for delete
   to authenticated
-  using (bucket_id = 'athlete-documents' and public.coach_owns_swimmer(((storage.foldername(name))[1])::uuid));
+  using (bucket_id = 'athlete-documents' and public.coach_owns_swimmer_folder((storage.foldername(name))[1]));

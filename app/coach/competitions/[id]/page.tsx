@@ -267,6 +267,7 @@ export default function CompetitionDetailPage() {
     }
 
     loadCompetition();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [competitionId]);
 
   async function loadCompetition() {

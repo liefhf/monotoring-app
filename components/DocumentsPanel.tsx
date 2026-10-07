@@ -26,6 +26,7 @@ export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
   const [today] = useState(() => toDateKey(new Date()));
   const [docs, setDocs] = useState<AthleteDocument[] | null>(null);
   const [missing, setMissing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
   const [open, setOpen] = useState(false);
   const [docType, setDocType] = useState<DocType>("sportattest");
@@ -38,6 +39,7 @@ export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
     const { data, error } = await supabase.from("athlete_documents").select("*").eq("swimmer_id", swimmerId).order("created_at", { ascending: false });
     if (error) {
       setMissing(isMissingTable(error.code));
+      setLoadError(!isMissingTable(error.code));
       setDocs([]);
       return;
     }
@@ -110,7 +112,15 @@ export default function DocumentsPanel({ swimmerId }: { swimmerId: string }) {
         </Notice>
       </div>
     );
+  
+  if (loadError) {
+    return (
+      <div className="mt-6">
+        <Notice tone="bad">Dokumente konnten gerade nicht geladen werden. Bitte die Seite neu laden.</Notice>
+      </div>
+    );
   }
+}
 
   return (
     <section className="mt-6 rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">

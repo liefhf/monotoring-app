@@ -28,8 +28,6 @@ export type Fault = {
   drill: { repetitions: number; distance: number; exercise: string; zone: string; interval: string };
 };
 
-const ALL: Stroke[] = ["freestyle", "backstroke", "breaststroke", "butterfly", "medley"];
-
 export const FAULTS: Fault[] = [
   // Start
   { code: "start_reaktion", phase: "start", label: "Reaktion langsam", drill: { repetitions: 6, distance: 15, exercise: "Startreaktion auf Signal, 15 m max", zone: "BZ8 (S)", interval: "45" } },

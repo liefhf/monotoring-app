@@ -69,7 +69,7 @@ Auf dem Handy gibt es unten eine Leiste: Start · Team · **+** (neue Einheit) �
 | Anwesenheit in der Einheit | A | Dashboard → „Anwesenheit“ springt direkt in die Liste |
 | Athletenprofil | A | Team → Athleten |
 | Trainingswoche (planen, kopieren, verschieben) | A | Training |
-| Schnelleingabe Serien („8x200 Kraul GA2 @3:00“) | A | in jedem Abschnitt der Einheit |
+| Schnelleingabe Serien („8x200 Kraul GA2 @3:00“) | A | in jedem Abschnitt der Einheit. Unbekannte Lage wird „Beliebig“, unbekannte Zone bleibt leer, Zeitangaben wie „10 min“ werden nicht als Strecke gelesen. Nicht erkannte Zeilen bleiben im Feld stehen. |
 | Athleten-Check | A | Dashboard („Alle ansehen“) und Team |
 | Trainernotizen | A | Überblick im Profil |
 | Gesundheit / Einschränkungen | A | Profil; Hinweise auf Dashboard und in der Anwesenheitsliste |

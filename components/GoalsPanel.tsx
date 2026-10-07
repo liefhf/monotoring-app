@@ -17,6 +17,7 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
   const [goals, setGoals] = useState<Goal[] | null>(null);
   const [results, setResults] = useState<SwimmerResult[]>([]);
   const [missing, setMissing] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<GoalKind>("zeit");
   const [distance, setDistance] = useState("100");
@@ -34,6 +35,7 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
     ]);
     if (goalRes.error) {
       setMissing(isMissingTable(goalRes.error.code));
+      setLoadError(!isMissingTable(goalRes.error.code));
       setGoals([]);
       return;
     }
@@ -97,7 +99,15 @@ export default function GoalsPanel({ swimmerId, compact = false }: { swimmerId: 
         Ziele sind noch nicht eingerichtet. Bitte <b>supabase/ziele_notizen.sql</b> ausführen (Skript 24).
       </Notice>
     );
+  
+  if (loadError) {
+    return (
+      <div className="">
+        <Notice tone="bad">Ziele konnten gerade nicht geladen werden. Bitte die Seite neu laden.</Notice>
+      </div>
+    );
   }
+}
 
   const sorted = sortGoals(goals, results);
   const shown = compact ? sorted.filter((goal) => !goalProgress(goal, results).reached).slice(0, 3) : sorted;

@@ -15,6 +15,7 @@ type Note = { id: string; body: string; pinned: boolean; created_at: string };
 export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; limit?: number }) {
   const [notes, setNotes] = useState<Note[] | null>(null);
   const [missing, setMissing] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [text, setText] = useState("");
   const [showAll, setShowAll] = useState(false);
 
@@ -27,6 +28,7 @@ export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; li
       .order("created_at", { ascending: false });
     if (error) {
       setMissing(isMissingTable(error.code));
+      if (!isMissingTable(error.code)) setLoadFailed(true);
       setNotes([]);
       return;
     }
@@ -60,6 +62,7 @@ export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; li
   }
 
   if (notes === null || missing) return null;
+  if (loadFailed) return <p className="text-sm text-app-bad">Trainernotizen konnten gerade nicht geladen werden.</p>;
 
   const shown = limit && !showAll ? notes.slice(0, limit) : notes;
 
@@ -82,10 +85,10 @@ export default function NotesPanel({ swimmerId, limit }: { swimmerId: string; li
                 {note.body}
                 <span className="block text-xs text-app-faint">{new Date(note.created_at).toLocaleDateString("de-DE")}</span>
               </span>
-              <button type="button" onClick={() => togglePin(note)} className={`${buttonGhost} text-xs`}>
+              <button type="button" onClick={() => togglePin(note)} className={`${buttonGhost} min-h-11 text-xs`}>
                 {note.pinned ? "Lösen" : "Anheften"}
               </button>
-              <button type="button" onClick={() => remove(note)} className={`${buttonGhost} text-xs hover:text-app-bad`} aria-label="Notiz löschen">
+              <button type="button" onClick={() => remove(note)} className={`${buttonGhost} min-h-11 min-w-11 text-xs hover:text-app-bad`} aria-label="Notiz löschen">
                 ✕
               </button>
             </li>

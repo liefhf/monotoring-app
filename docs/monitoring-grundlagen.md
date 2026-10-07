@@ -34,7 +34,7 @@ Leitfrage für jede Kennzahl: **Kann ein Schwimmtrainer daraus eine Entscheidung
 Fünf Fragen genügen: Fitness/Müdigkeit, Laune, Muskelgefühl, Entspannung und Schlaf decken die Bereiche ab, die in Studien am empfindlichsten auf Belastung reagieren [7]. Motivation ist bewusst keine eigene Frage, weil sie bei Kindern stark mit der Laune zusammenfällt. Schmerzen werden gezielt am Körpermodell gemeldet. Fünf Antwortstufen statt zehn sind für Kinder eindeutiger. Gespeichert wird weiter auf der 1–10-Skala, damit alte Einträge vergleichbar bleiben.
 
 ## Ziele
-Zeitziele werden automatisch mit der Bestzeit verglichen (gleiche Strecke, Lage und Bahn, ohne Zwischenzeiten). Athleten sehen „noch x Sekunden“ und keine Prozentwerte oder Prognosen.
+Zeitziele werden automatisch mit der Bestzeit verglichen (gleiche Strecke, Lage und Bahn). Es gilt überall dieselbe Bestzeit-Regel wie im Bestzeiten-Tab (`findBestResult`): Offizielle Zwischenzeiten zählen mit. Eine „neue Bestzeit“ ist eine Zeit, die schneller ist als alle Zeiten davor auf derselben Strecke und Bahn. Die erste Zeit auf einer Strecke zählt nicht als neue Bestzeit. Athleten sehen „noch x Sekunden“ und keine Prozentwerte oder Prognosen.
 
 ## Hinweise (Warnsystem)
 

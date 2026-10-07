@@ -173,13 +173,13 @@ export default function MeinFortschrittPage() {
             </ul>
           </Card>
 
+          {/* Nur zeigen, wenn es Zonen gibt - ein Hinweis auf fehlende Tests hilft Kindern nicht */}
+          {zones.length > 0 && (
           <Card
             title="Meine Tempo-Zonen"
-            description={latestLactate ? `Aus deinem Laktattest vom ${formatDate(latestLactate.test_date)} – Tempo je 100 m Kraul` : undefined}
+            description={latestLactate ? `Aus deinem Test vom ${formatDate(latestLactate.test_date)} – Tempo je 100 m Kraul` : undefined}
           >
-            {zones.length === 0 ? (
-              <p className="p-4 text-sm text-app-muted">Noch kein Laktattest – deine Zonen erscheinen hier nach dem nächsten Test.</p>
-            ) : (
+            {(
               <ul className="divide-y divide-app-border">
                 {zones.map((zone) => (
                   <li key={zone.code} className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -198,6 +198,7 @@ export default function MeinFortschrittPage() {
               </ul>
             )}
           </Card>
+          )}
         </>
       )}
     </main>
