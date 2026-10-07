@@ -32,12 +32,22 @@ Kopf: Name, Alter, Teams, **Schnellaktionen „+ Zeiten“, „+ Notiz“, „+ 
 | Diagnostik | Testbatterie, Laktat |
 | Stammdaten & Dokumente | Infos, Dokumente mit Ablauf, Trainingsfokus |
 
-### Dashboard
-1. **Aufmerksamkeit:** Hinweise (jeder führt direkt zum passenden Profilbereich) und ablaufende Dokumente des Teams.
-2. **Heute:** Einheiten mit Anwesenheit, Termine der nächsten 7 Tage, nächster Wettkampf.
-3. **Team:** Check-ins heute (Namen anklickbar, „ohne Login“ getrennt), Anwesenheit = Anteil „anwesend“ an allen *erfassten* Einträgen vergangener Einheiten der letzten 4 Wochen (heute zählt nicht), mit „x von y Einheiten erfasst“.
-4. **Neue Bestzeiten**, Aufgaben.
-Ladefehler werden genannt; „keine Hinweise“ erscheint nur, wenn alle Daten geladen wurden. „Ohne Daten“ ist getrennt von „unauffällig“.
+### Dashboard (Handy-Reihenfolge)
+Kopf: **„Heute · Datum“** und Team-Umschalter statt Begrüßung.
+1. **Aufmerksamkeit:** ein Eintrag je Athlet, nach Dringlichkeit sortiert. Zuerst Trainingsfähigkeit, Einschränkung und offene Freigabe, danach ergänzend Schmerz, Befinden usw. – ohne Meldungen fachlich zu verschmelzen. Jeder Eintrag führt direkt zur passenden Stelle („Einschränkung ansehen →“). Höchstens 4 Einträge, sonst „Alle n Hinweise ansehen“. Darunter ablaufende Dokumente des Teams (nur hier, keine zweite Fristen-Karte). Fehlende Daten werden einzeln benannt („2 ohne Check-in heute“, „1 ohne eigenen Login“, „3 mit zu wenig Daten für einen Belastungsvergleich“, „Gesundheit: nicht geladen“) und gelten nie als Entwarnung.
+2. **Training heute** mit Knopf „Anwesenheit“ je Einheit.
+3. **Check-ins heute:** fehlende Namen anklickbar; „ohne eigenen Login“ erklärt, mit Weg zur Kontoverknüpfung (Profil → Stammdaten).
+4. **Neue Bestzeiten** („Mia Schulz · 100 m Rücken · 1:11,80 · 1,20 s schneller“), **Anwesenheit**, Aufgaben als kurze Zeile, wenn nichts offen ist.
+
+Gestaltung Coach: Linien und Abstand statt Schatten und Innenkacheln, Rundung 16 px, Farbe nur für Status und Hauptaktionen. Der Athletenbereich bleibt bewusst größer und freundlicher.
+
+### Anwesenheit – Darstellungsregel (Dashboard, Profil, Anwesenheitsseite, Hinweis)
+- Grundlage: **erfasste** Einträge (anwesend, entschuldigt, krank, fehlt) von Einheiten bis einschließlich heute; nicht erfasste Einheiten zählen weder als anwesend noch als abwesend und werden als „x von y Einheiten erfasst“ genannt.
+- Zeitraum: die letzten 4 Wochen (28 Tage) bis heute.
+- Unter **8 erfassten Einträgen** keine Prozentzahl, sondern „x von y anwesend · noch wenig Daten“ (`MIN_ATTENDANCE_BASIS` in `lib/attendance.ts`). Der Hinweis „Anwesenheit niedrig“ entsteht ebenfalls erst ab 8 Einträgen.
+
+### Handy-Navigation
+Leiste: Start · Athleten · Neue Einheit (normaler Tab, nicht hervorgehoben) · Training · Mehr. Darstellung (Hell/Dunkel, Sonnen-Modus) liegt beschriftet unter „Mehr“ und in den Einstellungen; oben bleibt nur die Glocke.
 
 ### Athlet „Heute“
 Genau **eine Hauptaktion** oben (Check-in, sonst offene Rückmeldung), danach das laufende oder nächste Training,

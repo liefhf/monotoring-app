@@ -169,8 +169,7 @@ export default function CoachDashboard() {
         {/* 1. Aufmerksamkeit: Hinweise und Dokument-Fristen */}
         <div className="lg:col-span-7">
           <Section title="Aufmerksamkeit" id="aufmerksamkeit" meta={<Link href="/coach/athleten-check" className="text-[13px] font-semibold text-app-accent-soft hover:underline">Athleten-Check →</Link>}>
-            {teamId && <RedFlagsPanel teamId={teamId} variant="summary" />}
-            {teamId && <DeadlinesCard teamId={teamId} embedded />}
+            {teamId && <RedFlagsPanel teamId={teamId} variant="summary" extra={<DeadlinesCard teamId={teamId} embedded />} />}
           </Section>
         </div>
 

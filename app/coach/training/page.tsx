@@ -230,17 +230,35 @@ function WochenplanView() {
       )}
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-7">
-        {days.map((day) => (
+        {days.map((day) =>
+          /* Handy: leerer Tag = eine kurze Zeile statt einer grossen Karte */
+          day.list.length === 0 ? (
+            <section
+              key={day.date}
+              className={`flex items-center justify-between rounded-2xl border bg-app-surface px-3 xl:min-h-[220px] xl:flex-col xl:items-stretch xl:justify-start xl:py-3 ${day.date === today ? "border-app-accent" : "border-app-border"}`}
+            >
+              <p className={`px-1 text-sm font-bold ${day.date === today ? "text-app-soon" : "text-app-heading"}`}>
+                {day.name} <span className="font-normal text-app-muted">{fmt(day.date)}</span>
+                <span className="font-normal text-app-muted xl:hidden"> · kein Training</span>
+              </p>
+              <Link
+                href={`/coach/training/new?day=${day.date}`}
+                className="inline-flex min-h-11 items-center px-1 text-sm font-semibold text-app-accent-soft hover:underline xl:mt-auto xl:justify-center xl:rounded-[14px] xl:border xl:border-dashed xl:border-app-border xl:font-normal xl:text-app-muted"
+              >
+                + Einheit
+              </Link>
+            </section>
+          ) : (
           <section
             key={day.date}
-            className={`flex flex-col rounded-[20px] border bg-app-surface p-3 shadow-app xl:min-h-[220px] ${day.date === today ? "border-app-accent" : "border-app-border/60"}`}
+            className={`flex flex-col rounded-2xl border bg-app-surface p-3 xl:min-h-[220px] ${day.date === today ? "border-app-accent" : "border-app-border"}`}
           >
             <p className={`px-1 text-sm font-bold ${day.date === today ? "text-app-soon" : "text-app-heading"}`}>
               {day.name} <span className="font-normal text-app-muted">{fmt(day.date)}</span>
             </p>
             <div className="mt-2 flex-1 space-y-2">
               {day.list.map((session) => (
-                <div key={session.id} className="rounded-[14px] bg-app-elevated/60 p-3">
+                <div key={session.id} className="rounded-xl border border-app-border/70 p-3">
                 <Link href={`/coach/training/session/${session.id}`} className="block transition hover:text-app-accent-soft">
                   <p className="text-sm font-semibold text-app-heading">{session.title}</p>
                   <p className="mt-0.5 text-xs text-app-muted">
@@ -277,7 +295,8 @@ function WochenplanView() {
               + Einheit
             </Link>
           </section>
-        ))}
+          )
+        )}
       </div>
     </main>
   );

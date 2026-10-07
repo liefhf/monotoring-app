@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { CalendarEntry, CALENDAR_COLUMNS, toDateKey } from "@/lib/community";
-import { SwimmerResult, formatEventShort, formatTime, splitResults } from "@/lib/swim";
+import { SwimmerResult, formatEvent, formatTime, splitResults } from "@/lib/swim";
 import { newPersonalBests } from "@/lib/weeklyReport";
 import { feedbackDue, newsLabel, sessionPhase, weekRange } from "@/lib/sessionTiming";
 import { Goal, goalLabel, goalProgress, sortGoals } from "@/lib/goals";
@@ -267,7 +267,7 @@ export default function AthleteToday() {
                 <span className="text-2xl" aria-hidden="true">🎉</span>
                 <span>
                   <span className="block font-bold text-app-heading">
-                    Neue Bestzeit {formatEventShort(result)}: {formatTime(result.time_ms)}
+                    Neue Bestzeit {formatEvent(result)}: {formatTime(result.time_ms)}
                   </span>
                   <span className="block text-sm text-app-good">
                     {((previous - result.time_ms) / 1000).toLocaleString("de-DE", { maximumFractionDigits: 2 })} Sekunden schneller

@@ -334,12 +334,14 @@ export default function CoachNav() {
         <Link
           href="/coach/training/new"
           aria-current={pathname === "/coach/training/new" ? "page" : undefined}
+          aria-label="Neue Einheit planen"
           className={`flex h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-bold ${pathname === "/coach/training/new" ? "text-app-heading" : "text-app-faint"}`}
         >
           <span className="flex h-[22px] w-[22px] items-center justify-center rounded-md border-2 border-current">
             <Icon name="plus" className="h-3.5 w-3.5" />
           </span>
-          Neue Einheit
+          <span className="sm:hidden">Neu</span>
+          <span className="hidden sm:inline">Neue Einheit</span>
         </Link>
         {mobileTabs.slice(2).map((tab) => (
           <MobileTab key={tab.href} tab={tab} active={isTabActive(pathname, tab.group)} />

@@ -206,7 +206,7 @@ function FlagLine({ flag, compact = false }: { flag: Flag; compact?: boolean }) 
  * variant "summary": Ring mit Anteil im gruenen Bereich (Dashboard, Klick fuehrt zur Uebersicht)
  * variant "table": vollstaendige Tabelle aller Athleten
  */
-export default function RedFlagsPanel({ teamId = null, variant = "table" }: { teamId?: string | null; variant?: "summary" | "table" }) {
+export default function RedFlagsPanel({ teamId = null, variant = "table", extra = null }: { teamId?: string | null; variant?: "summary" | "table"; extra?: React.ReactNode }) {
   const [today] = useState(() => toDateKey(new Date()));
   const key = `${teamId ?? "alle"}|${today}`;
   const [result, setResult] = useState<{ key: string; rows: Row[] | null; incomplete: string[] } | null>(null);
@@ -296,6 +296,7 @@ export default function RedFlagsPanel({ teamId = null, variant = "table" }: { te
             Alle {items.length} Hinweise ansehen →
           </Link>
         )}
+        {extra}
         {gaps.length > 0 && (
           <p className="mt-2 border-t border-app-border/70 pt-2 text-[13px] text-app-text">
             <span className="font-semibold">Fehlende Daten (keine Entwarnung):</span> {gaps.join(" · ")}
@@ -378,10 +379,11 @@ export function AthleteStatusCard({ swimmerId }: { swimmerId: string }) {
   }, [today, swimmerId]);
   const row = entry && entry.id === swimmerId ? entry.row : undefined;
 
+  /* ruhige Zeile statt Kachel: Bezeichnung links, Wert rechts */
   const stat = (label: string, value: string, tone = "text-app-heading") => (
-    <div className="min-w-0 rounded-[14px] bg-app-elevated/60 px-3.5 py-3">
-      <div className="label-caps truncate">{label}</div>
-      <div className={`num mt-1 text-xl font-semibold ${tone}`}>{value}</div>
+    <div className="flex min-h-11 items-baseline justify-between gap-3 border-b border-app-border/70 py-2">
+      <dt className="text-sm text-app-text">{label}</dt>
+      <dd className={`num text-right text-[15px] font-semibold ${tone}`}>{value}</dd>
     </div>
   );
 
@@ -399,21 +401,21 @@ export function AthleteStatusCard({ swimmerId }: { swimmerId: string }) {
   };
 
   return (
-    <section aria-label="Aktueller Status" className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:p-[22px]">
+    <section aria-label="Aktueller Status" className="rounded-2xl border border-app-border bg-app-surface px-4 py-3.5 sm:px-5 sm:py-4">
       <div className="flex items-center gap-3">
         <h2 className="flex-1 text-[15px] font-bold text-app-heading">Aktueller Status</h2>
         <span className="text-[13px] text-app-muted">letzte 7 Tage</span>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <dl className="mt-2 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
         {stat(
-          "Belastung",
-          row.acwr.changePercent === null ? "–" : `${row.acwr.changePercent > 0 ? "+" : ""}${row.acwr.changePercent} %`,
+          "Belastung ggü. Vorwochen",
+          row.acwr.changePercent === null ? "zu wenig Daten" : `${row.acwr.changePercent > 0 ? "+" : ""}${row.acwr.changePercent} %`,
           toneOf("acwr")
         )}
-        {stat("Befinden", row.readiness === null ? "–" : `${row.readiness}/100`, toneOf("befinden"))}
-        {stat("Schmerz (3 Tage)", row.painMax === null ? "keiner" : `${row.painMax}/10`, toneOf("schmerz"))}
-        {stat("Anwesenheit 4 Wo.", row.attendanceRate === null ? "–" : `${row.attendanceRate} %`, toneOf("anwesenheit"))}
-      </div>
+        {stat("Befinden", row.readiness === null ? (row.hasLogin ? "kein aktueller Check-in" : "ohne Login") : `${row.readiness}/100`, toneOf("befinden"))}
+        {stat("Schmerz (3 Tage)", row.painMax === null ? "keiner gemeldet" : `${row.painMax}/10`, toneOf("schmerz"))}
+        {stat("Anwesenheit (4 Wochen)", row.attendanceRate === null ? "wenig Daten" : `${row.attendanceRate} %`, toneOf("anwesenheit"))}
+      </dl>
       {row.flags.length ? (
         <ul className="mt-4 space-y-2.5">
           {row.flags.map((flag) => (

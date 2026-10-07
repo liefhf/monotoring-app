@@ -165,6 +165,10 @@ function createMock({ now = new Date(), faults = {} } = {}) {
       if (table === "profiles" && uid === ATH) rows = rows.filter((r) => r.id === ATH);
       // wie RLS: Athletin sieht nur Einheiten ihres Teams
       if (table === "training_sessions" && uid === ATH) rows = rows.filter((r) => r.team_id === "t1");
+      // eingebettete Abfrage swimmers(...) wie bei PostgREST nachbilden
+      const sel = url.searchParams.get("select") || "";
+      if (sel.includes("swimmers(")) rows = rows.map((r) => ({ ...r, swimmers: db.swimmers.find((w) => w.id === r.swimmer_id) || null }));
+      if (sel.includes("training_sessions(")) rows = rows.map((r) => ({ ...r, training_sessions: db.training_sessions.find((x) => x.id === r.training_session_id) || null }));
       if (single) return rows.length ? route.fulfill({ json: rows[0] }) : route.fulfill({ status: 406, json: { code: "PGRST116", message: "0 rows" } });
       return route.fulfill({ json: rows });
     }
