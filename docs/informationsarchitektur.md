@@ -1,20 +1,53 @@
 # Informationsarchitektur – Prüfung aller Seiten
 
-Stand: 07.10.2026. Grundsatz: Jede Funktion gibt es an genau einer Stelle. Ein Athlet hat genau eine Seite.
+Stand: 07.10.2026 (Korrekturphase). Grundsatz: Jede Funktion gibt es an genau einer Stelle. Ein Athlet hat genau eine Seite.
 Entfernte Adressen leiten weiter (`next.config.ts`, Abschnitt `redirects`). Es gehen keine Daten verloren.
 
-## Coach – Navigation
+## Coach – Navigation (Korrekturphase)
 
-| Gruppe | Menüpunkt | Seite |
+Erste Ebene = vier Arbeitsbereiche plus „Mehr“. Seltenere Seiten liegen eine Ebene tiefer und klappen auf,
+wenn man im Bereich ist oder den Pfeil antippt.
+
+| Erste Ebene | Seite | Zweite Ebene |
 |---|---|---|
-| – | Start | `/coach` |
-| Team | Athleten · Athleten-Check · Anwesenheit · Wochenbericht · Teams | `/coach/schwimmer`, `/coach/athleten-check`, `/coach/anwesenheit`, `/coach/bericht`, `/coach/teams` |
-| Training | Trainingswoche · Saisonplanung · Belastungsverlauf · Kalender | `/coach/training`, `/coach/training/season`, `/coach/analytics`, `/coach/kalender` |
-| Wettkampf | Wettkämpfe · Ergebnisse · Meldehilfe · DMS-Aufstellung | `/coach/competitions`, `/coach/analytics/wettkampf`, `/coach/meldehilfe`, `/coach/dms` |
-| Leistung | Pflichtzeiten · Testbatterie | `/coach/pflichtzeiten`, `/coach/tests` |
-| Kommunikation | News · Gruppenräume · Wissen | `/coach/news`, `/coach/gruppen`, `/coach/infoboard` |
+| Start | `/coach` | – |
+| Athleten | `/coach/schwimmer` | Athleten-Check · Anwesenheit · Wochenbericht · Teams |
+| Training | `/coach/training` (Trainingswoche) | Saisonplanung · Belastungsverlauf · Kalender |
+| Wettkampf | `/coach/competitions` | Ergebnisse · Meldehilfe · Pflichtzeiten · DMS-Aufstellung · Testbatterie |
+| Mehr | – | News · Gruppenräume · Wissen |
 
-Auf dem Handy gibt es unten eine Leiste: Start · Team · **+** (neue Einheit) · Training · Mehr.
+Einstellungen (Teams, Darstellung, Datenexport, Abmelden) liegen unten in der Seitenleiste.
+Handy: Leiste unten **Start · Athleten · + (neue Einheit) · Training · Mehr**.
+
+### Athletenprofil – Gliederung
+Kopf: Name, Alter, Teams, **Schnellaktionen „+ Zeiten“, „+ Notiz“, „+ Einschränkung“**.
+
+| Bereich | Inhalt |
+|---|---|
+| Überblick | Status mit Hinweisen (Zusammenfassung zuerst), aktuelle Bestzeiten, offene Ziele, Notizen, Anwesenheit |
+| Training | Befinden & Rückmeldungen, Formkurve |
+| Bestzeiten & Ziele | Bestzeiten mit Saisonbestzeit, Ziele, Pflichtzeiten |
+| Ergebnisse | alle Zeiten, Entwicklung, Saison-Auswertung, Staffeln & Freiwasser |
+| Gesundheit | Trainingsfähigkeit, Einschränkungen, Freigabe, Schmerzmeldungen |
+| Diagnostik | Testbatterie, Laktat |
+| Stammdaten & Dokumente | Infos, Dokumente mit Ablauf, Trainingsfokus |
+
+### Dashboard
+1. **Aufmerksamkeit:** Hinweise (jeder führt direkt zum passenden Profilbereich) und ablaufende Dokumente des Teams.
+2. **Heute:** Einheiten mit Anwesenheit, Termine der nächsten 7 Tage, nächster Wettkampf.
+3. **Team:** Check-ins heute (Namen anklickbar, „ohne Login“ getrennt), Anwesenheit = Anteil „anwesend“ an allen *erfassten* Einträgen vergangener Einheiten der letzten 4 Wochen (heute zählt nicht), mit „x von y Einheiten erfasst“.
+4. **Neue Bestzeiten**, Aufgaben.
+Ladefehler werden genannt; „keine Hinweise“ erscheint nur, wenn alle Daten geladen wurden. „Ohne Daten“ ist getrennt von „unauffällig“.
+
+### Athlet „Heute“
+Genau **eine Hauptaktion** oben (Check-in, sonst offene Rückmeldung), danach das laufende oder nächste Training,
+dann Wettkampf, Fortschritt, Nachricht. Rückmeldungen werden erst nach dem Ende einer Einheit erfragt, nicht bei
+gemeldeter Abwesenheit und nur für die letzten 3 Tage. Eine angeheftete Nachricht, die älter als 7 Tage ist, heißt
+„Wichtige Nachricht“, nicht „Neu“.
+
+### Vorlagen?
+Geprüft: Für wiederkehrende Einheiten reicht **Kopieren** (Trainingswoche) plus **Schnelleingabe**. Eine eigene
+Vorlagenverwaltung würde eine zweite Stelle für dieselbe Einheit schaffen und wird deshalb nicht gebaut.
 
 ## Entscheidungen je Seite (Coach)
 
