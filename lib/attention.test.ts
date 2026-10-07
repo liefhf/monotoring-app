@@ -12,6 +12,7 @@ describe("attentionItems", () => {
     expect(item.details).toEqual(["Schmerzen Schulter rechts: 6/10"]);
     expect(item.href).toBe("/coach/schwimmer/Mia?tab=gesundheit");
     expect(item.linkLabel).toBe("Einschränkung ansehen");
+    expect(item.short).toBe("Trainingspause · Schulter rechts · Schmerz 6/10");
   });
   it("sortiert kritisch vor beachten, laesst Unauffaellige weg", () => {
     const items = attentionItems([row("A", [flag("checkin", "gelb", "x")]), row("B", [flag("befinden", "rot", "y")]), row("C", [])]);

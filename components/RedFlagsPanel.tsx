@@ -9,6 +9,7 @@ import { Acwr, Flag, LoadEntry, acwr, buildFlags, readinessScore, sessionLoad, w
 import { attendanceStats, AttendanceStatus, MIN_ATTENDANCE_BASIS } from "@/lib/attendance";
 import { HealthEvent, healthFlags } from "@/lib/health";
 import { attentionItems, dataGaps } from "@/lib/attention";
+import { Avatar } from "@/components/ui";
 
 /*
  * Athleten-Check fuer den Coach: wer braucht heute Aufmerksamkeit?
@@ -271,20 +272,21 @@ export default function RedFlagsPanel({ teamId = null, variant = "table", extra 
         ) : items.length === 0 ? (
           <p className="text-sm text-app-text">{incomplete.length ? "Keine Hinweise in den geladenen Daten." : "Keine Hinweise."}</p>
         ) : (
-          <ul className="divide-y divide-app-border/70">
+          <ul className="space-y-1">
             {shownItems.map((item) => (
               <li key={item.id}>
-                <Link href={item.href} className="group flex gap-3 py-2.5">
-                  <span aria-hidden="true" className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${item.level === "rot" ? "bg-app-bad" : "bg-app-warn"}`} />
+                <Link href={item.href} className="group flex min-h-14 items-center gap-3 rounded-2xl px-2 py-2 hover:bg-app-accent/10">
+                  <span className="relative shrink-0">
+                    <Avatar name={item.name} />
+                    <span aria-hidden="true" className={`absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full ring-2 ring-app-surface ${item.level === "rot" ? "bg-app-bad" : "bg-app-warn"}`} />
+                  </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[15px] text-app-heading">
-                      <span className="font-bold">{item.name}</span>
+                    <span className="block truncate text-[15px] font-bold text-app-heading">
+                      {item.name}
                       <span className="sr-only">{item.level === "rot" ? " (dringend)" : " (beachten)"}</span>
-                      {" · "}
-                      {item.headline}
                     </span>
-                    {item.details.length > 0 && <span className="block text-[13px] text-app-text">{item.details.join(" · ")}</span>}
-                    <span className="mt-0.5 block text-[13px] font-semibold text-app-accent-soft group-hover:underline">{item.linkLabel} →</span>
+                    <span className="block text-[13px] text-app-text">{item.short}</span>
+                    <span className="block text-[13px] font-semibold text-app-accent-soft group-hover:underline">{item.linkLabel} →</span>
                   </span>
                 </Link>
               </li>
@@ -298,9 +300,16 @@ export default function RedFlagsPanel({ teamId = null, variant = "table", extra 
         )}
         {extra}
         {gaps.length > 0 && (
-          <p className="mt-2 border-t border-app-border/70 pt-2 text-[13px] text-app-text">
-            <span className="font-semibold">Fehlende Daten (keine Entwarnung):</span> {gaps.join(" · ")}
-          </p>
+          <div className="mt-2 border-t border-app-border/70 pt-2">
+            <p className="text-[13px] font-semibold text-app-text">Fehlende Daten – keine Entwarnung</p>
+            <ul className="mt-1 flex flex-wrap gap-1.5">
+              {gaps.map((gap) => (
+                <li key={gap} className="rounded-full border border-app-warn/40 bg-app-warn/10 px-2.5 py-1 text-[13px] text-app-text">
+                  {gap}
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     );

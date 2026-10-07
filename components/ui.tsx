@@ -239,3 +239,107 @@ export function Stat({ label, value, unit, trend, className = "" }: { label: str
     </div>
   );
 }
+
+/* Karte (Gesamtdesign): Radius 20, feiner Rand, dezenter Schatten (hell) */
+export const cardClass = "rounded-[20px] border border-app-border/60 bg-app-surface shadow-app";
+
+type Tone = "accent" | "pink" | "good" | "warn" | "bad" | "soon" | "neutral";
+const TILE_TONES: Record<Tone, string> = {
+  accent: "bg-app-accent/15 text-app-accent-soft",
+  pink: "bg-app-accent-2/15 text-app-soon",
+  good: "bg-app-good/15 text-app-good",
+  warn: "bg-app-warn/15 text-app-warn",
+  bad: "bg-app-bad/15 text-app-bad",
+  soon: "bg-app-soon/15 text-app-soon",
+  neutral: "bg-app-elevated text-app-muted",
+};
+
+/* Symbolkachel links in Listenzeilen (Design 9j) */
+export function IconTile({ icon, tone = "neutral", className = "" }: { icon: IconName; tone?: Tone; className?: string }) {
+  return (
+    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${TILE_TONES[tone]} ${className}`} aria-hidden="true">
+      <Icon name={icon} className="h-5 w-5" />
+    </span>
+  );
+}
+
+/*
+ * Listenzeile (Design 9j): Symbol, Titel, eine kurze Zeile, rechts Wert
+ * oder Zeitpunkt, Pfeil. Ganze Zeile antippbar (mind. 56 px hoch).
+ */
+export function ListRow({
+  icon,
+  tone = "neutral",
+  title,
+  subtitle,
+  trailing,
+  href,
+  onClick,
+}: {
+  icon?: IconName;
+  tone?: Tone;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  trailing?: ReactNode;
+  href?: string;
+  onClick?: () => void;
+}) {
+  const inner = (
+    <>
+      {icon && <IconTile icon={icon} tone={tone} />}
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[15px] font-semibold text-app-heading">{title}</span>
+        {subtitle && <span className="block truncate text-[13px] text-app-muted">{subtitle}</span>}
+      </span>
+      {trailing && <span className="shrink-0 text-right text-[13px] text-app-muted">{trailing}</span>}
+      {(href || onClick) && <Icon name="chevron" className="h-4 w-4 shrink-0 text-app-faint" />}
+    </>
+  );
+  const cls = "flex min-h-14 w-full items-center gap-3 rounded-2xl border border-app-border/60 bg-app-surface px-3 py-2 text-left transition hover:border-app-accent/40 hover:bg-app-elevated/40";
+  if (href) {
+    return (
+      <a href={href} className={cls}>
+        {inner}
+      </a>
+    );
+  }
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={cls}>
+        {inner}
+      </button>
+    );
+  }
+  return <div className={cls}>{inner}</div>;
+}
+
+/* Initialen-Avatar mit Lila-Pink-Verlauf (Profilkopf) */
+export function Avatar({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+  return (
+    <span
+      aria-hidden="true"
+      className={`bg-highlight flex shrink-0 items-center justify-center rounded-full font-extrabold text-white ${size === "lg" ? "h-16 w-16 text-xl sm:h-20 sm:w-20 sm:text-2xl" : "h-10 w-10 text-sm"}`}
+    >
+      {initials}
+    </span>
+  );
+}
+
+/* Weitere Erklaerung erst auf Wunsch (Berechnung, Begruendung) */
+export function Details({ summary = "Details", children }: { summary?: string; children: ReactNode }) {
+  return (
+    <details className="group text-[13px] text-app-muted">
+      <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-app-accent-soft hover:underline">
+        <Icon name="chevron" className="h-3.5 w-3.5 transition group-open:rotate-90" />
+        {summary}
+      </summary>
+      <div className="pb-1 pl-5">{children}</div>
+    </details>
+  );
+}

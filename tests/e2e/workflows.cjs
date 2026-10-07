@@ -70,7 +70,7 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
   await test("1 Hinweis auf dem Dashboard fuehrt zur Ursache", async (b) => {
     const { page } = await open(b, "coach");
     await go(page, "/coach");
-    await see(page, /Eingeschränkt: Schulter rechts/);
+    await see(page, /Schulter rechts/);
     await see(page, /Sportattest läuft in \d+ Tagen ab/);
     await shot(page, "dashboard");
     await page.getByRole("link", { name: /Mia Schulz/ }).first().click();
@@ -315,11 +315,11 @@ const wrote = (mock, prefix, n = 0) => mock.writes.slice(n).some((w) => w.starts
   await test("10 Schneller Teamwechsel zeigt nur das neue Team", async (b) => {
     const { page } = await open(b, "coach", { faults: { delay: { befinden_entries: 1500 } } });
     await go(page, "/coach");
-    await see(page, /Eingeschränkt: Schulter rechts/);
+    await see(page, /Schulter rechts/);
     await page.getByRole("button", { name: /Team wechseln/ }).first().click();
     await page.getByRole("button", { name: "Masters" }).first().click();
     await page.waitForTimeout(2500);
-    await notSee(page, /Eingeschränkt: Schulter rechts/);
+    await notSee(page, /Schulter rechts/);
     await see(page, "Masters Abend");
   });
 

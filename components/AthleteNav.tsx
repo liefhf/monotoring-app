@@ -65,7 +65,7 @@ export default function AthleteNav() {
 
   const itemClass = (active: boolean) =>
     `flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-xs font-bold transition ${
-      active ? "text-app-heading" : "text-app-faint hover:text-app-heading"
+      active ? "nav-active text-app-heading [&_svg]:text-app-accent-soft" : "text-app-muted hover:text-app-heading"
     }`;
 
   return (
