@@ -12,8 +12,9 @@ const NOW = new Date(2026, 9, 7, 12, 0, 0);
 const SHOTS = process.env.SHOTS || "";
 const SIZES = [[320, 640], [390, 844], [768, 1024], [1280, 900]];
 const PAGES = {
-  coach: ["/coach", "/coach/schwimmer/w1", "/coach/schwimmer", "/coach/schwimmer/w3", "/coach/schwimmer/w1?tab=gesundheit", "/coach/training", "/coach/training/session/s0", "/coach/bericht", "/coach/settings"],
-  athlete: ["/athlete", "/athlete/check-in", "/athlete/fortschritt"],
+  coach: ["/coach", "/coach/schwimmer/w1", "/coach/schwimmer", "/coach/schwimmer/w3", "/coach/schwimmer/w1?tab=gesundheit", "/coach/schwimmer/w1?tab=serien", "/coach/training", "/coach/training/session/s3", "/coach/training/new?session=s1", "/coach/teams", "/coach/competitions", "/coach/bericht", "/coach/settings"],
+  // Athletin
+  athlete: ["/athlete", "/athlete/check-in", "/athlete/fortschritt", "/athlete/training/s3", "/athlete/feedback/s0"],
 };
 let problems = 0;
 
