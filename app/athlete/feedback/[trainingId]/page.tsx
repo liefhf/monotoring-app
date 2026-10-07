@@ -925,7 +925,7 @@ export default function TrainingFeedbackPage() {
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-5 gap-3 sm:grid-cols-10">
+          <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10 sm:gap-3">
             {Array.from(
               { length: 10 },
               (_, index) =>
@@ -949,7 +949,7 @@ export default function TrainingFeedbackPage() {
                     aria-pressed={
                       selected
                     }
-                    className={`flex aspect-square items-center justify-center rounded-2xl text-lg font-bold transition ${
+                    className={`flex aspect-square min-h-12 items-center justify-center rounded-2xl text-lg font-bold transition ${
                       selected
                         ? "scale-105 bg-app-accent text-app-accent-ink shadow-lg"
                         : "border border-app-border bg-app-bg text-app-text hover:border-app-border hover:bg-app-elevated"

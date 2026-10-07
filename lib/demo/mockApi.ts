@@ -34,6 +34,7 @@ export function seed(now = new Date()): Db {
       { id: COACH, role: "coach", first_name: "Sabine", last_name: "Kramer" },
       { id: COACH2, role: "coach", first_name: "Tom", last_name: "Berger", email: "tom@demo.verein" },
       { id: ATH, role: "athlete", first_name: "Mia", last_name: "Schulz" },
+      { id: "dddddddd-0000-0000-0000-000000000000", role: "athlete", first_name: "Maximiliane-Charlotte", last_name: "von Hohenstein-Waldburg" },
     ],
     teams: [
       { id: "t1", name: "Jg. 2012–14", coach_id: COACH },

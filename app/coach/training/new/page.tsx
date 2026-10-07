@@ -2290,7 +2290,7 @@ function TrainingEditor() {
                 Trainingsart
               </p>
 
-              <div className="mt-3 flex gap-3">
+              <div className="mt-3 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() =>

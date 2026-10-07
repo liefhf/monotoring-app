@@ -87,7 +87,7 @@ export default function SeriesHistory({ swimmerId, variant = "coach" }: { swimme
     const stats = seriesStats({ times_ms: row.times_ms, missed_reps: legacyMissed(row), target_ms: row.target_ms ?? null, repetitions: row.repetitions ?? row.times_ms.length });
     return (
       <li key={`${row.training_session_id}-${row.set_label}`} className="flex flex-wrap items-baseline gap-x-3 py-1.5 text-sm">
-        <Link href={`/coach/training/session/${row.training_session_id}#serienzeiten`} className="num w-20 shrink-0 font-semibold text-app-accent-soft hover:underline">
+        <Link href={`/coach/training/session/${row.training_session_id}#serienzeiten`} className="num inline-flex min-h-11 w-24 shrink-0 items-center font-semibold text-app-accent-soft hover:underline">
           {(row.training_sessions?.session_date ?? "").split("-").reverse().join(".")}
         </Link>
         <span className="num text-app-heading">{stats.meanMs !== null ? `Ø ${formatTime(stats.meanMs)}` : "keine Zeit"}</span>
