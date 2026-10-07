@@ -11,3 +11,9 @@ Die App wird mit echten Daten genutzt. Für jede Weiterentwicklung gilt:
 - **Nichts selbst in der Datenbank ausführen.** SQL-Skripte werden nur geschrieben; die Nutzerin führt sie selbst im Supabase SQL-Editor aus.
 - Lösch- oder Aufräumfunktionen in der App nur, wenn die Nutzerin sie ausdrücklich verlangt, und immer mit Bestätigung.
 - Vor riskanten Änderungen auf die Datensicherung hinweisen (Einstellungen → „Datensicherung herunterladen“).
+
+## Dokumentation
+
+- `docs/informationsarchitektur.md` – welche Seite wofuer da ist (jede Funktion an genau einer Stelle)
+- `docs/monitoring-grundlagen.md` – fachliche Begruendung aller Kennzahlen mit Quellen
+- `docs/datenmodell.md` – Tabellen, Altlasten, RLS

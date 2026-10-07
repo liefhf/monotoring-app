@@ -58,14 +58,14 @@ export default function EinfuehrungPage() {
             Sportpädagogik und Gesundheitspsychologie
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             1. Einführung
           </h1>
         </header>
 
         {/* LERNORIENTIERUNG */}
 
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
           <h2 className="text-lg font-semibold">
             Lernorientierung
           </h2>
@@ -111,7 +111,7 @@ export default function EinfuehrungPage() {
 
         {/* INHALTSÜBERSICHT */}
 
-        <nav className="mt-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+        <nav className="mt-4 rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
           <p className="text-sm font-semibold text-app-text">
             Inhalt
           </p>
@@ -474,7 +474,7 @@ export default function EinfuehrungPage() {
 
               {/* ZUSÄTZLICHE GESUNDHEITSEFFEKTE */}
 
-              <div className="mt-4 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app/80">
+              <div className="mt-4 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app/80">
                 <div className="border-b border-app-border px-5 py-4 sm:px-6">
                   <span className="inline-flex rounded-lg border border-app-accent/40 bg-app-accent/10 px-3 py-1.5 text-sm font-bold text-app-accent sm:text-base">
                     Für zusätzliche Gesundheitseffekte
@@ -520,7 +520,7 @@ export default function EinfuehrungPage() {
 
               {/* KOMPAKTE HINWEISE */}
 
-              <div className="mt-4 rounded-3xl border border-app-border bg-app-surface shadow-app px-5 py-4 sm:px-6">
+              <div className="mt-4 rounded-[20px] border border-app-border bg-app-surface shadow-app px-5 py-4 sm:px-6">
                 <div className="space-y-2 text-sm text-app-text sm:text-base">
                   <p>
                     Einzelne Aktivitätseinheit laut Studienheft:{" "}

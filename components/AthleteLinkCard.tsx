@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Card, Notice, buttonSecondary, inputClass } from "@/components/ui";
@@ -84,13 +83,6 @@ export default function AthleteLinkCard({ swimmerId }: { swimmerId: string }) {
     <Card
       title="Eigener Login"
       description="Mit Login nutzt der Athlet die App selbst: Check-in, Training, Termine, Feedback."
-      action={
-        profileId ? (
-          <Link href={`/coach/athletes/${profileId}`} className={buttonSecondary}>
-            Befinden & Training →
-          </Link>
-        ) : undefined
-      }
     >
       <div className="space-y-3 p-5">
         {athletes.length === 0 ? (

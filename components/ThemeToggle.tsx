@@ -46,7 +46,7 @@ function setTheme(theme: Theme) {
   listeners.forEach((listener) => listener());
 }
 
-export default function ThemeToggle({ className = "" }: { className?: string }) {
+export default function ThemeToggle({ className = "", withLabel = false }: { className?: string; withLabel?: boolean }) {
   const theme = useSyncExternalStore<Theme | null>(subscribe, readTheme, () => null);
   const next: Theme = theme === "dark" ? "light" : "dark";
 
@@ -56,7 +56,7 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
       onClick={() => setTheme(next)}
       aria-label={next === "dark" ? "Dunkles Design einschalten" : "Helles Design einschalten"}
       title={next === "dark" ? "Dunkles Design" : "Helles Design"}
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-app-border text-app-muted transition hover:bg-app-elevated hover:text-app-heading ${className}`}
+      className={`flex shrink-0 items-center justify-center gap-2 rounded-lg border border-app-border text-app-muted transition hover:bg-app-elevated hover:text-app-heading ${withLabel ? "min-h-11 px-3 text-sm font-semibold text-app-heading" : "h-11 w-11 lg:h-9 lg:w-9"} ${className}`}
     >
       <svg
         viewBox="0 0 20 20"
@@ -77,6 +77,7 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
           <path d="M16.2 12.3A6.6 6.6 0 0 1 7.7 3.8a6.6 6.6 0 1 0 8.5 8.5z" />
         )}
       </svg>
+      {withLabel && <span>{next === "dark" ? "Dunkel" : "Hell"}</span>}
     </button>
   );
 }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useBusy } from "@/lib/loadState";
+import { PainAnswer, painAnswerFromEntry, withoutPainAnswer } from "@/lib/checkIn";
 import { readinessScore, wellnessScore } from "@/lib/monitoring";
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6;
@@ -17,7 +19,8 @@ type BefindenEntry = {
   stress: number;
   mood: number;
   sleep_hours: number | null;
-  has_pain: boolean;
+  has_pain: boolean | null;
+  pain_answer?: PainAnswer | null;
   pain_area: string | null;
   comment: string | null;
 };
@@ -27,17 +30,17 @@ type ScaleOption = {
   label: string;
 };
 
-const scaleOptions: ScaleOption[] = [
-  { value: 1, label: "1" },
-  { value: 2, label: "2" },
-  { value: 3, label: "3" },
-  { value: 4, label: "4" },
-  { value: 5, label: "5" },
-  { value: 6, label: "6" },
-  { value: 7, label: "7" },
-  { value: 8, label: "8" },
-  { value: 9, label: "9" },
-  { value: 10, label: "10" },
+/*
+ * Fuenf Gesichter statt zehn Zahlen - auch fuer Kinder sofort klar.
+ * Gespeichert wird weiter auf der Skala 1-10 (2/4/6/8/10), damit alle
+ * Auswertungen und alte Eintraege unveraendert funktionieren.
+ */
+const scaleOptions: (ScaleOption & { word: string })[] = [
+  { value: 2, label: "😣", word: "sehr schlecht" },
+  { value: 4, label: "🙁", word: "eher schlecht" },
+  { value: 6, label: "😐", word: "mittel" },
+  { value: 8, label: "🙂", word: "gut" },
+  { value: 10, label: "😄", word: "sehr gut" },
 ];
 
 function getLocalDateString(date: Date) {
@@ -75,8 +78,12 @@ export default function DailyCheckInPage() {
   const [sleepHours, setSleepHours] =
     useState("");
 
-  const [hasPain, setHasPain] =
-    useState(false);
+  /* Schmerzfrage ohne Voreinstellung: null = noch nicht beantwortet */
+  const [painAnswer, setPainAnswer] =
+    useState<PainAnswer | null>(null);
+  const hasPain = painAnswer === "ja";
+  const [showExtras, setShowExtras] = useState(false);
+  const { busy: saving, run } = useBusy();
 
   const [painArea, setPainArea] =
     useState("");
@@ -86,9 +93,6 @@ export default function DailyCheckInPage() {
 
   const [loading, setLoading] =
     useState(true);
-
-  const [saving, setSaving] =
-    useState(false);
 
   const [message, setMessage] =
     useState("");
@@ -127,27 +131,14 @@ export default function DailyCheckInPage() {
       error,
     } = await supabase
       .from("befinden_entries")
-      .select(`
-        id,
-        athlete_id,
-        entry_date,
-        sleep_quality,
-        energy,
-        muscle_feeling,
-        stress,
-        mood,
-        sleep_hours,
-        has_pain,
-        pain_area,
-        comment
-      `)
+      .select("*")
       .eq("athlete_id", user.id)
       .eq("entry_date", today)
       .maybeSingle();
 
     if (error) {
       setMessage(
-        `Check-in konnte nicht geladen werden: ${error.message}`
+        "Dein heutiger Check-in konnte nicht geladen werden. Du kannst ihn trotzdem ausfüllen – beim Speichern wird er ersetzt."
       );
 
       setLoading(false);
@@ -174,9 +165,8 @@ export default function DailyCheckInPage() {
           : ""
       );
 
-      setHasPain(
-        entry.has_pain
-      );
+      setPainAnswer(painAnswerFromEntry(entry));
+      if (entry.sleep_hours !== null || entry.comment) setShowExtras(true);
 
       setPainArea(
         entry.pain_area ?? ""
@@ -240,6 +230,15 @@ export default function DailyCheckInPage() {
           current + 1
         ) as Step
     );
+  }
+
+  /* Antippen = Wert setzen und automatisch weiter (Check-in in unter 30 Sekunden) */
+  function pick(setter: (value: number) => void) {
+    return (value: number) => {
+      setter(value);
+      setMessage("");
+      window.setTimeout(() => setStep((current) => Math.min(6, current + 1) as Step), 180);
+    };
   }
 
   function goBack() {
@@ -342,6 +341,10 @@ export default function DailyCheckInPage() {
   }
 
   async function submitCheckIn() {
+    await run(saveCheckIn);
+  }
+
+  async function saveCheckIn() {
     if (
       energy === null ||
       mood === null ||
@@ -350,13 +353,17 @@ export default function DailyCheckInPage() {
       sleepQuality === null
     ) {
       setMessage(
-        "Bitte beantworte alle fünf Fragen."
+        "Bitte beantworte alle Fragen."
       );
 
       return;
     }
 
-    setSaving(true);
+    if (painAnswer === null) {
+      setMessage("Bitte sag uns noch, ob dir etwas wehtut.");
+      return;
+    }
+
     setMessage("");
 
     const {
@@ -366,10 +373,9 @@ export default function DailyCheckInPage() {
 
     if (userError || !user) {
       setMessage(
-        "Athlet konnte nicht geladen werden."
+        "Du bist nicht mehr angemeldet. Bitte neu anmelden – deine Antworten gehen dabei verloren."
       );
 
-      setSaving(false);
       return;
     }
 
@@ -397,7 +403,6 @@ export default function DailyCheckInPage() {
         "Bitte gib eine gültige Schlafdauer zwischen 0 und 24 Stunden ein."
       );
 
-      setSaving(false);
       return;
     }
 
@@ -420,6 +425,7 @@ export default function DailyCheckInPage() {
         parsedSleepHours,
       has_pain:
         hasPain,
+      pain_answer: painAnswer,
       pain_area:
         hasPain &&
         painArea.trim()
@@ -431,24 +437,26 @@ export default function DailyCheckInPage() {
           : null,
     };
 
-    const {
-      error,
-    } = await supabase
+    let saveResult = await supabase
       .from("befinden_entries")
-      .upsert(
-        payload,
-        {
-          onConflict:
-            "athlete_id,entry_date",
-        }
-      );
+      .upsert(payload, { onConflict: "athlete_id,entry_date" })
+      .select("id");
 
-    if (error) {
+    /* Spalte pain_answer fehlt (Skript 25 noch nicht ausgefuehrt): ohne sie speichern */
+    if (saveResult.error && withoutPainAnswer(saveResult.error)) {
+      const { pain_answer: _ignored, ...legacy } = payload;
+      void _ignored;
+      saveResult = await supabase
+        .from("befinden_entries")
+        .upsert(legacy, { onConflict: "athlete_id,entry_date" })
+        .select("id");
+    }
+
+    if (saveResult.error || !saveResult.data?.length) {
       setMessage(
-        `Check-in konnte nicht gespeichert werden: ${error.message}`
+        "Check-in konnte nicht gespeichert werden. Deine Antworten sind noch da – bitte gleich nochmal auf „Speichern“ tippen."
       );
 
-      setSaving(false);
       return;
     }
 
@@ -474,14 +482,13 @@ export default function DailyCheckInPage() {
     setReadinessBaseline(previousRows.length >= 3 ? previousRows.reduce((sum, row) => sum + wellnessScore(row), 0) / previousRows.length : null);
 
     setSuccess(true);
-    setSaving(false);
   }
 
   if (loading) {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
+          <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
             Check-in wird geladen...
           </div>
         </div>
@@ -495,7 +502,7 @@ export default function DailyCheckInPage() {
         <div className="mx-auto max-w-xl">
           <section className="rounded-2xl border border-app-good/70 bg-app-surface p-6 text-center">
             <h1 className="text-2xl font-bold text-app-good">
-              ✓ Check-in erledigt
+              ✓ Danke!
             </h1>
 
             {(() => {
@@ -507,11 +514,16 @@ export default function DailyCheckInPage() {
               );
               const tone = readiness.level === "bereit" ? "text-app-good" : readiness.level === "vorsicht" ? "text-app-warn" : "text-app-bad";
               return (
+                /* Fuer Athleten (auch Kinder) keine Punktzahl - nur eine klare Rueckmeldung */
                 <div className="mt-4 rounded-xl border border-app-border p-4">
-                  <p className="text-xs text-app-muted">Deine Readiness heute</p>
-                  <p className={`text-5xl font-bold ${tone}`}>{readiness.score}</p>
-                  <p className={`font-semibold ${tone}`}>{readiness.label}</p>
-                  {readiness.hints.length > 0 && <p className="mt-1 text-xs text-app-muted">{readiness.hints.join(" · ")}</p>}
+                  <p className="text-4xl" aria-hidden="true">{readiness.level === "bereit" ? "💪" : readiness.level === "vorsicht" ? "🙂" : "🤗"}</p>
+                  <p className={`mt-1 font-semibold ${tone}`}>
+                    {readiness.level === "bereit"
+                      ? "Super, viel Spaß beim Training!"
+                      : readiness.level === "vorsicht"
+                        ? "Danke! Dein Trainer weiß jetzt Bescheid."
+                        : "Danke, dass du es sagst. Sprich heute kurz mit deinem Trainer."}
+                  </p>
                 </div>
               );
             })()}
@@ -528,9 +540,9 @@ export default function DailyCheckInPage() {
 
             <Link
               href="/athlete"
-              className="mt-5 block w-full rounded-xl bg-app-warn px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:bg-app-warn"
+              className="mt-5 block w-full rounded-xl bg-app-accent px-5 py-3 text-center text-sm font-bold text-app-accent-ink transition hover:brightness-110"
             >
-              Zurück zum Dashboard
+              Fertig
             </Link>
           </section>
         </div>
@@ -545,7 +557,7 @@ export default function DailyCheckInPage() {
           href="/athlete"
           className="text-sm text-app-muted transition hover:text-app-heading"
         >
-          ← Zurück zum Dashboard
+          ← Zurück
         </Link>
 
         <header className="mt-4">
@@ -553,12 +565,12 @@ export default function DailyCheckInPage() {
             Täglicher Check-in
           </p>
 
-          <h1 className="mt-1 text-2xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             Wie geht es dir heute?
           </h1>
 
           <p className="mt-1 text-sm text-app-muted">
-            Kurzer Überblick über dein aktuelles Befinden.
+            Tippe auf ein Gesicht. Mit „Zurück“ kannst du jede Antwort ändern.
           </p>
         </header>
 
@@ -585,19 +597,19 @@ export default function DailyCheckInPage() {
           </div>
         )}
 
-        <section className="mt-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-4 sm:p-5">
+        <section className="mt-4 rounded-[20px] border border-app-border bg-app-surface shadow-app p-4 sm:p-5">
           {step === 1 && (
             <>
               <QuestionHeader
-                eyebrow="Energie"
-                title="Wie fit fühlst du dich heute?"
-                leftLabel="Sehr müde"
-                rightLabel="Sehr fit"
+                eyebrow="Frage 1 von 6"
+                title="Wie fit fühlst du dich?"
+                leftLabel="sehr müde"
+                rightLabel="super fit"
               />
 
               <ScaleGrid
                 selected={energy}
-                onSelect={setEnergy}
+                onSelect={pick(setEnergy)}
               />
             </>
           )}
@@ -605,15 +617,15 @@ export default function DailyCheckInPage() {
           {step === 2 && (
             <>
               <QuestionHeader
-                eyebrow="Stimmung"
-                title="Wie ist deine Stimmung heute?"
-                leftLabel="Sehr schlecht"
-                rightLabel="Sehr gut"
+                eyebrow="Frage 2 von 6"
+                title="Wie ist deine Laune?"
+                leftLabel="schlecht"
+                rightLabel="super"
               />
 
               <ScaleGrid
                 selected={mood}
-                onSelect={setMood}
+                onSelect={pick(setMood)}
               />
             </>
           )}
@@ -621,19 +633,17 @@ export default function DailyCheckInPage() {
           {step === 3 && (
             <>
               <QuestionHeader
-                eyebrow="Muskelgefühl"
+                eyebrow="Frage 3 von 6"
                 title="Wie fühlen sich deine Muskeln an?"
-                leftLabel="Sehr schlecht"
-                rightLabel="Sehr gut"
+                leftLabel="schwer, Muskelkater"
+                rightLabel="locker"
               />
 
               <ScaleGrid
                 selected={
                   muscleFeeling
                 }
-                onSelect={
-                  setMuscleFeeling
-                }
+                onSelect={pick(setMuscleFeeling)}
               />
             </>
           )}
@@ -641,15 +651,15 @@ export default function DailyCheckInPage() {
           {step === 4 && (
             <>
               <QuestionHeader
-                eyebrow="Stress"
-                title="Wie entspannt fühlst du dich heute?"
-                leftLabel="Sehr gestresst"
-                rightLabel="Sehr entspannt"
+                eyebrow="Frage 4 von 6"
+                title="Wie entspannt bist du?"
+                leftLabel="viel Stress"
+                rightLabel="ganz entspannt"
               />
 
               <ScaleGrid
                 selected={stress}
-                onSelect={setStress}
+                onSelect={pick(setStress)}
               />
             </>
           )}
@@ -657,152 +667,108 @@ export default function DailyCheckInPage() {
           {step === 5 && (
             <>
               <QuestionHeader
-                eyebrow="Schlaf"
-                title="Wie gut hast du geschlafen?"
-                leftLabel="Sehr schlecht"
-                rightLabel="Sehr gut"
+                eyebrow="Frage 5 von 6"
+                title="Wie hast du geschlafen?"
+                leftLabel="schlecht"
+                rightLabel="sehr gut"
               />
 
               <ScaleGrid
                 selected={
                   sleepQuality
                 }
-                onSelect={
-                  setSleepQuality
-                }
+                onSelect={pick(setSleepQuality)}
               />
             </>
           )}
 
           {step === 6 && (
             <div>
-              <p className="text-xs text-app-faint">
-                Zusatzangaben
-              </p>
-
-              <h2 className="mt-1 text-xl font-bold">
-                Noch etwas ergänzen?
-              </h2>
-
-              <p className="mt-1 text-sm text-app-muted">
-                Diese Angaben sind optional.
-              </p>
-
-              <div className="mt-5">
-                <label
-                  htmlFor="sleep-hours"
-                  className="text-sm font-medium text-app-text"
-                >
-                  Schlafdauer
-                </label>
-
-                <div className="mt-2 flex items-center gap-2">
-                  <input
-                    id="sleep-hours"
-                    type="text"
-                    inputMode="decimal"
-                    value={sleepHours}
-                    onChange={(
-                      event
-                    ) =>
-                      setSleepHours(
-                        event.target.value
-                      )
-                    }
-                    placeholder="z. B. 7,5"
-                    className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
-                  />
-
-                  <span className="shrink-0 text-sm text-app-faint">
-                    Std.
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-5 rounded-xl border border-app-border bg-app-bg/50 p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm font-medium">
-                      Beschwerden
-                    </p>
-
-                    <p className="mt-0.5 text-xs text-app-faint">
-                      Hast du aktuell Schmerzen oder Beschwerden?
-                    </p>
-                  </div>
-
+              <p className="text-xs text-app-faint">Frage 6 von 6</p>
+              <h2 className="mt-1 text-2xl font-extrabold">Tut dir gerade etwas weh?</h2>
+              <div className="mt-5 grid grid-cols-3 gap-2" role="radiogroup" aria-label="Tut dir gerade etwas weh?">
+                {([
+                  ["nein", "Nein"],
+                  ["ja", "Ja"],
+                  ["keine_angabe", "Weiß nicht"],
+                ] as [PainAnswer, string][]).map(([value, label]) => (
                   <button
+                    key={value}
                     type="button"
-                    onClick={() =>
-                      setHasPain(
-                        (current) =>
-                          !current
-                      )
-                    }
-                    className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition ${
-                      hasPain
-                        ? "bg-app-bad/15 text-app-bad"
-                        : "bg-app-elevated text-app-text"
+                    role="radio"
+                    aria-checked={painAnswer === value}
+                    onClick={() => {
+                      setPainAnswer(value);
+                      setMessage("");
+                    }}
+                    className={`min-h-14 rounded-2xl border text-base font-bold transition ${
+                      painAnswer === value ? "border-app-accent bg-app-accent text-app-accent-ink" : "border-app-border bg-app-bg text-app-text"
                     }`}
                   >
-                    {hasPain
-                      ? "Ja"
-                      : "Nein"}
+                    {painAnswer === value ? "✓ " : ""}
+                    {label}
                   </button>
+                ))}
+              </div>
+
+              {hasPain && (
+                <div className="mt-4">
+                  <label htmlFor="pain-area" className="text-sm font-medium text-app-text">
+                    Wo? <span className="text-app-faint">(optional)</span>
+                  </label>
+                  <input
+                    id="pain-area"
+                    type="text"
+                    maxLength={150}
+                    value={painArea}
+                    onChange={(event) => setPainArea(event.target.value)}
+                    placeholder="z. B. Schulter"
+                    className="mt-2 w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-base outline-none transition placeholder:text-app-faint focus:border-app-accent"
+                  />
+                  <Link href="/athlete/pain" className="mt-2 inline-block text-sm font-semibold text-app-accent underline">
+                    Genauer am Körper zeigen
+                  </Link>
                 </div>
+              )}
 
-                {hasPain && (
-                  <div className="mt-4">
-                    <label
-                      htmlFor="pain-area"
-                      className="text-xs text-app-faint"
-                    >
-                      Wo hast du Beschwerden?
+              {!showExtras ? (
+                <button type="button" onClick={() => setShowExtras(true)} className="mt-5 min-h-11 text-sm font-semibold text-app-accent">
+                  + Schlafstunden oder Nachricht an den Trainer (optional)
+                </button>
+              ) : (
+                <div className="mt-5 grid gap-4">
+                  <div>
+                    <label htmlFor="sleep-hours" className="text-sm font-medium text-app-text">
+                      Wie viele Stunden geschlafen?
                     </label>
-
-                    <input
-                      id="pain-area"
-                      type="text"
-                      maxLength={150}
-                      value={painArea}
-                      onChange={(
-                        event
-                      ) =>
-                        setPainArea(
-                          event.target.value
-                        )
-                      }
-                      placeholder="z. B. Schulter"
-                      className="mt-2 w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
+                    <div className="mt-2 flex items-center gap-2">
+                      <input
+                        id="sleep-hours"
+                        type="text"
+                        inputMode="decimal"
+                        value={sleepHours}
+                        onChange={(event) => setSleepHours(event.target.value)}
+                        placeholder="z. B. 8"
+                        className="w-full rounded-xl border border-app-border bg-app-bg px-4 py-3 text-base outline-none transition placeholder:text-app-faint focus:border-app-accent"
+                      />
+                      <span className="shrink-0 text-sm text-app-faint">Std.</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="comment" className="text-sm font-medium text-app-text">
+                      Nachricht an deinen Trainer
+                    </label>
+                    <textarea
+                      id="comment"
+                      value={comment}
+                      onChange={(event) => setComment(event.target.value)}
+                      maxLength={500}
+                      rows={2}
+                      className="mt-2 w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 text-base outline-none transition placeholder:text-app-faint focus:border-app-accent"
                     />
                   </div>
-                )}
-              </div>
-
-              <div className="mt-5">
-                <label
-                  htmlFor="comment"
-                  className="text-sm font-medium text-app-text"
-                >
-                  Kommentar
-                </label>
-
-                <textarea
-                  id="comment"
-                  value={comment}
-                  onChange={(
-                    event
-                  ) =>
-                    setComment(
-                      event.target.value
-                    )
-                  }
-                  maxLength={500}
-                  rows={3}
-                  placeholder="Optionaler Hinweis für deinen Coach..."
-                  className="mt-2 w-full resize-none rounded-xl border border-app-border bg-app-bg px-4 py-3 text-sm outline-none transition placeholder:text-app-faint focus:border-app-warn"
-                />
-              </div>
+                </div>
+              )}
             </div>
           )}
         </section>
@@ -821,7 +787,7 @@ export default function DailyCheckInPage() {
             <button
               type="button"
               onClick={goNext}
-              className="min-h-12 rounded-xl bg-app-warn px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-app-warn"
+              className="min-h-12 rounded-xl bg-app-accent px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:brightness-110"
             >
               Weiter →
             </button>
@@ -832,7 +798,7 @@ export default function DailyCheckInPage() {
                 submitCheckIn
               }
               disabled={saving}
-              className="min-h-12 rounded-xl bg-app-warn px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-12 rounded-xl bg-app-accent px-4 py-3 text-sm font-bold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving
                 ? "Speichert..."
@@ -862,17 +828,17 @@ function QuestionHeader({
         {eyebrow}
       </p>
 
-      <h2 className="mt-1 text-xl font-bold">
+      <h2 className="mt-1 text-2xl font-extrabold">
         {title}
       </h2>
 
-      <div className="mt-2 flex justify-between text-[11px] text-app-faint">
+      <div className="mt-2 flex justify-between text-sm text-app-muted">
         <span>
-          1 · {leftLabel}
+          😣 {leftLabel}
         </span>
 
         <span>
-          10 · {rightLabel}
+          {rightLabel} 😄
         </span>
       </div>
     </div>
@@ -887,7 +853,7 @@ function ScaleGrid({
   onSelect: (value: number) => void;
 }) {
   return (
-    <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10">
+    <div className="mt-5 grid grid-cols-5 gap-2">
       {scaleOptions.map(
         (option) => {
           const active =
@@ -905,13 +871,16 @@ function ScaleGrid({
                   option.value
                 )
               }
-              className={`flex min-h-12 items-center justify-center rounded-xl border text-sm font-semibold transition ${
+              aria-label={option.word}
+              aria-pressed={active}
+              className={`flex min-h-20 flex-col items-center justify-center gap-1 rounded-2xl border text-4xl transition ${
                 active
-                  ? "border-app-warn bg-app-warn/10 text-app-warn"
+                  ? "border-app-accent bg-app-accent text-app-accent-ink"
                   : "border-app-border bg-app-bg text-app-muted hover:border-app-border hover:text-app-heading"
               }`}
             >
-              {option.label}
+              <span aria-hidden="true">{option.label}</span>
+              <span className="text-[11px] font-semibold leading-tight">{option.word}</span>
             </button>
           );
         }

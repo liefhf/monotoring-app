@@ -22,7 +22,7 @@ import {
   splitResults,
 } from "@/lib/swim";
 import { MeetStart, evaluateMeet, listMeets } from "@/lib/meetReport";
-import { CalendarEntry } from "@/lib/community";
+import { CalendarEntry, toDateKey } from "@/lib/community";
 import { describeCompetition, focusFromRow, loadNonFinishes, loadUpcomingCompetitions } from "@/lib/nextCompetition";
 import { buildAthleteSheet, monthYearShort } from "@/lib/nextMeetSheet";
 import { openMeetPdf } from "@/lib/meetPdf";
@@ -57,7 +57,7 @@ export default function WettkampfAuswertungPage() {
   const [nonFinishes, setNonFinishes] = useState<NonFinish[]>([]);
   const [missingTable, setMissingTable] = useState(false);
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
 
   function reloadNonFinishes() {
     loadNonFinishes().then(({ rows, missingTable: missing }) => {
@@ -445,7 +445,7 @@ export default function WettkampfAuswertungPage() {
 
 function Kpi({ value, label }: { value: React.ReactNode; label: string }) {
   return (
-    <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4 shadow-app">
+    <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4 shadow-app">
       <p className="text-2xl font-bold text-app-heading">{value}</p>
       <p className="text-xs text-app-muted">{label}</p>
     </div>

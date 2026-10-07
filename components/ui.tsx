@@ -11,14 +11,15 @@ import { Icon, IconName } from "@/components/icons";
 export const inputClass =
   "w-full rounded-xl border border-app-border bg-app-bg px-3.5 py-2.5 text-sm text-app-heading outline-none transition placeholder:text-app-faint focus:border-app-accent";
 
+/* Knoepfe nach Design 9f: 44 px hoch, Radius 12, Icon + ein kurzes Wort. */
 export const buttonPrimary =
-  "inline-flex items-center justify-center gap-2 rounded-full bg-app-accent px-5 py-2.5 text-sm font-semibold text-app-accent-ink shadow-app transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-accent px-[18px] py-2.5 text-sm font-bold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonSecondary =
-  "inline-flex items-center justify-center gap-2 rounded-full border border-app-border bg-app-surface px-5 py-2.5 text-sm font-medium text-app-heading transition hover:bg-app-elevated disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-app-elevated px-[18px] py-2.5 text-sm font-bold text-app-heading transition hover:bg-app-border/70 disabled:cursor-not-allowed disabled:opacity-50";
 
 export const buttonGhost =
-  "inline-flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-app-muted transition hover:bg-app-elevated hover:text-app-heading";
+  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-app-muted transition hover:bg-app-elevated hover:text-app-heading";
 
 export function PageHeader({
   eyebrow,
@@ -37,13 +38,13 @@ export function PageHeader({
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="flex min-w-0 items-start gap-4">
         {icon && (
-          <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-app-accent/12 text-app-accent sm:flex">
+          <span className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-app-accent/15 text-app-accent-soft sm:flex">
             <Icon name={icon} className="h-6 w-6" />
           </span>
         )}
         <div className="min-w-0">
           {eyebrow && <p className="text-sm font-medium text-app-muted">{eyebrow}</p>}
-          <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{title}</h1>
           {description && <p className="mt-1.5 max-w-2xl text-sm text-app-muted">{description}</p>}
         </div>
       </div>
@@ -68,17 +69,17 @@ export function Card({
   padded?: boolean;
 }) {
   return (
-    <section className={`overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app ${className}`}>
+    <section className={`overflow-hidden rounded-[20px] border border-app-border/60 bg-app-surface shadow-app ${className}`}>
       {(title || action) && (
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 pb-2 pt-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-4 pb-2 pt-4 sm:px-[22px] sm:pt-5">
           <div className="min-w-0">
-            {title && <h2 className="text-base font-semibold text-app-heading">{title}</h2>}
+            {title && <h2 className="text-[15px] font-bold text-app-heading">{title}</h2>}
             {description && <p className="mt-0.5 text-sm text-app-muted">{description}</p>}
           </div>
           {action}
         </div>
       )}
-      <div className={padded ? "p-5" : ""}>{children}</div>
+      <div className={padded ? "p-4 sm:p-[22px]" : ""}>{children}</div>
     </section>
   );
 }
@@ -127,17 +128,18 @@ export function Notice({
   tone = "info",
   children,
 }: {
-  tone?: "info" | "good" | "bad" | "warn";
+  tone?: "info" | "good" | "bad" | "warn" | "soon";
   children: ReactNode;
 }) {
   const tones = {
-    info: "border-app-accent/30 bg-app-accent/8 text-app-text",
+    info: "border-app-accent/30 bg-app-accent/10 text-app-text",
+    soon: "border-app-soon/40 bg-app-soon/10 text-app-text",
     good: "border-app-good/40 bg-app-good/10 text-app-good",
     bad: "border-app-bad/40 bg-app-bad/10 text-app-bad",
     warn: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   };
 
-  return <div className={`rounded-xl border px-4 py-3 text-sm ${tones[tone]}`}>{children}</div>;
+  return <div className={`rounded-[14px] border px-4 py-3 text-sm ${tones[tone]}`}>{children}</div>;
 }
 
 export function Modal({
@@ -219,5 +221,125 @@ export function RichText({ text, className = "" }: { text: string; className?: s
         )
       )}
     </p>
+  );
+}
+
+/* ---------- Bausteine aus dem Gesamtdesign ---------- */
+
+/* Kennzahl (Design 9l): Label in Grossbuchstaben, Wert in Rubik. */
+export function Stat({ label, value, unit, trend, className = "" }: { label: string; value: ReactNode; unit?: string; trend?: ReactNode; className?: string }) {
+  return (
+    <div className={`min-w-0 rounded-[14px] bg-app-elevated/60 px-3.5 py-3 ${className}`}>
+      <div className="label-caps truncate">{label}</div>
+      <div className="mt-1 flex items-baseline gap-1">
+        <span className="num text-xl font-semibold text-app-heading">{value}</span>
+        {unit && <span className="text-xs text-app-muted">{unit}</span>}
+      </div>
+      {trend && <div className="mt-0.5 text-xs">{trend}</div>}
+    </div>
+  );
+}
+
+/* Karte (Gesamtdesign): Radius 20, feiner Rand, dezenter Schatten (hell) */
+export const cardClass = "rounded-[20px] border border-app-border/60 bg-app-surface shadow-app";
+
+type Tone = "accent" | "pink" | "good" | "warn" | "bad" | "soon" | "neutral";
+const TILE_TONES: Record<Tone, string> = {
+  accent: "bg-app-accent/15 text-app-accent-soft",
+  pink: "bg-app-accent-2/15 text-app-soon",
+  good: "bg-app-good/15 text-app-good",
+  warn: "bg-app-warn/15 text-app-warn",
+  bad: "bg-app-bad/15 text-app-bad",
+  soon: "bg-app-soon/15 text-app-soon",
+  neutral: "bg-app-elevated text-app-muted",
+};
+
+/* Symbolkachel links in Listenzeilen (Design 9j) */
+export function IconTile({ icon, tone = "neutral", className = "" }: { icon: IconName; tone?: Tone; className?: string }) {
+  return (
+    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${TILE_TONES[tone]} ${className}`} aria-hidden="true">
+      <Icon name={icon} className="h-5 w-5" />
+    </span>
+  );
+}
+
+/*
+ * Listenzeile (Design 9j): Symbol, Titel, eine kurze Zeile, rechts Wert
+ * oder Zeitpunkt, Pfeil. Ganze Zeile antippbar (mind. 56 px hoch).
+ */
+export function ListRow({
+  icon,
+  tone = "neutral",
+  title,
+  subtitle,
+  trailing,
+  href,
+  onClick,
+}: {
+  icon?: IconName;
+  tone?: Tone;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  trailing?: ReactNode;
+  href?: string;
+  onClick?: () => void;
+}) {
+  const inner = (
+    <>
+      {icon && <IconTile icon={icon} tone={tone} />}
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-[15px] font-semibold text-app-heading">{title}</span>
+        {subtitle && <span className="block truncate text-[13px] text-app-muted">{subtitle}</span>}
+      </span>
+      {trailing && <span className="shrink-0 text-right text-[13px] text-app-muted">{trailing}</span>}
+      {(href || onClick) && <Icon name="chevron" className="h-4 w-4 shrink-0 text-app-faint" />}
+    </>
+  );
+  const cls = "flex min-h-14 w-full items-center gap-3 rounded-2xl border border-app-border/60 bg-app-surface px-3 py-2 text-left transition hover:border-app-accent/40 hover:bg-app-elevated/40";
+  if (href) {
+    return (
+      <a href={href} className={cls}>
+        {inner}
+      </a>
+    );
+  }
+  if (onClick) {
+    return (
+      <button type="button" onClick={onClick} className={cls}>
+        {inner}
+      </button>
+    );
+  }
+  return <div className={cls}>{inner}</div>;
+}
+
+/* Initialen-Avatar mit Lila-Pink-Verlauf (Profilkopf) */
+export function Avatar({ name, size = "md" }: { name: string; size?: "md" | "lg" }) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+  return (
+    <span
+      aria-hidden="true"
+      className={`bg-highlight flex shrink-0 items-center justify-center rounded-full font-extrabold text-white ${size === "lg" ? "h-16 w-16 text-xl sm:h-20 sm:w-20 sm:text-2xl" : "h-10 w-10 text-sm"}`}
+    >
+      {initials}
+    </span>
+  );
+}
+
+/* Weitere Erklaerung erst auf Wunsch (Berechnung, Begruendung) */
+export function Details({ summary = "Details", children }: { summary?: string; children: ReactNode }) {
+  return (
+    <details className="group text-[13px] text-app-muted">
+      <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 font-semibold text-app-accent-soft hover:underline">
+        <Icon name="chevron" className="h-3.5 w-3.5 transition group-open:rotate-90" />
+        {summary}
+      </summary>
+      <div className="pb-1 pl-5">{children}</div>
+    </details>
   );
 }

@@ -88,7 +88,7 @@ export default function InfoboardPage() {
             Coach Bereich
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             Infoboard
           </h1>
 
@@ -102,7 +102,7 @@ export default function InfoboardPage() {
             <Link
               key={page.href}
               href={page.href}
-              className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 transition hover:border-app-border hover:bg-app-elevated"
+              className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 transition hover:border-app-border hover:bg-app-elevated"
             >
               <h2 className="text-lg font-semibold leading-6">
                 {page.title}

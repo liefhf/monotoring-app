@@ -138,7 +138,7 @@ export default function NewCompetitionPage() {
       </Link>
 
       <div className="mt-5">
-        <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
+        <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
           Wettkampf anlegen
         </h1>
       </div>
@@ -147,7 +147,7 @@ export default function NewCompetitionPage() {
         onSubmit={
           handleSubmit
         }
-        className="mt-6 space-y-5 rounded-3xl border border-app-border bg-app-surface shadow-app p-5 sm:p-6"
+        className="mt-6 space-y-5 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 sm:p-6"
       >
         <div>
           <label

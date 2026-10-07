@@ -182,7 +182,7 @@ export default function CompetitionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
+        <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
           Wettkämpfe
         </h1>
 
@@ -201,12 +201,12 @@ export default function CompetitionsPage() {
       )}
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 text-sm text-app-muted">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 text-sm text-app-muted">
           Wettkämpfe werden geladen...
         </div>
       ) : competitions.length ===
         0 ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-6">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-6">
           <p className="text-app-muted">
             Noch keine Wettkämpfe
             angelegt.
@@ -221,7 +221,7 @@ export default function CompetitionsPage() {
                   competition.id
                 }
                 href={`/coach/competitions/${competition.id}`}
-                className="group block rounded-3xl border border-app-border bg-app-surface shadow-app p-5 transition hover:border-app-border hover:bg-app-surface/80"
+                className="group block rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 transition hover:border-app-border hover:bg-app-surface/80"
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">

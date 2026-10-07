@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { LatestRequest } from "@/lib/loadState";
+import SeriesHistory from "@/components/SeriesHistory";
+import { Avatar } from "@/components/ui";
 import { useParams, useSearchParams } from "next/navigation";
 import {
   CartesianGrid,
@@ -19,6 +22,13 @@ import AthleteLinkCard from "@/components/AthleteLinkCard";
 import SwimmerTeams from "@/components/SwimmerTeams";
 import SwimmerSeasonReport from "@/components/SwimmerSeasonReport";
 import PainPanel from "@/components/PainPanel";
+import { AthleteStatusCard } from "@/components/RedFlagsPanel";
+import AthleteWellnessPanel from "@/components/AthleteWellnessPanel";
+import HealthPanel from "@/components/HealthPanel";
+import DocumentsPanel from "@/components/DocumentsPanel";
+import FitnessTestsPanel from "@/components/FitnessTestsPanel";
+import GoalsPanel from "@/components/GoalsPanel";
+import NotesPanel from "@/components/NotesPanel";
 import TrainingFocusPanel from "@/components/TrainingFocusPanel";
 import LactatePanel from "@/components/LactatePanel";
 import FormCurvePanel from "@/components/FormCurvePanel";
@@ -69,29 +79,43 @@ import {
  * plus der Vergleich mit den eigenen Pflichtzeiten.
  */
 
-type Tab = "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
+type Tab = "ueberblick" | "ziele" | "befinden" | "serien" | "gesundheit" | "tests" | "dokumente" | "infos" | "bahn" | "staffel" | "bestzeiten" | "entwicklung" | "pflichtzeiten" | "fokus" | "form" | "laktat" | "wettkaempfe" | "schmerzen";
 
 /* Tabs in fuenf Gruppen - die Seite war mit 11 Tabs nebeneinander unuebersichtlich */
+/*
+ * Ein Athlet, eine Seite. Reihenfolge nach Haeufigkeit im Traineralltag:
+ * erst Lage (Ueberblick), dann Befinden/Training, Gesundheit, Zeiten,
+ * Diagnostik, zuletzt Stammdaten. Frueher lagen Befinden und
+ * Trainings-Rueckmeldungen auf einer eigenen Seite (/coach/athletes/[id]).
+ */
 const TAB_GROUPS: { label: string; tabs: Tab[] }[] = [
-  { label: "Profil", tabs: ["infos", "fokus"] },
-  { label: "Ergebnisse", tabs: ["bahn", "bestzeiten", "staffel", "wettkaempfe"] },
-  { label: "Entwicklung", tabs: ["entwicklung", "pflichtzeiten"] },
-  { label: "Leistung", tabs: ["form", "laktat"] },
-  { label: "Gesundheit", tabs: ["schmerzen"] },
+  { label: "Überblick", tabs: ["ueberblick"] },
+  { label: "Training", tabs: ["befinden", "serien", "form"] },
+  { label: "Bestzeiten & Ziele", tabs: ["bestzeiten", "ziele", "pflichtzeiten"] },
+  { label: "Ergebnisse", tabs: ["bahn", "entwicklung", "wettkaempfe", "staffel"] },
+  { label: "Gesundheit", tabs: ["gesundheit"] },
+  { label: "Diagnostik", tabs: ["tests", "laktat"] },
+  { label: "Stammdaten & Dokumente", tabs: ["infos", "dokumente", "fokus"] },
 ];
 
 const TABS: { value: Tab; label: string }[] = [
-  { value: "infos", label: "Infos" },
-  { value: "bahn", label: "25 & 50m Bahn" },
-  { value: "staffel", label: "Staffeln & Freiwasser" },
+  { value: "ueberblick", label: "Überblick" },
+  { value: "befinden", label: "Befinden & Rückmeldungen" },
+  { value: "serien", label: "Serienzeiten" },
+  { value: "form", label: "Formkurve" },
+  { value: "gesundheit", label: "Gesundheit" },
   { value: "bestzeiten", label: "Bestzeiten" },
+  { value: "ziele", label: "Ziele" },
   { value: "entwicklung", label: "Entwicklung" },
   { value: "pflichtzeiten", label: "Pflichtzeiten" },
-  { value: "fokus", label: "Trainingsfokus" },
-  { value: "form", label: "Form" },
-  { value: "laktat", label: "Laktat" },
+  { value: "bahn", label: "Alle Zeiten" },
+  { value: "staffel", label: "Staffeln & Freiwasser" },
   { value: "wettkaempfe", label: "Saison-Auswertung" },
-  { value: "schmerzen", label: "Schmerzen" },
+  { value: "tests", label: "Testbatterie" },
+  { value: "laktat", label: "Laktat" },
+  { value: "infos", label: "Infos" },
+  { value: "fokus", label: "Trainingsfokus" },
+  { value: "dokumente", label: "Dokumente" },
 ];
 
 /* Felder, die im Tab "Infos" bearbeitet werden (alle als Text im Formular) */
@@ -194,7 +218,9 @@ export default function SchwimmerDetailPage() {
 
   /* ?tab=schmerzen oeffnet direkt einen Tab (z. B. aus einem Hinweis) */
   const searchParams = useSearchParams();
-  const initialTab = TABS.find((item) => item.value === searchParams.get("tab"))?.value ?? "infos";
+  /* alte Links (?tab=schmerzen) landen im zusammengelegten Bereich Gesundheit */
+  const requestedTab = searchParams.get("tab") === "schmerzen" ? "gesundheit" : searchParams.get("tab");
+  const initialTab = TABS.find((item) => item.value === requestedTab)?.value ?? "ueberblick";
   const [tab, setTab] = useState<Tab>(initialTab);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [standardId, setStandardId] = useState("");
@@ -204,6 +230,7 @@ export default function SchwimmerDetailPage() {
   const [draft, setDraft] = useState<InfoDraft | null>(null);
 
   const [showEntryForm, setShowEntryForm] = useState(false);
+  const [healthRequest, setHealthRequest] = useState(0);
   const [entryKind, setEntryKind] = useState<ResultKind>("einzel");
   const [entryDate, setEntryDate] = useState(todayIso());
   const [entryLocation, setEntryLocation] = useState("");
@@ -211,7 +238,10 @@ export default function SchwimmerDetailPage() {
   const [entryRows, setEntryRows] = useState<EntryRow[]>([createEntryRow(1)]);
   const [savingEntries, setSavingEntries] = useState(false);
 
+  /* Wechsel zwischen Athleten: nur die Antwort der juengsten Anfrage zaehlt */
+  const dataRequests = useRef(new LatestRequest());
   const loadData = useCallback(async () => {
+    const token = dataRequests.current.begin();
     const [swimmerResponse, resultResponse, standardResponse, timeResponse] =
       await Promise.all([
         supabase.from("swimmers").select(SWIMMER_DETAIL_COLUMNS).eq("id", swimmerId).single(),
@@ -228,6 +258,7 @@ export default function SchwimmerDetailPage() {
           .from("qualifying_times")
           .select("id, standard_id, gender, birth_year_from, birth_year_to, distance, stroke, time_ms"),
       ]);
+    if (!dataRequests.current.isLatest(token)) return;
 
     if (swimmerResponse.error || !swimmerResponse.data) {
       setMessage(
@@ -251,6 +282,7 @@ export default function SchwimmerDetailPage() {
     setStandards((standardResponse.data ?? []) as QualifyingStandard[]);
     setQualifyingTimes((timeResponse.data ?? []) as QualifyingTime[]);
     const loadedFocus = await loadAthleteFocus(swimmerId);
+    if (!dataRequests.current.isLatest(token)) return;
     setAthleteFocus(loadedFocus.focus);
     setFocusMissing(loadedFocus.missingColumns);
     setLoading(false);
@@ -283,10 +315,16 @@ export default function SchwimmerDetailPage() {
   /* ---------- Infos bearbeiten ---------- */
 
   async function handleCountBothPools(standard: QualifyingStandard, checked: boolean) {
-    const { error } = await supabase
+    const { data: changed, error } = await supabase
       .from("qualifying_standards")
       .update({ count_both_pools: checked })
-      .eq("id", standard.id);
+      .eq("id", standard.id)
+      .select("id");
+
+    if (!error && !changed?.length) {
+      setMessage("Einstellung wurde nicht gespeichert (keine Berechtigung für diese Pflichtzeiten-Liste).");
+      return;
+    }
 
     if (error) {
       setMessage(`Einstellung konnte nicht gespeichert werden: ${error.message} – wurde pflichtzeiten_beide_bahnen.sql schon ausgeführt?`);
@@ -334,7 +372,7 @@ export default function SchwimmerDetailPage() {
 
     const clean = (value: string) => value.trim() || null;
 
-    const { error } = await supabase
+    const { data: savedRows, error } = await supabase
       .from("swimmers")
       .update({
         first_name: draft.first_name.trim(),
@@ -348,10 +386,12 @@ export default function SchwimmerDetailPage() {
         club_id: clean(draft.club_id),
         club_since: draft.club_since || null,
       })
-      .eq("id", swimmerId);
+      .eq("id", swimmerId)
+      .select("id");
 
-    if (error) {
-      setMessage(`Änderungen konnten nicht gespeichert werden: ${error.message}`);
+    if (error || !savedRows?.length) {
+      // Formular bleibt offen, Eingaben bleiben erhalten
+      setMessage(error ? `Änderungen konnten nicht gespeichert werden: ${error.message}` : "Änderungen wurden nicht gespeichert (keine Berechtigung). Bitte Seite neu laden.");
       return;
     }
 
@@ -456,6 +496,7 @@ export default function SchwimmerDetailPage() {
       );
     }
 
+    if (savingEntries) return;
     setSavingEntries(true);
     setMessage("");
 
@@ -484,10 +525,11 @@ export default function SchwimmerDetailPage() {
       return;
     }
 
-    const { error } = await supabase.from("swimmer_results").delete().eq("id", id);
+    const { data: deleted, error } = await supabase.from("swimmer_results").delete().eq("id", id).select("id");
 
-    if (error) {
-      setMessage(`Ergebnis konnte nicht gelöscht werden: ${error.message}`);
+    if (error || !deleted?.length) {
+      setMessage(error ? `Ergebnis konnte nicht gelöscht werden: ${error.message}` : "Ergebnis wurde nicht gelöscht (keine Berechtigung oder schon gelöscht).");
+      await loadData();
       return;
     }
 
@@ -496,10 +538,11 @@ export default function SchwimmerDetailPage() {
 
   /* ---------- Anzeige ---------- */
 
-  if (loading) {
+  /* nie die Daten des vorher geoeffneten Athleten zeigen */
+  if (loading || (swimmer && swimmer.id !== swimmerId)) {
     return (
       <main className="mx-auto max-w-6xl">
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Schwimmer wird geladen...
         </div>
       </main>
@@ -522,27 +565,59 @@ export default function SchwimmerDetailPage() {
 
   return (
     <FocusContext.Provider value={athleteFocus}>
-    <main>
+    <main key={swimmerId}>
       <div className="mx-auto max-w-6xl">
-        <header className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <Link href="/coach/schwimmer" className="text-sm text-app-muted hover:text-app-accent">Athleten</Link>
-            <h1 className="mt-1 text-3xl font-bold">{getSwimmerName(swimmer)}</h1>
-            <p className="mt-2 text-app-muted">
-              Jahrgang {swimmer.birth_year ?? "–"} · {formatGender(swimmer.gender)}
-              {swimmer.club_name ? ` · ${swimmer.club_name}` : ""}
-            </p>
+        <Link href="/coach/schwimmer" className="inline-flex min-h-11 items-center gap-1 text-sm font-semibold text-app-muted hover:text-app-accent-soft">← Athleten</Link>
+        {/* Breite Bildschirme: Profilkarte links (wie Vorlage), Inhalte rechts */}
+        <div className="xl:grid xl:grid-cols-[280px_minmax(0,1fr)] xl:items-start xl:gap-6">
+        <header className="rounded-[20px] border border-app-border/60 bg-app-surface p-4 shadow-app sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:p-5 xl:sticky xl:top-6 xl:block xl:p-6 xl:text-center">
+          <div className="flex min-w-0 items-center gap-4 xl:flex-col xl:gap-3">
+            <Avatar name={getSwimmerName(swimmer)} size="lg" />
+            <div className="min-w-0">
+              <h1 className="break-words text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">{getSwimmerName(swimmer)}</h1>
+              <p className="num mt-0.5 text-sm text-app-muted">
+                {swimmer.birth_year ? `Jg. ${swimmer.birth_year} · ${new Date().getFullYear() - swimmer.birth_year} J.` : "Jahrgang –"} · {formatGender(swimmer.gender)}
+              </p>
+              {focusList(athleteFocus, "haupt") && <p className="mt-0.5 text-sm font-semibold text-app-accent-soft">{focusList(athleteFocus, "haupt")}</p>}
+              <div className="xl:flex xl:justify-center">
+                <SwimmerTeamChips swimmerId={swimmerId} />
+              </div>
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowEntryForm((open) => !open)}
-            className="rounded-xl bg-app-accent px-5 py-3 text-sm font-semibold text-app-accent-ink transition hover:opacity-90"
-          >
-            {showEntryForm ? "Eingabe schließen" : "+ Ergebnisse eintragen"}
-          </button>
+          {/* Haeufige Aktionen direkt im Kopf - ohne erst den richtigen Bereich zu suchen */}
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-0 xl:mt-5 xl:flex-col">
+            <button
+              type="button"
+              onClick={() => setShowEntryForm((open) => !open)}
+              className="min-h-11 rounded-xl bg-app-accent px-[18px] text-sm font-bold text-app-accent-ink transition hover:brightness-110"
+            >
+              {showEntryForm ? "Eingabe schließen" : "+ Zeiten"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("ueberblick");
+                window.setTimeout(() => document.getElementById("neue-notiz")?.focus(), 50);
+              }}
+              className="min-h-11 rounded-xl bg-app-elevated px-4 text-sm font-bold text-app-heading hover:bg-app-border/70"
+            >
+              + Notiz
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTab("gesundheit");
+                setHealthRequest((count) => count + 1);
+              }}
+              className="min-h-11 rounded-xl bg-app-elevated px-4 text-sm font-bold text-app-heading hover:bg-app-border/70"
+            >
+              + Einschränkung
+            </button>
+          </div>
         </header>
 
+        <div className="min-w-0">
         {message && (
           <div className="mt-6 rounded-xl border border-app-border bg-app-surface p-4 text-sm text-app-text">
             {message}
@@ -568,7 +643,9 @@ export default function SchwimmerDetailPage() {
           />
         )}
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
+        {/* Das Ergebnisjahr betrifft nur die Ergebnislisten - sonst ausgeblendet */}
+        {(["bahn", "staffel"] as Tab[]).includes(tab) && (
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           <span className="text-sm font-medium text-app-text">Ergebnisjahr:</span>
           <select
             value={selectedYear}
@@ -584,15 +661,17 @@ export default function SchwimmerDetailPage() {
             ))}
           </select>
         </div>
+        )}
 
-        <nav className="mt-4 flex flex-wrap gap-1.5">
+        <nav aria-label="Bereiche" className="-mx-4 mt-4 xl:mt-0 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0">
           {TAB_GROUPS.map((group) => (
             <button
               key={group.label}
               type="button"
               onClick={() => setTab(group.tabs[0])}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-                group.tabs.includes(tab) ? "bg-app-accent text-app-accent-ink" : "bg-app-elevated text-app-text hover:bg-app-border"
+              aria-pressed={group.tabs.includes(tab)}
+              className={`flex min-h-11 shrink-0 items-center rounded-full px-4 text-[13px] font-bold transition ${
+                group.tabs.includes(tab) ? "bg-app-accent text-app-accent-ink shadow-app" : "bg-app-surface border border-app-border/60 text-app-muted hover:text-app-heading hover:border-app-accent/40"
               }`}
             >
               {group.label}
@@ -600,22 +679,54 @@ export default function SchwimmerDetailPage() {
           ))}
         </nav>
 
-        <nav className="mt-3 flex flex-wrap gap-1 border-b border-app-border">
+        {(TAB_GROUPS.find((group) => group.tabs.includes(tab))?.tabs.length ?? 0) > 1 && (
+        <nav aria-label="Unterbereiche" className="mt-3 flex gap-5 overflow-x-auto border-b border-app-border/60">
           {TABS.filter((item) => TAB_GROUPS.find((group) => group.tabs.includes(tab))?.tabs.includes(item.value)).map((item) => (
             <button
               key={item.value}
               type="button"
               onClick={() => setTab(item.value)}
-              className={`-mb-px rounded-t-xl border px-4 py-2.5 text-sm transition ${
-                tab === item.value
-                  ? "border-app-border border-b-app-bg bg-app-bg font-semibold text-app-heading"
-                  : "border-transparent text-app-accent hover:text-app-accent"
+              aria-current={tab === item.value ? "page" : undefined}
+              className={`-mb-px min-h-11 shrink-0 whitespace-nowrap border-b-2 text-sm transition ${
+                tab === item.value ? "border-app-accent-soft font-bold text-app-heading" : "border-transparent text-app-muted hover:text-app-heading"
               }`}
             >
               {item.label}
             </button>
           ))}
         </nav>
+        )}
+
+        {tab === "ueberblick" && (
+          <div className="mt-6 grid gap-4 lg:grid-cols-3 lg:gap-5 xl:grid-cols-1 2xl:grid-cols-3">
+            <div className="space-y-4 lg:col-span-2 lg:space-y-5 xl:col-span-1 2xl:col-span-2">
+              <AthleteStatusCard swimmerId={swimmerId} />
+              <Card
+                title="Aktuelle Bestzeiten"
+                action={
+                  <button type="button" onClick={() => setTab("bestzeiten")} className="min-h-11 min-w-11 px-2 text-sm font-semibold text-app-accent-soft hover:underline">
+                    alle
+                  </button>
+                }
+              >
+                <OverviewBests results={poolResults} focus={athleteFocus} />
+              </Card>
+              <GoalsPanel swimmerId={swimmerId} compact />
+            </div>
+            <div className="space-y-4 lg:space-y-5">
+              <NotesPanel swimmerId={swimmerId} limit={3} />
+              <Card title="Anwesenheit">
+                <AttendanceSummary swimmerId={swimmer.id} />
+              </Card>
+            </div>
+          </div>
+        )}
+
+        {tab === "ziele" && (
+          <div className="mt-6">
+            <GoalsPanel swimmerId={swimmerId} />
+          </div>
+        )}
 
         {tab === "infos" && (
           editingInfos && draft ? (
@@ -823,10 +934,31 @@ export default function SchwimmerDetailPage() {
 
         {tab === "wettkaempfe" && <SwimmerSeasonReport swimmerId={swimmerId} />}
 
-        {tab === "schmerzen" && <PainPanel swimmerId={swimmerId} />}
+        {tab === "gesundheit" && (
+          <>
+            <HealthPanel key={healthRequest} swimmerId={swimmerId} startOpen={healthRequest > 0} />
+            <div className="mt-6">
+              <PainPanel swimmerId={swimmerId} />
+            </div>
+          </>
+        )}
+
+        {tab === "befinden" && <AthleteWellnessPanel profileId={swimmer.profile_id ?? null} />}
+
+        {tab === "tests" && <FitnessTestsPanel swimmerId={swimmerId} />}
+
+        {tab === "dokumente" && <DocumentsPanel swimmerId={swimmerId} />}
 
         {tab === "laktat" && <LactatePanel swimmerId={swimmerId} />}
 
+        {tab === "serien" && (
+          <section className="mt-6 rounded-2xl border border-app-border bg-app-surface px-4 py-3.5 sm:px-5">
+            <h2 className="text-base font-bold text-app-heading">Serienzeiten im Verlauf</h2>
+            <div className="mt-2">
+              <SeriesHistory swimmerId={swimmerId} />
+            </div>
+          </section>
+        )}
         {tab === "form" && <FormCurvePanel swimmerId={swimmerId} />}
 
         {tab === "fokus" && (
@@ -856,6 +988,8 @@ export default function SchwimmerDetailPage() {
         )}
 
         <BackLink />
+        </div>
+        </div>
       </div>
     </main>
     </FocusContext.Provider>
@@ -902,7 +1036,7 @@ function EntryForm({
   ];
 
   return (
-    <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+    <section className="mt-6 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
       <div className="border-b border-app-border px-6 py-4">
         <h2 className="text-lg font-semibold">Ergebnisse eintragen</h2>
         <p className="mt-1 text-sm text-app-muted">
@@ -1318,7 +1452,7 @@ function DevelopmentChart({
             onClick={() => onEventChange("all")}
           >
             <div
-              className="flex h-[85vh] w-full max-w-6xl flex-col rounded-3xl border border-app-border bg-app-surface shadow-app p-4 shadow-xl"
+              className="flex h-[85vh] w-full max-w-6xl flex-col rounded-[20px] border border-app-border bg-app-surface shadow-app p-4 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 px-2">
@@ -1529,7 +1663,7 @@ function Card({
   children: React.ReactNode;
 }) {
   return (
-    <section className="overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+    <section className="overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
       <div className="flex items-center justify-between gap-3 border-b border-app-border px-5 py-4">
         <h2 className="font-semibold">{title}</h2>
         {action}
@@ -1604,5 +1738,73 @@ function FormField({ label, children }: { label: string; children: React.ReactNo
       <span className="mb-2 block text-sm font-medium text-app-text">{label}</span>
       {children}
     </label>
+  );
+}
+
+/* Teams des Athleten als kleine Chips im Kopf */
+function SwimmerTeamChips({ swimmerId }: { swimmerId: string }) {
+  const [teams, setTeams] = useState<string[]>([]);
+  useEffect(() => {
+    supabase
+      .from("team_swimmers")
+      .select("teams(name)")
+      .eq("swimmer_id", swimmerId)
+      .then(({ data }) => setTeams(((data ?? []) as unknown as { teams: { name: string } | null }[]).map((row) => row.teams?.name).filter(Boolean) as string[]));
+  }, [swimmerId]);
+  if (!teams.length) return null;
+  return (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      {teams.map((name) => (
+        <span key={name} className="rounded-full bg-app-elevated px-2.5 py-1 text-xs font-bold text-app-muted">
+          {name}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/*
+ * Kurzfassung Bestzeiten fuer den Ueberblick: Hauptstrecken (sonst die
+ * am haeufigsten geschwommenen), je Bahn die Bestzeit und die Saison-
+ * bestzeit (Saison ab 1. September).
+ */
+function OverviewBests({ results, focus }: { results: SwimmerResult[]; focus: AthleteFocus }) {
+  const now = new Date();
+  const seasonStart = `${now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1}-09-01`;
+  const valid = results;
+  const focusEvents = (focus.events ?? []).map(parseFocusKey).filter((item) => item.role === "haupt").map((item) => item.event);
+  const counted = new Map<string, { event: SwimEvent; count: number }>();
+  for (const result of valid) {
+    const key = `${result.distance}-${result.stroke}`;
+    counted.set(key, { event: { distance: result.distance, stroke: result.stroke }, count: (counted.get(key)?.count ?? 0) + 1 });
+  }
+  const events = (focusEvents.length ? focusEvents : [...counted.values()].sort((a, b) => b.count - a.count).map((item) => item.event)).slice(0, 5);
+
+  if (!events.length) return <p className="px-4 pb-4 text-sm text-app-muted sm:px-[22px]">Noch keine Zeiten.</p>;
+
+  return (
+    <ul className="divide-y divide-app-border/60 px-4 pb-2 sm:px-[22px]">
+      {events.map((event) => {
+        const best25 = findBestResult(valid, event, 25);
+        const best50 = findBestResult(valid, event, 50);
+        const season = valid
+          .filter((result) => result.distance === event.distance && result.stroke === event.stroke && result.result_date >= seasonStart)
+          .sort((a, b) => a.time_ms - b.time_ms)[0];
+        return (
+          <li key={eventKey(event)} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 py-2.5">
+            <span className="w-16 font-bold text-app-heading">{formatEventShort(event)}</span>
+            <span className="num text-sm text-app-heading">
+              <span className="text-xs text-app-faint">25 m </span>
+              {best25 ? formatTime(best25.time_ms) : "–"}
+            </span>
+            <span className="num text-sm text-app-heading">
+              <span className="text-xs text-app-faint">50 m </span>
+              {best50 ? formatTime(best50.time_ms) : "–"}
+            </span>
+            <span className="num ml-auto text-xs text-app-muted">Saison {season ? `${formatTime(season.time_ms)} (${season.pool_length} m)` : "–"}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

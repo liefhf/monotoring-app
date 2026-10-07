@@ -1,10 +1,11 @@
 "use client";
 
 import Loader from "@/components/Loader";
-import Link from "next/link";
+import { newPersonalBests } from "@/lib/weeklyReport";
+import { Goal, goalLabel, goalProgress, sortGoals } from "@/lib/goals";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { localDateOf, CalendarEntry } from "@/lib/community";
+import { localDateOf, CalendarEntry, toDateKey } from "@/lib/community";
 import {
   QualifyingStandard,
   QualifyingTime,
@@ -42,7 +43,7 @@ export default function MeinFortschrittPage() {
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
   const [standardId, setStandardId] = useState("");
   const [state, setState] = useState<"loading" | "ok" | "missing" | "unlinked">("loading");
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
 
   useEffect(() => {
     async function load() {
@@ -94,10 +95,8 @@ export default function MeinFortschrittPage() {
 
   return (
     <main className="mx-auto max-w-2xl space-y-4 px-4 py-5">
-      <Link href="/athlete" className="text-sm text-app-muted">
-        ← Zurück
-      </Link>
-      <h1 className="text-2xl font-bold">📈 Mein Fortschritt</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">Mein Fortschritt</h1>
+      {state === "ok" && <ProgressHighlights results={results} />}
 
       {state === "missing" && <Notice tone="warn">Diese Seite ist bald verfügbar – dein Trainer muss noch ein Update einspielen.</Notice>}
       {state === "unlinked" && <Notice tone="info">Dein Login ist noch nicht mit deinem Athleten-Profil verknüpft. Sag deinem Trainer Bescheid.</Notice>}
@@ -174,13 +173,13 @@ export default function MeinFortschrittPage() {
             </ul>
           </Card>
 
+          {/* Nur zeigen, wenn es Zonen gibt - ein Hinweis auf fehlende Tests hilft Kindern nicht */}
+          {zones.length > 0 && (
           <Card
             title="Meine Tempo-Zonen"
-            description={latestLactate ? `Aus deinem Laktattest vom ${formatDate(latestLactate.test_date)} – Tempo je 100 m Kraul` : undefined}
+            description={latestLactate ? `Aus deinem Test vom ${formatDate(latestLactate.test_date)} – Tempo je 100 m Kraul` : undefined}
           >
-            {zones.length === 0 ? (
-              <p className="p-4 text-sm text-app-muted">Noch kein Laktattest – deine Zonen erscheinen hier nach dem nächsten Test.</p>
-            ) : (
+            {(
               <ul className="divide-y divide-app-border">
                 {zones.map((zone) => (
                   <li key={zone.code} className="flex items-center justify-between gap-3 px-4 py-2.5">
@@ -199,8 +198,83 @@ export default function MeinFortschrittPage() {
               </ul>
             )}
           </Card>
+          )}
         </>
       )}
     </main>
+  );
+}
+
+/*
+ * Oben auf der Seite, fuer Kinder verstaendlich: neue Bestzeiten der
+ * letzten 3 Monate ("1,2 Sekunden schneller") und die eigenen Ziele.
+ */
+function ProgressHighlights({ results }: { results: SwimmerResult[] }) {
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [today] = useState(() => toDateKey(new Date()));
+
+  useEffect(() => {
+    supabase
+      .from("athlete_goals")
+      .select("*")
+      .then(({ data, error }) => {
+        if (!error) setGoals((data ?? []) as Goal[]);
+      });
+  }, []);
+
+  const since = new Date(Date.parse(today) - 90 * 86_400_000).toISOString().slice(0, 10);
+  const bests = newPersonalBests(results, since, today).slice(0, 5);
+  const sortedGoals = sortGoals(goals, results);
+
+  if (!bests.length && !sortedGoals.length) return null;
+
+  return (
+    <div className="space-y-4">
+      {bests.length > 0 && (
+        <section className="rounded-[20px] border border-app-border/60 bg-app-surface p-5 shadow-app">
+          <h2 className="text-lg font-bold text-app-heading">Neue Bestzeiten 🎉</h2>
+          <ul className="mt-2 divide-y divide-app-border/60">
+            {bests.map(({ result, previous }) => (
+              <li key={result.id} className="flex items-center gap-3 py-2.5">
+                <span className="min-w-0 flex-1">
+                  <span className="block font-bold text-app-heading">
+                    {formatEventShort(result)} · {result.pool_length}-m-Bahn
+                  </span>
+                  <span className="block text-sm text-app-good">
+                    {((previous - result.time_ms) / 1000).toLocaleString("de-DE", { maximumFractionDigits: 2 })} Sekunden schneller
+                  </span>
+                </span>
+                <span className="num text-lg font-semibold text-app-heading">{formatTime(result.time_ms)}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+      {sortedGoals.length > 0 && (
+        <section className="rounded-[20px] border border-app-border/60 bg-app-surface p-5 shadow-app">
+          <h2 className="text-lg font-bold text-app-heading">Meine Ziele 🎯</h2>
+          <ul className="mt-2 divide-y divide-app-border/60">
+            {sortedGoals.map((goal) => {
+              const progress = goalProgress(goal, results);
+              return (
+                <li key={goal.id} className="flex items-center gap-3 py-2.5">
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-bold text-app-heading">{goalLabel(goal)}</span>
+                    <span className="block text-sm text-app-muted">
+                      {progress.reached
+                        ? "Geschafft! 🎉"
+                        : goal.target_ms && progress.remainingMs !== null
+                          ? `Noch ${(progress.remainingMs / 1000).toLocaleString("de-DE", { maximumFractionDigits: 2 })} Sekunden`
+                          : "Bleib dran!"}
+                    </span>
+                  </span>
+                  {goal.target_ms && <span className="num text-lg font-semibold text-app-heading">{formatTime(goal.target_ms)}</span>}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { DEMO } from "@/lib/demo/demoFetch";
 import { LogoMark } from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -33,7 +34,7 @@ export default function Home() {
       </p>
 
       <Link
-        href="/login"
+        href={DEMO ? "/demo" : "/login"}
         className="mt-8 inline-flex items-center rounded-xl bg-app-accent px-6 py-3 font-semibold text-app-accent-ink shadow-app transition hover:brightness-110"
       >
         Anmelden

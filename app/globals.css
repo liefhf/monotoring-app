@@ -20,27 +20,35 @@
   color-scheme: light;
 
   /* Flaechen */
-  --app-bg: #f4f2fb;        /* Seitengrund                      */
+  --app-bg: #f6f5fb;        /* Seitengrund                      */
+  --app-sidebar: #efedf7;   /* Seitenleiste, Handy-Leiste       */
   --app-surface: #ffffff;   /* Karten, Leisten, Tabellen        */
-  --app-elevated: #eeebf8;  /* Hover, hervorgehobene Zeilen     */
-  --app-border: #e0dcef;    /* Kanten                           */
+  --app-elevated: #f1eff9;  /* Hover, hervorgehobene Zeilen     */
+  --app-border: #e2dfef;    /* Kanten                           */
 
   /* Schrift */
-  --app-heading: #1e1a3a;   /* Ueberschriften und Werte         */
+  --app-heading: #1c1a2b;   /* Ueberschriften und Werte         */
   --app-text: #3b3659;      /* Fliesstext                       */
-  --app-muted: #6f6a90;     /* Nebensaechliches                 */
-  --app-faint: #9b97b6;     /* Beschriftungen, Platzhalter      */
+  --app-muted: #5f5a7a;     /* Nebensaechliches                 */
+  --app-faint: #8a85a3;     /* Beschriftungen, Platzhalter      */
 
-  /* Akzent - Beckenblau. Fuer die wichtigste Aktion,
-     Links und den aktiven Menuepunkt. Nie fuer Zustaende. */
-  --app-accent: #c83fae;
+  /* Akzent - Lila. Fuer die wichtigste Aktion, Links und
+     den aktiven Menuepunkt. Nie fuer Zustaende. */
+  --app-accent: #6a3dd0;
   --app-accent-ink: #ffffff; /* Schrift auf Akzentflaechen      */
-  --app-accent-2: #7c4dde; /* zweiter Akzent fuer Verlaeufe */
+  --app-signal-ink: #ffffff; /* Schrift auf Signalflaechen (gut/warn/soon) */
+  --app-accent-soft: #6a3dd0; /* Akzent als Schrift auf dunklen Flaechen */
+  --app-accent-2: #b8329e;  /* Pink - zweiter Akzent fuer Verlaeufe */
 
-  /* Signalfarben - stehen fuer einen Zustand, nie fuer Deko. */
-  --app-good: #0f9d6a;
-  --app-warn: #b7700a;
-  --app-bad: #d9364a;
+  /* Pink = bald faellig (Meldeschluss, "in 4 Tagen") */
+  --app-soon: #c0349f;
+
+  /* Signalfarben - stehen fuer einen Zustand, nie fuer Deko.
+     Gelb nur fuer den Athleten-Status "pruefen". */
+  --app-good: #1f8a63;
+  --app-warn: #a36a12;
+  --app-bad: #c63a52;
+  --app-info: #2c6fb0;
 
   /* Landtraining. Frueher gruen - das kollidierte mit
      "Befinden gut". */
@@ -48,15 +56,15 @@
 
   /* Kalender-Kategorien */
   --cat-training: #0e8f9c;
-  --cat-competition: #c83fae;
-  --cat-camp: #7c4dde;
-  --cat-meeting: #b7700a;
+  --cat-competition: #c0349f;
+  --cat-camp: #6a3dd0;
+  --cat-meeting: #a36a12;
 
   /* Diagramme: 25m- und 50m-Bahn */
-  --chart-25: #c83fae;
-  --chart-50: #7c4dde;
+  --chart-25: #c0349f;
+  --chart-50: #6a3dd0;
 
-  --app-shadow: 0 1px 2px rgb(40 20 90 / 0.06), 0 8px 24px rgb(40 20 90 / 0.08);
+  --app-shadow: 0 1px 2px rgb(28 26 43 / 0.04), 0 4px 16px rgb(28 26 43 / 0.06);
 }
 
 /* ---------- Dunkel ----------
@@ -65,68 +73,82 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --app-bg: #1b1a2e;
-  --app-surface: #25243d;
-  --app-elevated: #302e4c;
-  --app-border: #3a3858;
+  --app-bg: #15141f;
+  --app-sidebar: #1a1928;
+  --app-surface: #201e30;
+  --app-elevated: #2a283d;
+  --app-border: #363450;
 
-  --app-heading: #f6f4ff;
+  --app-heading: #f1eff9;
   --app-text: #dcd8f0;
-  --app-muted: #a19cc4;
-  --app-faint: #716c96;
+  --app-muted: #a29dbd;
+  --app-faint: #8f8aad;
 
-  --app-accent: #e25bc6;
+  --app-accent: #7c4dde;
   --app-accent-ink: #ffffff;
-  --app-accent-2: #8b5cf6;
+  --app-signal-ink: #15141f;
+  --app-accent-soft: #c4b0f7;
+  --app-accent-2: #c83fae;
 
-  --app-good: #3ddc97;
-  --app-warn: #fbbf24;
-  --app-bad: #ff6b6b;
+  --app-soon: #f08bd8;
+
+  --app-good: #8fdcbc;
+  --app-warn: #f2c98a;
+  --app-bad: #e5687d;
+  --app-info: #9cc8f0;
   --app-sand: #e0b263;
 
   --cat-training: #2dd4bf;
-  --cat-competition: #e25bc6;
-  --cat-camp: #a78bfa;
-  --cat-meeting: #fbbf24;
+  --cat-competition: #f08bd8;
+  --cat-camp: #c4b0f7;
+  --cat-meeting: #f2c98a;
 
-  --chart-25: #e25bc6;
-  --chart-50: #9b6bff;
+  --chart-25: #f08bd8;
+  --chart-50: #c4b0f7;
 
-  --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px rgb(10 5 30 / 0.35);
+  /* Kein Schatten im Dunkelmodus (Design 9d) */
+  --app-shadow: none;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --app-bg: #1b1a2e;
-    --app-surface: #25243d;
-    --app-elevated: #302e4c;
-    --app-border: #3a3858;
+    --app-bg: #15141f;
+    --app-sidebar: #1a1928;
+    --app-surface: #201e30;
+    --app-elevated: #2a283d;
+    --app-border: #363450;
 
-    --app-heading: #f6f4ff;
+    --app-heading: #f1eff9;
     --app-text: #dcd8f0;
-    --app-muted: #a19cc4;
-    --app-faint: #716c96;
+    --app-muted: #a29dbd;
+    --app-faint: #8f8aad;
 
-    --app-accent: #e25bc6;
+    --app-accent: #7c4dde;
     --app-accent-ink: #ffffff;
-  --app-accent-2: #8b5cf6;
+    --app-signal-ink: #15141f;
+    --app-accent-soft: #c4b0f7;
+    --app-accent-2: #c83fae;
 
-    --app-good: #3ddc97;
-    --app-warn: #fbbf24;
-    --app-bad: #ff6b6b;
+    --app-soon: #f08bd8;
+
+    --app-good: #8fdcbc;
+    --app-warn: #f2c98a;
+    --app-bad: #e5687d;
+    --app-info: #9cc8f0;
     --app-sand: #e0b263;
 
     --cat-training: #2dd4bf;
-    --cat-competition: #e25bc6;
-    --cat-camp: #a78bfa;
-    --cat-meeting: #fbbf24;
+    --cat-competition: #f08bd8;
+    --cat-camp: #c4b0f7;
+    --cat-meeting: #f2c98a;
 
-    --chart-25: #e25bc6;
-    --chart-50: #9b6bff;
+    --chart-25: #f08bd8;
+    --chart-50: #c4b0f7;
 
-    --app-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 10px 30px rgb(10 5 30 / 0.35);
+    /* Kein Schatten im Dunkelmodus (Design 9d) */
+    --app-shadow: none;
   }
 }
 
@@ -148,6 +170,10 @@
   --app-faint: #3a3a3a;
   --app-accent: #0047b3;
   --app-accent-ink: #ffffff;
+  --app-accent-soft: #0047b3;
+  --app-signal-ink: #ffffff;
+  --app-soon: #a3006e;
+  --app-info: #0047b3;
   --app-good: #006b3c;
   --app-warn: #8a4b00;
   --app-bad: #b00012;
@@ -172,6 +198,12 @@
   --color-app-faint: var(--app-faint);
   --color-app-accent: var(--app-accent);
   --color-app-accent-ink: var(--app-accent-ink);
+  --color-app-accent-soft: var(--app-accent-soft);
+  --color-app-signal-ink: var(--app-signal-ink);
+  --color-app-accent-2: var(--app-accent-2);
+  --color-app-sidebar: var(--app-sidebar);
+  --color-app-soon: var(--app-soon);
+  --color-app-info: var(--app-info);
   --color-app-good: var(--app-good);
   --color-app-warn: var(--app-warn);
   --color-app-bad: var(--app-bad);
@@ -186,6 +218,8 @@
 
   --font-sans: var(--font-app-sans);
   --font-mono: var(--font-geist-mono);
+  /* Zahlen (Zeiten, Meter, Kennzahlen) in Rubik - Klasse "num" */
+  --font-num: var(--font-app-num), var(--font-app-sans), ui-sans-serif, system-ui;
 }
 
 /*
@@ -232,6 +266,32 @@
     outline: 2px solid var(--app-accent);
     outline-offset: 2px;
   }
+}
+
+/* Zahlen in Rubik mit gleich breiten Ziffern (Design 9b) */
+@utility num {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Kleines Label in Grossbuchstaben (Design 9b: 11 · 800 · caps) */
+@utility label-caps {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--app-faint);
+}
+
+/* Highlight-Verlauf Lila -> Pink: hoechstens einmal je Seite
+   (Wettkampf-Ticket, "+"-Knopf). */
+/* Aktiver Menuepunkt: dezenter Lila-Pink-Hintergrund */
+@utility nav-active {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--app-accent) 18%, transparent), color-mix(in srgb, var(--app-accent-2) 10%, transparent));
+}
+
+@utility bg-highlight {
+  background-image: linear-gradient(135deg, var(--app-accent), var(--app-accent-2));
 }
 
 /* Ladebalken (components/Loader.tsx) */

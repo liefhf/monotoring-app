@@ -4,6 +4,7 @@ import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import TeamCoaches from "@/components/TeamCoaches";
 import { Swimmer, getSwimmerName } from "@/lib/swim";
 import { Icon } from "@/components/icons";
 import {
@@ -243,7 +244,7 @@ export default function TeamsPage() {
       </Card>
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : teams.length === 0 ? (
         <Card>
           <EmptyState icon="teams" title="Noch kein Team">
@@ -251,13 +252,13 @@ export default function TeamsPage() {
           </EmptyState>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3 [&>*]:min-w-0">
           {teams.map((team) => {
             const members = membersOf(team.id);
             const withLogin = members.filter((member) => member.profile_id).length;
 
             return (
-              <section key={team.id} className="flex flex-col rounded-3xl border border-app-border bg-app-surface shadow-app p-5 shadow-app">
+              <section key={team.id} className="flex min-w-0 flex-col rounded-2xl border border-app-border bg-app-surface p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h2 className="truncate text-lg font-semibold">{team.name}</h2>
@@ -278,7 +279,7 @@ export default function TeamsPage() {
                       <Link
                         key={member.id}
                         href={`/coach/schwimmer/${member.id}`}
-                        className="rounded-full bg-app-elevated px-2.5 py-1 text-xs font-medium text-app-heading hover:bg-app-accent/12 hover:text-app-accent"
+                        className="inline-flex min-h-11 min-w-11 max-w-full items-center truncate rounded-full bg-app-elevated px-3 text-xs font-medium text-app-heading hover:bg-app-accent/12 hover:text-app-accent"
                       >
                         {getSwimmerName(member)}
                       </Link>
@@ -287,11 +288,13 @@ export default function TeamsPage() {
                   {members.length > 14 && <span className="px-1 py-1 text-xs text-app-muted">+{members.length - 14} weitere</span>}
                 </div>
 
+                <TeamCoaches teamId={team.id} />
+
                 <div className="mt-4 flex gap-2 border-t border-app-border pt-4">
                   <button type="button" onClick={() => openTeam(team)} className={`${buttonSecondary} flex-1`}>
                     Athleten zuordnen
                   </button>
-                  <Link href={`/coach/gruppen/${team.id}`} className={buttonGhost} title="Gruppenraum">
+                  <Link href={`/coach/gruppen/${team.id}`} className={`${buttonGhost} min-w-11`} title="Gruppenraum" aria-label={`Gruppenraum ${team.name}`}>
                     <Icon name="chat" className="h-4 w-4" />
                   </Link>
                 </div>

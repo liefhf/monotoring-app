@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -56,6 +57,7 @@ export default function StoppuhrPage() {
   const [now, setNow] = useState(() => Date.now());
   const [message, setMessage] = useState<{ tone: "good" | "bad"; text: string } | null>(null);
   const [restored, setRestored] = useState(false);
+  const savingLanes = useRef(new Set<number | string>());
   const wakeLock = useRef<{ release: () => Promise<void> } | null>(null);
 
   /* Daten + gespeicherten Stand laden */
@@ -131,14 +133,16 @@ export default function StoppuhrPage() {
   }
 
   async function save(lane: Lane) {
+    if (savingLanes.current.has(lane.id) || lane.saved) return; // nicht doppelt speichern
     if (!lane.swimmerId || lane.finalMs === null || !competition) {
       setMessage({ tone: "bad", text: "Bitte Athlet wählen und die Uhr mit „Ziel“ stoppen." });
       return;
     }
+    savingLanes.current.add(lane.id);
     const { error } = await supabase.from("competition_starts").insert({
       competition_id: competitionId,
       swimmer_id: lane.swimmerId,
-      start_date: new Date().toISOString().slice(0, 10) < competition.start_date ? competition.start_date : new Date().toISOString().slice(0, 10),
+      start_date: toDateKey(new Date()) < competition.start_date ? competition.start_date : toDateKey(new Date()),
       pool_length: pool,
       distance: lane.distance,
       stroke: lane.stroke,
@@ -146,8 +150,9 @@ export default function StoppuhrPage() {
       split_times_ms: lane.splits,
       status: "ok",
     });
+    savingLanes.current.delete(lane.id);
     if (error) {
-      setMessage({ tone: "bad", text: `Konnte nicht gespeichert werden: ${error.message}` });
+      setMessage({ tone: "bad", text: `Konnte nicht gespeichert werden: ${error.message}. Die Zeit bleibt auf der Uhr – bitte erneut speichern.` });
       return;
     }
     update(lane.id, (current) => ({ ...current, saved: true }));
@@ -167,7 +172,7 @@ export default function StoppuhrPage() {
           <Link href={`/coach/competitions/${competitionId}/auswertung`} className="text-sm text-app-accent">
             ← zur Auswertung
           </Link>
-          <h1 className="text-2xl font-bold">⏱ Stoppuhr</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">⏱ Stoppuhr</h1>
           <p className="text-sm text-app-muted">{competition?.name ?? ""}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -183,7 +188,7 @@ export default function StoppuhrPage() {
               </button>
             ))}
           </div>
-          <button type="button" onClick={startAll} className="rounded-xl bg-app-good px-5 py-2.5 text-sm font-bold text-white">
+          <button type="button" onClick={startAll} className="rounded-xl bg-app-good px-5 py-2.5 text-sm font-bold text-app-signal-ink">
             ▶ Alle starten
           </button>
           <button
@@ -283,7 +288,7 @@ export default function StoppuhrPage() {
               )}
 
               {!lane.startedAt ? (
-                <button type="button" onClick={() => tap(lane.id, "start")} className="h-20 w-full rounded-2xl bg-app-good text-2xl font-bold text-white active:scale-[0.98]">
+                <button type="button" onClick={() => tap(lane.id, "start")} className="h-20 w-full rounded-2xl bg-app-good text-2xl font-bold text-app-signal-ink active:scale-[0.98]">
                   ▶ Start
                 </button>
               ) : isRunning ? (
@@ -300,7 +305,7 @@ export default function StoppuhrPage() {
                   type="button"
                   onClick={() => save(lane)}
                   disabled={lane.saved}
-                  className="h-16 w-full rounded-2xl bg-app-accent text-xl font-bold text-app-accent-ink disabled:bg-app-good disabled:text-white"
+                  className="h-16 w-full rounded-2xl bg-app-accent text-xl font-bold text-app-accent-ink disabled:bg-app-good disabled:text-app-signal-ink"
                 >
                   {lane.saved ? "✓ gespeichert" : "Speichern"}
                 </button>

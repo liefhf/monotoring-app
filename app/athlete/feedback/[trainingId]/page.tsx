@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { sessionPhase } from "@/lib/sessionTiming";
 import { supabase } from "@/lib/supabase";
 
 type TrainingSession = {
@@ -162,6 +163,9 @@ export default function TrainingFeedbackPage() {
     setStreak,
   ] = useState<number | null>(null);
 
+  const saveLock = useRef(false);
+  const [loadedAt, setLoadedAt] = useState<Date | null>(null);
+
   async function loadPage() {
     setLoading(true);
     setMessage("");
@@ -223,6 +227,7 @@ export default function TrainingFeedbackPage() {
     setTraining(
       trainingData as TrainingSession
     );
+    setLoadedAt(new Date());
 
     const {
       data: feedbackData,
@@ -284,6 +289,7 @@ export default function TrainingFeedbackPage() {
 
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     loadPage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [trainingId]);
 
   async function calculateCurrentStreak(
@@ -530,6 +536,16 @@ export default function TrainingFeedbackPage() {
   }
 
   async function saveFeedback() {
+    if (saveLock.current) return; // Doppel-Tipp
+    saveLock.current = true;
+    try {
+      await saveFeedbackOnce();
+    } finally {
+      saveLock.current = false;
+    }
+  }
+
+  async function saveFeedbackOnce() {
     if (!rpe) {
       setMessage(
         "Bitte wähle zuerst aus, wie anstrengend das Training war."
@@ -563,6 +579,7 @@ export default function TrainingFeedbackPage() {
       existingFeedback
     ) {
       const {
+        data: updated,
         error,
       } =
         await supabase
@@ -583,11 +600,12 @@ export default function TrainingFeedbackPage() {
           .eq(
             "athlete_id",
             user.id
-          );
+          )
+          .select("id");
 
-      if (error) {
+      if (error || !updated?.length) {
         setMessage(
-          `Feedback konnte nicht gespeichert werden: ${error.message}`
+          "Feedback konnte nicht gespeichert werden. Deine Auswahl ist noch da – bitte nochmal versuchen."
         );
 
         setSaving(false);
@@ -621,16 +639,18 @@ export default function TrainingFeedbackPage() {
           `)
           .single();
 
-      if (error) {
+      if (error || !data) {
         setMessage(
-          `Feedback konnte nicht gespeichert werden: ${error.message}`
+          error?.code === "23505"
+            ? "Du hast für dieses Training schon eine Rückmeldung gegeben (z. B. auf einem anderen Gerät). Bitte Seite neu laden, um sie zu ändern."
+            : "Feedback konnte nicht gespeichert werden. Deine Auswahl ist noch da – bitte nochmal versuchen."
         );
 
         setSaving(false);
         return;
       }
 
-      if (data) {
+      {
         setExistingFeedback(
           data as ExistingFeedback
         );
@@ -664,7 +684,7 @@ export default function TrainingFeedbackPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-app-border bg-app-surface p-10 text-center text-app-muted">
+          <div className="rounded-[20px] border border-app-border bg-app-surface p-10 text-center text-app-muted">
             Training wird geladen...
           </div>
         </div>
@@ -676,7 +696,7 @@ export default function TrainingFeedbackPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading">
         <div className="mx-auto max-w-2xl">
-          <div className="rounded-3xl border border-app-bad/40 bg-app-bad/10 p-6 text-app-bad">
+          <div className="rounded-[20px] border border-app-bad/40 bg-app-bad/10 p-6 text-app-bad">
             {message ||
               "Training konnte nicht geladen werden."}
           </div>
@@ -700,13 +720,13 @@ export default function TrainingFeedbackPage() {
     return (
       <main className="bg-app-bg px-4 py-8 text-app-heading sm:px-6">
         <div className="mx-auto max-w-2xl">
-          <section className="overflow-hidden rounded-3xl border border-app-good/40 bg-app-surface">
+          <section className="overflow-hidden rounded-[20px] border border-app-good/40 bg-app-surface">
             <div className="bg-app-good/10 px-6 py-8 text-center sm:px-8 sm:py-10">
               <div className="text-6xl">
                 🔥
               </div>
 
-              <h1 className="mt-4 text-3xl font-bold">
+              <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
                 Stark! Training bewertet.
               </h1>
 
@@ -742,7 +762,7 @@ export default function TrainingFeedbackPage() {
             <div className="p-5">
               <Link
                 href="/athlete"
-                className="block w-full rounded-2xl bg-app-warn px-6 py-4 text-center font-bold text-app-accent-ink transition hover:bg-app-warn"
+                className="block w-full rounded-2xl bg-app-accent px-6 py-4 text-center font-bold text-app-accent-ink transition hover:brightness-110"
               >
                 Zurück zur Übersicht →
               </Link>
@@ -768,7 +788,7 @@ export default function TrainingFeedbackPage() {
             Training bewerten
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             Wie war dein Training?
           </h1>
 
@@ -778,7 +798,7 @@ export default function TrainingFeedbackPage() {
         </header>
 
         {/* ÄUSSERE BELASTUNG */}
-        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface shadow-app px-4 py-4 sm:px-5">
+        <section className="mt-5 rounded-[20px] border border-app-border bg-app-surface shadow-app px-4 py-4 sm:px-5">
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
@@ -863,7 +883,7 @@ export default function TrainingFeedbackPage() {
         )}
 
         {/* INNERE BEANSPRUCHUNG */}
-        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-6">
+        <section className="mt-5 rounded-[20px] border border-app-border bg-app-surface p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-medium text-app-warn">
@@ -905,7 +925,7 @@ export default function TrainingFeedbackPage() {
             </div>
           </div>
 
-          <div className="mt-5 grid grid-cols-5 gap-3 sm:grid-cols-10">
+          <div className="mt-5 grid grid-cols-5 gap-2 sm:grid-cols-10 sm:gap-3">
             {Array.from(
               { length: 10 },
               (_, index) =>
@@ -929,9 +949,9 @@ export default function TrainingFeedbackPage() {
                     aria-pressed={
                       selected
                     }
-                    className={`flex aspect-square items-center justify-center rounded-2xl text-lg font-bold transition ${
+                    className={`flex aspect-square min-h-12 items-center justify-center rounded-2xl text-lg font-bold transition ${
                       selected
-                        ? "scale-105 bg-app-warn text-app-accent-ink shadow-lg shadow-amber-950/30"
+                        ? "scale-105 bg-app-accent text-app-accent-ink shadow-lg"
                         : "border border-app-border bg-app-bg text-app-text hover:border-app-border hover:bg-app-elevated"
                     }`}
                   >
@@ -952,7 +972,7 @@ export default function TrainingFeedbackPage() {
 
               <div>
                 <p className="font-bold">
-                  RPE {rpe}/10 ·{" "}
+                  {rpe} von 10 ·{" "}
                   {
                     selectedRpe.title
                   }
@@ -969,7 +989,7 @@ export default function TrainingFeedbackPage() {
         </section>
 
         {/* NOTIZ */}
-        <section className="mt-5 rounded-3xl border border-app-border bg-app-surface p-5 sm:p-6">
+        <section className="mt-5 rounded-[20px] border border-app-border bg-app-surface p-5 sm:p-6">
           <h2 className="text-xl font-bold">
             Notiz
           </h2>
@@ -1003,6 +1023,12 @@ export default function TrainingFeedbackPage() {
           </p>
         </section>
 
+        {training && loadedAt && sessionPhase(training, loadedAt) !== "finished" && !existingFeedback && (
+          <p className="mt-4 rounded-xl bg-app-elevated p-3 text-center text-sm text-app-text">
+            Das Training ist noch nicht vorbei. Gib deine Rückmeldung bitte danach.
+          </p>
+        )}
+
         {existingFeedback && (
           <p className="mt-4 text-center text-xs text-app-faint">
             Du kannst dein bestehendes Feedback ändern und erneut speichern.
@@ -1016,9 +1042,10 @@ export default function TrainingFeedbackPage() {
           }
           disabled={
             saving ||
-            rpe === null
+            rpe === null ||
+            Boolean(training && loadedAt && sessionPhase(training, loadedAt) !== "finished" && !existingFeedback)
           }
-          className="mt-5 w-full rounded-2xl bg-app-warn px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:bg-app-warn disabled:cursor-not-allowed disabled:opacity-40"
+          className="mt-5 w-full rounded-2xl bg-app-accent px-6 py-4 text-lg font-bold text-app-accent-ink transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving
             ? "Wird gespeichert..."

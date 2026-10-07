@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { CartesianGrid, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/lib/supabase";
@@ -14,7 +15,7 @@ import { Card, FormField, Notice, buttonPrimary, buttonSecondary, inputClass } f
 
 type StepDraft = { time: string; lactate: string; heartRate: string };
 const emptySteps = (): StepDraft[] => Array.from({ length: 5 }, () => ({ time: "", lactate: "", heartRate: "" }));
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => toDateKey(new Date());
 const num = (value: string) => (value.trim() ? Number(value.replace(",", ".")) : NaN);
 
 export default function LactatePanel({ swimmerId }: { swimmerId: string }) {
@@ -218,7 +219,7 @@ export default function LactatePanel({ swimmerId }: { swimmerId: string }) {
               { title: "Anaerobe Schwelle (4 mmol/l)", value: analysis.v4, change: change("v4") },
               { title: `Individuell (Laktatbett + 1)`, value: analysis.individual, change: null },
             ].map((item) => (
-              <div key={item.title} className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+              <div key={item.title} className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
                 <p className="text-xs text-app-muted">{item.title}</p>
                 <p className="text-2xl font-bold text-app-heading">{item.value ? `${formatPace(item.value.pace100Ms)} /100 m` : "–"}</p>
                 <p className="text-xs text-app-muted">

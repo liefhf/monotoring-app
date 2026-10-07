@@ -244,7 +244,8 @@ export async function printTraining(sessionId: string) {
 
 /* Einheit mit allen Serien/Uebungen loeschen. Rueckgabe: Fehlermeldung oder null */
 export async function deleteTraining(sessionId: string) {
-  const { data: sections } = await supabase.from("training_sections").select("id").eq("training_session_id", sessionId);
+  const { data: sections, error: sectionError } = await supabase.from("training_sections").select("id").eq("training_session_id", sessionId);
+  if (sectionError) return "Training konnte nicht gelöscht werden (Inhalt nicht lesbar). Es wurde nichts gelöscht.";
   const sectionIds = ((sections ?? []) as { id: string }[]).map((section) => section.id);
 
   const steps = [
@@ -259,6 +260,86 @@ export async function deleteTraining(sessionId: string) {
     if (error) return `Training konnte nicht gelöscht werden: ${error.message}`;
   }
 
-  const { error } = await supabase.from("training_sessions").delete().eq("id", sessionId);
-  return error ? `Training konnte nicht gelöscht werden: ${error.message}` : null;
+  const { data: deleted, error } = await supabase.from("training_sessions").delete().eq("id", sessionId).select("id");
+  if (error) return `Training konnte nicht gelöscht werden: ${error.message}`;
+  if (!deleted?.length) return "Training wurde nicht gelöscht (keine Berechtigung oder schon gelöscht). Bitte Seite neu laden.";
+  return null;
+}
+
+/*
+ * Einheit kopieren (z. B. "wie letzte Woche"): legt eine neue Einheit am
+ * Zieldatum an und uebernimmt Abschnitte, Serien und Landuebungen.
+ * Nur neue Zeilen - die Vorlage bleibt unveraendert. Gibt die neue ID
+ * oder eine Fehlermeldung zurueck.
+ */
+const COPY_SKIP = new Set(["id", "created_at", "updated_at"]);
+const withoutKeys = (row: Record<string, unknown>, extra: Record<string, unknown> = {}) =>
+  ({ ...Object.fromEntries(Object.entries(row).filter(([key]) => !COPY_SKIP.has(key))), ...extra });
+
+export async function copyTraining(sessionId: string, targetDate: string): Promise<{ id: string } | { error: string }> {
+  // 1. Erst ALLES lesen. Fehlt etwas, wird gar nichts angelegt (keine halbe Kopie).
+  const { data: session, error } = await supabase.from("training_sessions").select("*").eq("id", sessionId).single();
+  if (error || !session) return { error: "Einheit konnte nicht geladen werden. Es wurde nichts kopiert." };
+  const [sections, landRows, warmupRows] = await Promise.all([
+    supabase.from("training_sections").select("*").eq("training_session_id", sessionId).order("sort_order"),
+    supabase.from("training_land_rows").select("*").eq("training_session_id", sessionId),
+    supabase.from("training_warmup_land_rows").select("*").eq("training_session_id", sessionId),
+  ]);
+  if (sections.error || landRows.error || warmupRows.error) return { error: "Inhalt der Einheit konnte nicht vollständig geladen werden. Es wurde nichts kopiert." };
+  const sectionList = (sections.data ?? []) as Record<string, unknown>[];
+  const rows = sectionList.length
+    ? await supabase.from("training_rows").select("*").in("section_id", sectionList.map((section) => section.id as string))
+    : { data: [], error: null };
+  if (rows.error) return { error: "Serien der Einheit konnten nicht geladen werden. Es wurde nichts kopiert." };
+
+  // 2. Anlegen. Schlaegt ein Schritt fehl, wird die gerade angelegte (unvollstaendige) Kopie wieder entfernt.
+  const { data: created, error: createError } = await supabase
+    .from("training_sessions")
+    .insert(withoutKeys(session as Record<string, unknown>, { session_date: targetDate }))
+    .select("id")
+    .single();
+  if (createError || !created) return { error: "Kopie konnte nicht angelegt werden." };
+  const newId = (created as { id: string }).id;
+
+  const rollback = async (text: string) => {
+    const { error: cleanupError } = await supabase.from("training_sessions").delete().eq("id", newId).select("id");
+    return { error: cleanupError ? `${text} Die unvollständige Kopie am ${targetDate} bitte von Hand löschen.` : `${text} Es wurde nichts kopiert.` };
+  };
+
+  for (const section of sectionList) {
+    const { data: newSection, error: sectionError } = await supabase
+      .from("training_sections")
+      .insert(withoutKeys(section, { training_session_id: newId }))
+      .select("id")
+      .single();
+    if (sectionError || !newSection) return rollback("Ein Abschnitt konnte nicht kopiert werden.");
+    const sectionRows = ((rows.data ?? []) as Record<string, unknown>[]).filter((row) => row.section_id === section.id);
+    if (sectionRows.length) {
+      const { error: rowError } = await supabase
+        .from("training_rows")
+        .insert(sectionRows.map((row) => withoutKeys(row, { section_id: (newSection as { id: string }).id })));
+      if (rowError) return rollback("Serien konnten nicht kopiert werden.");
+    }
+  }
+  if (landRows.data?.length) {
+    const { error: landError } = await supabase
+      .from("training_land_rows")
+      .insert((landRows.data as Record<string, unknown>[]).map((row) => withoutKeys(row, { training_session_id: newId })));
+    if (landError) return rollback("Landtraining konnte nicht kopiert werden.");
+  }
+  if (warmupRows.data?.length) {
+    const { error: warmupError } = await supabase
+      .from("training_warmup_land_rows")
+      .insert((warmupRows.data as Record<string, unknown>[]).map((row) => withoutKeys(row, { training_session_id: newId })));
+    if (warmupError) return rollback("Aufwärmen konnte nicht kopiert werden.");
+  }
+  return { id: newId };
+}
+
+/* echtes Kalenderdatum im Format JJJJ-MM-TT (2026-02-31 ist ungueltig) */
+export function isValidDateKey(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [y, m, d] = value.split("-").map(Number);
+  const date = new Date(y, m - 1, d);
+  return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
 }

@@ -42,7 +42,8 @@ export default function TeamSwitcher({
         type="button"
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        className="flex items-center gap-1.5 rounded-full bg-app-elevated px-3 py-1 text-sm font-semibold text-app-heading transition hover:bg-app-border"
+        aria-label={`Team wechseln, aktuell ${current.name}`}
+        className="flex min-h-11 items-center gap-1.5 rounded-full bg-app-elevated px-3.5 py-1 text-sm font-semibold text-app-heading transition hover:bg-app-border"
       >
         {current.name}
         <svg viewBox="0 0 20 20" className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
@@ -51,7 +52,7 @@ export default function TeamSwitcher({
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-30 mt-2 min-w-[220px] overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app p-1.5">
+        <div className="absolute left-0 top-full z-30 mt-2 min-w-[220px] overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app p-1.5">
           {teams.map((team) => (
             <button
               key={team.id}
@@ -60,7 +61,7 @@ export default function TeamSwitcher({
                 onChange(team.id);
                 setOpen(false);
               }}
-              className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-app-elevated ${
+              className={`flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm transition hover:bg-app-elevated ${
                 team.id === current.id ? "font-semibold text-app-heading" : "text-app-text"
               }`}
             >

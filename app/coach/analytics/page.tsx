@@ -1081,7 +1081,7 @@ export default function CoachAnalyticsPage() {
     return (
       <main>
         <div className="mx-auto max-w-[1300px]">
-          <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
+          <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
             Auswertungen werden geladen...
           </div>
         </div>
@@ -1100,8 +1100,8 @@ export default function CoachAnalyticsPage() {
               Monitoring & Analyse
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold tracking-tight">
-              Auswertungen
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
+              Belastungsverlauf
             </h1>
 
             <p className="mt-1.5 text-sm text-app-muted sm:text-base">
@@ -1251,7 +1251,7 @@ export default function CoachAnalyticsPage() {
 
         {/* VERLAUF */}
 
-        <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="flex flex-col gap-3 border-b border-app-border px-4 py-4 sm:px-5 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-lg font-semibold">
@@ -1338,7 +1338,7 @@ export default function CoachAnalyticsPage() {
 
         {/* TRAININGSEINHEITEN */}
 
-        <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border px-4 py-3.5 sm:px-5">
             <h2 className="text-lg font-semibold">
               Trainingseinheiten

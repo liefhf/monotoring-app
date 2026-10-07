@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import LogoutButton from "@/components/LogoutButton";
+import ThemeToggle from "@/components/ThemeToggle";
+import ContrastToggle from "@/components/ContrastToggle";
 import { Icon, IconName } from "@/components/icons";
 
 /*
@@ -15,19 +18,20 @@ import { Icon, IconName } from "@/components/icons";
  */
 type NavItem = { href: string; label: string; icon: IconName };
 
+/* Wenige, klare Ziele - auch fuer Kinder verstaendlich */
 const mainItems: NavItem[] = [
-  { href: "/athlete", label: "Start", icon: "home" },
-  { href: "/athlete/check-in", label: "Check-in", icon: "check" },
+  { href: "/athlete", label: "Heute", icon: "home" },
   { href: "/athlete/training", label: "Training", icon: "training" },
+  { href: "/athlete/fortschritt", label: "Fortschritt", icon: "chart" },
   { href: "/athlete/termine", label: "Termine", icon: "calendar" },
 ];
 
 const moreItems: NavItem[] = [
   { href: "/athlete/wettkaempfe", label: "Wettkämpfe", icon: "trophy" },
+  { href: "/athlete/wettkampftag", label: "Wettkampf-Tag", icon: "stopwatch" },
   { href: "/athlete/news", label: "News", icon: "news" },
-  { href: "/athlete/gruppen", label: "Gruppenräume", icon: "chat" },
-  { href: "/athlete/pain", label: "Schmerz", icon: "heart" },
-  { href: "/athlete/analytics", label: "Meine Werte", icon: "chart" },
+  { href: "/athlete/gruppen", label: "Gruppen", icon: "chat" },
+  { href: "/athlete/pain", label: "Schmerz melden", icon: "heart" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -60,10 +64,8 @@ export default function AthleteNav() {
   }, [moreOpen]);
 
   const itemClass = (active: boolean) =>
-    `flex min-h-12 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-1 py-1.5 text-[11px] font-medium transition ${
-      active
-        ? "bg-app-accent/12 text-app-accent"
-        : "text-app-muted hover:bg-app-elevated hover:text-app-heading"
+    `flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1.5 text-xs font-bold transition ${
+      active ? "nav-active text-app-heading [&_svg]:text-app-accent-soft" : "text-app-muted hover:text-app-heading"
     }`;
 
   return (
@@ -92,10 +94,10 @@ export default function AthleteNav() {
                     href={item.href}
                     onClick={() => setMoreOpen(false)}
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-3 rounded-2xl border px-4 py-3.5 text-sm font-medium transition ${
+                    className={`flex min-h-13 items-center gap-3 rounded-[14px] border px-4 py-3 text-sm font-semibold transition ${
                       active
-                        ? "border-app-accent/40 bg-app-accent/10 text-app-accent"
-                        : "border-app-border text-app-heading hover:bg-app-elevated"
+                        ? "border-app-accent/40 bg-app-accent/15 text-app-accent-soft"
+                        : "border-app-border/60 text-app-heading hover:bg-app-elevated"
                     }`}
                   >
                     <Icon name={item.icon} />
@@ -104,15 +106,21 @@ export default function AthleteNav() {
                 );
               })}
             </div>
+            <div className="mt-3 flex items-center gap-2">
+              <ThemeToggle withLabel />
+              <ContrastToggle withLabel />
+              <LogoutButton className="flex-1" />
+            </div>
           </div>
         </div>
       )}
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-app-border bg-app-surface/95 backdrop-blur"
+        aria-label="Hauptnavigation"
+        className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-xl rounded-[22px] border border-app-border/60 bg-app-sidebar/95 shadow-app backdrop-blur print:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
-        <div className="mx-auto flex max-w-xl items-stretch justify-around gap-1 px-2 py-1.5">
+        <div className="flex items-stretch justify-around gap-1 px-2">
           {mainItems.map((item) => {
             const active = isActive(pathname, item.href) && !moreOpen;
 

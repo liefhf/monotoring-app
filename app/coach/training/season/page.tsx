@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { LatestRequest } from "@/lib/loadState";
 import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import {
   EntryCategory,
   categoryToSeasonType,
@@ -164,7 +166,7 @@ const colorStyles: Record<
   }
 > = {
   amber: {
-    card: "border-app-warn bg-app-warn text-app-accent-ink",
+    card: "border-app-warn bg-app-warn text-app-signal-ink",
     dot: "bg-app-warn",
     soft: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   },
@@ -188,7 +190,7 @@ const colorStyles: Record<
   },
 
   emerald: {
-    card: "border-app-good bg-app-good text-app-accent-ink",
+    card: "border-app-good bg-app-good text-app-signal-ink",
     dot: "bg-app-good",
     soft: "border-app-good/40 bg-app-good/10 text-app-good",
   },
@@ -200,13 +202,13 @@ const colorStyles: Record<
   },
 
   orange: {
-    card: "border-app-warn bg-app-warn text-app-accent-ink",
+    card: "border-app-warn bg-app-warn text-app-signal-ink",
     dot: "bg-app-warn",
     soft: "border-app-warn/40 bg-app-warn/10 text-app-warn",
   },
 
   pink: {
-    card: "border-pink-300 bg-pink-500 text-white",
+    card: "border-app-soon bg-app-soon text-app-signal-ink",
     dot: "bg-pink-500",
     soft: "border-pink-800 bg-pink-950 text-pink-200",
   },
@@ -441,6 +443,7 @@ export default function SeasonPlanningPage() {
 
   useEffect(() => {
     loadPlanning();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [seasonStartYear, visibleMonth, visibleYear]);
 
   function matchesTeamFilter(teamId: string | null) {
@@ -529,7 +532,12 @@ export default function SeasonPlanningPage() {
     setVisibleYear(current.getFullYear());
   }
 
+  const planningRequests = useRef(new LatestRequest());
+
   async function loadPlanning() {
+    /* spaete Antworten (schneller Saison-/Monatswechsel) verwerfen */
+    const token = planningRequests.current.begin();
+    const stale = () => !planningRequests.current.isLatest(token);
     setLoading(true);
     setMessage("");
 
@@ -538,26 +546,26 @@ export default function SeasonPlanningPage() {
       error: userError,
     } = await supabase.auth.getUser();
 
+    if (stale()) return;
     if (userError || !user) {
       setMessage("Coach konnte nicht geladen werden.");
       setLoading(false);
       return;
     }
 
-    const { data: teamData, error: teamError } = await supabase
-      .from("teams")
-      .select("id, name")
-      .eq("coach_id", user.id)
-      .order("name");
+    const { data: teamData, error: teamError } = await loadCoachTeams();
 
+    if (stale()) return;
     if (teamError) {
       setMessage(
         `Teams konnten nicht geladen werden: ${teamError.message}`
       );
 
+
       setLoading(false);
       return;
     }
+
 
     setTeams((teamData ?? []) as Team[]);
 
@@ -606,14 +614,17 @@ export default function SeasonPlanningPage() {
       created_at: entry.created_at,
     }));
 
+    if (stale()) return;
     if (eventError) {
       setMessage(
         `Termine konnten nicht geladen werden: ${eventError.message}`
       );
 
+
       setLoading(false);
       return;
     }
+
 
     setEvents(eventData as CalendarEvent[]);
 
@@ -640,14 +651,17 @@ export default function SeasonPlanningPage() {
         ascending: true,
       });
 
+    if (stale()) return;
     if (taskError) {
       setMessage(
         `Fristen konnten nicht geladen werden: ${taskError.message}`
       );
 
+
       setLoading(false);
       return;
     }
+
 
     setTasks((taskData ?? []) as CalendarTask[]);
     setLoading(false);
@@ -1134,6 +1148,7 @@ export default function SeasonPlanningPage() {
       allSeasonEvents.filter((event) =>
         matchesTeamFilter(event.team_id)
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
     [allSeasonEvents, selectedTeamId]
   );
 
@@ -1156,6 +1171,7 @@ export default function SeasonPlanningPage() {
       allSeasonTasks.filter((task) =>
         matchesTeamFilter(task.team_id)
       ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
     [allSeasonTasks, selectedTeamId]
   );
 
@@ -1366,6 +1382,7 @@ export default function SeasonPlanningPage() {
         lane,
       };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
   }, [seasonEvents, seasonStartYear]);
 
   const eventLaneCount =
@@ -1420,6 +1437,7 @@ export default function SeasonPlanningPage() {
         lane,
       };
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Hilfsfunktionen haengen nur von den aufgefuehrten Werten ab
   }, [seasonTasks, seasonStartYear]);
 
   const taskLaneCount =
@@ -1451,7 +1469,7 @@ export default function SeasonPlanningPage() {
             Organisation & Saisonplanung
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             Jahresplanung
           </h1>
 
@@ -1599,7 +1617,7 @@ export default function SeasonPlanningPage() {
       {/* TERMIN FORMULAR */}
 
       {showEventForm && (
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="flex items-start justify-between border-b border-app-border p-5">
             <div>
               <p className="text-sm text-app-muted">
@@ -1850,7 +1868,7 @@ export default function SeasonPlanningPage() {
       {/* AUFGABEN FORMULAR */}
 
       {showTaskForm && (
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="flex items-start justify-between border-b border-app-border p-5">
             <div>
               <p className="text-sm text-app-muted">
@@ -2065,7 +2083,7 @@ export default function SeasonPlanningPage() {
       )}
 
       {loading ? (
-        <div className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
+        <div className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted">
           Wird geladen...
         </div>
       ) : (
@@ -2075,7 +2093,7 @@ export default function SeasonPlanningPage() {
           <section className="mt-6 grid gap-6 xl:grid-cols-[1.6fr_0.7fr]">
             {/* MONAT */}
 
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app">
+            <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app">
               <div className="flex flex-col gap-4 border-b border-app-border p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-app-muted">
@@ -2335,7 +2353,7 @@ export default function SeasonPlanningPage() {
 
             {/* FRISTEN & TO-DOS */}
 
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app">
+            <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app">
               <div className="border-b border-app-border p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -2546,7 +2564,7 @@ export default function SeasonPlanningPage() {
 
           {/* JAHRESZEITSTRAHL */}
 
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex flex-col gap-4 border-b border-app-border p-5 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="text-sm text-app-muted">
@@ -2980,7 +2998,7 @@ export default function SeasonPlanningPage() {
 
           {/* NÄCHSTE TERMINE */}
 
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex items-center justify-between border-b border-app-border p-5">
               <div>
                 <h2 className="text-xl font-semibold">

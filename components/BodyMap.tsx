@@ -204,7 +204,7 @@ export default function BodyMap({
                 type="button"
                 onClick={() => setMobileView(view)}
                 aria-pressed={mobileView === view}
-                className={`rounded-lg px-4 py-1.5 text-sm transition ${
+                className={`min-h-11 rounded-lg px-4 text-sm transition ${
                   mobileView === view ? "bg-app-accent font-semibold text-app-accent-ink" : "text-app-text"
                 }`}
               >

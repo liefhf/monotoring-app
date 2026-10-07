@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { fetchAll } from "@/lib/fetchAll";
-import { CalendarEntry } from "@/lib/community";
+import { CalendarEntry, toDateKey } from "@/lib/community";
 import {
   NonFinish,
   QualifyingStandard,
@@ -42,7 +42,7 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
   const [competitionFaults, setCompetitionFaults] = useState<{ name: string; code: string }[]>([]);
   const [open, setOpen] = useState(true);
   const [inserted, setInserted] = useState<string[]>([]);
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
   const [request, setRequest] = useState("");
   const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
   const [picked, setPicked] = useState<number[]>([]);
@@ -64,7 +64,7 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
       setNonFinishes((await loadNonFinishes()).rows);
       setUpcoming(await loadUpcomingCompetitions());
       /* Technikfehler aus Wettkaempfen der letzten 4 Wochen (Spalte faults evtl. noch nicht angelegt) */
-      const since = new Date(Date.now() - 28 * 86_400_000).toISOString().slice(0, 10);
+      const since = new Date(Date.parse(today) - 28 * 86_400_000).toISOString().slice(0, 10);
       const faultRes = await supabase.from("competition_starts").select("swimmer_id, faults").gte("start_date", since);
       const names = new Map(rows.map((row) => [row.id as string, row.first_name as string]));
       setCompetitionFaults(
@@ -76,7 +76,7 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
       );
     }
     load();
-  }, []);
+  }, [today]);
 
   const next = upcoming[0] ?? null;
   const standard = standards[0] ?? null;
@@ -141,9 +141,9 @@ export default function WeekFocusPanel({ onInsert, poolLength = 25 }: { onInsert
                   }
                 }}
                 placeholder="z. B. Sprint Kraul + Rückenwende, 90 min"
-                className="min-w-[240px] flex-1 rounded-lg border border-app-border bg-app-bg px-3 py-2 text-sm outline-none focus:border-app-accent"
+                className="min-w-[240px] flex-1 rounded-lg border border-app-border bg-app-bg min-h-11 px-3 py-2 text-sm outline-none focus:border-app-accent"
               />
-              <button type="button" onClick={makeSuggestion} className="rounded-lg bg-app-accent px-3 py-2 text-sm font-semibold text-app-accent-ink">
+              <button type="button" onClick={makeSuggestion} className="min-h-11 rounded-lg bg-app-accent px-3 py-2 text-sm font-semibold text-app-accent-ink">
                 Übungen vorschlagen
               </button>
             </div>

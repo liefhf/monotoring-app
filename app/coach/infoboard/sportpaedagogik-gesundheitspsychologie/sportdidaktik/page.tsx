@@ -49,14 +49,14 @@ export default function SportdidaktikPage() {
             Sportpädagogik und Gesundheitspsychologie
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
             2. Allgemeine Sportdidaktik
           </h1>
         </header>
 
         {/* LERNORIENTIERUNG */}
 
-        <section className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <section className="mt-8 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <h2 className="text-lg font-semibold">
             Lernorientierung
           </h2>
@@ -110,7 +110,7 @@ export default function SportdidaktikPage() {
 
         {/* INHALT */}
 
-        <nav className="mt-5 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <nav className="mt-5 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <p className="text-sm font-semibold text-app-text">
             Inhalt
           </p>

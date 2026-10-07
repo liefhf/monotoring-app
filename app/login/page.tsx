@@ -161,7 +161,7 @@ export default function LoginPage() {
             <ThemeToggle />
           </div>
 
-          <div className="rounded-3xl border border-app-border bg-app-surface p-6 shadow-app sm:p-8">
+          <div className="rounded-[20px] border border-app-border bg-app-surface p-6 shadow-app sm:p-8">
             <div className="mb-7 flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-bold">Willkommen zurück</h2>

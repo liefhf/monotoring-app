@@ -267,6 +267,7 @@ export default function CompetitionDetailPage() {
     }
 
     loadCompetition();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [competitionId]);
 
   async function loadCompetition() {
@@ -810,7 +811,7 @@ export default function CompetitionDetailPage() {
 
   if (loading) {
     return (
-      <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 text-sm text-app-muted">
+      <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 text-sm text-app-muted">
         Wettkampf wird geladen...
       </div>
     );
@@ -847,10 +848,10 @@ export default function CompetitionDetailPage() {
       </Link>
 
       {/* WETTKAMPF-KOPF */}
-      <section className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 sm:p-6">
+      <section className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-app-heading sm:text-3xl">
+            <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               {
                 competition.name
               }
@@ -901,7 +902,7 @@ export default function CompetitionDetailPage() {
       </section>
 
       {/* AUSSCHREIBUNG */}
-      <section className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 sm:p-6">
+      <section className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 sm:p-6">
         <h2 className="text-lg font-semibold text-app-heading">
           Ausschreibung
         </h2>
@@ -1020,7 +1021,7 @@ export default function CompetitionDetailPage() {
       <div className="space-y-5">
         {sections.length ===
         0 ? (
-          <section className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5 text-sm text-app-faint">
+          <section className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 text-sm text-app-faint">
             Noch keine Abschnitte und WKs gespeichert.
           </section>
         ) : (
@@ -1036,7 +1037,7 @@ export default function CompetitionDetailPage() {
                   key={
                     section.id
                   }
-                  className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5"
+                  className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-5"
                 >
                   <div className="border-b border-app-border pb-4">
                     <h2 className="text-lg font-semibold text-app-heading">

@@ -1,7 +1,7 @@
 "use client";
 
 import Loader from "@/components/Loader";
-import { localDateOf, CalendarEntry, formatEntryWhen } from "@/lib/community";
+import { localDateOf, CalendarEntry, formatEntryWhen, toDateKey } from "@/lib/community";
 import { useEffect, useMemo, useState } from "react";
 import { Area, CartesianGrid, ComposedChart, Legend, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { competitionPriority, loadUpcomingCompetitions } from "@/lib/nextCompetition";
@@ -19,7 +19,7 @@ const DAY = 86_400_000;
 const iso = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 
 export default function FormCurvePanel({ swimmerId }: { swimmerId: string }) {
-  const [today] = useState(() => iso(Date.now()));
+  const [today] = useState(() => toDateKey(new Date()));
   const [upcoming, setUpcoming] = useState<CalendarEntry[]>([]);
   const [loads, setLoads] = useState<DailyLoad[] | null>(null);
   const [targetId, setTargetId] = useState("");
@@ -48,7 +48,7 @@ export default function FormCurvePanel({ swimmerId }: { swimmerId: string }) {
     <div className="mt-6 space-y-6">
       <Card
         title="Formkurve"
-        description="Fitness-Fatigue-Modell: Fitness (42 Tage) minus Ermüdung (7 Tage) = Form. Belastung = RPE × Minuten; zukünftige Einheiten mit der geplanten Belastung."
+        description="Fitness-Fatigue-Modell: Fitness (42 Tage) minus Ermüdung (7 Tage) = Form. Belastung = RPE × Minuten; zukünftige Einheiten mit der geplanten Belastung. Modell mit Standardwerten, nicht individuell kalibriert – zur Orientierung bei Belastungsverlauf und Tapering, nicht als Leistungsprognose."
       >
         <div className="flex flex-wrap items-center gap-2 border-b border-app-border px-4 py-3">
           <span className="text-sm text-app-muted">Ziel:</span>

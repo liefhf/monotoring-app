@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import {
   CORE_GOALS,
   MIN_LAND_SESSIONS_PER_WEEK,
@@ -105,11 +106,7 @@ export default function LandCoveragePanel() {
         return;
       }
 
-      const { data: teamData } = await supabase
-        .from("teams")
-        .select("id, name")
-        .eq("coach_id", user.id)
-        .order("name");
+      const { data: teamData } = await loadCoachTeams();
 
       const loadedTeams = (teamData ?? []) as Team[];
 
@@ -185,7 +182,7 @@ export default function LandCoveragePanel() {
   const currentWeek = weeks[weeks.length - 1];
 
   return (
-    <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+    <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
       <div className="border-b border-app-border px-4 py-3 sm:px-5">
         <h2 className="font-semibold text-app-heading">
           Kräftigung & Kernziele

@@ -3,7 +3,8 @@
 import Loader from "@/components/Loader";
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { isMissingTable, supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import { fetchAll } from "@/lib/fetchAll";
 import { Gender, Swimmer, formatGender, getSwimmerName } from "@/lib/swim";
 import { Icon } from "@/components/icons";
@@ -11,6 +12,7 @@ import {
   Card,
   EmptyState,
   FormField,
+  Modal,
   Notice,
   PageHeader,
   buttonGhost,
@@ -49,14 +51,14 @@ export default function AthletenPage() {
   const [gender, setGender] = useState<"" | Gender>("");
   const [teamId, setTeamId] = useState("");
   const [saving, setSaving] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
   const firstNameInput = useRef<HTMLInputElement>(null);
 
   const loadData = useCallback(async () => {
-    const { data: userData } = await supabase.auth.getUser();
 
     const [athleteResponse, teamResponse, membershipResponse, resultResponse] = await Promise.all([
       supabase.from("swimmers").select("id, first_name, last_name, birth_year, gender, profile_id").order("first_name"),
-      supabase.from("teams").select("id, name").eq("coach_id", userData.user?.id ?? "").order("name"),
+      loadCoachTeams(),
       supabase.from("team_swimmers").select("team_id, swimmer_id"),
       fetchAll(() => supabase.from("swimmer_results").select("swimmer_id")),
     ]);
@@ -171,6 +173,7 @@ export default function AthletenPage() {
     }
 
     setMessage({ tone: "good", text: `${name} wurde angelegt ✅` });
+    setAddOpen(false);
     setFirstName("");
     setLastName("");
     setBirthYear("");
@@ -179,18 +182,33 @@ export default function AthletenPage() {
   }
 
   async function handleDelete(athlete: Athlete) {
+    /* Hochgeladene Dateien wuerden beim Loeschen im Speicher zurueckbleiben (ohne Eintrag).
+       Deshalb erst die Dokumente im Profil loeschen lassen. */
+    const files = await supabase.from("athlete_documents").select("id").eq("swimmer_id", athlete.id).not("file_path", "is", null);
+    if (files.error && !isMissingTable(files.error.code)) {
+      setMessage({ tone: "bad", text: "Löschen abgebrochen: Dokumente des Athleten konnten nicht geprüft werden." });
+      return;
+    }
+    if (files.data?.length) {
+      setMessage({
+        tone: "bad",
+        text: `${getSwimmerName(athlete)} hat noch ${files.data.length} hochgeladene ${files.data.length === 1 ? "Datei" : "Dateien"}. Bitte zuerst im Profil unter Stammdaten → Dokumente löschen.`,
+      });
+      return;
+    }
+
     if (
       !window.confirm(
-        `${getSwimmerName(athlete)} wirklich löschen? Alle Zeiten und das Wettkampf-Feedback werden ebenfalls gelöscht. Ein eigener Login bleibt bestehen.`
+        `${getSwimmerName(athlete)} wirklich löschen? Alle Zeiten, Gesundheit, Ziele, Notizen und das Wettkampf-Feedback werden ebenfalls gelöscht. Tipp: vorher Einstellungen → Datensicherung. Ein eigener Login bleibt bestehen.`
       )
     ) {
       return;
     }
 
-    const { error } = await supabase.from("swimmers").delete().eq("id", athlete.id);
+    const { data: deleted, error } = await supabase.from("swimmers").delete().eq("id", athlete.id).select("id");
 
-    if (error) {
-      setMessage({ tone: "bad", text: `Athlet konnte nicht gelöscht werden: ${error.message}` });
+    if (error || !deleted?.length) {
+      setMessage({ tone: "bad", text: error ? `Athlet konnte nicht gelöscht werden: ${error.message}` : "Athlet wurde nicht gelöscht (keine Berechtigung)." });
       return;
     }
 
@@ -214,70 +232,76 @@ export default function AthletenPage() {
     candidate.kind === filter.kind && (candidate.kind !== "team" || (filter.kind === "team" && candidate.id === filter.id));
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6">
+    <main className="mx-auto max-w-6xl space-y-4 sm:space-y-5">
       <PageHeader
-        icon="athlete"
+        eyebrow="Team"
         title="Athleten"
         description={
           <>
-            Alle, die du betreust – mit oder ohne eigenen Login. Hier liegen Zeiten, Bestzeiten und Feedback.{" "}
-            <Link href="/coach/teams" className="text-app-accent hover:underline">
+            Alle, die du betreust – mit oder ohne eigenen Login.{" "}
+            <Link href="/coach/teams" className="text-app-accent-soft hover:underline">
               Teams verwalten
             </Link>
           </>
+        }
+        actions={
+          <button type="button" onClick={() => setAddOpen(true)} className={buttonPrimary}>
+            <Icon name="plus" className="h-4 w-4" />
+            Athlet
+          </button>
         }
       />
 
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
 
-      <Card title="Athlet anlegen" description="Nur der Vorname ist Pflicht. Jahrgang und Geschlecht braucht der Pflichtzeiten-Vergleich.">
-        <form onSubmit={handleAdd} className="grid gap-3 p-5 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_110px_140px_180px_auto] lg:items-end">
-          <FormField label="Vorname *">
-            <input ref={firstNameInput} type="text" value={firstName} onChange={(event) => setFirstName(event.target.value)} required placeholder="z. B. Lena" className={inputClass} />
-          </FormField>
-          <FormField label="Nachname">
-            <input type="text" value={lastName} onChange={(event) => setLastName(event.target.value)} className={inputClass} />
-          </FormField>
-          <FormField label="Jahrgang">
-            <input type="number" inputMode="numeric" value={birthYear} onChange={(event) => setBirthYear(event.target.value)} placeholder="2012" className={inputClass} />
-          </FormField>
-          <FormField label="Geschlecht">
-            <select value={gender} onChange={(event) => setGender(event.target.value as "" | Gender)} className={inputClass}>
-              <option value="">–</option>
-              <option value="female">weiblich</option>
-              <option value="male">männlich</option>
-            </select>
-          </FormField>
-          <FormField label="Team">
-            <select value={teamId} onChange={(event) => setTeamId(event.target.value)} className={inputClass}>
-              <option value="">– kein Team –</option>
-              {teams.map((team) => (
-                <option key={team.id} value={team.id}>
-                  {team.name}
-                </option>
-              ))}
-            </select>
-          </FormField>
-          <button type="submit" disabled={saving} className={buttonPrimary}>
-            {saving ? "Speichern..." : "Anlegen"}
-          </button>
-        </form>
-      </Card>
+      <Modal open={addOpen} title="Athlet anlegen" onClose={() => setAddOpen(false)}>
+        <p className="mb-4 text-sm text-app-muted">Nur der Vorname ist Pflicht. Jahrgang und Geschlecht braucht der Pflichtzeiten-Vergleich.</p>
+          <form onSubmit={handleAdd} className="grid gap-3 sm:grid-cols-2">
+            <FormField label="Vorname *">
+              <input ref={firstNameInput} type="text" value={firstName} onChange={(event) => setFirstName(event.target.value)} required placeholder="z. B. Lena" className={inputClass} />
+            </FormField>
+            <FormField label="Nachname">
+              <input type="text" value={lastName} onChange={(event) => setLastName(event.target.value)} className={inputClass} />
+            </FormField>
+            <FormField label="Jahrgang">
+              <input type="number" inputMode="numeric" value={birthYear} onChange={(event) => setBirthYear(event.target.value)} placeholder="2012" className={inputClass} />
+            </FormField>
+            <FormField label="Geschlecht">
+              <select value={gender} onChange={(event) => setGender(event.target.value as "" | Gender)} className={inputClass}>
+                <option value="">–</option>
+                <option value="female">weiblich</option>
+                <option value="male">männlich</option>
+              </select>
+            </FormField>
+            <FormField label="Team">
+              <select value={teamId} onChange={(event) => setTeamId(event.target.value)} className={inputClass}>
+                <option value="">– kein Team –</option>
+                {teams.map((team) => (
+                  <option key={team.id} value={team.id}>
+                    {team.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+            <button type="submit" disabled={saving} className={`${buttonPrimary} sm:col-span-2`}>
+              {saving ? "Speichern..." : "Anlegen"}
+            </button>
+          </form>
+      </Modal>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-1.5">
+        <div className="-mx-4 flex w-[calc(100%+2rem)] gap-2 overflow-x-auto px-4 sm:mx-0 sm:w-auto sm:flex-wrap sm:px-0">
           {chips.map((chip) => (
             <button
               key={chip.key}
               type="button"
               onClick={() => setFilter(chip.filter)}
-              className={`rounded-full border px-3 py-1.5 text-sm transition ${
-                isActive(chip.filter)
-                  ? "border-app-accent bg-app-accent font-semibold text-app-accent-ink"
-                  : "border-app-border bg-app-surface text-app-text hover:bg-app-elevated"
+              aria-pressed={isActive(chip.filter)}
+              className={`flex min-h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13px] font-bold transition ${
+                isActive(chip.filter) ? "bg-app-heading text-app-bg" : "bg-app-elevated text-app-muted hover:text-app-heading"
               }`}
             >
-              {chip.label} <span className="opacity-70">{chip.count}</span>
+              {chip.label} <span className="num opacity-70">{chip.count}</span>
             </button>
           ))}
         </div>
@@ -296,14 +320,42 @@ export default function AthletenPage() {
           <p className="p-6 text-sm text-app-muted"><Loader /></p>
         ) : athletes.length === 0 ? (
           <EmptyState icon="athlete" title="Noch keine Athleten">
-            Leg oben den ersten Athleten an.
+            Tippe oben auf „Athlet“, um den ersten anzulegen.
           </EmptyState>
         ) : visible.length === 0 ? (
           <p className="p-6 text-sm text-app-muted">Niemand passt zu diesem Filter.</p>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+          {/* Handy: Liste mit Karten (Design 9j) */}
+          <ul className="divide-y divide-app-border/60 md:hidden">
+            {visible.map((athlete) => (
+              <li key={athlete.id}>
+                <Link href={`/coach/schwimmer/${athlete.id}`} className="flex min-h-14 items-center gap-3 px-4 py-2.5 transition hover:bg-app-elevated/60">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-app-accent/20 text-sm font-extrabold text-app-accent-soft" aria-hidden="true">
+                    {(athlete.first_name?.[0] ?? "").toUpperCase()}
+                    {(athlete.last_name?.[0] ?? "").toUpperCase()}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[15px] font-bold text-app-heading">{getSwimmerName(athlete)}</span>
+                    <span className="block truncate text-[13px] text-app-muted">
+                      {athlete.birth_year ? `Jg. ${athlete.birth_year}` : "Jg. –"}
+                      {teamsOf.get(athlete.id)?.length ? ` · ${(teamsOf.get(athlete.id) ?? []).map((team) => team.name).join(", ")}` : ""}
+                    </span>
+                  </span>
+                  <span className="num text-[13px] text-app-muted">{resultCounts[athlete.id] ?? 0} Zeiten</span>
+                  {athlete.profile_id && <Icon name="check" className="h-4 w-4 text-app-good" />}
+                  <svg viewBox="0 0 20 20" className="h-4 w-4 shrink-0 text-app-faint" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M8 5l5 5-5 5" />
+                  </svg>
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {/* Desktop: Tabelle */}
+          <div className="hidden overflow-x-auto md:block">
             <table className="w-full min-w-[640px] text-left text-sm">
-              <thead className="border-b border-app-border bg-app-bg/50 text-app-muted">
+              <thead className="border-b border-app-border/60 text-app-faint">
                 <tr>
                   <th className="px-5 py-3 font-medium">Nachname</th>
                   <th className="px-3 py-3 font-medium">Vorname</th>
@@ -319,7 +371,7 @@ export default function AthletenPage() {
                 {visible.map((athlete) => (
                   <tr key={athlete.id} className="hover:bg-app-elevated/60">
                     <td className="px-5 py-3">
-                      <Link href={`/coach/schwimmer/${athlete.id}`} className="font-medium text-app-accent hover:underline">
+                      <Link href={`/coach/schwimmer/${athlete.id}`} className="font-bold text-app-heading hover:text-app-accent-soft hover:underline">
                         {athlete.last_name || "–"}
                       </Link>
                     </td>
@@ -349,7 +401,7 @@ export default function AthletenPage() {
                         <span className="text-xs text-app-faint">–</span>
                       )}
                     </td>
-                    <td className="px-3 py-3 text-app-muted">{resultCounts[athlete.id] ?? 0}</td>
+                    <td className="num px-3 py-3 text-app-muted">{resultCounts[athlete.id] ?? 0}</td>
                     <td className="px-3 py-3 text-right">
                       <button type="button" onClick={() => handleDelete(athlete)} className={`${buttonGhost} text-xs hover:text-app-bad`}>
                         Löschen
@@ -360,6 +412,7 @@ export default function AthletenPage() {
               </tbody>
             </table>
           </div>
+          </>
         )}
       </Card>
     </main>

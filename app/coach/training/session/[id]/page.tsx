@@ -395,6 +395,7 @@ export default function CoachTrainingSessionPage() {
 
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     loadPage();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, [trainingId]);
 
   const athleteRows =
@@ -496,7 +497,7 @@ export default function CoachTrainingSessionPage() {
     return (
       <main>
         <div className="mx-auto max-w-[1200px]">
-          <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
+          <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-8 text-center text-sm text-app-muted">
             Training wird geladen...
           </div>
         </div>
@@ -541,7 +542,7 @@ export default function CoachTrainingSessionPage() {
                 "Trainingseinheit"}
             </p>
 
-            <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               {training.title}
             </h1>
 
@@ -611,7 +612,9 @@ export default function CoachTrainingSessionPage() {
           </div>
         )}
 
-        <AttendanceCard sessionId={training.id} teamId={training.team_id} />
+        <div id="anwesenheit" className="scroll-mt-20">
+          <AttendanceCard sessionId={training.id} teamId={training.team_id} />
+        </div>
 
         <SetTimesCard sessionId={training.id} teamId={training.team_id} sessionDate={training.session_date} />
 
@@ -631,7 +634,7 @@ export default function CoachTrainingSessionPage() {
           </div>
 
           <div className="grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-stretch">
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+            <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs uppercase tracking-wide text-app-faint">
@@ -711,7 +714,7 @@ export default function CoachTrainingSessionPage() {
               </span>
             </div>
 
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-4">
+            <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-4">
               <div>
                 <p className="text-xs uppercase tracking-wide text-app-faint">
                   Innere Beanspruchung
@@ -796,7 +799,7 @@ export default function CoachTrainingSessionPage() {
           />
         )}
 
-        <section className="mt-5 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-5 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="flex flex-col gap-1 border-b border-app-border px-4 py-3 sm:px-5">
             <h2 className="font-semibold">
               Athleten-Rückmeldungen

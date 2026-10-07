@@ -1,5 +1,5 @@
 -- =====================================================================
--- ALLES AKTUALISIEREN (Skripte 1 und 12 bis 22 in einem)
+-- ALLES AKTUALISIEREN (Skripte 1, 12 bis 25, Serienzeiten und 27 in einem; 26 NICHT enthalten)
 --
 -- Spielt alle neueren Erweiterungen auf einmal ein. Bereits Vorhandenes
 -- wird uebersprungen ("if not exists" / "or replace") - mehrfach
@@ -558,3 +558,658 @@ begin
     execute 'grant execute on function public.my_lactate_tests() to authenticated';
   end if;
 end $$;
+
+
+-- ---------------------------------------------------------------------
+-- 23 · gesundheit_dokumente.sql
+-- ---------------------------------------------------------------------
+create table if not exists public.health_events (
+  id                 uuid primary key default gen_random_uuid(),
+  swimmer_id         uuid not null references public.swimmers(id) on delete cascade,
+  kind               text not null default 'verletzung'
+                       check (kind in ('verletzung', 'erkrankung', 'beschwerde', 'sonstiges')),
+  title              text not null,
+  body_region        text,
+  availability       text not null default 'eingeschraenkt'
+                       check (availability in ('voll', 'eingeschraenkt', 'pause')),
+  restriction        text,
+  start_date         date not null default current_date,
+  end_date           date,
+  clearance          text not null default 'nicht_noetig'
+                       check (clearance in ('nicht_noetig', 'offen', 'erteilt')),
+  note               text,
+  visible_to_athlete boolean not null default true,
+  created_by         uuid default auth.uid(),
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+  check (end_date is null or end_date >= start_date)
+);
+
+create index if not exists health_events_swimmer_idx on public.health_events (swimmer_id, start_date desc);
+
+alter table public.health_events enable row level security;
+
+drop policy if exists "Coaches manage health events of own swimmers" on public.health_events;
+create policy "Coaches manage health events of own swimmers"
+  on public.health_events for all
+  to authenticated
+  using (public.coach_owns_swimmer(swimmer_id))
+  with check (public.coach_owns_swimmer(swimmer_id));
+
+drop policy if exists "Athletes read own visible health events" on public.health_events;
+create policy "Athletes read own visible health events"
+  on public.health_events for select
+  to authenticated
+  using (
+    visible_to_athlete
+    and exists (select 1 from public.swimmers s where s.id = swimmer_id and s.profile_id = auth.uid())
+  );
+
+
+create table if not exists public.athlete_documents (
+  id           uuid primary key default gen_random_uuid(),
+  swimmer_id   uuid not null references public.swimmers(id) on delete cascade,
+  doc_type     text not null default 'sonstiges'
+                 check (doc_type in ('sportattest', 'einverstaendnis', 'startpass', 'sonstiges')),
+  title        text not null,
+  valid_until  date,
+  file_path    text,
+  note         text,
+  created_by   uuid default auth.uid(),
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists athlete_documents_swimmer_idx on public.athlete_documents (swimmer_id);
+create index if not exists athlete_documents_valid_idx on public.athlete_documents (valid_until) where valid_until is not null;
+
+alter table public.athlete_documents enable row level security;
+
+drop policy if exists "Coaches manage documents of own swimmers" on public.athlete_documents;
+create policy "Coaches manage documents of own swimmers"
+  on public.athlete_documents for all
+  to authenticated
+  using (public.coach_owns_swimmer(swimmer_id))
+  with check (public.coach_owns_swimmer(swimmer_id));
+
+drop policy if exists "Athletes read own documents" on public.athlete_documents;
+create policy "Athletes read own documents"
+  on public.athlete_documents for select
+  to authenticated
+  using (exists (select 1 from public.swimmers s where s.id = swimmer_id and s.profile_id = auth.uid()));
+
+
+-- ---------------------------------------------------------------------
+-- Privater Speicher fuer Dateien. Pfad: <swimmer_id>/<datei>.
+-- Nur der zustaendige Coach darf hoch- und herunterladen.
+-- ---------------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('athlete-documents', 'athlete-documents', false)
+on conflict (id) do nothing;
+
+-- Ordnername (Text) statt uuid-Cast: ein Ordner, der keine uuid ist,
+-- fuehrt so nie zu einem Fehler, sondern einfach zu "kein Zugriff".
+create or replace function public.coach_owns_swimmer_folder(p_folder text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.swimmers s
+    where s.id::text = p_folder and s.coach_id = auth.uid()
+  );
+$$;
+
+drop policy if exists "Coaches read own athlete documents" on storage.objects;
+create policy "Coaches read own athlete documents"
+  on storage.objects for select
+  to authenticated
+  using (bucket_id = 'athlete-documents' and public.coach_owns_swimmer_folder((storage.foldername(name))[1]));
+
+drop policy if exists "Coaches upload own athlete documents" on storage.objects;
+create policy "Coaches upload own athlete documents"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'athlete-documents' and public.coach_owns_swimmer_folder((storage.foldername(name))[1]));
+
+drop policy if exists "Coaches delete own athlete documents" on storage.objects;
+create policy "Coaches delete own athlete documents"
+  on storage.objects for delete
+  to authenticated
+  using (bucket_id = 'athlete-documents' and public.coach_owns_swimmer_folder((storage.foldername(name))[1]));
+
+
+-- ---------------------------------------------------------------------
+-- 24 · ziele_notizen.sql
+-- ---------------------------------------------------------------------
+create table if not exists public.athlete_goals (
+  id                 uuid primary key default gen_random_uuid(),
+  swimmer_id         uuid not null references public.swimmers(id) on delete cascade,
+  kind               text not null default 'zeit' check (kind in ('zeit', 'technik', 'training')),
+  title              text,
+  distance           integer,
+  stroke             text,
+  pool_length        integer check (pool_length is null or pool_length in (25, 50)),
+  target_ms          integer check (target_ms is null or target_ms > 0),
+  due_date           date,
+  achieved_at        date,
+  visible_to_athlete boolean not null default true,
+  created_by         uuid default auth.uid(),
+  created_at         timestamptz not null default now(),
+  check (kind <> 'zeit' or (distance is not null and stroke is not null and target_ms is not null)),
+  check (kind = 'zeit' or title is not null)
+);
+
+create index if not exists athlete_goals_swimmer_idx on public.athlete_goals (swimmer_id);
+
+alter table public.athlete_goals enable row level security;
+
+drop policy if exists "Coaches manage goals of own swimmers" on public.athlete_goals;
+create policy "Coaches manage goals of own swimmers"
+  on public.athlete_goals for all
+  to authenticated
+  using (public.coach_owns_swimmer(swimmer_id))
+  with check (public.coach_owns_swimmer(swimmer_id));
+
+drop policy if exists "Athletes read own visible goals" on public.athlete_goals;
+create policy "Athletes read own visible goals"
+  on public.athlete_goals for select
+  to authenticated
+  using (
+    visible_to_athlete
+    and exists (select 1 from public.swimmers s where s.id = swimmer_id and s.profile_id = auth.uid())
+  );
+
+
+create table if not exists public.athlete_notes (
+  id          uuid primary key default gen_random_uuid(),
+  swimmer_id  uuid not null references public.swimmers(id) on delete cascade,
+  body        text not null check (length(trim(body)) > 0),
+  pinned      boolean not null default false,
+  created_by  uuid default auth.uid(),
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists athlete_notes_swimmer_idx on public.athlete_notes (swimmer_id, created_at desc);
+
+alter table public.athlete_notes enable row level security;
+
+drop policy if exists "Coaches manage notes of own swimmers" on public.athlete_notes;
+create policy "Coaches manage notes of own swimmers"
+  on public.athlete_notes for all
+  to authenticated
+  using (public.coach_owns_swimmer(swimmer_id))
+  with check (public.coach_owns_swimmer(swimmer_id));
+
+
+
+-- #####################################################################
+-- sicherheit_trainerteam.sql
+-- #####################################################################
+
+-- =====================================================================
+-- Skript 25: Sicherheit ergaenzen und Trainerteam VORBEREITEN
+--
+-- Nur additiv. Aendert, loescht oder ergaenzt KEINE vorhandenen Daten.
+-- Es aendert auch noch keine bestehende Zugriffsregel: Wer heute etwas
+-- sieht, sieht nach diesem Skript genau dasselbe.
+--
+-- Inhalt:
+--   A) Rolle (coach/athlete) kann nicht mehr ueber die App geaendert
+--      werden (Schutz gegen "Athlet macht sich selbst zum Trainer").
+--   B) Check-in: Schmerzfrage "nicht angegeben" getrennt speicherbar
+--      (neue optionale Spalte, alte Eintraege bleiben leer).
+--   C) Athleten duerfen ihre EIGENE Anwesenheit lesen (nur lesen), damit
+--      sie fuer verpasste Einheiten nicht nach Feedback gefragt werden.
+--   D) Tabelle team_coaches (weitere Trainer je Team) und neue
+--      Hilfsfunktionen. Sie werden erst mit Skript 26 wirksam.
+--
+-- Vorher: Einstellungen -> "Datensicherung herunterladen".
+-- Im Supabase SQL-Editor ausfuehren. Wiederholbar.
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- A) Rolle schuetzen
+-- Die App aendert profiles.role nie. Aenderungen sind nur noch im
+-- Supabase-Dashboard/SQL-Editor moeglich (dort ist auth.uid() leer).
+-- ---------------------------------------------------------------------
+create or replace function public.profiles_protect_role()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is not null and new.role is distinct from old.role then
+    raise exception 'Die Rolle kann nur von der Vereinsverwaltung in Supabase geaendert werden.'
+      using errcode = '42501';
+  end if;
+  if auth.uid() is not null and new.id is distinct from old.id then
+    raise exception 'Die Profil-ID kann nicht geaendert werden.' using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+
+revoke all on function public.profiles_protect_role() from public, anon, authenticated;
+
+drop trigger if exists profiles_protect_role on public.profiles;
+create trigger profiles_protect_role
+  before update on public.profiles
+  for each row execute function public.profiles_protect_role();
+
+-- ---------------------------------------------------------------------
+-- B) Schmerzfrage: 'ja' | 'nein' | 'keine_angabe' (optional)
+-- ---------------------------------------------------------------------
+alter table public.befinden_entries
+  add column if not exists pain_answer text;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'befinden_entries_pain_answer_check'
+      and conrelid = 'public.befinden_entries'::regclass
+  ) then
+    alter table public.befinden_entries
+      add constraint befinden_entries_pain_answer_check
+      check (pain_answer is null or pain_answer in ('ja', 'nein', 'keine_angabe'));
+  end if;
+end $$;
+
+-- ---------------------------------------------------------------------
+-- C) Athlet liest eigene Anwesenheit (nur SELECT)
+-- ---------------------------------------------------------------------
+drop policy if exists "Athletes read own attendance" on public.training_attendance;
+create policy "Athletes read own attendance"
+  on public.training_attendance for select
+  to authenticated
+  using (
+    exists (
+      select 1 from public.swimmers s
+      where s.id = training_attendance.swimmer_id
+        and s.profile_id = auth.uid()
+    )
+  );
+
+-- ---------------------------------------------------------------------
+-- D) Trainerteam (noch nicht wirksam)
+--
+-- Modell:
+--   * Haupttrainer eines Teams  = teams.coach_id (wie bisher)
+--   * Stammtrainer eines Athleten = swimmers.coach_id (wie bisher)
+--   * Weitere Trainer eines Teams = Zeilen in team_coaches
+--     (nur der Haupttrainer traegt sie ein; Entzug ueber revoked_at,
+--     damit nachvollziehbar bleibt, wer wann Zugriff hatte).
+-- Es werden KEINE vorhandenen Zuordnungen kopiert: Haupt- und
+-- Stammtrainer bleiben implizit, team_coaches startet leer.
+-- ---------------------------------------------------------------------
+create table if not exists public.team_coaches (
+  id          uuid primary key default gen_random_uuid(),
+  team_id     uuid not null references public.teams(id) on delete cascade,
+  coach_id    uuid not null references public.profiles(id) on delete cascade,
+  added_by    uuid default auth.uid(),
+  added_at    timestamptz not null default now(),
+  revoked_at  timestamptz,
+  unique (team_id, coach_id)
+);
+
+create index if not exists team_coaches_coach_idx on public.team_coaches (coach_id) where revoked_at is null;
+
+alter table public.team_coaches enable row level security;
+
+-- Haupttrainer eines Teams?
+create or replace function public.is_team_owner(p_team_id uuid)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (select 1 from public.teams t where t.id = p_team_id and t.coach_id = auth.uid());
+$$;
+
+-- Haupttrainer ODER aktiver weiterer Trainer des Teams?
+create or replace function public.is_team_staff(p_team_id uuid)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select public.is_team_owner(p_team_id)
+      or exists (
+        select 1 from public.team_coaches tc
+        where tc.team_id = p_team_id and tc.coach_id = auth.uid() and tc.revoked_at is null
+      );
+$$;
+
+-- Darf der angemeldete Trainer diesen Athleten sehen/bearbeiten?
+-- Stammtrainer, Haupttrainer oder aktiver weiterer Trainer eines Teams,
+-- in dem der Athlet AKTUELL ist.
+create or replace function public.coach_can_access_swimmer(p_swimmer_id uuid)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (select 1 from public.swimmers s where s.id = p_swimmer_id and s.coach_id = auth.uid())
+      or exists (
+        select 1
+        from public.team_swimmers ts
+        where ts.swimmer_id = p_swimmer_id
+          and public.is_team_staff(ts.team_id)
+      );
+$$;
+
+-- Ist der angemeldete Trainer Stammtrainer dieses Athleten?
+-- Nur der Stammtrainer darf einen Athleten in Teams aufnehmen; so kann
+-- ein weiterer Trainer fremde Athleten nicht in eigene Teams "mitnehmen".
+create or replace function public.coach_is_primary(p_swimmer_id uuid)
+returns boolean
+language sql stable security definer set search_path = ''
+as $$
+  select exists (select 1 from public.swimmers s where s.id = p_swimmer_id and s.coach_id = auth.uid());
+$$;
+
+-- Ordner-Pruefung aus Skript 23 nur fuer angemeldete Nutzer
+revoke all on function public.coach_owns_swimmer_folder(text) from public, anon;
+grant execute on function public.coach_owns_swimmer_folder(text) to authenticated;
+
+revoke all on function public.is_team_owner(uuid) from public, anon;
+revoke all on function public.is_team_staff(uuid) from public, anon;
+revoke all on function public.coach_can_access_swimmer(uuid) from public, anon;
+revoke all on function public.coach_is_primary(uuid) from public, anon;
+grant execute on function public.is_team_owner(uuid) to authenticated;
+grant execute on function public.is_team_staff(uuid) to authenticated;
+grant execute on function public.coach_can_access_swimmer(uuid) to authenticated;
+grant execute on function public.coach_is_primary(uuid) to authenticated;
+
+drop policy if exists "Team staff read team coaches" on public.team_coaches;
+create policy "Team staff read team coaches"
+  on public.team_coaches for select
+  to authenticated
+  using (public.is_team_staff(team_id) or coach_id = auth.uid());
+
+-- Nur der Haupttrainer fuegt hinzu, entzieht (revoked_at) oder entfernt.
+drop policy if exists "Team owner manages team coaches" on public.team_coaches;
+create policy "Team owner manages team coaches"
+  on public.team_coaches for all
+  to authenticated
+  using (public.is_team_owner(team_id))
+  with check (public.is_team_owner(team_id) and coach_id <> auth.uid());
+
+-- Nur Trainer-Profile koennen weitere Trainer sein
+create or replace function public.team_coaches_check_role()
+returns trigger
+language plpgsql security definer set search_path = ''
+as $$
+begin
+  if not exists (select 1 from public.profiles p where p.id = new.coach_id and p.role::text = 'coach') then
+    raise exception 'Nur Trainer-Konten koennen einem Team als Trainer zugeordnet werden.' using errcode = '23514';
+  end if;
+  return new;
+end;
+$$;
+revoke all on function public.team_coaches_check_role() from public, anon, authenticated;
+
+drop trigger if exists team_coaches_check_role on public.team_coaches;
+create trigger team_coaches_check_role
+  before insert or update of coach_id on public.team_coaches
+  for each row execute function public.team_coaches_check_role();
+
+-- ---------------------------------------------------------------------
+-- Pruefabfrage (liest nur): Athleten in einem Team, dessen Haupttrainer
+-- NICHT ihr Stammtrainer ist. Diese Athleten sieht der Haupttrainer heute
+-- nicht. Nach Skript 26 sieht er sie. Bitte die Liste vorher ansehen.
+-- ---------------------------------------------------------------------
+select t.name as team, count(*) as athleten_mit_anderem_stammtrainer
+from public.team_swimmers ts
+join public.teams t on t.id = ts.team_id
+join public.swimmers s on s.id = ts.swimmer_id
+where s.coach_id is distinct from t.coach_id
+group by t.name
+order by t.name;
+
+
+
+-- #####################################################################
+-- serienzeiten.sql
+-- #####################################################################
+
+-- =====================================================================
+-- Serienzeiten je Trainingseinheit (z. B. 10x100 Hauptlage)
+--
+-- Neue Tabelle, nur additiv. Bestehende Daten bleiben unveraendert.
+-- Eintraege entstehen nur, wenn der Coach in der App Zeiten einer
+-- Serie eintraegt. Je Athlet und Serie eine Zeile, die Zeiten der
+-- Wiederholungen als Liste (Millisekunden, null = nicht geschwommen).
+-- Einmal im Supabase SQL-Editor ausfuehren.
+-- =====================================================================
+
+create table if not exists public.training_set_times (
+  id                   uuid primary key default gen_random_uuid(),
+  training_session_id  uuid not null references public.training_sessions(id) on delete cascade,
+  swimmer_id           uuid not null references public.swimmers(id) on delete cascade,
+  set_label            text not null,
+  stroke               text,
+  interval_seconds     integer,
+  times_ms             integer[] not null default '{}',
+  note                 text,
+  updated_at           timestamptz not null default now(),
+  unique (training_session_id, swimmer_id, set_label)
+);
+
+create index if not exists training_set_times_swimmer_idx
+  on public.training_set_times (swimmer_id, set_label);
+
+alter table public.training_set_times enable row level security;
+
+drop policy if exists "Coaches manage set times of own sessions" on public.training_set_times;
+create policy "Coaches manage set times of own sessions"
+  on public.training_set_times for all
+  to authenticated
+  using (
+    public.coach_owns_swimmer(swimmer_id)
+    and exists (
+      select 1 from public.training_sessions s
+      where s.id = training_session_id and s.coach_id = auth.uid()
+    )
+  )
+  with check (
+    public.coach_owns_swimmer(swimmer_id)
+    and exists (
+      select 1 from public.training_sessions s
+      where s.id = training_session_id and s.coach_id = auth.uid()
+    )
+  );
+
+
+
+-- #####################################################################
+-- training_speichern_serienzeiten.sql
+-- #####################################################################
+
+-- =====================================================================
+-- Skript 27: Training sicher speichern, Serienzeiten mit Kontext,
+--            Trainer im Team verwalten
+--
+-- Nur additiv: neue optionale Spalten (ohne Wert fuer Altbestand),
+-- neue Funktionen und Regeln. Aendert, loescht oder ergaenzt KEINE
+-- vorhandenen Daten. Voraussetzung: Skripte 16 (training_notizen),
+-- Serienzeiten (serienzeiten.sql) und 25 sind eingespielt.
+-- Vorher: Einstellungen -> "Datensicherung herunterladen".
+-- =====================================================================
+
+-- ---------------------------------------------------------------------
+-- A) Training atomar speichern (kein Verlust, keine doppelten Serien)
+--
+-- content_version zaehlt jede gespeicherte Fassung. Die Funktion sperrt
+-- die Einheit (FOR UPDATE), vergleicht die Version, die der Trainer beim
+-- Oeffnen geladen hat, und ersetzt Kopf und Inhalt in EINER Transaktion.
+-- Speichern zwei Trainer gleichzeitig, gewinnt genau einer; der andere
+-- bekommt "version_conflict" und es wird nichts geaendert.
+-- SECURITY INVOKER: alle Zugriffsregeln (RLS) gelten wie bisher.
+-- Altbestand hat content_version = leer und gilt als Version 0.
+-- ---------------------------------------------------------------------
+alter table public.training_sessions add column if not exists content_version integer;
+
+create or replace function public.save_training_content(
+  p_session_id uuid,
+  p_expected_version integer,
+  p_session jsonb,
+  p_sections jsonb,
+  p_land jsonb,
+  p_warmup jsonb
+)
+returns integer
+language plpgsql
+security invoker
+set search_path = ''
+as $$
+declare
+  v_current integer;
+  v_section jsonb;
+  v_section_id uuid;
+begin
+  select coalesce(s.content_version, 0) into v_current
+  from public.training_sessions s
+  where s.id = p_session_id
+  for update;
+
+  if not found then
+    raise exception 'not_found' using errcode = 'P0002';
+  end if;
+  if v_current <> coalesce(p_expected_version, 0) then
+    raise exception 'version_conflict' using errcode = '40001';
+  end if;
+
+  -- Kopfdaten (Typen aus der Tabellendefinition)
+  update public.training_sessions s set
+    title = r.title,
+    team_id = r.team_id,
+    session_date = r.session_date,
+    start_time = r.start_time,
+    training_type = r.training_type,
+    duration_minutes = r.duration_minutes,
+    total_meters = r.total_meters,
+    pool_length = r.pool_length,
+    focus = r.focus,
+    planned_rpe = r.planned_rpe,
+    core_goals = r.core_goals,
+    notes = case when p_session ? 'notes' then r.notes else s.notes end,
+    content_version = v_current + 1
+  from jsonb_populate_record(null::public.training_sessions, p_session) r
+  where s.id = p_session_id;
+
+  -- alten Inhalt ersetzen
+  delete from public.training_rows
+  where section_id in (select x.id from public.training_sections x where x.training_session_id = p_session_id);
+  delete from public.training_sections where training_session_id = p_session_id;
+  delete from public.training_land_rows where training_session_id = p_session_id;
+  delete from public.training_warmup_land_rows where training_session_id = p_session_id;
+
+  for v_section in select value from jsonb_array_elements(coalesce(p_sections, '[]'::jsonb)) loop
+    insert into public.training_sections (training_session_id, section_key, section_name, practice_mode, sort_order)
+    select p_session_id, r.section_key, r.section_name, r.practice_mode, r.sort_order
+    from jsonb_populate_record(null::public.training_sections, v_section) r
+    returning id into v_section_id;
+
+    insert into public.training_rows (section_id, repetitions, distance, exercise, style, materials, zone, interval_type, interval_time, sort_order)
+    select v_section_id, r.repetitions, r.distance, r.exercise, r.style, r.materials, r.zone, r.interval_type, r.interval_time, r.sort_order
+    from jsonb_populate_recordset(null::public.training_rows, coalesce(v_section -> 'rows', '[]'::jsonb)) r;
+  end loop;
+
+  insert into public.training_land_rows (training_session_id, exercise, sets, repetitions, weight, material, intensity, sort_order)
+  select p_session_id, r.exercise, r.sets, r.repetitions, r.weight, r.material, r.intensity, r.sort_order
+  from jsonb_populate_recordset(null::public.training_land_rows, coalesce(p_land, '[]'::jsonb)) r;
+
+  insert into public.training_warmup_land_rows (training_session_id, exercise, sets, repetitions, material, intensity, sort_order)
+  select p_session_id, r.exercise, r.sets, r.repetitions, r.material, r.intensity, r.sort_order
+  from jsonb_populate_recordset(null::public.training_warmup_land_rows, coalesce(p_warmup, '[]'::jsonb)) r;
+
+  return v_current + 1;
+end;
+$$;
+
+revoke all on function public.save_training_content(uuid, integer, jsonb, jsonb, jsonb, jsonb) from public, anon;
+grant execute on function public.save_training_content(uuid, integer, jsonb, jsonb, jsonb, jsonb) to authenticated;
+
+-- ---------------------------------------------------------------------
+-- B) Serienzeiten mit Kontext (alle Spalten optional)
+--
+-- Die geplante Serie wird beim Bearbeiten einer Einheit neu angelegt.
+-- Darum KEINE harte Verknuepfung (die Zeiten wuerden mitgeloescht),
+-- sondern eine Kopie des Serienkontexts zum Zeitpunkt der Erfassung.
+--   times_ms[i]   = Zeit der Wiederholung i (Millisekunden), leer = nicht erfasst
+--   missed_reps   = Wiederholungen, die NICHT geschwommen wurden (1-basiert)
+--   target_ms     = ausdruecklich hinterlegte Sollzeit je Wiederholung
+--                   (NICHT der Abgang: @3:00 ist keine Zielzeit)
+-- ---------------------------------------------------------------------
+alter table public.training_set_times add column if not exists distance integer;
+alter table public.training_set_times add column if not exists repetitions integer;
+alter table public.training_set_times add column if not exists pool_length integer;
+alter table public.training_set_times add column if not exists zone text;
+alter table public.training_set_times add column if not exists interval_type text;
+alter table public.training_set_times add column if not exists target_ms integer;
+alter table public.training_set_times add column if not exists missed_reps integer[];
+alter table public.training_set_times add column if not exists plan_key text;
+alter table public.training_set_times add column if not exists materials text[];
+
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conname = 'training_set_times_target_check') then
+    alter table public.training_set_times add constraint training_set_times_target_check
+      check (target_ms is null or target_ms > 0);
+  end if;
+end $$;
+
+-- Athleten sehen ihre eigenen Serienzeiten (nur lesen)
+drop policy if exists "Athletes read own set times" on public.training_set_times;
+create policy "Athletes read own set times"
+  on public.training_set_times for select to authenticated
+  using (exists (select 1 from public.swimmers s where s.id = swimmer_id and s.profile_id = auth.uid()));
+
+-- ---------------------------------------------------------------------
+-- C) Weitere Trainer eines Teams in der App verwalten (statt SQL)
+-- Nur der Haupttrainer. Gesucht wird ueber die Anmelde-E-Mail eines
+-- vorhandenen Trainer-Kontos; es werden keine E-Mails anderer Nutzer
+-- ausgegeben.
+-- ---------------------------------------------------------------------
+create or replace function public.add_team_coach(p_team_id uuid, p_email text)
+returns text
+language plpgsql security definer set search_path = ''
+as $$
+declare
+  v_coach uuid;
+  v_name text;
+begin
+  if not public.is_team_owner(p_team_id) then
+    raise exception 'Nur der Haupttrainer kann Trainer hinzufuegen.' using errcode = '42501';
+  end if;
+  select u.id, trim(coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, ''))
+    into v_coach, v_name
+  from auth.users u
+  join public.profiles p on p.id = u.id
+  where lower(u.email) = lower(trim(p_email)) and p.role::text = 'coach';
+  if v_coach is null then
+    raise exception 'Kein Trainer-Konto mit dieser E-Mail gefunden.' using errcode = 'P0002';
+  end if;
+  if v_coach = auth.uid() then
+    raise exception 'Du bist bereits Haupttrainer dieses Teams.' using errcode = '23514';
+  end if;
+  insert into public.team_coaches (team_id, coach_id, added_by)
+  values (p_team_id, v_coach, auth.uid())
+  on conflict (team_id, coach_id) do update set revoked_at = null;
+  return coalesce(nullif(v_name, ''), 'Trainer');
+end;
+$$;
+
+create or replace function public.team_coach_list(p_team_id uuid)
+returns table (coach_id uuid, name text, added_at timestamptz, revoked_at timestamptz)
+language sql stable security definer set search_path = ''
+as $$
+  select tc.coach_id, trim(coalesce(p.first_name, '') || ' ' || coalesce(p.last_name, '')), tc.added_at, tc.revoked_at
+  from public.team_coaches tc
+  join public.profiles p on p.id = tc.coach_id
+  where tc.team_id = p_team_id and public.is_team_staff(p_team_id)
+  order by tc.revoked_at nulls first, 2;
+$$;
+
+revoke all on function public.add_team_coach(uuid, text) from public, anon;
+revoke all on function public.team_coach_list(uuid) from public, anon;
+grant execute on function public.add_team_coach(uuid, text) to authenticated;
+grant execute on function public.team_coach_list(uuid) to authenticated;

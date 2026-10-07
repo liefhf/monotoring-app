@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import TrainingEffectCards from "@/components/TrainingEffectCards";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 
@@ -199,25 +200,6 @@ export default function AthleteTrainingPage() {
     });
   }, [trainings]);
 
-  const totalMeters =
-    displayTrainings.reduce(
-      (total, training) =>
-        total + (training.meters ?? 0),
-      0
-    );
-
-  const waterSessions =
-    displayTrainings.filter(
-      (training) =>
-        training.type === "Wasser"
-    ).length;
-
-  const landSessions =
-    displayTrainings.filter(
-      (training) =>
-        training.type === "Land"
-    ).length;
-
   const groupedTrainings =
     displayTrainings.reduce<
       Record<string, DisplayTraining[]>
@@ -256,30 +238,20 @@ export default function AthleteTrainingPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1600px]">
+    <div className="mx-auto w-full max-w-xl px-4 py-5 md:max-w-3xl">
       {/* Kopf */}
       <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm text-app-muted">
-            Mein Training
-          </p>
 
-          <h1 className="mt-1 text-3xl font-bold">
-            Trainingsplan
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
+            Dein Training
           </h1>
 
-          <p className="mt-2 text-app-muted">
-            Deine echten geplanten Einheiten
-            aus Supabase.
+          <p className="mt-1 text-app-muted">
+            Tippe auf ein Training, um zu sehen, was drankommt.
           </p>
         </div>
 
-        <Link
-          href="/athlete"
-          className="rounded-xl border border-app-border px-4 py-3 text-center text-sm hover:bg-app-elevated"
-        >
-          Zurück zum Dashboard
-        </Link>
       </div>
 
       {message && (
@@ -289,74 +261,11 @@ export default function AthleteTrainingPage() {
       )}
 
       {loading ? (
-        <div className="mt-8 rounded-3xl border border-app-border bg-app-surface shadow-app p-6 text-app-muted">
+        <div className="mt-8 rounded-[20px] border border-app-border bg-app-surface shadow-app p-6 text-app-muted">
           Trainings werden geladen...
         </div>
       ) : (
         <>
-          {/* Kennzahlen */}
-          <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
-              <p className="text-sm text-app-muted">
-                Einheiten
-              </p>
-
-              <p className="mt-2 text-3xl font-bold">
-                {displayTrainings.length}
-              </p>
-
-              <p className="mt-2 text-sm text-app-faint">
-                Diese Woche
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
-              <p className="text-sm text-app-muted">
-                Wasser
-              </p>
-
-              <p className="mt-2 text-3xl font-bold">
-                {waterSessions}
-              </p>
-
-              <p className="mt-2 text-sm text-app-faint">
-                Einheiten
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
-              <p className="text-sm text-app-muted">
-                Land
-              </p>
-
-              <p className="mt-2 text-3xl font-bold">
-                {landSessions}
-              </p>
-
-              <p className="mt-2 text-sm text-app-faint">
-                Einheiten
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
-              <p className="text-sm text-app-muted">
-                Wochenumfang
-              </p>
-
-              <p className="mt-2 text-3xl font-bold">
-                {(
-                  totalMeters / 1000
-                ).toLocaleString(
-                  "de-DE"
-                )}{" "}
-                km
-              </p>
-
-              <p className="mt-2 text-sm text-app-faint">
-                Wasser
-              </p>
-            </div>
-          </section>
 
           {/* Wochenplan */}
           <section className="mt-6">
@@ -380,7 +289,7 @@ export default function AthleteTrainingPage() {
                 return (
                   <div
                     key={day}
-                    className="min-h-[390px] rounded-3xl border border-app-border bg-app-surface shadow-app"
+                    className="min-h-[390px] rounded-[20px] border border-app-border bg-app-surface shadow-app"
                   >
                     <div className="border-b border-app-border p-4">
                       <h3 className="font-semibold">
@@ -494,7 +403,7 @@ export default function AthleteTrainingPage() {
           </section>
 
           {/* Heutige Einheiten */}
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="border-b border-app-border p-5">
               <h2 className="text-xl font-semibold">
                 Heute
@@ -603,7 +512,7 @@ export default function AthleteTrainingPage() {
             )}
           </section>
 
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+          <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
             <h2 className="text-lg font-semibold">
               Nach dem Training
             </h2>
@@ -617,6 +526,11 @@ export default function AthleteTrainingPage() {
               dein Coach.
             </p>
           </section>
+
+          {/* "Was dein Training bewirkt" - kurze Erklaerkarten (Kapitel 1.3) */}
+          <div className="mt-6">
+            <TrainingEffectCards />
+          </div>
         </>
       )}
     </div>

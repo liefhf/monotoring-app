@@ -43,7 +43,7 @@ export default function AthleteNewsPage() {
       {error && <Notice tone="bad">Neuigkeiten konnten nicht geladen werden.</Notice>}
 
       {loading ? (
-        <div className="rounded-3xl border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
+        <div className="rounded-[20px] border border-app-border bg-app-surface shadow-app p-10 text-center text-app-muted"><Loader /></div>
       ) : (
         <NewsList posts={posts} teamName={teamName} />
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { toDateKey } from "@/lib/community";
 import Loader from "@/components/Loader";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
@@ -39,7 +40,7 @@ export default function WettkampfTagPage() {
   const [routineMissing, setRoutineMissing] = useState(false);
   const [message, setMessage] = useState("");
   const [startTimes, setStartTimes] = useState<Record<string, string>>({});
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => toDateKey(new Date()));
 
   useEffect(() => {
     async function load() {
@@ -105,7 +106,7 @@ export default function WettkampfTagPage() {
       <Link href="/athlete" className="text-sm text-app-muted">
         ← Zurück
       </Link>
-      <h1 className="text-2xl font-bold">🏁 Mein Wettkampf-Tag</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">🏁 Mein Wettkampf-Tag</h1>
       {message && <Notice tone={message.includes("✅") ? "good" : "bad"}>{message}</Notice>}
 
       {loading ? (
@@ -160,7 +161,7 @@ export default function WettkampfTagPage() {
                 setRoutineText(routine.join("\n"));
                 setEditRoutine(!editRoutine);
               }}
-              className="text-sm text-app-accent"
+              className="min-h-11 px-2 text-sm font-semibold text-app-accent-soft"
             >
               {editRoutine ? "Abbrechen" : "anpassen"}
             </button>
@@ -184,7 +185,7 @@ export default function WettkampfTagPage() {
                   onClick={() => setDone((current) => (current.includes(index) ? current.filter((i) => i !== index) : [...current, index]))}
                   className="flex w-full items-center gap-3 px-4 py-3 text-left"
                 >
-                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 ${done.includes(index) ? "border-app-good bg-app-good text-white" : "border-app-border"}`}>
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 ${done.includes(index) ? "border-app-good bg-app-good text-app-signal-ink" : "border-app-border"}`}>
                     {done.includes(index) ? "✓" : ""}
                   </span>
                   <span className={done.includes(index) ? "text-app-muted line-through" : ""}>{item}</span>

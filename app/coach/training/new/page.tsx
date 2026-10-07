@@ -5,10 +5,13 @@ import {
   Suspense,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
+import { parseSetBlock, parseSetLine } from "@/lib/setParser";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import WeekFocusPanel from "@/components/WeekFocusPanel";
 import { SuggestedBlock } from "@/lib/weekFocus";
 import {
@@ -407,11 +410,7 @@ function TrainingEditor() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from("teams")
-      .select("id, name")
-      .eq("coach_id", user.id)
-      .order("name");
+    const { data, error } = await loadCoachTeams();
 
     if (error) {
       setMessage(
@@ -441,6 +440,7 @@ function TrainingEditor() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
     loadTeams();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Ladefunktion entsteht bei jedem Rendern neu; geladen wird nur, wenn sich die aufgefuehrten Werte aendern
   }, []);
 
   async function loadExistingTraining(
@@ -448,6 +448,10 @@ function TrainingEditor() {
   ) {
     setLoadingTraining(true);
     setMessage("");
+    /* Stand beim Oeffnen merken: so faellt auf, wenn die Einheit inzwischen anderswo gespeichert wurde */
+    loadedContent.current = await collectContentIds(sessionId);
+    const versionRes = await supabase.from("training_sessions").select("content_version").eq("id", sessionId).maybeSingle();
+    loadedVersion.current = versionRes.error ? undefined : ((versionRes.data as { content_version: number | null } | null)?.content_version ?? 0);
 
     const {
       data: sessionData,
@@ -737,9 +741,8 @@ function TrainingEditor() {
                 row.style ?? "Kraul",
               materials:
                 row.materials ?? [],
-              zone:
-                row.zone ??
-                "BZ2 (GA1)",
+              /* keine Zone bleibt keine Zone (nicht still auf BZ2 setzen) */
+              zone: row.zone ?? "",
               intervalType:
                 row.interval_type === "@"
                   ? "@"
@@ -778,6 +781,8 @@ function TrainingEditor() {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Daten beim Oeffnen laden
       loadExistingTraining(sessionFromUrl);
     }
+    // geprueft: loadExistingTraining liest nur den uebergebenen Parameter, Setter und Refs - keine veralteten Werte
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionFromUrl]);
 
   const weekday = useMemo(() => {
@@ -970,6 +975,36 @@ function TrainingEditor() {
     });
   }
 
+  /*
+   * Schnelleingabe: "8x200 Kraul GA2 @3:00" (eine Serie je Zeile) wird
+   * in Serien-Zeilen umgewandelt. Nicht erkannte Teile landen als Uebung.
+   */
+  function addParsedRows(sectionId: string, text: string) {
+    const parsed = parseSetBlock(text);
+    if (!parsed.length) return 0;
+    setWaterSections((current) => {
+      let nextId = Math.max(0, ...current.flatMap((section) => section.rows.map((row) => row.id))) + 1;
+      return current.map((section) => {
+        if (section.id !== sectionId) return section;
+        /* eine leere Standardzeile wird durch die Eingabe ersetzt */
+        const keep = section.rows.filter((row) => row.exercise.trim() || row.intervalTime.trim() || row.repetitions !== 1 || row.distance !== 100);
+        const rows = parsed.map((set) => ({
+          ...createWaterRow(nextId++),
+          repetitions: set.repetitions,
+          distance: set.distance,
+          /* nichts erfinden: unbekannte Lage = "Beliebig", unbekannte Zone = keine */
+          style: set.style ?? "Beliebig",
+          zone: set.zone ?? "",
+          intervalType: set.intervalType ?? "P",
+          intervalTime: set.intervalTime,
+          exercise: set.exercise,
+        }));
+        return { ...section, rows: [...keep, ...rows] };
+      });
+    });
+    return parsed.length;
+  }
+
   function removeWaterRow(
     sectionId: string,
     rowId: number
@@ -1125,6 +1160,48 @@ function TrainingEditor() {
         (row) => row.id !== id
       )
     );
+  }
+
+  type ContentIds = { sections: string[]; land: string[]; warmup: string[] };
+
+  async function collectContentIds(sessionId: string): Promise<ContentIds | null> {
+    const [sections, land, warmup] = await Promise.all([
+      supabase.from("training_sections").select("id").eq("training_session_id", sessionId),
+      supabase.from("training_land_rows").select("id").eq("training_session_id", sessionId),
+      supabase.from("training_warmup_land_rows").select("id").eq("training_session_id", sessionId),
+    ]);
+    if (sections.error || land.error || warmup.error) return null;
+    const ids = (rows: { id: string }[] | null) => (rows ?? []).map((row) => row.id);
+    return { sections: ids(sections.data), land: ids(land.data), warmup: ids(warmup.data) };
+  }
+
+  /* Entfernt genau die angegebenen Inhalts-Zeilen (Serien haengen an ihren Abschnitten). */
+  async function removeContent(content: ContentIds) {
+    if (content.sections.length) {
+      const { error } = await supabase.from("training_rows").delete().in("section_id", content.sections);
+      if (error) return error;
+    }
+    for (const [table, ids] of [
+      ["training_sections", content.sections],
+      ["training_land_rows", content.land],
+      ["training_warmup_land_rows", content.warmup],
+    ] as const) {
+      if (!ids.length) continue;
+      const { error } = await supabase.from(table).delete().in("id", ids);
+      if (error) return error;
+    }
+    return null;
+  }
+
+  /* Ausgleich nach Fehler: nur die gerade neu angelegten Zeilen wieder entfernen. */
+  async function removeContentExcept(sessionId: string, keep: ContentIds) {
+    const now = await collectContentIds(sessionId);
+    if (!now) return;
+    await removeContent({
+      sections: now.sections.filter((id) => !keep.sections.includes(id)),
+      land: now.land.filter((id) => !keep.land.includes(id)),
+      warmup: now.warmup.filter((id) => !keep.warmup.includes(id)),
+    });
   }
 
   async function saveLandDetails(
@@ -1314,7 +1391,7 @@ function TrainingEditor() {
               materials:
                 row.materials,
 
-              zone: row.zone,
+              zone: row.zone || null,
 
               interval_type:
                 row.intervalType,
@@ -1346,7 +1423,75 @@ function TrainingEditor() {
     return rowError;
   }
 
+  const saveLock = useRef(false);
+  const loadedContent = useRef<{ sections: string[]; land: string[]; warmup: string[] } | null>(null);
+  /* Version beim Oeffnen (Skript 27); undefined = Datenbank kennt noch kein atomares Speichern */
+  const loadedVersion = useRef<number | undefined>(undefined);
+
+  /* Inhalt der Einheit fuer das atomare Speichern (gleiche Felder wie die Einzel-Inserts) */
+  function buildContentPayload(filledLandRows: LandRow[]) {
+    const text = (value: string) => (value.trim() === "" ? null : value.trim());
+    if (trainingType === "Land") {
+      return {
+        sections: [],
+        land: filledLandRows.map((row, index) => ({ exercise: row.exercise.trim(), sets: text(row.sets), repetitions: text(row.repetitions), weight: text(row.weight), material: text(row.material), intensity: text(row.intensity), sort_order: index })),
+        warmup: [],
+      };
+    }
+    return {
+      sections: waterSections.map((section, index) => ({
+        section_key: section.id,
+        section_name: section.name,
+        practice_mode: section.mode,
+        sort_order: index,
+        rows: section.rows.map((row, rowIndex) => ({
+          repetitions: row.repetitions,
+          distance: row.distance,
+          exercise: text(row.exercise),
+          style: row.style,
+          materials: row.materials,
+          zone: row.zone || null,
+          interval_type: row.intervalType,
+          interval_time: text(row.intervalTime),
+          sort_order: rowIndex,
+        })),
+      })),
+      land: [],
+      warmup: warmUpLand
+        .filter((row) => row.exercise.trim() !== "")
+        .map((row, index) => ({ exercise: row.exercise.trim(), sets: text(row.sets), repetitions: text(row.repetitions), material: text(row.material), intensity: text(row.intensity), sort_order: index })),
+    };
+  }
+
+  /* Atomar speichern. "fallback" = Funktion fehlt (Skript 27 nicht ausgefuehrt) -> bisheriger Weg */
+  async function saveAtomic(sessionId: string, expected: number, sessionValues: Record<string, unknown>, filledLandRows: LandRow[]) {
+    const payload = buildContentPayload(filledLandRows);
+    const { data, error } = await supabase.rpc("save_training_content", {
+      p_session_id: sessionId,
+      p_expected_version: expected,
+      p_session: sessionValues,
+      p_sections: payload.sections,
+      p_land: payload.land,
+      p_warmup: payload.warmup,
+    });
+    if (!error) return { ok: true as const, version: data as number };
+    if (error.code === "PGRST202" || error.code === "42883") return { ok: false as const, reason: "fallback" as const };
+    if (error.code === "40001" || /version_conflict/.test(error.message)) return { ok: false as const, reason: "conflict" as const };
+    return { ok: false as const, reason: "error" as const, message: error.message };
+  }
+
+  /* Doppelklick oder Enter + Klick speichern nur einmal */
   async function handleSaveTraining() {
+    if (saveLock.current) return;
+    saveLock.current = true;
+    try {
+      await saveTrainingOnce();
+    } finally {
+      saveLock.current = false;
+    }
+  }
+
+  async function saveTrainingOnce() {
     setMessage("");
 
     if (!title.trim()) {
@@ -1454,133 +1599,95 @@ function TrainingEditor() {
       isEditing &&
       sessionFromUrl
     ) {
-      const { error: updateError } =
-        await supabase
-          .from("training_sessions")
-          .update(sessionValues)
-          .eq(
-            "id",
-            sessionFromUrl
-          );
-
-      if (updateError) {
-        setMessage(
-          `Training konnte nicht aktualisiert werden: ${updateError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
-      const {
-        error:
-          deleteSectionsError,
-      } = await supabase
-        .from("training_sections")
-        .delete()
-        .eq(
-          "training_session_id",
-          sessionFromUrl
-        );
-
-      if (deleteSectionsError) {
-        setMessage(
-          `Alte Wasserblöcke konnten nicht entfernt werden: ${deleteSectionsError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
-      const {
-        error: deleteLandError,
-      } = await supabase
-        .from("training_land_rows")
-        .delete()
-        .eq(
-          "training_session_id",
-          sessionFromUrl
-        );
-
-      if (deleteLandError) {
-        setMessage(
-          `Alte Landübungen konnten nicht entfernt werden: ${deleteLandError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
-      const {
-        error: deleteWarmUpError,
-      } = await supabase
-        .from("training_warmup_land_rows")
-        .delete()
-        .eq(
-          "training_session_id",
-          sessionFromUrl
-        );
-
-      if (deleteWarmUpError) {
-        setMessage(
-          `Alte Warm-up-Übungen konnten nicht entfernt werden: ${deleteWarmUpError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-
-      if (
-        trainingType === "Land"
-      ) {
-        const landError =
-          await saveLandDetails(
-            sessionFromUrl,
-            filledLandRows
-          );
-
-        if (landError) {
-          setMessage(
-            `Landübungen konnten nicht aktualisiert werden: ${landError.message}`
-          );
+      /* Bevorzugt: in einer Datenbank-Transaktion mit Versionsvergleich (Skript 27) */
+      if (loadedVersion.current !== undefined) {
+        const result = await saveAtomic(sessionFromUrl, loadedVersion.current, sessionValues, filledLandRows);
+        if (result.ok) {
+          loadedVersion.current = result.version;
+          setMessage(trainingType === "Land" ? "Landtraining wurde aktualisiert ✅" : "Wassertraining inklusive Warm Up am Land wurde aktualisiert ✅");
           setSaving(false);
           return;
         }
+        if (result.reason === "conflict") {
+          setMessage("Diese Einheit wurde inzwischen an anderer Stelle gespeichert. Es wurde nichts überschrieben. Bitte Seite neu laden – deine Eingaben gehen dabei verloren, ggf. vorher abschreiben.");
+          setSaving(false);
+          return;
+        }
+        if (result.reason === "error") {
+          setMessage(`Training konnte nicht gespeichert werden: ${result.message}. Es wurde nichts geändert – deine Eingaben sind noch da.`);
+          setSaving(false);
+          return;
+        }
+      }
 
-        setMessage(
-          "Landtraining wurde aktualisiert ✅"
-        );
-
+      /*
+       * Ohne Skript 27: Bearbeiten ohne Datenverlust: zuerst den neuen Inhalt anlegen,
+       * erst danach den alten entfernen. Schlaegt etwas fehl, bleibt die
+       * bisherige Fassung vollstaendig erhalten.
+       */
+      const oldContent = await collectContentIds(sessionFromUrl);
+      if (!oldContent) {
+        setMessage("Training konnte nicht gelesen werden. Es wurde nichts geändert – deine Eingaben sind noch da.");
         setSaving(false);
         return;
       }
 
-      const waterError =
-        await saveWaterDetails(
-          sessionFromUrl
-        );
+      /* Gleichzeitig anderswo gespeichert? Dann nichts ueberschreiben (sonst doppelte oder verlorene Serien). */
+      const sameAsLoaded = (x: string[], y: string[]) => x.length === y.length && x.every((id) => y.includes(id));
+      if (
+        loadedContent.current &&
+        !(sameAsLoaded(oldContent.sections, loadedContent.current.sections) &&
+          sameAsLoaded(oldContent.land, loadedContent.current.land) &&
+          sameAsLoaded(oldContent.warmup, loadedContent.current.warmup))
+      ) {
+        setMessage("Diese Einheit wurde inzwischen an anderer Stelle gespeichert. Es wurde nichts überschrieben. Bitte Seite neu laden – deine Eingaben gehen dabei verloren, ggf. vorher abschreiben.");
+        setSaving(false);
+        return;
+      }
 
-      if (waterError) {
+      // 1. neuen Inhalt anlegen
+      const contentError =
+        trainingType === "Land"
+          ? await saveLandDetails(sessionFromUrl, filledLandRows)
+          : (await saveWaterDetails(sessionFromUrl)) ?? (await saveWarmUpDetails(sessionFromUrl));
+
+      if (contentError) {
+        await removeContentExcept(sessionFromUrl, oldContent);
         setMessage(
-          `Wassertraining konnte nicht vollständig aktualisiert werden: ${waterError.message}`
+          `Inhalt konnte nicht gespeichert werden: ${contentError.message}. Die bisherige Fassung ist unverändert, deine Eingaben sind noch da.`
         );
         setSaving(false);
         return;
       }
 
-      const warmUpError =
-        await saveWarmUpDetails(
-          sessionFromUrl
-        );
+      // 2. Kopfdaten der Einheit; scheitert das, neuen Inhalt wieder entfernen
+      const { data: updatedRows, error: updateError } = await supabase
+        .from("training_sessions")
+        .update(sessionValues)
+        .eq("id", sessionFromUrl)
+        .select("id");
 
-      if (warmUpError) {
+      if (updateError || !updatedRows?.length) {
+        await removeContentExcept(sessionFromUrl, oldContent);
         setMessage(
-          `Warm-up-Übungen konnten nicht aktualisiert werden: ${warmUpError.message}`
+          updateError
+            ? `Training konnte nicht aktualisiert werden: ${updateError.message}. Die bisherige Fassung ist unverändert.`
+            : "Training wurde nicht geändert (keine Berechtigung oder inzwischen gelöscht). Bitte Seite neu laden."
         );
         setSaving(false);
         return;
       }
 
+      // 3. alte Fassung entfernen
+      const cleanupError = await removeContent(oldContent);
+      loadedContent.current = await collectContentIds(sessionFromUrl);
       setMessage(
-        "Wassertraining inklusive Warm Up am Land wurde aktualisiert ✅"
+        cleanupError
+          ? "Gespeichert, aber die alte Fassung konnte nicht entfernt werden – Serien könnten doppelt erscheinen. Bitte Seite neu laden und prüfen."
+          : trainingType === "Land"
+            ? "Landtraining wurde aktualisiert ✅"
+            : "Wassertraining inklusive Warm Up am Land wurde aktualisiert ✅"
       );
-
       setSaving(false);
       return;
     }
@@ -1611,6 +1718,21 @@ function TrainingEditor() {
 
     const trainingId =
       savedTraining.id;
+
+    /* Inhalt der neuen Einheit atomar anlegen (Skript 27); sonst bisheriger Weg */
+    const atomic = await saveAtomic(trainingId, 0, sessionValues, filledLandRows);
+    if (atomic.ok || atomic.reason !== "fallback") {
+      if (!atomic.ok) {
+        await supabase.from("training_sessions").delete().eq("id", trainingId);
+        setMessage(`Training konnte nicht gespeichert werden${atomic.reason === "error" ? `: ${atomic.message}` : ""}. Deine Eingaben sind noch da.`);
+        setSaving(false);
+        return;
+      }
+      setMessage(trainingType === "Land" ? "Landtraining inklusive aller Übungen wurde gespeichert ✅" : "Training inklusive Wasser-Serien und Warm Up am Land wurde gespeichert ✅");
+      clearDraft();
+      setSaving(false);
+      return;
+    }
 
     if (
       trainingType === "Land"
@@ -1700,7 +1822,7 @@ function TrainingEditor() {
       {materialPicker &&
         selectedMaterialRow && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-app-bg/80 p-4">
-            <div className="w-full max-w-xl rounded-3xl border border-app-border bg-app-surface shadow-app shadow-2xl">
+            <div className="w-full max-w-xl rounded-[20px] border border-app-border bg-app-surface shadow-app shadow-2xl">
               <div className="flex items-start justify-between border-b border-app-border p-5">
                 <div>
                   <h2 className="text-xl font-semibold">
@@ -1841,7 +1963,7 @@ function TrainingEditor() {
         <div className="mb-5">
           {weekFromUrl ? (
             <Link
-              href={`/coach/training/week/${weekFromUrl}`}
+              href={`/coach/training?week=${weekFromUrl}`}
               className="text-sm text-app-muted hover:text-app-heading"
             >
               ← Zurück zur Woche
@@ -1862,7 +1984,7 @@ function TrainingEditor() {
               Trainingsplanung
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold">
+            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">
               {isEditing
                 ? "Training bearbeiten"
                 : "Training erstellen"}
@@ -1970,7 +2092,7 @@ function TrainingEditor() {
           <WeekFocusPanel onInsert={insertSuggestedBlock} poolLength={Number(poolLength)} />
         </div>
 
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border p-5">
             <h2 className="text-xl font-semibold">
               Trainingsdaten
@@ -2161,14 +2283,14 @@ function TrainingEditor() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-sm text-app-muted">
                 Trainingsart
               </p>
 
-              <div className="mt-3 flex gap-3">
+              <div className="mt-3 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() =>
@@ -2220,7 +2342,7 @@ function TrainingEditor() {
                         "25"
                       )
                     }
-                    className={`rounded-xl px-4 py-2 text-sm ${
+                    className={`min-h-11 rounded-xl px-4 py-2 text-sm ${
                       poolLength ===
                       "25"
                         ? "bg-app-accent text-app-accent-ink"
@@ -2237,7 +2359,7 @@ function TrainingEditor() {
                         "50"
                       )
                     }
-                    className={`rounded-xl px-4 py-2 text-sm ${
+                    className={`min-h-11 rounded-xl px-4 py-2 text-sm ${
                       poolLength ===
                       "50"
                         ? "bg-app-accent text-app-accent-ink"
@@ -2252,7 +2374,7 @@ function TrainingEditor() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app p-5">
+        <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
             <p className="text-sm text-app-muted">
               Kernziele Land & Prävention
@@ -2278,7 +2400,7 @@ function TrainingEditor() {
                   onClick={() =>
                     toggleCoreGoal(goal.key)
                   }
-                  className={`rounded-full border px-3 py-1.5 text-xs transition ${
+                  className={`min-h-11 rounded-full border px-3 py-1.5 text-xs transition ${
                     selected
                       ? "border-app-sand/60 bg-app-sand/15 text-app-sand"
                       : "border-app-border text-app-muted hover:bg-app-elevated"
@@ -2295,7 +2417,7 @@ function TrainingEditor() {
         {trainingType ===
         "Wasser" ? (
           <>
-            <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+            <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
               <div className="flex items-center justify-between border-b border-app-border p-5">
                 <div>
                   <h2 className="text-lg font-semibold">
@@ -2312,7 +2434,7 @@ function TrainingEditor() {
                   onClick={
                     addWarmUpLandRow
                   }
-                  className="rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
+                  className="min-h-11 rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
                 >
                   + Übung
                 </button>
@@ -2354,7 +2476,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="z. B. Mobilisation Schulter"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2373,7 +2495,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="2"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2392,7 +2514,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="10"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2411,7 +2533,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="Band"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <input
@@ -2430,7 +2552,7 @@ function TrainingEditor() {
                               )
                             }
                             placeholder="locker"
-                            className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                            className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                           />
 
                           <button
@@ -2440,7 +2562,7 @@ function TrainingEditor() {
                                 row.id
                               )
                             }
-                            className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
+                            className="min-h-11 rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
                           >
                             Löschen
                           </button>
@@ -2456,7 +2578,7 @@ function TrainingEditor() {
               (section) => (
                 <section
                   key={section.id}
-                  className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app"
+                  className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app"
                 >
                   <div className="flex flex-col gap-3 border-b border-app-border p-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -2502,7 +2624,7 @@ function TrainingEditor() {
                                 mode
                               )
                             }
-                            className={`px-3 py-2 text-xs transition ${
+                            className={`min-h-11 px-3 py-2 text-xs transition ${
                               section.mode ===
                               mode
                                 ? PRACTICE_MODE_CLASS[
@@ -2527,12 +2649,14 @@ function TrainingEditor() {
                             section.id
                           )
                         }
-                        className="rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
+                        className="min-h-11 rounded-xl border border-app-border px-4 text-sm hover:bg-app-elevated"
                       >
                         + Serie
                       </button>
                     </div>
                   </div>
+
+                  <QuickSetInput onAdd={(text) => addParsedRows(section.id, text)} />
 
                   <div className="overflow-x-auto p-4">
                     <div className="min-w-[1500px]">
@@ -2581,7 +2705,7 @@ function TrainingEditor() {
                                     )
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               />
 
                               <select
@@ -2602,7 +2726,7 @@ function TrainingEditor() {
                                     )
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               >
                                 {distanceOptions.map(
                                   (
@@ -2642,7 +2766,7 @@ function TrainingEditor() {
                                   )
                                 }
                                 placeholder="z. B. technisch sauber, lange Züge"
-                                className="min-w-0 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                                className="min-h-11 min-w-0 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                               />
 
                               <select
@@ -2661,7 +2785,7 @@ function TrainingEditor() {
                                       .value
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               >
                                 {styleOptions.map(
                                   (
@@ -2692,7 +2816,7 @@ function TrainingEditor() {
                                     }
                                   )
                                 }
-                                className={`rounded-lg border px-3 py-2 text-left text-xs transition ${
+                                className={`min-h-11 rounded-lg border px-3 py-2 text-left text-xs transition ${
                                   row
                                     .materials
                                     .length >
@@ -2731,8 +2855,9 @@ function TrainingEditor() {
                                       .value
                                   )
                                 }
-                                className="rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                className="min-h-11 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                               >
+                                <option value="">– keine –</option>
                                 {zoneOptions.map(
                                   (
                                     zone
@@ -2795,7 +2920,7 @@ function TrainingEditor() {
                                     )
                                   }
                                   placeholder="30s / 1:30"
-                                  className="min-w-0 flex-1 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
+                                  className="min-h-11 min-w-0 flex-1 rounded-lg border border-app-border bg-app-surface px-2 py-2 text-sm"
                                 />
                               </div>
 
@@ -2817,7 +2942,7 @@ function TrainingEditor() {
                                     row.id
                                   )
                                 }
-                                className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad hover:bg-app-bad/10"
+                                className="min-h-11 rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad hover:bg-app-bad/10"
                               >
                                 Löschen
                               </button>
@@ -2831,7 +2956,7 @@ function TrainingEditor() {
               )
             )}
 
-            <section className="mt-6 flex flex-col gap-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-6 md:flex-row md:items-center md:justify-between">
+            <section className="mt-6 flex flex-col gap-4 rounded-[20px] border border-app-border bg-app-surface shadow-app p-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm text-app-muted">
                   Gesamtumfang Wassertraining
@@ -2857,7 +2982,7 @@ function TrainingEditor() {
             </section>
           </>
         ) : (
-          <section className="mt-6 rounded-3xl border border-app-border bg-app-surface shadow-app">
+          <section className="mt-6 rounded-[20px] border border-app-border bg-app-surface shadow-app">
             <div className="flex items-center justify-between border-b border-app-border p-5">
               <div>
                 <h2 className="text-xl font-semibold">
@@ -2872,7 +2997,7 @@ function TrainingEditor() {
               <button
                 type="button"
                 onClick={addLandRow}
-                className="rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
+                className="min-h-11 rounded-xl border border-app-border px-4 py-2 text-sm hover:bg-app-elevated"
               >
                 + Übung
               </button>
@@ -2913,7 +3038,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="Kniebeuge"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -2932,7 +3057,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="3"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -2951,7 +3076,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="8"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -2970,7 +3095,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="80 kg"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -2989,7 +3114,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="Langhantel"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <input
@@ -3008,7 +3133,7 @@ function TrainingEditor() {
                             )
                           }
                           placeholder="RPE 7"
-                          className="rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
+                          className="min-h-11 rounded-lg border border-app-border bg-app-surface px-3 py-2 text-sm"
                         />
 
                         <button
@@ -3018,7 +3143,7 @@ function TrainingEditor() {
                               row.id
                             )
                           }
-                          className="rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
+                          className="min-h-11 rounded-lg border border-app-bad/40 px-2 text-xs text-app-bad"
                         >
                           Löschen
                         </button>
@@ -3031,7 +3156,7 @@ function TrainingEditor() {
           </section>
         )}
 
-        <section className="mt-8 flex flex-col gap-4 rounded-3xl border border-app-border bg-app-surface shadow-app p-5 md:flex-row md:items-center md:justify-between">
+        <section className="mt-8 flex flex-col gap-4 rounded-[20px] border border-app-border bg-app-surface shadow-app p-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="font-semibold">
               {isEditing
@@ -3106,5 +3231,58 @@ export default function NewTrainingPage() {
     >
       <TrainingEditor />
     </Suspense>
+  );
+}
+/*
+ * Schnelleingabe je Abschnitt: Serien wie auf der Tafel tippen
+ * ("8x200 Kraul GA2 @3:00", mehrere Zeilen moeglich), Enter = uebernehmen.
+ * Shift+Enter = neue Zeile. Die Tabelle darunter bleibt zum Feinschliff.
+ */
+function QuickSetInput({ onAdd }: { onAdd: (text: string) => number }) {
+  const [text, setText] = useState("");
+  const [hint, setHint] = useState<string | null>(null);
+
+  /* Erkannte Zeilen werden uebernommen, nicht erkannte bleiben im Feld stehen */
+  function submit() {
+    const lines = text.split(/\n|;/).map((line) => line.trim()).filter(Boolean);
+    const unknown = lines.filter((line) => !parseSetLine(line));
+    const added = onAdd(lines.filter((line) => parseSetLine(line)).join("\n"));
+    setText(unknown.join("\n"));
+    if (unknown.length) {
+      setHint(`${added ? `${added} übernommen. ` : ""}Nicht erkannt (bitte als Serie mit Strecke schreiben, z. B. 8x200 Kraul GA2 @3:00): ${unknown.length} Zeile${unknown.length === 1 ? "" : "n"}`);
+    } else {
+      setHint(`${added} ${added === 1 ? "Serie" : "Serien"} übernommen`);
+    }
+  }
+
+  return (
+    <div className="border-b border-app-border/60 px-4 pb-3 pt-1">
+      <label className="block text-xs font-semibold text-app-faint">
+        Schnelleingabe
+      </label>
+      <div className="mt-1 flex gap-2">
+        <textarea
+          rows={1}
+          value={text}
+          onChange={(event) => {
+            setText(event.target.value);
+            setHint(null);
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              submit();
+            }
+          }}
+          placeholder="z. B. 8x200 Kraul GA2 @3:00 – Enter übernimmt, Shift+Enter neue Zeile"
+          aria-label="Serien als Text eingeben"
+          className="min-h-11 flex-1 resize-y rounded-xl border border-app-border bg-app-bg px-3.5 py-2.5 text-sm text-app-heading outline-none placeholder:text-app-faint focus:border-app-accent"
+        />
+        <button type="button" onClick={submit} disabled={!text.trim()} className="min-h-11 rounded-xl bg-app-accent px-4 text-sm font-bold text-app-accent-ink disabled:opacity-50">
+          Übernehmen
+        </button>
+      </div>
+      {hint && <p className="mt-1 text-xs text-app-muted">{hint}</p>}
+    </div>
   );
 }

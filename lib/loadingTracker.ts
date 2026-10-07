@@ -15,13 +15,18 @@ export function subscribeLoading(listener: Listener) {
   };
 }
 
-export const trackedFetch: typeof fetch = async (...args) => {
-  pending++;
-  emit();
-  try {
-    return await fetch(...args);
-  } finally {
-    pending--;
+/* beliebige fetch-Funktion mit Ladebalken versehen (Demo nutzt eigene) */
+export const tracked =
+  (fetcher: typeof fetch): typeof fetch =>
+  async (...args) => {
+    pending++;
     emit();
-  }
-};
+    try {
+      return await fetcher(...args);
+    } finally {
+      pending--;
+      emit();
+    }
+  };
+
+export const trackedFetch: typeof fetch = tracked((...args) => fetch(...args));

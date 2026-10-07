@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { loadCoachTeams } from "@/lib/coachTeams";
 import { Card, Notice } from "@/components/ui";
 
 /*
@@ -20,9 +21,8 @@ export default function SwimmerTeams({ swimmerId }: { swimmerId: string }) {
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
-    const { data: userData } = await supabase.auth.getUser();
     const [teamResponse, membershipResponse] = await Promise.all([
-      supabase.from("teams").select("id, name").eq("coach_id", userData.user?.id ?? "").order("name"),
+      loadCoachTeams(),
       supabase.from("team_swimmers").select("team_id").eq("swimmer_id", swimmerId),
     ]);
 

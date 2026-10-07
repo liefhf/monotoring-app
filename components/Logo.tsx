@@ -5,7 +5,7 @@
 export function LogoMark({ className = "h-9 w-9" }: { className?: string }) {
   return (
     <span
-      className={`flex shrink-0 items-center justify-center rounded-xl bg-app-accent text-app-accent-ink ${className}`}
+      className={`flex shrink-0 items-center justify-center rounded-xl bg-highlight text-white ${className}`}
       aria-hidden="true"
     >
       <svg viewBox="0 0 24 24" className="h-[60%] w-[60%]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">

@@ -123,7 +123,7 @@ export default function PflichtzeitenPage() {
       <div className="mx-auto max-w-5xl">
         <header>
           <p className="text-sm text-app-muted">Coach</p>
-          <h1 className="mt-1 text-3xl font-bold">Pflichtzeiten</h1>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-app-heading sm:text-[28px]">Pflichtzeiten</h1>
           <p className="mt-2 text-app-muted">
             Lege eine Liste pro Wettkampf oder Meisterschaft an und trag die Zeiten ein. Die
             Auswertung zeigt dann, wer welche Zeit schon geschafft hat.
@@ -136,7 +136,7 @@ export default function PflichtzeitenPage() {
           </div>
         )}
 
-        <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border px-6 py-4">
             <h2 className="text-lg font-semibold">Neue Pflichtzeiten-Liste</h2>
             <p className="mt-1 text-sm text-app-muted">
@@ -208,7 +208,7 @@ export default function PflichtzeitenPage() {
           </form>
         </section>
 
-        <section className="mt-6 overflow-hidden rounded-3xl border border-app-border bg-app-surface shadow-app">
+        <section className="mt-6 overflow-hidden rounded-[20px] border border-app-border bg-app-surface shadow-app">
           <div className="border-b border-app-border px-6 py-4">
             <h2 className="text-lg font-semibold">Meine Listen ({standards.length})</h2>
           </div>
